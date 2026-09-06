@@ -22,7 +22,7 @@
     "value": "500",
     "valueSuffix": "건+",
     "label": "블로그 작업 기록",
-    "sub": "작업 과정 공개",
+    "sub": "블로그에서 보기 ↗",
     "countUp": true,
     "duration": 1500,
     "linkUrl": "https://blog.naver.com/ace_dent_shop"

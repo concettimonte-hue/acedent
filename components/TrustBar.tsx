@@ -58,7 +58,10 @@ function TrustValue({ item, active, delay }: { item: TrustItem; active: boolean;
         <span>{value}</span>
         {item.valueSuffix && <small>{item.valueSuffix}</small>}
       </strong>
-      <span className="trust-label">{item.label}</span>
+      <span className="trust-label">
+        {item.label}
+        {item.linkUrl && <span className="trust-external-icon" aria-hidden="true">↗</span>}
+      </span>
       <span className="trust-sub">{item.sub}</span>
     </>
   );

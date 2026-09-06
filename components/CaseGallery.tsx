@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ArrowUpRight, X } from 'lucide-react';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import casesData from '@/content/cases.json';
+import naverData from '@/content/naver.json';
 import type { CaseItem, CasesContent } from '@/content/types';
 
 const content = casesData as CasesContent;
@@ -12,8 +13,8 @@ const cases = [...content.items].sort((a, b) => a.order - b.order);
 const imageAlt = (item: CaseItem, state: '전' | '후') =>
   `${item.car} ${item.part.replaceAll(' · ', ' ')} ${state}`;
 
-const trackingUrl = (url: string) =>
-  `${url}${url.includes('?') ? '&' : '?'}utm_source=landing&utm_medium=case`;
+const trackingUrl = (url: string, medium: string) =>
+  `${url}${url.includes('?') ? '&' : '?'}utm_source=landing&utm_medium=${medium}`;
 
 export default function CaseGallery() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -145,6 +146,7 @@ export default function CaseGallery() {
             <br />
             <span>{content.headingLines[1]}</span>
           </h2>
+          <p className="cases-guide">{content.instruction}</p>
         </div>
       </div>
 
@@ -163,7 +165,7 @@ export default function CaseGallery() {
             key={item.id}
             onClick={() => openCase(index)}
             aria-haspopup="dialog"
-            aria-label={`${item.car} ${item.title} 상세 보기`}
+            aria-label={`${item.car} ${item.title} 전후 비교 보기`}
           >
             <span className="case-thumbnail">
               <img
@@ -177,6 +179,9 @@ export default function CaseGallery() {
               <span className="case-number">
                 CASE {String(index + 1).padStart(2, '0')}
               </span>
+              <span className="case-compare-icon" aria-hidden="true">
+                ↔
+              </span>
             </span>
             <span className="case-card-copy">
               <span className="case-card-meta">
@@ -185,6 +190,7 @@ export default function CaseGallery() {
               </span>
               <span className="case-card-title">{item.title}</span>
               <span className="case-card-part">{item.part}</span>
+              <span className="case-card-action">비교 보기 →</span>
             </span>
           </button>
         ))}
@@ -201,6 +207,17 @@ export default function CaseGallery() {
             key={item.id}
           />
         ))}
+      </div>
+
+      <div className="cases-bottom-link-wrap">
+        <a
+          className="cases-bottom-link"
+          href={trackingUrl(naverData.blog, 'cases_bottom')}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {content.bottomLinkLabel}
+        </a>
       </div>
 
       {selectedCase && (
@@ -264,7 +281,7 @@ export default function CaseGallery() {
               </div>
               <p>{selectedCase.summary}</p>
               <a
-                href={trackingUrl(selectedCase.blogUrl)}
+                href={trackingUrl(selectedCase.blogUrl, 'case')}
                 target="_blank"
                 rel="noopener noreferrer"
               >

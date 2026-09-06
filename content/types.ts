@@ -27,6 +27,8 @@ export interface CaseItem {
 export interface CasesContent {
   sectionLabel: string;
   headingLines: [string, string];
+  instruction: string;
+  bottomLinkLabel: string;
   modalLinkLabel: string;
   items: CaseItem[];
 }
