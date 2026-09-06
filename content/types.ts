@@ -1,5 +1,14 @@
-export type ServiceIconName = 'carFront' | 'wrench' | 'sparkles' | 'shieldCheck';
-export type NaverIconName = 'naver' | 'mapPin' | 'messageCircle' | 'calendarDays';
+export type ServiceIconName =
+  | 'carFront'
+  | 'wrench'
+  | 'sparkles'
+  | 'shieldCheck';
+export type NaverIconName =
+  | 'naver'
+  | 'mapPin'
+  | 'messageCircle'
+  | 'calendarDays';
+export type BeforeAfterMode = 'drag' | 'split';
 
 export interface CaseItem {
   id: string;
@@ -12,7 +21,14 @@ export interface CaseItem {
   beforeImg: string;
   afterImg: string;
   blogUrl: string;
-  sliderType: 'drag' | 'split';
+  sliderType: BeforeAfterMode;
+}
+
+export interface CasesContent {
+  sectionLabel: string;
+  headingLines: [string, string];
+  modalLinkLabel: string;
+  items: CaseItem[];
 }
 
 export interface TrustItem {
@@ -118,8 +134,11 @@ export interface SiteContent {
     resultAriaLabel: string;
     resultKicker: string;
     resultNumber: string;
-    imageSrc: string;
-    imageAlt: string;
+    beforeSrc: string;
+    afterSrc: string;
+    beforeAlt: string;
+    afterAlt: string;
+    mode: BeforeAfterMode;
     workLabel: string;
     workValue: string;
     resultLabel: string;
@@ -129,23 +148,11 @@ export interface SiteContent {
     kicker: string;
     titleLines: [string, string];
     description: string;
-    items: Array<{ number: string; title: string; copy: string; icon: ServiceIconName }>;
-  };
-  cases: {
-    kicker: string;
-    titleLines: [string, string];
-    moreLabel: string;
-    moreHref: string;
-    detailLabel: string;
-    ariaSuffix: string;
-    badgePrefix: string;
     items: Array<{
-      index: string;
-      vehicle: string;
-      work: string;
-      src: string;
-      alt: string;
-      href: string;
+      number: string;
+      title: string;
+      copy: string;
+      icon: ServiceIconName;
     }>;
   };
   principles: {
