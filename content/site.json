@@ -17,8 +17,10 @@
     "items": [
       { "label": "서비스", "href": "#services" },
       { "label": "수리사례", "href": "#cases" },
+      { "label": "페인트케어", "href": "#paint-care" },
+      { "label": "보험안내", "href": "#insurance" },
       { "label": "작업원칙", "href": "#principle" },
-      { "label": "오시는 길", "href": "#contact" }
+      { "label": "오시는 길", "href": "#location" }
     ]
   },
   "hero": {
@@ -36,6 +38,9 @@
     "resultAriaLabel": "대표 작업 전후 이미지 영역",
     "resultKicker": "REPRESENTATIVE WORK",
     "resultNumber": "01",
+    "resultTitle": "실제로 이렇게 복원됩니다",
+    "resultMeta": "랜드로버 디펜더 · 휀더 판금도장",
+    "sliderHint": "← 손잡이를 좌우로 움직여 보세요 →",
     "beforeSrc": "/cases/fender-before.jpg",
     "afterSrc": "/cases/fender-after.jpg",
     "beforeAlt": "랜드로버 디펜더 휀더 판금도장 전",
@@ -54,25 +59,25 @@
       {
         "number": "01",
         "title": "외형복원",
-        "copy": "긁힘과 찌그러짐의 상태를 먼저 확인하고, 필요한 작업 범위를 설명합니다.",
+        "copy": "찌그러짐과 단차를 원래 형태로",
         "icon": "carFront"
       },
       {
         "number": "02",
         "title": "판금도색",
-        "copy": "손상 정도와 패널 상태에 맞춰 판금과 도색의 방법을 판단합니다.",
+        "copy": "필요한 범위만 정석대로",
         "icon": "wrench"
       },
       {
         "number": "03",
-        "title": "광택",
-        "copy": "도장면의 상태를 보고 광택으로 개선할 수 있는 범위를 안내합니다.",
+        "title": "광택·오염제거",
+        "copy": "흠집·석회물·낙하물 제거",
         "icon": "sparkles"
       },
       {
         "number": "04",
         "title": "덴트",
-        "copy": "도장 손상을 줄이면서 복원할 수 있는지 꼼꼼하게 확인합니다.",
+        "copy": "구멍 없이 도장면 유지",
         "icon": "shieldCheck"
       }
     ]
@@ -82,9 +87,16 @@
     "titleLines": ["“안 되는 것은", "안 된다고 말합니다.”"],
     "description": "색상이 완전히 같을 수 없는 경우, 심한 찌그러짐으로 처음의 예리한 각을 그대로 만들기 어려운 경우도 있습니다. 만족스러운 선택을 위해 가능한 것과 어려운 것을 작업 전에 분명히 설명합니다.",
     "items": [
-      "필요하지 않은 수리는 권하지 않습니다.",
-      "가능한 결과와 작업의 한계를 먼저 설명합니다.",
-      "사진만으로 단정하기 어려운 부분은 방문 확인을 안내합니다."
+      { "title": "필요하지 않은 수리는 권하지 않습니다.", "copy": "" },
+      { "title": "가능한 결과와 작업의 한계를 먼저 설명합니다.", "copy": "" },
+      {
+        "title": "사진만으로 단정하기 어려운 부분은 방문 확인을 안내합니다.",
+        "copy": ""
+      },
+      {
+        "title": "교환이 저렴하면 교환을 권합니다",
+        "copy": "복원보다 부품 교환이 비용이 적으면 그렇게 안내드립니다. 서비스센터가 더 저렴한 경우도 숨기지 않습니다."
+      }
     ],
     "reasonsKicker": "WHY ACE DENT",
     "reasonsTitle": "충분히 확인하고, 믿고 맡길 수 있도록.",
@@ -106,42 +118,6 @@
       }
     ]
   },
-  "naverLinks": {
-    "kicker": "NAVER CONNECT",
-    "naverSymbol": "N",
-    "title": "필요한 정보를, 익숙한 곳에서.",
-    "description": "수리사례부터 리뷰·길찾기, 상담과 예약까지 네이버에서 이어집니다.",
-    "items": [
-      {
-        "icon": "naver",
-        "label": "수리사례",
-        "title": "네이버 블로그",
-        "copy": "차종별 상세 작업 과정을 확인하세요.",
-        "href": "https://blog.naver.com/ace_dent_shop"
-      },
-      {
-        "icon": "mapPin",
-        "label": "리뷰 · 위치 · 길찾기",
-        "title": "스마트플레이스",
-        "copy": "방문 전 최신 매장 정보를 확인하세요.",
-        "href": "https://naver.me/xv3DlbUy"
-      },
-      {
-        "icon": "messageCircle",
-        "label": "사진상담",
-        "title": "네이버 톡톡",
-        "copy": "스마트플레이스에서 톡톡을 시작하세요.",
-        "href": "https://naver.me/xv3DlbUy"
-      },
-      {
-        "icon": "calendarDays",
-        "label": "방문 일정",
-        "title": "네이버 예약",
-        "copy": "스마트플레이스에서 가능한 일정을 확인하세요.",
-        "href": "https://naver.me/xv3DlbUy"
-      }
-    ]
-  },
   "contact": {
     "kicker": "CONTACT",
     "titleLines": ["차량 상태를", "알려주세요."],
@@ -149,7 +125,6 @@
     "phoneDisplay": "010-6794-1739",
     "phoneHref": "tel:01067941739",
     "smsHref": "sms:01067941739",
-    "placeHref": "https://naver.me/xv3DlbUy",
     "phoneLabel": "전화로 바로 문의",
     "headerPhoneLabel": "전화 문의",
     "smsEyebrow": "사진으로",
@@ -163,6 +138,11 @@
     "mobileNavAriaLabel": "빠른 상담",
     "mobilePhoneLabel": "전화 문의",
     "mobileSmsLabel": "사진 문자",
-    "mobileNaverLabel": "네이버 상담"
+    "mobileNaverLabel": "네이버 상담",
+    "locationSectionLabel": "VISIT US",
+    "locationHeading": "에이스덴트 오시는 길",
+    "directionsLabel": "네이버 지도에서 길찾기",
+    "nearbyIntro": "인근 지역에서도 많이 찾아주십니다",
+    "nearbyAreas": "왕십리 · 청량리 · 성동 · 광진 · 길음"
   }
 }

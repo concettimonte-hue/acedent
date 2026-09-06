@@ -41,7 +41,7 @@ export interface TrustItem {
   sub: string;
   countUp: boolean;
   duration?: number;
-  linkUrl?: string;
+  linkKey?: 'blog';
 }
 
 export interface ReviewItem {
@@ -60,7 +60,6 @@ export interface ReviewsContent {
   heading: string;
   subCopy: string;
   moreLinkLabel: string;
-  moreLinkUrl: string;
   reviews: ReviewItem[];
 }
 
@@ -68,6 +67,12 @@ export interface FaqItem {
   q: string;
   a: string;
   open: boolean;
+}
+
+export interface FaqContent {
+  sectionLabel: string;
+  heading: string;
+  items: FaqItem[];
 }
 
 export type InsuranceStatus = 'safe' | 'warn' | 'danger';
@@ -98,12 +103,58 @@ export interface ProcessItem {
   desc: string;
 }
 
+export interface ProcessContent {
+  sectionLabel: string;
+  heading: string;
+  subCopy: string;
+  items: ProcessItem[];
+}
+
+export interface PolishItem {
+  id: string;
+  no: string;
+  title: string;
+  keywords: string;
+  days: string;
+  desc: string;
+  notWhen?: string;
+}
+
+export interface PolishContent {
+  sectionLabel: string;
+  heading: string;
+  subCopy: string;
+  items: PolishItem[];
+  note: string;
+  closing: string;
+  cta: {
+    label: string;
+    type: 'sms';
+  };
+}
+
+export type NaverUrlKey = 'blog' | 'place' | 'review' | 'booking' | 'talk';
+
 export interface NaverContent {
   blog: string;
   place: string;
   review: string;
   booking: string;
   talk: string;
+  section: {
+    label: string;
+    number: string;
+    title: string;
+    description: string;
+    naverSymbol: string;
+    items: Array<{
+      key: Exclude<NaverUrlKey, 'review'>;
+      icon: NaverIconName;
+      label: string;
+      title: string;
+      copy: string;
+    }>;
+  };
 }
 
 export interface SiteContent {
@@ -136,6 +187,9 @@ export interface SiteContent {
     resultAriaLabel: string;
     resultKicker: string;
     resultNumber: string;
+    resultTitle: string;
+    resultMeta: string;
+    sliderHint: string;
     beforeSrc: string;
     afterSrc: string;
     beforeAlt: string;
@@ -161,23 +215,10 @@ export interface SiteContent {
     kicker: string;
     titleLines: [string, string];
     description: string;
-    items: string[];
+    items: Array<{ title: string; copy: string }>;
     reasonsKicker: string;
     reasonsTitle: string;
     reasons: Array<{ number: string; title: string; copy: string }>;
-  };
-  naverLinks: {
-    kicker: string;
-    naverSymbol: string;
-    title: string;
-    description: string;
-    items: Array<{
-      icon: NaverIconName;
-      label: string;
-      title: string;
-      copy: string;
-      href: string;
-    }>;
   };
   contact: {
     kicker: string;
@@ -186,7 +227,6 @@ export interface SiteContent {
     phoneDisplay: string;
     phoneHref: string;
     smsHref: string;
-    placeHref: string;
     phoneLabel: string;
     headerPhoneLabel: string;
     smsEyebrow: string;
@@ -201,5 +241,10 @@ export interface SiteContent {
     mobilePhoneLabel: string;
     mobileSmsLabel: string;
     mobileNaverLabel: string;
+    locationSectionLabel: string;
+    locationHeading: string;
+    directionsLabel: string;
+    nearbyIntro: string;
+    nearbyAreas: string;
   };
 }

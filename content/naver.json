@@ -3,5 +3,42 @@
   "place": "https://m.place.naver.com/place/1216388930/home",
   "review": "https://m.place.naver.com/place/1216388930/review/visitor",
   "booking": "https://m.booking.naver.com/booking/6/bizes/867138/items/7200551",
-  "talk": "https://talk.naver.com/wc55qv"
+  "talk": "https://talk.naver.com/wc55qv",
+  "section": {
+    "label": "NAVER CONNECT",
+    "number": "09",
+    "title": "필요한 정보를, 익숙한 곳에서.",
+    "description": "수리사례부터 위치 확인, 상담과 예약까지 네이버에서 이어집니다.",
+    "naverSymbol": "N",
+    "items": [
+      {
+        "key": "blog",
+        "icon": "naver",
+        "label": "수리사례",
+        "title": "네이버 블로그",
+        "copy": "차종별 상세 작업 과정을 확인하세요."
+      },
+      {
+        "key": "place",
+        "icon": "mapPin",
+        "label": "위치 · 길찾기",
+        "title": "스마트플레이스",
+        "copy": "방문 전 위치와 매장 정보를 확인하세요."
+      },
+      {
+        "key": "booking",
+        "icon": "calendarDays",
+        "label": "방문 일정",
+        "title": "네이버 예약",
+        "copy": "가능한 방문 일정을 확인하세요."
+      },
+      {
+        "key": "talk",
+        "icon": "messageCircle",
+        "label": "사진 상담",
+        "title": "네이버 톡톡",
+        "copy": "사진과 함께 편하게 문의하세요."
+      }
+    ]
+  }
 }

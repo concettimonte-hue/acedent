@@ -1,6 +1,5 @@
 import {
   ArrowUpRight,
-  CalendarDays,
   CarFront,
   Check,
   ChevronRight,
@@ -14,17 +13,27 @@ import {
   Wrench,
   type LucideIcon,
 } from 'lucide-react';
+import naverData from '@/content/naver.json';
 import siteData from '@/content/site.json';
 import type {
-  NaverIconName,
+  NaverContent,
   ServiceIconName,
   SiteContent,
 } from '@/content/types';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import CaseGallery from '@/components/CaseGallery';
+import FaqSection from '@/components/FaqSection';
+import InsuranceSection from '@/components/InsuranceSection';
+import LocationSection from '@/components/LocationSection';
+import NaverConnect from '@/components/NaverConnect';
+import PaintCareSection from '@/components/PaintCareSection';
+import ProcessSection from '@/components/ProcessSection';
+import ReviewsSection from '@/components/ReviewsSection';
 import TrustBar from '@/components/TrustBar';
+import { withLandingUtm } from '@/lib/tracking';
 
 const site = siteData as SiteContent;
+const naver = naverData as NaverContent;
 
 const serviceIconMap: Record<ServiceIconName, LucideIcon> = {
   carFront: CarFront,
@@ -33,24 +42,10 @@ const serviceIconMap: Record<ServiceIconName, LucideIcon> = {
   shieldCheck: ShieldCheck,
 };
 
-const naverIconMap: Record<Exclude<NaverIconName, 'naver'>, LucideIcon> = {
-  mapPin: MapPin,
-  messageCircle: MessageCircle,
-  calendarDays: CalendarDays,
-};
-
-function NaverLinkIcon({ name }: { name: NaverIconName }) {
-  if (name === 'naver') {
-    return <span className="naver-icon">{site.naverLinks.naverSymbol}</span>;
-  }
-
-  const Icon = naverIconMap[name];
-  return <Icon aria-hidden="true" className="card-main-icon" />;
-}
-
 export default function Home() {
-  const { brand, navigation, hero, services, principles, naverLinks, contact } =
-    site;
+  const { brand, navigation, hero, services, principles, contact } = site;
+  const placeUrl = withLandingUtm(naver.place, 'place');
+  const talkUrl = withLandingUtm(naver.talk, 'talk');
 
   return (
     <main id="top" className="site-shell">
@@ -82,6 +77,13 @@ export default function Home() {
           <Phone aria-hidden="true" />
           <span>{contact.headerPhoneLabel}</span>
         </a>
+        <nav className="mobile-section-nav" aria-label={navigation.ariaLabel}>
+          {navigation.items.map((item) => (
+            <a href={item.href} key={item.href}>
+              {item.label}
+            </a>
+          ))}
+        </nav>
       </header>
 
       <section className="hero" aria-labelledby="hero-title">
@@ -117,9 +119,13 @@ export default function Home() {
         </div>
 
         <div className="hero-result" aria-label={hero.resultAriaLabel}>
-          <div className="hero-result-label">
-            <span>{hero.resultKicker}</span>
-            <strong>{hero.resultNumber}</strong>
+          <div className="hero-result-header">
+            <div className="hero-result-label">
+              <span>{hero.resultKicker}</span>
+              <strong>{hero.resultNumber}</strong>
+            </div>
+            <h2>{hero.resultTitle}</h2>
+            <p>{hero.resultMeta}</p>
           </div>
           <BeforeAfterSlider
             beforeSrc={hero.beforeSrc}
@@ -129,6 +135,7 @@ export default function Home() {
             mode={hero.mode}
             priority
             showHint
+            hintText={hero.sliderHint}
           />
           <div className="result-caption">
             <div>
@@ -174,6 +181,13 @@ export default function Home() {
 
       <CaseGallery />
 
+      <PaintCareSection />
+      <ReviewsSection />
+      <InsuranceSection />
+      <ProcessSection />
+      <FaqSection />
+      <LocationSection />
+
       <section id="principle" className="section principle-section">
         <div className="principle-statement">
           <p className="section-kicker">{principles.kicker}</p>
@@ -186,9 +200,12 @@ export default function Home() {
         </div>
         <div className="principle-list">
           {principles.items.map((item, index) => (
-            <div key={item}>
+            <div key={item.title}>
               <span>{String(index + 1).padStart(2, '0')}</span>
-              <p>{item}</p>
+              <div className="principle-item-copy">
+                <strong>{item.title}</strong>
+                {item.copy && <p>{item.copy}</p>}
+              </div>
               <Check aria-hidden="true" />
             </div>
           ))}
@@ -207,32 +224,6 @@ export default function Home() {
               <h3>{reason.title}</h3>
               <p>{reason.copy}</p>
             </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="naver-section" aria-labelledby="naver-title">
-        <div className="naver-intro">
-          <p className="section-kicker light">{naverLinks.kicker}</p>
-          <h2 id="naver-title">{naverLinks.title}</h2>
-          <p>{naverLinks.description}</p>
-        </div>
-        <div className="naver-grid">
-          {naverLinks.items.map((item) => (
-            <a
-              href={item.href}
-              target="_blank"
-              rel="noreferrer"
-              key={item.title}
-            >
-              <NaverLinkIcon name={item.icon} />
-              <div>
-                <small>{item.label}</small>
-                <strong>{item.title}</strong>
-                <p>{item.copy}</p>
-              </div>
-              <ArrowUpRight aria-hidden="true" />
-            </a>
           ))}
         </div>
       </section>
@@ -265,7 +256,7 @@ export default function Home() {
               </span>
               <ArrowUpRight aria-hidden="true" />
             </a>
-            <a href={contact.placeHref} target="_blank" rel="noreferrer">
+            <a href={placeUrl} target="_blank" rel="noopener noreferrer">
               <MapPin aria-hidden="true" />
               <span>
                 {contact.placeEyebrow}
@@ -280,6 +271,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <NaverConnect />
 
       <footer>
         <a
@@ -308,7 +301,7 @@ export default function Home() {
             {contact.footerPhonePrefix} {contact.phoneDisplay}
           </p>
         </div>
-        <a href={contact.placeHref} target="_blank" rel="noreferrer">
+        <a href={placeUrl} target="_blank" rel="noopener noreferrer">
           {contact.footerPlaceLabel} <ArrowUpRight aria-hidden="true" />
         </a>
       </footer>
@@ -325,7 +318,7 @@ export default function Home() {
           <Smartphone aria-hidden="true" />
           {contact.mobileSmsLabel}
         </a>
-        <a href={contact.placeHref} target="_blank" rel="noreferrer">
+        <a href={talkUrl} target="_blank" rel="noopener noreferrer">
           <MessageCircle aria-hidden="true" />
           {contact.mobileNaverLabel}
         </a>

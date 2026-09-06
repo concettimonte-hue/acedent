@@ -11,6 +11,7 @@ interface BeforeAfterSliderProps {
   mode: BeforeAfterMode;
   priority?: boolean;
   showHint?: boolean;
+  hintText?: string;
 }
 
 const clamp = (value: number) => Math.min(100, Math.max(0, value));
@@ -23,6 +24,7 @@ export default function BeforeAfterSlider({
   mode,
   priority = false,
   showHint = false,
+  hintText = '← 손잡이를 좌우로 움직여 보세요 →',
 }: BeforeAfterSliderProps) {
   const sliderRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
@@ -95,7 +97,7 @@ export default function BeforeAfterSlider({
     );
   }
 
-  return (
+  const slider = (
     <div
       ref={sliderRef}
       className="before-after-slider before-after-drag"
@@ -139,11 +141,6 @@ export default function BeforeAfterSlider({
       </div>
       <span className="comparison-label comparison-label-before">BEFORE</span>
       <span className="comparison-label comparison-label-after">AFTER</span>
-      {showHint && (
-        <span className={`comparison-hint${hasInteracted ? ' is-hidden' : ''}`}>
-          드래그해서 비교해보세요
-        </span>
-      )}
       <span
         className="comparison-handle"
         style={{ left: `${position}%` }}
@@ -152,6 +149,17 @@ export default function BeforeAfterSlider({
         <span className="comparison-handle-line" />
         <span className="comparison-handle-knob">↔</span>
       </span>
+    </div>
+  );
+
+  if (!showHint) return slider;
+
+  return (
+    <div className="before-after-with-hint">
+      <span className={`comparison-hint${hasInteracted ? ' is-hidden' : ''}`}>
+        {hintText}
+      </span>
+      {slider}
     </div>
   );
 }

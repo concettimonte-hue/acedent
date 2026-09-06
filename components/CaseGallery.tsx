@@ -5,16 +5,16 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, X } from 'lucide-react';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import casesData from '@/content/cases.json';
 import naverData from '@/content/naver.json';
-import type { CaseItem, CasesContent } from '@/content/types';
+import siteData from '@/content/site.json';
+import type { CaseItem, CasesContent, SiteContent } from '@/content/types';
+import { withLandingUtm } from '@/lib/tracking';
 
 const content = casesData as CasesContent;
+const site = siteData as SiteContent;
 const cases = [...content.items].sort((a, b) => a.order - b.order);
 
 const imageAlt = (item: CaseItem, state: '전' | '후') =>
   `${item.car} ${item.part.replaceAll(' · ', ' ')} ${state}`;
-
-const trackingUrl = (url: string, medium: string) =>
-  `${url}${url.includes('?') ? '&' : '?'}utm_source=landing&utm_medium=${medium}`;
 
 export default function CaseGallery() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -212,7 +212,7 @@ export default function CaseGallery() {
       <div className="cases-bottom-link-wrap">
         <a
           className="cases-bottom-link"
-          href={trackingUrl(naverData.blog, 'cases_bottom')}
+          href={withLandingUtm(naverData.blog, 'cases_bottom')}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -280,13 +280,19 @@ export default function CaseGallery() {
                 <strong>{selectedCase.days}</strong>
               </div>
               <p>{selectedCase.summary}</p>
-              <a
-                href={trackingUrl(selectedCase.blogUrl, 'case')}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {content.modalLinkLabel} <ArrowUpRight aria-hidden="true" />
-              </a>
+              <div className="case-modal-actions">
+                <a className="case-modal-phone" href={site.contact.phoneHref}>
+                  이런 손상이면 문의하기
+                </a>
+                <a
+                  className="case-modal-blog"
+                  href={withLandingUtm(selectedCase.blogUrl, 'case')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {content.modalLinkLabel} <ArrowUpRight aria-hidden="true" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
