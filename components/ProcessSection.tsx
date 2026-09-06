@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, type CSSProperties } from 'react';
+import SectionNumber from '@/components/SectionNumber';
 import processData from '@/content/process.json';
 import type { ProcessContent } from '@/content/types';
 
@@ -44,7 +45,7 @@ export default function ProcessSection() {
     <section
       ref={sectionRef}
       id="process"
-      className="section content-section process-section"
+      className="section content-section process-section numbered-section"
     >
       <header className="content-section-header dark-header">
         <div>
@@ -52,7 +53,7 @@ export default function ProcessSection() {
           <h2>{content.heading}</h2>
           <p className="content-section-subcopy">{content.subCopy}</p>
         </div>
-        <span className="content-section-number">06</span>
+        <SectionNumber sectionId="process" />
       </header>
 
       <div className="process-grid">

@@ -143,7 +143,6 @@ export interface NaverContent {
   talk: string;
   section: {
     label: string;
-    number: string;
     title: string;
     description: string;
     naverSymbol: string;
@@ -186,7 +185,6 @@ export interface SiteContent {
     smsActionLabel: string;
     resultAriaLabel: string;
     resultKicker: string;
-    resultNumber: string;
     resultTitle: string;
     resultMeta: string;
     sliderHint: string;
@@ -231,8 +229,8 @@ export interface SiteContent {
     headerPhoneLabel: string;
     smsEyebrow: string;
     smsLabel: string;
-    placeEyebrow: string;
-    placeLabel: string;
+    talkEyebrow: string;
+    talkLabel: string;
     note: string;
     footerAddress: string;
     footerPhonePrefix: string;

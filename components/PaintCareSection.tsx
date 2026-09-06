@@ -1,6 +1,7 @@
 'use client';
 
 import { Smartphone } from 'lucide-react';
+import SectionNumber from '@/components/SectionNumber';
 import polishData from '@/content/polish.json';
 import siteData from '@/content/site.json';
 import type { PolishContent, SiteContent } from '@/content/types';
@@ -12,7 +13,7 @@ export default function PaintCareSection() {
   return (
     <section
       id="paint-care"
-      className="section content-section paint-care-section"
+      className="section content-section paint-care-section numbered-section"
     >
       <header className="content-section-header">
         <div>
@@ -20,7 +21,7 @@ export default function PaintCareSection() {
           <h2>{content.heading}</h2>
           <p className="content-section-subcopy">{content.subCopy}</p>
         </div>
-        <span className="content-section-number">03</span>
+        <SectionNumber sectionId="paint-care" />
       </header>
 
       <p className="paint-care-note">{content.note}</p>

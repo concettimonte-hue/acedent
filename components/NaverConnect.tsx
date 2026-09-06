@@ -35,7 +35,6 @@ export default function NaverConnect() {
           <h2>{naver.section.title}</h2>
           <p className="content-section-subcopy">{naver.section.description}</p>
         </div>
-        <span className="content-section-number">{naver.section.number}</span>
       </header>
       <div className="naver-grid">
         {naver.section.items.map((item) => (

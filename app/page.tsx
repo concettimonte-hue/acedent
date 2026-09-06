@@ -1,10 +1,10 @@
+import { Fragment, type ReactNode } from 'react';
 import {
   ArrowUpRight,
   CarFront,
   Check,
   ChevronRight,
   Clock3,
-  MapPin,
   MessageCircle,
   Phone,
   ShieldCheck,
@@ -22,6 +22,7 @@ import type {
 } from '@/content/types';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import CaseGallery from '@/components/CaseGallery';
+import ClosingMessage from '@/components/ClosingMessage';
 import FaqSection from '@/components/FaqSection';
 import InsuranceSection from '@/components/InsuranceSection';
 import LocationSection from '@/components/LocationSection';
@@ -29,7 +30,12 @@ import NaverConnect from '@/components/NaverConnect';
 import PaintCareSection from '@/components/PaintCareSection';
 import ProcessSection from '@/components/ProcessSection';
 import ReviewsSection from '@/components/ReviewsSection';
+import SectionNumber from '@/components/SectionNumber';
 import TrustBar from '@/components/TrustBar';
+import {
+  NUMBERED_SECTION_ORDER,
+  type NumberedSectionId,
+} from '@/content/section-order';
 import { withLandingUtm } from '@/lib/tracking';
 
 const site = siteData as SiteContent;
@@ -46,6 +52,147 @@ export default function Home() {
   const { brand, navigation, hero, services, principles, contact } = site;
   const placeUrl = withLandingUtm(naver.place, 'place');
   const talkUrl = withLandingUtm(naver.talk, 'talk');
+
+  const numberedSections: Record<NumberedSectionId, ReactNode> = {
+    services: (
+      <section
+        id="services"
+        className="section section-services numbered-section"
+      >
+        <SectionNumber sectionId="services" corner />
+        <div className="section-heading">
+          <p className="section-kicker">{services.kicker}</p>
+          <h2>
+            {services.titleLines[0]}
+            <br />
+            <span>{services.titleLines[1]}</span>
+          </h2>
+          <p>{services.description}</p>
+        </div>
+        <div className="service-grid">
+          {services.items.map((service) => {
+            const Icon = serviceIconMap[service.icon];
+            return (
+              <article className="service-card" key={service.title}>
+                <div className="service-card-top">
+                  <span>{service.number}</span>
+                  <Icon aria-hidden="true" />
+                </div>
+                <h3>{service.title}</h3>
+                <p>{service.copy}</p>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    ),
+    cases: <CaseGallery />,
+    'paint-care': <PaintCareSection />,
+    reasons: (
+      <section
+        id="reasons"
+        className="section reason-section numbered-section"
+      >
+        <SectionNumber sectionId="reasons" corner />
+        <div className="reason-intro">
+          <p className="section-kicker">{principles.reasonsKicker}</p>
+          <h2>{principles.reasonsTitle}</h2>
+        </div>
+        <div className="reason-grid">
+          {principles.reasons.map((reason) => (
+            <article key={reason.number}>
+              <span>{reason.number}</span>
+              <h3>{reason.title}</h3>
+              <p>{reason.copy}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+    ),
+    principle: (
+      <section
+        id="principle"
+        className="section principle-section numbered-section"
+      >
+        <SectionNumber sectionId="principle" corner />
+        <div className="principle-statement">
+          <p className="section-kicker">{principles.kicker}</p>
+          <h2>
+            {principles.titleLines[0]}
+            <br />
+            <span>{principles.titleLines[1]}</span>
+          </h2>
+          <p>{principles.description}</p>
+        </div>
+        <div className="principle-list">
+          {principles.items.map((item, index) => (
+            <div key={item.title}>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <div className="principle-item-copy">
+                <strong>{item.title}</strong>
+                {item.copy && <p>{item.copy}</p>}
+              </div>
+              <Check aria-hidden="true" />
+            </div>
+          ))}
+        </div>
+      </section>
+    ),
+    reviews: <ReviewsSection />,
+    insurance: <InsuranceSection />,
+    process: <ProcessSection />,
+    faq: <FaqSection />,
+    contact: (
+      <section
+        id="contact"
+        className="contact-section numbered-section"
+      >
+        <SectionNumber sectionId="contact" corner />
+        <div className="contact-copy">
+          <p className="section-kicker">{contact.kicker}</p>
+          <h2>
+            {contact.titleLines[0]}
+            <br />
+            {contact.titleLines[1]}
+          </h2>
+          <p>{contact.description}</p>
+        </div>
+        <div className="contact-actions">
+          <a href={contact.phoneHref} className="contact-call">
+            <div>
+              <Phone aria-hidden="true" />
+              <span>{contact.phoneLabel}</span>
+            </div>
+            <strong>{contact.phoneDisplay}</strong>
+            <ChevronRight aria-hidden="true" />
+          </a>
+          <div className="contact-secondary">
+            <a href={contact.smsHref}>
+              <Smartphone aria-hidden="true" />
+              <span>
+                {contact.smsEyebrow}
+                <strong>{contact.smsLabel}</strong>
+              </span>
+              <ArrowUpRight aria-hidden="true" />
+            </a>
+            <a href={talkUrl} target="_blank" rel="noopener noreferrer">
+              <MessageCircle aria-hidden="true" />
+              <span>
+                {contact.talkEyebrow}
+                <strong>{contact.talkLabel}</strong>
+              </span>
+              <ArrowUpRight aria-hidden="true" />
+            </a>
+          </div>
+          <div className="contact-note">
+            <Clock3 aria-hidden="true" />
+            <span>{contact.note}</span>
+          </div>
+        </div>
+      </section>
+    ),
+    location: <LocationSection />,
+  };
 
   return (
     <main id="top" className="site-shell">
@@ -122,7 +269,6 @@ export default function Home() {
           <div className="hero-result-header">
             <div className="hero-result-label">
               <span>{hero.resultKicker}</span>
-              <strong>{hero.resultNumber}</strong>
             </div>
             <h2>{hero.resultTitle}</h2>
             <p>{hero.resultMeta}</p>
@@ -152,126 +298,11 @@ export default function Home() {
 
       <TrustBar />
 
-      <section id="services" className="section section-services">
-        <div className="section-heading">
-          <p className="section-kicker">{services.kicker}</p>
-          <h2>
-            {services.titleLines[0]}
-            <br />
-            <span>{services.titleLines[1]}</span>
-          </h2>
-          <p>{services.description}</p>
-        </div>
-        <div className="service-grid">
-          {services.items.map((service) => {
-            const Icon = serviceIconMap[service.icon];
-            return (
-              <article className="service-card" key={service.title}>
-                <div className="service-card-top">
-                  <span>{service.number}</span>
-                  <Icon aria-hidden="true" />
-                </div>
-                <h3>{service.title}</h3>
-                <p>{service.copy}</p>
-              </article>
-            );
-          })}
-        </div>
-      </section>
+      {NUMBERED_SECTION_ORDER.map(({ id }) => (
+        <Fragment key={id}>{numberedSections[id]}</Fragment>
+      ))}
 
-      <CaseGallery />
-
-      <PaintCareSection />
-      <ReviewsSection />
-      <InsuranceSection />
-      <ProcessSection />
-      <FaqSection />
-      <LocationSection />
-
-      <section id="principle" className="section principle-section">
-        <div className="principle-statement">
-          <p className="section-kicker">{principles.kicker}</p>
-          <h2>
-            {principles.titleLines[0]}
-            <br />
-            <span>{principles.titleLines[1]}</span>
-          </h2>
-          <p>{principles.description}</p>
-        </div>
-        <div className="principle-list">
-          {principles.items.map((item, index) => (
-            <div key={item.title}>
-              <span>{String(index + 1).padStart(2, '0')}</span>
-              <div className="principle-item-copy">
-                <strong>{item.title}</strong>
-                {item.copy && <p>{item.copy}</p>}
-              </div>
-              <Check aria-hidden="true" />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="section reason-section">
-        <div className="reason-intro">
-          <p className="section-kicker">{principles.reasonsKicker}</p>
-          <h2>{principles.reasonsTitle}</h2>
-        </div>
-        <div className="reason-grid">
-          {principles.reasons.map((reason) => (
-            <article key={reason.number}>
-              <span>{reason.number}</span>
-              <h3>{reason.title}</h3>
-              <p>{reason.copy}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section id="contact" className="contact-section">
-        <div className="contact-copy">
-          <p className="section-kicker">{contact.kicker}</p>
-          <h2>
-            {contact.titleLines[0]}
-            <br />
-            {contact.titleLines[1]}
-          </h2>
-          <p>{contact.description}</p>
-        </div>
-        <div className="contact-actions">
-          <a href={contact.phoneHref} className="contact-call">
-            <div>
-              <Phone aria-hidden="true" />
-              <span>{contact.phoneLabel}</span>
-            </div>
-            <strong>{contact.phoneDisplay}</strong>
-            <ChevronRight aria-hidden="true" />
-          </a>
-          <div className="contact-secondary">
-            <a href={contact.smsHref}>
-              <Smartphone aria-hidden="true" />
-              <span>
-                {contact.smsEyebrow}
-                <strong>{contact.smsLabel}</strong>
-              </span>
-              <ArrowUpRight aria-hidden="true" />
-            </a>
-            <a href={placeUrl} target="_blank" rel="noopener noreferrer">
-              <MapPin aria-hidden="true" />
-              <span>
-                {contact.placeEyebrow}
-                <strong>{contact.placeLabel}</strong>
-              </span>
-              <ArrowUpRight aria-hidden="true" />
-            </a>
-          </div>
-          <div className="contact-note">
-            <Clock3 aria-hidden="true" />
-            <span>{contact.note}</span>
-          </div>
-        </div>
-      </section>
-
+      <ClosingMessage />
       <NaverConnect />
 
       <footer>

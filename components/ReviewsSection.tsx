@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowUpRight } from 'lucide-react';
+import SectionNumber from '@/components/SectionNumber';
 import naverData from '@/content/naver.json';
 import reviewsData from '@/content/reviews.json';
 import type { NaverContent, ReviewsContent } from '@/content/types';
@@ -32,14 +33,17 @@ function ReviewCard({
 
 export default function ReviewsSection() {
   return (
-    <section id="reviews" className="section content-section reviews-section">
+    <section
+      id="reviews"
+      className="section content-section reviews-section numbered-section"
+    >
       <header className="content-section-header dark-header">
         <div>
           <p className="section-kicker light">{content.sectionLabel}</p>
           <h2>{content.heading}</h2>
           <p className="content-section-subcopy">{content.subCopy}</p>
         </div>
-        <span className="content-section-number">04</span>
+        <SectionNumber sectionId="reviews" />
       </header>
 
       <div className="reviews-grid">

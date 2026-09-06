@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ArrowUpRight, X } from 'lucide-react';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
+import SectionNumber from '@/components/SectionNumber';
 import casesData from '@/content/cases.json';
 import naverData from '@/content/naver.json';
 import siteData from '@/content/site.json';
@@ -137,7 +138,7 @@ export default function CaseGallery() {
   const selectedCase = selectedIndex === null ? null : cases[selectedIndex];
 
   return (
-    <section id="cases" className="section section-cases">
+    <section id="cases" className="section section-cases numbered-section">
       <div className="cases-heading">
         <div>
           <p className="section-kicker light">{content.sectionLabel}</p>
@@ -148,6 +149,7 @@ export default function CaseGallery() {
           </h2>
           <p className="cases-guide">{content.instruction}</p>
         </div>
+        <SectionNumber sectionId="cases" />
       </div>
 
       <div

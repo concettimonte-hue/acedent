@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowUpRight, MapPin, Phone } from 'lucide-react';
+import SectionNumber from '@/components/SectionNumber';
 import naverData from '@/content/naver.json';
 import siteData from '@/content/site.json';
 import type { NaverContent, SiteContent } from '@/content/types';
@@ -14,13 +15,16 @@ export default function LocationSection() {
   const placeUrl = withLandingUtm(naver.place, 'place');
 
   return (
-    <section id="location" className="section content-section location-section">
+    <section
+      id="location"
+      className="section content-section location-section numbered-section"
+    >
       <header className="content-section-header">
         <div>
           <p className="section-kicker">{contact.locationSectionLabel}</p>
           <h2>{contact.locationHeading}</h2>
         </div>
-        <span className="content-section-number">08</span>
+        <SectionNumber sectionId="location" />
       </header>
 
       <div className="location-grid">

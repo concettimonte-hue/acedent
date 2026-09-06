@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowUpRight, Check } from 'lucide-react';
+import SectionNumber from '@/components/SectionNumber';
 import insuranceData from '@/content/insurance.json';
 import type { InsuranceContent } from '@/content/types';
 import { withLandingUtm } from '@/lib/tracking';
@@ -11,7 +12,7 @@ export default function InsuranceSection() {
   return (
     <section
       id="insurance"
-      className="section content-section insurance-section"
+      className="section content-section insurance-section numbered-section"
     >
       <header className="content-section-header">
         <div>
@@ -19,7 +20,7 @@ export default function InsuranceSection() {
           <h2>{content.heading}</h2>
           <p className="content-section-subcopy">{content.subCopy}</p>
         </div>
-        <span className="content-section-number">05</span>
+        <SectionNumber sectionId="insurance" />
       </header>
 
       <p className="insurance-assumption">{content.assumption}</p>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import SectionNumber from '@/components/SectionNumber';
 import faqData from '@/content/faq.json';
 import type { FaqContent } from '@/content/types';
 
@@ -24,13 +25,16 @@ export default function FaqSection() {
   };
 
   return (
-    <section id="faq" className="section content-section faq-section">
+    <section
+      id="faq"
+      className="section content-section faq-section numbered-section"
+    >
       <header className="content-section-header">
         <div>
           <p className="section-kicker">{content.sectionLabel}</p>
           <h2>{content.heading}</h2>
         </div>
-        <span className="content-section-number">07</span>
+        <SectionNumber sectionId="faq" />
       </header>
 
       <div className="faq-list">
