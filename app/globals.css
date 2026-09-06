@@ -86,6 +86,7 @@
 .hero h1 { margin-top: 1.75rem; font-size: clamp(3.4rem,6.6vw,7.35rem); font-weight: 900; letter-spacing: -.075em; line-height: .98; }
 .hero h1 em { color: #f8db00; font-style: normal; }
 .hero-description { max-width: 560px; margin-top: 2rem; color: #bec1bd; font-size: clamp(1rem,1.2vw,1.14rem); line-height: 1.8; word-break: keep-all; }
+.hero-description-line { display: block; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2.5rem; }
 .primary-action, .secondary-action { display: inline-flex; min-height: 56px; align-items: center; justify-content: center; gap: .65rem; padding: 0 1.35rem; border-radius: .45rem; font-size: .98rem; font-weight: 850; transition: transform 180ms ease, border-color 180ms ease, background 180ms ease; }
 .primary-action { background: #f8db00; color: #030403; }
@@ -141,7 +142,7 @@
 .case-image-backdrop { opacity: .33; filter: blur(18px) saturate(.75); }
 .case-image-main { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 14px 28px rgb(0 0 0 / 38%)); transition: transform 350ms ease; }
 .case-card:hover .case-image-main { transform: scale(1.018); }
-.case-number { position: absolute; z-index: 2; bottom: 0; left: 0; padding: .65rem .85rem; background: #f8db00; color: #030403; font-size: .7rem; font-weight: 900; letter-spacing: .1em; }
+.case-number { position: absolute; z-index: 2; top: 0; left: 0; padding: .65rem .85rem; background: #f8db00; color: #030403; font-size: .7rem; font-weight: 900; letter-spacing: .1em; }
 .case-content { padding: 1.2rem 0 0; }
 .case-content p { color: #8f938f; font-size: .78rem; }
 .case-content h3 { margin-top: .35rem; font-size: 1.35rem; font-weight: 800; letter-spacing: -.035em; }
@@ -238,7 +239,6 @@ footer > a:last-child svg { width: 16px; }
   .hero-copy { min-height: 620px; padding: 4.5rem 1.25rem 2.5rem; }
   .eyebrow { font-size: .66rem; letter-spacing: .1em; }
   .hero h1 { font-size: clamp(3.25rem,15.5vw,5rem); }
-  .hero-description br { display: none; }
   .hero-actions { display: grid; }
   .primary-action, .secondary-action { width: 100%; }
   .hero-result { min-height: 510px; margin: 0 1.25rem 3.5rem; }
@@ -248,7 +248,7 @@ footer > a:last-child svg { width: 16px; }
   .trust-strip div { min-height: 116px; padding: 1.2rem; border-bottom: 1px solid rgb(3 4 3 / 18%); }
   .section, .naver-section, .contact-section { padding: 5.5rem 1.25rem; }
   .section-heading h2, .cases-heading h2, .principle-statement h2, .reason-intro h2, .naver-intro h2 { font-size: clamp(2.35rem,11vw,3.6rem); }
-  .service-grid { grid-template-columns: 1fr; margin-top: 3rem; }
+  .service-grid { grid-template-columns: repeat(2,minmax(0,1fr)); margin-top: 3rem; }
   .service-card { min-height: 230px; }
   .cases-heading { align-items: flex-start; flex-direction: column; }
   .case-grid { display: grid; grid-template-columns: 1fr; gap: 2.8rem; margin-top: 3rem; }

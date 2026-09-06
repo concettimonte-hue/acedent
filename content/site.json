@@ -1,0 +1,151 @@
+{
+  "meta": {
+    "title": "에이스덴트 | 동대문구 용두동 자동차 외형복원·판금도색",
+    "description": "서울 동대문구 용두동 자동차 외형복원 전문점 에이스덴트. 실제 수리사례를 확인하고 판금도색, 덴트, 광택 견적을 전화 또는 사진 문자로 상담하세요."
+  },
+  "brand": {
+    "name": "ACE DENT",
+    "descriptor": "자동차 외장관리 전문점",
+    "tagline": "믿고 맡기는 에이스덴트",
+    "logoSrc": "/images/ace-dent-logo.png",
+    "logoAlt": "",
+    "homeAriaLabel": "에이스덴트 홈",
+    "footerHomeAriaLabel": "에이스덴트 맨 위로"
+  },
+  "navigation": {
+    "ariaLabel": "주요 메뉴",
+    "items": [
+      { "label": "서비스", "href": "#services" },
+      { "label": "수리사례", "href": "#cases" },
+      { "label": "작업원칙", "href": "#principle" },
+      { "label": "오시는 길", "href": "#contact" }
+    ]
+  },
+  "hero": {
+    "eyebrow": "ACE DENT · SEOUL DONGDAEMUN",
+    "titleLines": ["믿고 맡기는", "에이스덴트"],
+    "descriptionLines": [
+      "차량 외형복원·판금도색·광택·덴트.",
+      "결과를 과장하지 않고, 가능한 방법과 한계를 솔직하게 설명합니다."
+    ],
+    "phoneActionLabel": "전화로 바로 문의",
+    "smsActionLabel": "사진으로 문자 견적",
+    "casesActionLabel": "실제 작업 사례 보기",
+    "resultAriaLabel": "대표 작업 전후 이미지 영역",
+    "resultKicker": "REPRESENTATIVE WORK",
+    "resultNumber": "01",
+    "imageSrc": "/images/case-defender.jpg",
+    "imageAlt": "랜드로버 디펜더 앞 범퍼와 휀더 판금도장 복원 전후 비교",
+    "workLabel": "WORK",
+    "workValue": "디펜더 범퍼 · 휀더 복원",
+    "resultLabel": "RESULT",
+    "resultValue": "Before / After 실제 작업"
+  },
+  "stats": {
+    "ariaLabel": "에이스덴트 신뢰 정보",
+    "items": [
+      { "value": "용두동", "label": "서울 동대문구" },
+      { "value": "20–30대", "label": "월평균 작업 차량" },
+      { "value": "DETAIL", "label": "상세한 수리 기록" },
+      { "value": "STANDARD", "label": "자체 출고 기준" }
+    ]
+  },
+  "services": {
+    "kicker": "WHAT WE DO",
+    "titleLines": ["차량마다 다른 손상,", "필요한 만큼 정확하게."],
+    "description": "가격과 기간은 손상 상태와 작업 범위에 따라 달라집니다. 차량 사진을 보내주시면 먼저 확인해 드립니다.",
+    "items": [
+      { "number": "01", "title": "외형복원", "copy": "긁힘과 찌그러짐의 상태를 먼저 확인하고, 필요한 작업 범위를 설명합니다.", "icon": "carFront" },
+      { "number": "02", "title": "판금도색", "copy": "손상 정도와 패널 상태에 맞춰 판금과 도색의 방법을 판단합니다.", "icon": "wrench" },
+      { "number": "03", "title": "광택", "copy": "도장면의 상태를 보고 광택으로 개선할 수 있는 범위를 안내합니다.", "icon": "sparkles" },
+      { "number": "04", "title": "덴트", "copy": "도장 손상을 줄이면서 복원할 수 있는지 꼼꼼하게 확인합니다.", "icon": "shieldCheck" }
+    ]
+  },
+  "cases": {
+    "kicker": "ACTUAL RESULTS",
+    "titleLines": ["설명보다 먼저,", "결과를 보여드립니다."],
+    "moreLabel": "네이버 블로그에서 더 보기",
+    "moreHref": "https://blog.naver.com/ace_dent_shop",
+    "detailLabel": "블로그에서 상세 과정 보기",
+    "ariaSuffix": "실제 수리사례 자세히 보기",
+    "badgePrefix": "CASE",
+    "items": [
+      {
+        "index": "01",
+        "vehicle": "랜드로버 디펜더",
+        "work": "범퍼 · 휀더 복원",
+        "src": "/images/case-defender.jpg",
+        "alt": "랜드로버 디펜더 앞 범퍼와 휀더 판금도장 복원 전후 비교",
+        "href": "https://blog.naver.com/ace_dent_shop/224383645497"
+      },
+      {
+        "index": "02",
+        "vehicle": "테슬라 모델 3",
+        "work": "트렁크 도어 · 휀더 판금도장",
+        "src": "/images/case-tesla-model3.jpg",
+        "alt": "테슬라 모델 3 트렁크 도어와 휀더 찌그러짐 판금도장 복원 전후 비교",
+        "href": "https://blog.naver.com/ace_dent_shop/224335294851"
+      },
+      {
+        "index": "03",
+        "vehicle": "메르세데스-벤츠 G-클래스",
+        "work": "휠커버 찌그러짐 · 스크래치 복원",
+        "src": "/images/case-gwagen.jpg",
+        "alt": "메르세데스-벤츠 G-클래스 휠커버 찌그러짐과 스크래치 복원 전후 비교",
+        "href": "https://blog.naver.com/ace_dent_shop/224309593743"
+      }
+    ]
+  },
+  "principles": {
+    "kicker": "OUR PRINCIPLE",
+    "titleLines": ["“안 되는 것은", "안 된다고 말합니다.”"],
+    "description": "색상이 완전히 같을 수 없는 경우, 심한 찌그러짐으로 처음의 예리한 각을 그대로 만들기 어려운 경우도 있습니다. 만족스러운 선택을 위해 가능한 것과 어려운 것을 작업 전에 분명히 설명합니다.",
+    "items": [
+      "필요하지 않은 수리는 권하지 않습니다.",
+      "가능한 결과와 작업의 한계를 먼저 설명합니다.",
+      "사진만으로 단정하기 어려운 부분은 방문 확인을 안내합니다."
+    ],
+    "reasonsKicker": "WHY ACE DENT",
+    "reasonsTitle": "충분히 확인하고, 믿고 맡길 수 있도록.",
+    "reasons": [
+      { "number": "01", "title": "자세한 작업 기록", "copy": "과정과 결과를 블로그에 꾸준히 기록해 작업 판단의 근거를 보여드립니다." },
+      { "number": "02", "title": "필요한 수리만", "copy": "무조건 큰 작업을 권하지 않고 차량 상태에 맞는 범위를 안내합니다." },
+      { "number": "03", "title": "결과에 대한 책임", "copy": "자체 출고 기준으로 끝까지 확인하고, 설명한 범위 안에서 꼼꼼하게 작업합니다." }
+    ]
+  },
+  "naverLinks": {
+    "kicker": "NAVER CONNECT",
+    "naverSymbol": "N",
+    "title": "필요한 정보를, 익숙한 곳에서.",
+    "description": "수리사례부터 리뷰·길찾기, 상담과 예약까지 네이버에서 이어집니다.",
+    "items": [
+      { "icon": "naver", "label": "수리사례", "title": "네이버 블로그", "copy": "차종별 상세 작업 과정을 확인하세요.", "href": "https://blog.naver.com/ace_dent_shop" },
+      { "icon": "mapPin", "label": "리뷰 · 위치 · 길찾기", "title": "스마트플레이스", "copy": "방문 전 최신 매장 정보를 확인하세요.", "href": "https://naver.me/xv3DlbUy" },
+      { "icon": "messageCircle", "label": "사진상담", "title": "네이버 톡톡", "copy": "스마트플레이스에서 톡톡을 시작하세요.", "href": "https://naver.me/xv3DlbUy" },
+      { "icon": "calendarDays", "label": "방문 일정", "title": "네이버 예약", "copy": "스마트플레이스에서 가능한 일정을 확인하세요.", "href": "https://naver.me/xv3DlbUy" }
+    ]
+  },
+  "contact": {
+    "kicker": "CONTACT",
+    "titleLines": ["차량 상태를", "알려주세요."],
+    "description": "가장 빠른 방법은 전화입니다. 사진 견적은 손상 부위가 잘 보이는 사진을 문자로 보내주세요.",
+    "phoneDisplay": "010-6794-1739",
+    "phoneHref": "tel:01067941739",
+    "smsHref": "sms:01067941739",
+    "placeHref": "https://naver.me/xv3DlbUy",
+    "phoneLabel": "전화로 바로 문의",
+    "headerPhoneLabel": "전화 문의",
+    "smsEyebrow": "사진으로",
+    "smsLabel": "문자 견적",
+    "placeEyebrow": "리뷰·길찾기",
+    "placeLabel": "스마트플레이스",
+    "note": "정확한 영업시간과 휴무일은 네이버 스마트플레이스에서 확인해 주세요.",
+    "footerAddress": "서울 동대문구 용두동 · 자동차 외장관리 전문점",
+    "footerPhonePrefix": "대표번호",
+    "footerPlaceLabel": "네이버에서 위치 확인",
+    "mobileNavAriaLabel": "빠른 상담",
+    "mobilePhoneLabel": "전화 문의",
+    "mobileSmsLabel": "사진 문자",
+    "mobileNaverLabel": "네이버 상담"
+  }
+}
