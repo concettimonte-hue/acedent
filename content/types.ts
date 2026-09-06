@@ -1,6 +1,93 @@
 export type ServiceIconName = 'carFront' | 'wrench' | 'sparkles' | 'shieldCheck';
 export type NaverIconName = 'naver' | 'mapPin' | 'messageCircle' | 'calendarDays';
 
+export interface CaseItem {
+  id: string;
+  order: number;
+  title: string;
+  car: string;
+  part: string;
+  days: string;
+  summary: string;
+  beforeImg: string;
+  afterImg: string;
+  blogUrl: string;
+  sliderType: 'drag' | 'split';
+}
+
+export interface TrustItem {
+  id: string;
+  value: string;
+  valueSuffix: string;
+  label: string;
+  sub: string;
+  countUp: boolean;
+  duration?: number;
+  linkUrl?: string;
+}
+
+export interface ReviewItem {
+  id: string;
+  initial: string;
+  car: string;
+  area: string;
+  part: string;
+  highlight: boolean;
+  headline: string;
+  text: string;
+}
+
+export interface ReviewsContent {
+  sectionLabel: string;
+  heading: string;
+  subCopy: string;
+  moreLinkLabel: string;
+  moreLinkUrl: string;
+  reviews: ReviewItem[];
+}
+
+export interface FaqItem {
+  q: string;
+  a: string;
+  open: boolean;
+}
+
+export type InsuranceStatus = 'safe' | 'warn' | 'danger';
+
+export interface InsuranceContent {
+  sectionLabel: string;
+  heading: string;
+  subCopy: string;
+  assumption: string;
+  table: Array<{
+    estimate: string;
+    own: string;
+    note: string;
+    status: InsuranceStatus;
+  }>;
+  cashBetter: string[];
+  insuranceBetter: string[];
+  closing: string;
+  moreLink: {
+    label: string;
+    url: string;
+  };
+}
+
+export interface ProcessItem {
+  step: string;
+  title: string;
+  desc: string;
+}
+
+export interface NaverContent {
+  blog: string;
+  place: string;
+  review: string;
+  booking: string;
+  talk: string;
+}
+
 export interface SiteContent {
   meta: {
     title: string;
@@ -21,11 +108,12 @@ export interface SiteContent {
   };
   hero: {
     eyebrow: string;
-    titleLines: [string, string];
+    titleAccent: string;
+    title: string;
+    subtitle: string;
     descriptionLines: string[];
     phoneActionLabel: string;
     smsActionLabel: string;
-    casesActionLabel: string;
     resultAriaLabel: string;
     resultKicker: string;
     resultNumber: string;
@@ -35,10 +123,6 @@ export interface SiteContent {
     workValue: string;
     resultLabel: string;
     resultValue: string;
-  };
-  stats: {
-    ariaLabel: string;
-    items: Array<{ value: string; label: string }>;
   };
   services: {
     kicker: string;

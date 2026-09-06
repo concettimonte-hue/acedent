@@ -1,5 +1,4 @@
 import {
-  ArrowDown,
   ArrowUpRight,
   CalendarDays,
   CarFront,
@@ -17,6 +16,7 @@ import {
 } from 'lucide-react';
 import siteData from '@/content/site.json';
 import type { NaverIconName, ServiceIconName, SiteContent } from '@/content/types';
+import TrustBar from '@/components/TrustBar';
 
 const site = siteData as SiteContent;
 
@@ -43,7 +43,7 @@ function NaverLinkIcon({ name }: { name: NaverIconName }) {
 }
 
 export default function Home() {
-  const { brand, navigation, hero, stats, services, cases, principles, naverLinks, contact } = site;
+  const { brand, navigation, hero, services, cases, principles, naverLinks, contact } = site;
 
   return (
     <main id="top" className="site-shell">
@@ -61,7 +61,8 @@ export default function Home() {
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-copy">
           <p className="eyebrow"><span /> {hero.eyebrow}</p>
-          <h1 id="hero-title">{hero.titleLines[0]}<br /><em>{hero.titleLines[1]}</em></h1>
+          <h1 id="hero-title"><em>{hero.titleAccent}</em> {hero.title}</h1>
+          <p className="hero-subheadline">{hero.subtitle}</p>
           <p className="hero-description">
             {hero.descriptionLines.map((line) => <span className="hero-description-line" key={line}>{line}</span>)}
           </p>
@@ -69,7 +70,6 @@ export default function Home() {
             <a className="primary-action" href={contact.phoneHref}><Phone aria-hidden="true" />{hero.phoneActionLabel}<ChevronRight aria-hidden="true" /></a>
             <a className="secondary-action" href={contact.smsHref}><Smartphone aria-hidden="true" />{hero.smsActionLabel}</a>
           </div>
-          <a className="scroll-cue" href="#cases">{hero.casesActionLabel} <ArrowDown aria-hidden="true" /></a>
         </div>
 
         <div className="hero-result" aria-label={hero.resultAriaLabel}>
@@ -85,9 +85,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="trust-strip" aria-label={stats.ariaLabel}>
-        {stats.items.map((item) => <div key={item.label}><strong>{item.value}</strong><span>{item.label}</span></div>)}
-      </section>
+      <TrustBar />
 
       <section id="services" className="section section-services">
         <div className="section-heading">

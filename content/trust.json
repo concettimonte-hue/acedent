@@ -1,0 +1,29 @@
+[
+  {
+    "id": "since",
+    "value": "2017",
+    "valueSuffix": "",
+    "label": "개업",
+    "sub": "동대문에서 8년",
+    "countUp": false
+  },
+  {
+    "id": "cars",
+    "value": "1000",
+    "valueSuffix": "대+",
+    "label": "누적 작업 차량",
+    "sub": "2017년부터",
+    "countUp": true,
+    "duration": 1500
+  },
+  {
+    "id": "logs",
+    "value": "500",
+    "valueSuffix": "건+",
+    "label": "블로그 작업 기록",
+    "sub": "작업 과정 공개",
+    "countUp": true,
+    "duration": 1500,
+    "linkUrl": "https://blog.naver.com/ace_dent_shop"
+  }
+]

@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "에이스덴트 | 동대문구 용두동 자동차 외형복원·판금도색",
-    "description": "서울 동대문구 용두동 자동차 외형복원 전문점 에이스덴트. 실제 수리사례를 확인하고 판금도색, 덴트, 광택 견적을 전화 또는 사진 문자로 상담하세요."
+    "title": "에이스덴트 | 동대문 자동차 외형복원·판금도색",
+    "description": "서울 동대문 자동차 외형복원 전문점 에이스덴트. 실제 수리사례를 확인하고 판금도색, 덴트, 광택 견적을 전화 또는 사진 문자로 상담하세요."
   },
   "brand": {
     "name": "ACE DENT",
@@ -23,14 +23,15 @@
   },
   "hero": {
     "eyebrow": "ACE DENT · SEOUL DONGDAEMUN",
-    "titleLines": ["믿고 맡기는", "에이스덴트"],
+    "titleAccent": "동대문",
+    "title": "외형복원·판금도색",
+    "subtitle": "믿고 맡기는 에이스덴트",
     "descriptionLines": [
       "차량 외형복원·판금도색·광택·덴트.",
       "결과를 과장하지 않고, 가능한 방법과 한계를 솔직하게 설명합니다."
     ],
     "phoneActionLabel": "전화로 바로 문의",
     "smsActionLabel": "사진으로 문자 견적",
-    "casesActionLabel": "실제 작업 사례 보기",
     "resultAriaLabel": "대표 작업 전후 이미지 영역",
     "resultKicker": "REPRESENTATIVE WORK",
     "resultNumber": "01",
@@ -40,15 +41,6 @@
     "workValue": "디펜더 범퍼 · 휀더 복원",
     "resultLabel": "RESULT",
     "resultValue": "Before / After 실제 작업"
-  },
-  "stats": {
-    "ariaLabel": "에이스덴트 신뢰 정보",
-    "items": [
-      { "value": "용두동", "label": "서울 동대문구" },
-      { "value": "20–30대", "label": "월평균 작업 차량" },
-      { "value": "DETAIL", "label": "상세한 수리 기록" },
-      { "value": "STANDARD", "label": "자체 출고 기준" }
-    ]
   },
   "services": {
     "kicker": "WHAT WE DO",
@@ -139,7 +131,7 @@
     "smsLabel": "문자 견적",
     "placeEyebrow": "리뷰·길찾기",
     "placeLabel": "스마트플레이스",
-    "note": "정확한 영업시간과 휴무일은 네이버 스마트플레이스에서 확인해 주세요.",
+    "note": "문의는 언제든 가능합니다. 상담 후 일정을 잡아 진행합니다.",
     "footerAddress": "서울 동대문구 용두동 · 자동차 외장관리 전문점",
     "footerPhonePrefix": "대표번호",
     "footerPlaceLabel": "네이버에서 위치 확인",
