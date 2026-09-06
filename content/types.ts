@@ -108,8 +108,9 @@ export interface SiteContent {
   };
   hero: {
     eyebrow: string;
-    titleAccent: string;
     title: string;
+    titleAccent: string;
+    subtitleAccent: string;
     subtitle: string;
     descriptionLines: string[];
     phoneActionLabel: string;

@@ -61,8 +61,8 @@ export default function Home() {
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-copy">
           <p className="eyebrow"><span /> {hero.eyebrow}</p>
-          <h1 id="hero-title"><em>{hero.titleAccent}</em> {hero.title}</h1>
-          <p className="hero-subheadline">{hero.subtitle}</p>
+          <h1 id="hero-title"><span>{hero.title}</span><em>{hero.titleAccent}</em></h1>
+          <p className="hero-subheadline"><em>{hero.subtitleAccent}</em> {hero.subtitle}</p>
           <p className="hero-description">
             {hero.descriptionLines.map((line) => <span className="hero-description-line" key={line}>{line}</span>)}
           </p>

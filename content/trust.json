@@ -1,11 +1,12 @@
 [
   {
     "id": "since",
-    "value": "2017",
-    "valueSuffix": "",
-    "label": "개업",
-    "sub": "동대문에서 8년",
-    "countUp": false
+    "value": "9",
+    "valueSuffix": "년",
+    "label": "동대문에서 9년",
+    "sub": "2017년 개업",
+    "countUp": true,
+    "duration": 1500
   },
   {
     "id": "cars",

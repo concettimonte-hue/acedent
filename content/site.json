@@ -23,9 +23,10 @@
   },
   "hero": {
     "eyebrow": "ACE DENT · SEOUL DONGDAEMUN",
-    "titleAccent": "동대문",
-    "title": "외형복원·판금도색",
-    "subtitle": "믿고 맡기는 에이스덴트",
+    "title": "믿고 맡기는",
+    "titleAccent": "에이스덴트",
+    "subtitleAccent": "동대문",
+    "subtitle": "외형복원·판금도색",
     "descriptionLines": [
       "차량 외형복원·판금도색·광택·덴트.",
       "결과를 과장하지 않고, 가능한 방법과 한계를 솔직하게 설명합니다."

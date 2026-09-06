@@ -11,7 +11,7 @@ function easeOutQuad(progress: number) {
   return progress * (2 - progress);
 }
 
-function TrustValue({ item, active }: { item: TrustItem; active: boolean }) {
+function TrustValue({ item, active, delay }: { item: TrustItem; active: boolean; delay: number }) {
   const target = Number.parseInt(item.value, 10);
   const [currentValue, setCurrentValue] = useState(item.countUp ? 0 : target);
 
@@ -25,6 +25,7 @@ function TrustValue({ item, active }: { item: TrustItem; active: boolean }) {
     }
 
     let animationFrame = 0;
+    let startTimer = 0;
     let startedAt: number | null = null;
     const duration = item.duration ?? 1500;
 
@@ -36,9 +37,18 @@ function TrustValue({ item, active }: { item: TrustItem; active: boolean }) {
       if (progress < 1) animationFrame = window.requestAnimationFrame(animate);
     };
 
-    animationFrame = window.requestAnimationFrame(animate);
-    return () => window.cancelAnimationFrame(animationFrame);
-  }, [active, item.countUp, item.duration, target]);
+    const startAnimation = () => {
+      animationFrame = window.requestAnimationFrame(animate);
+    };
+
+    if (delay === 0) startAnimation();
+    else startTimer = window.setTimeout(startAnimation, delay);
+
+    return () => {
+      window.clearTimeout(startTimer);
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, [active, delay, item.countUp, item.duration, target]);
 
   const value = item.countUp ? numberFormatter.format(currentValue) : item.value;
 
@@ -82,8 +92,8 @@ export default function TrustBar() {
 
   return (
     <section ref={sectionRef} className="trust-strip" aria-label="에이스덴트 신뢰 정보">
-      {trustItems.map((item) => {
-        const content = <TrustValue item={item} active={hasEntered} />;
+      {trustItems.map((item, index) => {
+        const content = <TrustValue item={item} active={hasEntered} delay={index * 150} />;
 
         return item.linkUrl ? (
           <a
