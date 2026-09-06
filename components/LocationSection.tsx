@@ -24,12 +24,14 @@ export default function LocationSection() {
       </header>
 
       <div className="location-grid">
-        <div className="location-map">
-          <iframe
-            src={placeUrl}
-            title="에이스덴트 네이버 지도"
+        <div className="location-photo">
+          <img
+            src="/storefront.jpg"
+            alt="에이스덴트 매장 외관"
+            width="1600"
+            height="1200"
             loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
+            decoding="async"
           />
         </div>
         <div className="location-info">
