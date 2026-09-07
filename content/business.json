@@ -1,0 +1,36 @@
+{
+  "name": "에이스덴트",
+  "url": "https://www.acedentshop.co.kr",
+  "telephone": "+82-10-6794-1739",
+  "address": {
+    "streetAddress": "왕산로 52",
+    "addressLocality": "동대문구",
+    "addressRegion": "서울특별시",
+    "postalCode": "02583",
+    "addressCountry": "KR"
+  },
+  "geo": {
+    "latitude": 37.5773083,
+    "longitude": 127.0294463
+  },
+  "openingHoursSpecification": [
+    {
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      "opens": "09:00",
+      "closes": "20:00"
+    },
+    {
+      "dayOfWeek": ["Saturday", "Sunday"],
+      "opens": "10:00",
+      "closes": "15:00"
+    }
+  ],
+  "areaServed": [
+    "서울특별시 동대문구",
+    "서울특별시 성동구",
+    "서울특별시 중랑구",
+    "서울특별시 광진구",
+    "서울특별시 성북구"
+  ],
+  "priceRange": "견적 문의"
+}

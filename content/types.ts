@@ -156,6 +156,30 @@ export interface NaverContent {
   };
 }
 
+export interface BusinessContent {
+  name: string;
+  url: string;
+  telephone: string;
+  address: {
+    streetAddress: string;
+    addressLocality: string;
+    addressRegion: string;
+    postalCode: string;
+    addressCountry: 'KR';
+  };
+  geo: {
+    latitude: number;
+    longitude: number;
+  };
+  openingHoursSpecification: Array<{
+    dayOfWeek: string[];
+    opens: string;
+    closes: string;
+  }>;
+  areaServed: string[];
+  priceRange: string;
+}
+
 export interface SiteContent {
   meta: {
     title: string;
