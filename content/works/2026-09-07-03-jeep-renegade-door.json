@@ -1,0 +1,19 @@
+{
+  "slug": "jeep-renegade-door-dent",
+  "date": "2026-09-07",
+  "title": "무천공 덴트",
+  "category": "dent",
+  "part": ["도어"],
+  "carMaker": "지프",
+  "carModel": "레니게이드",
+  "before": "/works/jeep-renegade-door-dent-before.jpg",
+  "after": "/works/jeep-renegade-door-dent-after.jpg",
+  "thumbnail": "/works/thumbnails/jeep-renegade-door-dent.jpg",
+  "summary": "구멍을 뚫지 않고 기존 도장면을 유지해 도어 눌림을 복원한 사례입니다.",
+  "body": "뒤 도어에 생긴 눌림과 도장면의 상태를 확인했습니다. 도장이 벗겨지지 않아 도색 없이 무천공 덴트로 원래 라인을 복원했습니다. 작업 후 조명 반사로 면의 흐름을 다시 확인했습니다.",
+  "blogUrl": "https://blog.naver.com/ace_dent_shop/224391876581",
+  "featured": true,
+  "featuredOrder": 3,
+  "days": "당일",
+  "sliderType": "drag"
+}

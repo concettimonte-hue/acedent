@@ -1,0 +1,19 @@
+{
+  "slug": "bmw-x1-door-panel-paint",
+  "date": "2026-09-07",
+  "title": "도어 판금도장",
+  "category": "panel-paint",
+  "part": ["도어"],
+  "carMaker": "BMW",
+  "carModel": "X1",
+  "before": "/works/bmw-x1-door-panel-paint-before.jpg",
+  "after": "/works/bmw-x1-door-panel-paint-after.jpg",
+  "thumbnail": "/works/thumbnails/bmw-x1-door-panel-paint.jpg",
+  "summary": "도어 패널의 찍힘과 스크래치를 판금도색으로 복원한 사례입니다.",
+  "body": "도어와 휀더가 만나는 부분의 찍힘과 스크래치를 확인했습니다. 손상된 도어 면을 판금으로 정리한 뒤 차량 색상에 맞춰 도장했습니다. 패널 경계의 단차와 색상 연결을 확인해 마무리했습니다.",
+  "blogUrl": "https://blog.naver.com/ace_dent_shop/224371274165",
+  "featured": true,
+  "featuredOrder": 6,
+  "days": "2일",
+  "sliderType": "drag"
+}

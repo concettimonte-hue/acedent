@@ -1,0 +1,19 @@
+{
+  "slug": "mercedes-e300-door-repair",
+  "date": "2026-09-07",
+  "title": "도어 교환 및 판금도장",
+  "category": "replace-paint",
+  "part": ["도어"],
+  "carMaker": "벤츠",
+  "carModel": "E300",
+  "before": "/works/mercedes-e300-door-repair-before.jpg",
+  "after": "/works/mercedes-e300-door-repair-after.jpg",
+  "thumbnail": "/works/thumbnails/mercedes-e300-door-repair.jpg",
+  "summary": "복원보다 교환이 나은 상태를 확인해 도어를 교체하고 주변 패널의 색을 맞춘 작업입니다.",
+  "body": "도어 여러 부위의 긁힘과 변형 상태를 먼저 확인했습니다. 복원보다 교환이 적합한 도어는 교체하고, 함께 손상된 부분은 판금도색으로 정리했습니다. 작업 후 도어 사이의 단차와 주변 패널의 색 차이를 확인해 마무리했습니다.",
+  "blogUrl": "https://blog.naver.com/ace_dent_shop/222953336039",
+  "featured": true,
+  "featuredOrder": 1,
+  "days": "4일",
+  "sliderType": "drag"
+}

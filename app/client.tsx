@@ -1,10 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import Home from './page';
+import SiteRouter from '@/components/SiteRouter';
 import './globals.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Home />
+    <SiteRouter />
   </StrictMode>,
 );

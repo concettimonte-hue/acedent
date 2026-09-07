@@ -7,15 +7,22 @@ import SectionNumber from '@/components/SectionNumber';
 import casesData from '@/content/cases.json';
 import naverData from '@/content/naver.json';
 import siteData from '@/content/site.json';
-import type { CaseItem, CasesContent, SiteContent } from '@/content/types';
+import type { CasesContent, SiteContent } from '@/content/types';
+import type { WorkItem } from '@/content/works/types';
 import { withLandingUtm } from '@/lib/tracking';
+import { getWorkThumbnailSrc } from '@/lib/work-images';
+import {
+  formatWorkCar,
+  formatWorkPartAndCategory,
+  getFeaturedWorks,
+} from '@/lib/works';
 
 const content = casesData as CasesContent;
 const site = siteData as SiteContent;
-const cases = [...content.items].sort((a, b) => a.order - b.order);
+const cases = getFeaturedWorks(8);
 
-const imageAlt = (item: CaseItem, state: '전' | '후') =>
-  `${item.car} ${item.part.replaceAll(' · ', ' ')} ${state}`;
+const imageAlt = (item: WorkItem, state: '전' | '후') =>
+  `${formatWorkCar(item)} ${item.part.join(' ')} ${state}`;
 
 export default function CaseGallery() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -164,17 +171,17 @@ export default function CaseGallery() {
             }}
             className="case-card"
             type="button"
-            key={item.id}
+            key={item.slug}
             onClick={() => openCase(index)}
             aria-haspopup="dialog"
-            aria-label={`${item.car} ${item.title} 전후 비교 보기`}
+            aria-label={`${formatWorkCar(item)} ${item.title} 전후 비교 보기`}
           >
             <span className="case-thumbnail">
               <img
-                src={item.afterImg}
+                src={getWorkThumbnailSrc(item)}
                 alt={imageAlt(item, '후')}
-                width="1600"
-                height="1200"
+                width="800"
+                height="600"
                 loading="lazy"
                 decoding="async"
               />
@@ -187,11 +194,11 @@ export default function CaseGallery() {
             </span>
             <span className="case-card-copy">
               <span className="case-card-meta">
-                <span>{item.car}</span>
+                <span>{formatWorkCar(item)}</span>
                 <strong>{item.days}</strong>
               </span>
               <span className="case-card-title">{item.title}</span>
-              <span className="case-card-part">{item.part}</span>
+              <span className="case-card-part">{formatWorkPartAndCategory(item)}</span>
               <span className="case-card-action">비교 보기 →</span>
             </span>
           </button>
@@ -206,12 +213,15 @@ export default function CaseGallery() {
             aria-label={`${index + 1}번 사례로 이동`}
             aria-current={activeIndex === index ? 'true' : undefined}
             onClick={() => scrollToCase(index)}
-            key={item.id}
+            key={item.slug}
           />
         ))}
       </div>
 
       <div className="cases-bottom-link-wrap">
+        <a className="cases-more-button" href="/works">
+          {content.moreLinkLabel}
+        </a>
         <a
           className="cases-bottom-link"
           href={withLandingUtm(naverData.blog, 'cases_bottom')}
@@ -247,8 +257,8 @@ export default function CaseGallery() {
             </button>
             <div className="case-modal-media">
               <BeforeAfterSlider
-                beforeSrc={selectedCase.beforeImg}
-                afterSrc={selectedCase.afterImg}
+                beforeSrc={selectedCase.before}
+                afterSrc={selectedCase.after}
                 beforeAlt={imageAlt(selectedCase, '전')}
                 afterAlt={imageAlt(selectedCase, '후')}
                 mode={selectedCase.sliderType}
@@ -277,8 +287,8 @@ export default function CaseGallery() {
               </p>
               <h3 id="case-modal-title">{selectedCase.title}</h3>
               <div className="case-modal-details">
-                <span>{selectedCase.car}</span>
-                <span>{selectedCase.part}</span>
+                <span>{formatWorkCar(selectedCase)}</span>
+                <span>{formatWorkPartAndCategory(selectedCase)}</span>
                 <strong>{selectedCase.days}</strong>
               </div>
               <p>{selectedCase.summary}</p>
@@ -286,14 +296,16 @@ export default function CaseGallery() {
                 <a className="case-modal-phone" href={site.contact.phoneHref}>
                   이런 손상이면 문의하기
                 </a>
-                <a
-                  className="case-modal-blog"
-                  href={withLandingUtm(selectedCase.blogUrl, 'case')}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {content.modalLinkLabel} <ArrowUpRight aria-hidden="true" />
-                </a>
+                {selectedCase.blogUrl && (
+                  <a
+                    className="case-modal-blog"
+                    href={withLandingUtm(selectedCase.blogUrl, 'case')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {content.modalLinkLabel} <ArrowUpRight aria-hidden="true" />
+                  </a>
+                )}
               </div>
             </div>
           </div>

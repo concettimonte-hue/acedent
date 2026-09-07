@@ -1,0 +1,19 @@
+{
+  "slug": "bmw-520i-bumper-partial-paint",
+  "date": "2026-09-07",
+  "title": "범퍼 부분도장",
+  "category": "partial-paint",
+  "part": ["범퍼"],
+  "carMaker": "BMW",
+  "carModel": "520i",
+  "before": "/works/bmw-520i-bumper-partial-paint-before.jpg",
+  "after": "/works/bmw-520i-bumper-partial-paint-after.jpg",
+  "thumbnail": "/works/thumbnails/bmw-520i-bumper-partial-paint.jpg",
+  "summary": "손상 범위만 부분도장해 작업 범위와 기간을 줄인 사례입니다.",
+  "body": "앞범퍼 모서리의 긁힘 위치와 깊이를 확인했습니다. 전체 범퍼를 넓게 작업하지 않고 손상된 범위를 중심으로 부분도장을 진행했습니다. 주변 색상과 광택을 확인한 뒤 출고했습니다.",
+  "blogUrl": "https://blog.naver.com/ace_dent_shop/224395064310",
+  "featured": true,
+  "featuredOrder": 2,
+  "days": "1일",
+  "sliderType": "drag"
+}

@@ -10,27 +10,13 @@ export type NaverIconName =
   | 'calendarDays';
 export type BeforeAfterMode = 'drag' | 'split';
 
-export interface CaseItem {
-  id: string;
-  order: number;
-  title: string;
-  car: string;
-  part: string;
-  days: string;
-  summary: string;
-  beforeImg: string;
-  afterImg: string;
-  blogUrl: string;
-  sliderType: BeforeAfterMode;
-}
-
 export interface CasesContent {
   sectionLabel: string;
   headingLines: [string, string];
   instruction: string;
   bottomLinkLabel: string;
   modalLinkLabel: string;
-  items: CaseItem[];
+  moreLinkLabel: string;
 }
 
 export interface TrustItem {

@@ -1,0 +1,19 @@
+{
+  "slug": "tesla-model3-trunk-panel-paint",
+  "date": "2026-09-07",
+  "title": "트렁크 판금도장",
+  "category": "panel-paint",
+  "part": ["트렁크"],
+  "carMaker": "테슬라",
+  "carModel": "모델3",
+  "before": "/works/tesla-model3-trunk-panel-paint-before.jpg",
+  "after": "/works/tesla-model3-trunk-panel-paint-after.jpg",
+  "thumbnail": "/works/thumbnails/tesla-model3-trunk-panel-paint.jpg",
+  "summary": "트렁크 패널의 깊게 눌린 자국을 판금하고 도장해 마감한 사례입니다.",
+  "body": "트렁크 끝부분의 깊은 눌림과 도장 손상을 확인했습니다. 패널 형태와 인접한 테일램프 라인을 고려해 판금한 뒤 도장했습니다. 작업 후 트렁크 단차와 표면 광택을 확인했습니다.",
+  "blogUrl": "https://blog.naver.com/ace_dent_shop/224335294851",
+  "featured": true,
+  "featuredOrder": 5,
+  "days": "2일",
+  "sliderType": "split"
+}

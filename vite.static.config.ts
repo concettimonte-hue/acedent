@@ -1,12 +1,188 @@
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/postcss';
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
+import {
+  WORK_CATEGORIES,
+  WORK_PARTS,
+  type WorkCategory,
+  type WorkItem,
+} from './content/works/types';
 import {
   autoRepairJsonLd,
   faqJsonLd,
   serializeJsonLd,
   siteUrl,
 } from './lib/seo';
+
+const worksDirectory = fileURLToPath(new URL('./content/works', import.meta.url));
+
+function loadBuildWorks() {
+  const categoryIds = new Set<string>(WORK_CATEGORIES.map((item) => item.id));
+  const allowedParts = new Set<string>(WORK_PARTS);
+  const works = readdirSync(worksDirectory)
+    .filter((fileName) => fileName.endsWith('.json'))
+    .map((fileName) => {
+      if (!/^\d{4}-\d{2}-\d{2}-[a-z0-9-]+\.json$/.test(fileName)) {
+        throw new Error(`${fileName}: 파일명은 YYYY-MM-DD-slug.json 형식이어야 합니다.`);
+      }
+      const work = JSON.parse(
+        readFileSync(`${worksDirectory}/${fileName}`, 'utf8'),
+      ) as WorkItem;
+
+      if (!work.slug || !work.title || !work.date) {
+        throw new Error(`${fileName}: slug, title, date는 필수입니다.`);
+      }
+      if (!categoryIds.has(work.category)) {
+        throw new Error(`${fileName}: 허용되지 않은 category입니다.`);
+      }
+      if (!Array.isArray(work.part) || work.part.some((part) => !allowedParts.has(part))) {
+        throw new Error(`${fileName}: 허용되지 않은 part가 있습니다.`);
+      }
+      return work;
+    })
+    .sort((a, b) => b.date.localeCompare(a.date));
+
+  const slugs = new Set<string>();
+  for (const work of works) {
+    if (slugs.has(work.slug)) throw new Error(`중복된 수리사례 slug: ${work.slug}`);
+    slugs.add(work.slug);
+  }
+  return works;
+}
+
+const escapeHtml = (value: string) =>
+  value
+    .replaceAll('&', '&amp;')
+    .replaceAll('"', '&quot;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+
+const escapeXml = escapeHtml;
+
+interface RouteMetadata {
+  title: string;
+  description: string;
+  canonical: string;
+  image: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  imageAlt?: string;
+  type?: 'website' | 'article';
+  jsonLd?: unknown;
+}
+
+function renderRouteHtml(baseHtml: string, metadata: RouteMetadata) {
+  const values = {
+    title: escapeHtml(metadata.title),
+    description: escapeHtml(metadata.description),
+    canonical: escapeHtml(metadata.canonical),
+    image: escapeHtml(metadata.image),
+    imageAlt: escapeHtml(metadata.imageAlt ?? '에이스덴트 수리사례'),
+    type: metadata.type ?? 'website',
+  };
+
+  let html = baseHtml
+    .replace(/<title>[\s\S]*?<\/title>/i, `<title>${values.title}</title>`)
+    .replace(
+      /<meta\s+name="description"[\s\S]*?>/i,
+      `<meta name="description" content="${values.description}" />`,
+    )
+    .replace(
+      /<link\s+rel="canonical"[^>]*>/i,
+      `<link rel="canonical" href="${values.canonical}" />`,
+    )
+    .replace(
+      /<meta\s+property="og:type"[^>]*>/i,
+      `<meta property="og:type" content="${values.type}" />`,
+    )
+    .replace(
+      /<meta\s+property="og:url"[^>]*>/i,
+      `<meta property="og:url" content="${values.canonical}" />`,
+    )
+    .replace(
+      /<meta\s+property="og:title"[^>]*>/i,
+      `<meta property="og:title" content="${values.title}" />`,
+    )
+    .replace(
+      /<meta\s+property="og:description"[\s\S]*?>/i,
+      `<meta property="og:description" content="${values.description}" />`,
+    )
+    .replace(
+      /<meta\s+property="og:image"[^>]*>/i,
+      `<meta property="og:image" content="${values.image}" />`,
+    )
+    .replace(
+      /<meta\s+property="og:image:width"[^>]*>/i,
+      `<meta property="og:image:width" content="${metadata.imageWidth ?? 1200}" />`,
+    )
+    .replace(
+      /<meta\s+property="og:image:height"[^>]*>/i,
+      `<meta property="og:image:height" content="${metadata.imageHeight ?? 630}" />`,
+    )
+    .replace(
+      /<meta\s+property="og:image:alt"[^>]*>/i,
+      `<meta property="og:image:alt" content="${values.imageAlt}" />`,
+    )
+    .replace(
+      /<meta\s+name="twitter:title"[^>]*>/i,
+      `<meta name="twitter:title" content="${values.title}" />`,
+    )
+    .replace(
+      /<meta\s+name="twitter:description"[\s\S]*?>/i,
+      `<meta name="twitter:description" content="${values.description}" />`,
+    )
+    .replace(
+      /<meta\s+name="twitter:image"[^>]*>/i,
+      `<meta name="twitter:image" content="${values.image}" />`,
+    )
+    .replace(
+      /<script[^>]*id="acedent-faq-jsonld"[^>]*>[\s\S]*?<\/script>/i,
+      '',
+    );
+
+  if (metadata.jsonLd) {
+    html = html.replace(
+      '</head>',
+      `<script id="work-breadcrumb-jsonld" type="application/ld+json">${serializeJsonLd(metadata.jsonLd)}</script>\n</head>`,
+    );
+  }
+  return html;
+}
+
+function getCategoryLabel(category: WorkCategory) {
+  return WORK_CATEGORIES.find((item) => item.id === category)?.label ?? category;
+}
+
+function getBreadcrumbJsonLd(work: WorkItem) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '홈', item: siteUrl },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: '수리사례',
+        item: `${siteUrl}/works`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: getCategoryLabel(work.category),
+        item: `${siteUrl}/works/${work.category}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 4,
+        name: work.title,
+        item: `${siteUrl}/works/detail/${work.slug}`,
+      },
+    ],
+  };
+}
 
 const seoAssetsPlugin = (): Plugin => ({
   name: 'acedent-seo-assets',
@@ -15,25 +191,106 @@ const seoAssetsPlugin = (): Plugin => ({
     handler: () => [
       {
         tag: 'script',
-        attrs: { type: 'application/ld+json' },
+        attrs: { id: 'acedent-business-jsonld', type: 'application/ld+json' },
         children: serializeJsonLd(autoRepairJsonLd),
         injectTo: 'head',
       },
       {
         tag: 'script',
-        attrs: { type: 'application/ld+json' },
+        attrs: { id: 'acedent-faq-jsonld', type: 'application/ld+json' },
         children: serializeJsonLd(faqJsonLd),
         injectTo: 'head',
       },
     ],
   },
   generateBundle() {
+    const works = loadBuildWorks();
     const lastModified = new Date().toISOString();
-    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>${siteUrl}</loc>\n    <lastmod>${lastModified}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>1.0</priority>\n  </url>\n</urlset>\n`;
+    const sitemapEntries = [
+      { loc: siteUrl, lastmod: lastModified, changefreq: 'monthly', priority: '1.0' },
+      {
+        loc: `${siteUrl}/works`,
+        lastmod: lastModified,
+        changefreq: 'weekly',
+        priority: '0.9',
+      },
+      ...WORK_CATEGORIES.map((category) => ({
+        loc: `${siteUrl}/works/${category.id}`,
+        lastmod: lastModified,
+        changefreq: 'weekly',
+        priority: '0.8',
+      })),
+      ...works.map((work) => ({
+        loc: `${siteUrl}/works/detail/${work.slug}`,
+        lastmod: work.date,
+        changefreq: 'monthly',
+        priority: '0.7',
+      })),
+    ];
+    const sitemapBody = sitemapEntries
+      .map(
+        (entry) =>
+          `  <url>\n    <loc>${escapeXml(entry.loc)}</loc>\n    <lastmod>${entry.lastmod}</lastmod>\n    <changefreq>${entry.changefreq}</changefreq>\n    <priority>${entry.priority}</priority>\n  </url>`,
+      )
+      .join('\n');
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapBody}\n</urlset>\n`;
     const robots = `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\nHost: ${siteUrl}\n`;
 
     this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: sitemap });
     this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robots });
+  },
+  writeBundle(options) {
+    const works = loadBuildWorks();
+    const outputDirectory = resolve(options.dir ?? 'dist');
+    const baseHtml = readFileSync(resolve(outputDirectory, 'index.html'), 'utf8');
+
+    const writeRoute = (fileName: string, html: string) => {
+      const target = resolve(outputDirectory, fileName);
+      mkdirSync(resolve(target, '..'), { recursive: true });
+      writeFileSync(target, html);
+    };
+
+    writeRoute(
+      'works.html',
+      renderRouteHtml(baseHtml, {
+        title: '수리사례 | 에이스덴트',
+        description:
+          '서울 동대문 에이스덴트의 덴트, 판금도색, 부분도색, 교환도색, 광택·복원 전후 작업사례를 확인하세요.',
+        canonical: `${siteUrl}/works`,
+        image: `${siteUrl}/og-image.jpg`,
+      }),
+    );
+
+    for (const category of WORK_CATEGORIES) {
+      const label = category.label;
+      writeRoute(
+        `works/${category.id}.html`,
+        renderRouteHtml(baseHtml, {
+          title: `${label} 수리사례 | 에이스덴트`,
+          description: `서울 동대문 에이스덴트의 ${label} 전후 작업사례를 확인하세요.`,
+          canonical: `${siteUrl}/works/${category.id}`,
+          image: `${siteUrl}/og-image.jpg`,
+        }),
+      );
+    }
+
+    for (const work of works) {
+      const canonical = `${siteUrl}/works/detail/${work.slug}`;
+      writeRoute(
+        `works/detail/${work.slug}.html`,
+        renderRouteHtml(baseHtml, {
+          title: `${work.title} | 에이스덴트 수리사례`,
+          description: work.summary,
+          canonical,
+          image: `${siteUrl}${work.after}`,
+          imageWidth: 1600,
+          imageHeight: 1200,
+          imageAlt: `${work.carMaker} ${work.carModel} ${work.title} 작업 후`,
+          type: 'article',
+          jsonLd: getBreadcrumbJsonLd(work),
+        }),
+      );
+    }
   },
 });
 
