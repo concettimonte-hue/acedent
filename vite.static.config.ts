@@ -41,7 +41,7 @@ export default defineConfig({
   css: { postcss: { plugins: [tailwindcss()] } },
   plugins: [seoAssetsPlugin(), react()],
   build: {
-    outDir: 'vercel-dist',
+    outDir: 'dist',
     emptyOutDir: true,
   },
 });
