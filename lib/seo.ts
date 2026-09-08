@@ -8,6 +8,7 @@ export const faq = faqData as FaqContent;
 export const naver = naverData as NaverContent;
 
 export const siteUrl = business.url;
+export const siteContentLastModified = '2026-09-08';
 export const defaultTitle = '동대문 판금도색·외형복원·덴트·광택 | 에이스덴트';
 export const siteDescription =
   '서울 동대문 에이스덴트는 자동차 판금도색, 외형복원, 무도색 덴트와 광택을 차량 상태에 맞춰 진행합니다. 실제 작업 전후 사진과 수리 과정, 가능한 방법과 한계를 투명하게 안내합니다.';

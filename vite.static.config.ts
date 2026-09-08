@@ -1,5 +1,6 @@
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/postcss';
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,8 +26,31 @@ import {
 import { getWorkSeoCopy, getWorksSeoCopy } from './lib/work-seo';
 
 const worksDirectory = fileURLToPath(new URL('./content/works', import.meta.url));
+const projectDirectory = fileURLToPath(new URL('.', import.meta.url));
+const sitemapFallbackDate = '2026-09-08';
 
-function loadBuildWorks() {
+interface BuildWork extends WorkItem {
+  sourceFile: string;
+}
+
+function getGitLastModified(paths: string[], fallback = sitemapFallbackDate) {
+  try {
+    const date = execFileSync(
+      'git',
+      ['log', '-1', '--format=%cs', '--', ...paths],
+      {
+        cwd: projectDirectory,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      },
+    ).trim();
+    return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function loadBuildWorks(): BuildWork[] {
   const categoryIds = new Set<string>(WORK_CATEGORIES.map((item) => item.id));
   const allowedParts = new Set<string>(WORK_PARTS);
   const works = readdirSync(worksDirectory)
@@ -48,7 +72,7 @@ function loadBuildWorks() {
       if (!Array.isArray(work.part) || work.part.some((part) => !allowedParts.has(part))) {
         throw new Error(`${fileName}: 허용되지 않은 part가 있습니다.`);
       }
-      return work;
+      return { ...work, sourceFile: `content/works/${fileName}` };
     })
     .sort((a, b) => b.date.localeCompare(a.date));
 
@@ -237,24 +261,64 @@ const seoAssetsPlugin = (): Plugin => ({
   },
   generateBundle() {
     const works = loadBuildWorks();
-    const lastModified = new Date().toISOString();
+    const sharedPageSources = [
+      'vite.static.config.ts',
+      'lib/static-html.ts',
+      'lib/work-seo.ts',
+      'lib/seo.ts',
+    ];
+    const homeLastModified = getGitLastModified([
+      ...sharedPageSources,
+      'app/page.tsx',
+      'content/site.json',
+      'content/trust.json',
+      'content/faq.json',
+      'content/polish.json',
+      'content/reviews.json',
+      'content/insurance.json',
+      'content/process.json',
+      ...works.map((work) => work.sourceFile),
+    ]);
+    const worksLastModified = getGitLastModified([
+      ...sharedPageSources,
+      'components/WorksGalleryPage.tsx',
+      'components/WorkCard.tsx',
+      ...works.map((work) => work.sourceFile),
+    ]);
     const sitemapEntries = [
-      { loc: siteUrl, lastmod: lastModified, changefreq: 'monthly', priority: '1.0' },
+      {
+        loc: siteUrl,
+        lastmod: homeLastModified,
+        changefreq: 'monthly',
+        priority: '1.0',
+      },
       {
         loc: `${siteUrl}/works`,
-        lastmod: lastModified,
+        lastmod: worksLastModified,
         changefreq: 'weekly',
         priority: '0.9',
       },
       ...WORK_CATEGORIES.map((category) => ({
         loc: `${siteUrl}/works/${category.id}`,
-        lastmod: lastModified,
+        lastmod: getGitLastModified([
+          ...sharedPageSources,
+          'components/WorksGalleryPage.tsx',
+          'components/WorkCard.tsx',
+          ...works
+            .filter((work) => work.category === category.id)
+            .map((work) => work.sourceFile),
+        ]),
         changefreq: 'weekly',
         priority: '0.8',
       })),
       ...works.map((work) => ({
         loc: `${siteUrl}/works/detail/${work.slug}`,
-        lastmod: work.date,
+        lastmod: getGitLastModified([
+          ...sharedPageSources,
+          'components/WorkDetailPage.tsx',
+          'components/BeforeAfterSlider.tsx',
+          work.sourceFile,
+        ]),
         changefreq: 'monthly',
         priority: '0.7',
       })),
