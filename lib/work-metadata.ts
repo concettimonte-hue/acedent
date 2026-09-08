@@ -1,6 +1,10 @@
 import type { WorkCategory, WorkItem } from '@/content/works/types';
 import { getWorkCategoryLabel } from '@/content/works/types';
-import { resolveWorkImageSrc } from '@/lib/work-images';
+import {
+  getWorkImageAlt,
+  getWorkPrimaryAfterSrc,
+  resolveWorkImageSrc,
+} from '@/lib/work-images';
 import { siteUrl } from '@/lib/seo';
 import { getWorkSeoCopy, getWorksSeoCopy } from '@/lib/work-seo';
 
@@ -28,22 +32,29 @@ export function getWorkMetadata(work: WorkItem): WorkMetadata {
     title,
     description,
     canonical: `${siteUrl}/works/detail/${work.slug}`,
-    image: `${siteUrl}${resolveWorkImageSrc(work.after)}`,
+    image: `${siteUrl}${getWorkPrimaryAfterSrc(work)}`,
   };
 }
 
 export function getWorkImageJsonLd(work: WorkItem) {
-  const image = `${siteUrl}${resolveWorkImageSrc(work.after)}`;
   return {
     '@context': 'https://schema.org',
-    '@type': 'ImageObject',
-    contentUrl: image,
-    thumbnailUrl: image,
-    name: `${work.carMaker} ${work.carModel} ${work.part.join('·')} ${getWorkCategoryLabel(work.category)} 작업 후`,
-    caption: work.summary,
-    width: 1600,
-    height: 1200,
-    representativeOfPage: true,
+    '@graph': work.parts.flatMap((part, partIndex) =>
+      (['전', '후'] as const).map((state) => {
+        const source = state === '전' ? part.before : part.after;
+        const image = `${siteUrl}${resolveWorkImageSrc(source)}`;
+        return {
+          '@type': 'ImageObject',
+          contentUrl: image,
+          thumbnailUrl: image,
+          name: getWorkImageAlt(work, part, state),
+          caption: `${part.label}: ${part.note}`,
+          width: 1600,
+          height: 1200,
+          representativeOfPage: partIndex === 0 && state === '후',
+        };
+      }),
+    ),
   };
 }
 

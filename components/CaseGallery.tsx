@@ -8,9 +8,12 @@ import casesData from '@/content/cases.json';
 import naverData from '@/content/naver.json';
 import siteData from '@/content/site.json';
 import type { CasesContent, SiteContent } from '@/content/types';
-import { getWorkCategoryLabel, type WorkItem } from '@/content/works/types';
 import { withLandingUtm } from '@/lib/tracking';
-import { getWorkThumbnailSrc } from '@/lib/work-images';
+import {
+  getWorkImageAlt,
+  getWorkPrimaryPart,
+  getWorkThumbnailSrc,
+} from '@/lib/work-images';
 import {
   formatWorkCar,
   formatWorkPartAndCategory,
@@ -20,9 +23,6 @@ import {
 const content = casesData as CasesContent;
 const site = siteData as SiteContent;
 const cases = getFeaturedWorks(8);
-
-const imageAlt = (item: WorkItem, state: '전' | '후') =>
-  `서울 동대문 ${formatWorkCar(item)} ${item.part.join(' ')} ${getWorkCategoryLabel(item.category)} ${state}`;
 
 export default function CaseGallery() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -143,6 +143,7 @@ export default function CaseGallery() {
   };
 
   const selectedCase = selectedIndex === null ? null : cases[selectedIndex];
+  const selectedPart = selectedCase ? getWorkPrimaryPart(selectedCase) : null;
 
   return (
     <section id="cases" className="section section-cases numbered-section">
@@ -179,7 +180,7 @@ export default function CaseGallery() {
             <span className="case-thumbnail">
               <img
                 src={getWorkThumbnailSrc(item)}
-                alt={imageAlt(item, '후')}
+                alt={getWorkImageAlt(item, getWorkPrimaryPart(item), '후')}
                 width="800"
                 height="600"
                 loading="lazy"
@@ -232,7 +233,7 @@ export default function CaseGallery() {
         </a>
       </div>
 
-      {selectedCase && (
+      {selectedCase && selectedPart && (
         <div
           className="case-modal-backdrop"
           onPointerDown={(event) => {
@@ -257,10 +258,10 @@ export default function CaseGallery() {
             </button>
             <div className="case-modal-media">
               <BeforeAfterSlider
-                beforeSrc={selectedCase.before}
-                afterSrc={selectedCase.after}
-                beforeAlt={imageAlt(selectedCase, '전')}
-                afterAlt={imageAlt(selectedCase, '후')}
+                beforeSrc={selectedPart.before}
+                afterSrc={selectedPart.after}
+                beforeAlt={getWorkImageAlt(selectedCase, selectedPart, '전')}
+                afterAlt={getWorkImageAlt(selectedCase, selectedPart, '후')}
                 mode={selectedCase.sliderType}
               />
               <button

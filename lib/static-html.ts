@@ -22,7 +22,13 @@ import {
   getWorkCategoryLabel,
   type WorkCategory,
   type WorkItem,
+  type WorkPartMedia,
 } from '../content/works/types';
+import {
+  getWorkImageAlt,
+  getWorkPrimaryPart,
+  getWorkThumbnailSrc,
+} from './work-images';
 
 const site = siteData as SiteContent;
 const faq = faqData as FaqContent;
@@ -42,8 +48,6 @@ const escapeHtml = (value: string) =>
 
 const text = (value: string) => escapeHtml(value);
 const car = (work: WorkItem) => `${work.carMaker} ${work.carModel}`;
-const workAlt = (work: WorkItem, state: '전' | '후') =>
-  `서울 동대문 ${car(work)} ${work.part.join('·')} ${getWorkCategoryLabel(work.category)} 작업 ${state}`;
 
 function image(
   src: string,
@@ -54,9 +58,10 @@ function image(
 }
 
 function workCard(work: WorkItem) {
+  const primaryPart = getWorkPrimaryPart(work);
   return `<article class="seo-work-card">
     <a href="/works/detail/${text(work.slug)}">
-      ${image(work.thumbnail ?? work.after, workAlt(work, '후'), { width: 800, height: 600 })}
+      ${image(getWorkThumbnailSrc(work), getWorkImageAlt(work, primaryPart, '후'), { width: 800, height: 600 })}
       <p>${text(getWorkCategoryLabel(work.category))}</p>
       <h3>${text(car(work))} ${text(work.title)}</h3>
       <p>${text(work.summary)}</p>
@@ -141,17 +146,26 @@ export function getWorksStaticHtml(works: WorkItem[], category?: WorkCategory) {
 
 export function getWorkDetailStaticHtml(work: WorkItem, related: WorkItem[]) {
   const categoryLabel = getWorkCategoryLabel(work.category);
+  const partSection = (part: WorkPartMedia, index: number) => `<section>
+        <p>PART ${String(index + 1).padStart(2, '0')}</p>
+        <h2>${text(part.label)}</h2>
+        <p>${text(part.note)}</p>
+        <div class="seo-comparison">
+          ${image(part.before, getWorkImageAlt(work, part, '전'), { eager: index === 0 })}
+          ${image(part.after, getWorkImageAlt(work, part, '후'), { eager: index === 0 })}
+        </div>
+      </section>`;
   return `<main class="seo-static seo-work-detail">
     <header class="seo-static-header"><a href="/">ACE DENT</a><a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
     <nav aria-label="현재 위치"><a href="/">홈</a> / <a href="/works">수리사례</a> / <a href="/works/${text(work.category)}">${text(categoryLabel)}</a></nav>
     <article>
       <p>${text(categoryLabel)}</p>
       <h1>동대문 ${text(car(work))} ${text(work.title)} 수리사례</h1>
-      <p>${text(work.part.join(' · '))} · ${text(work.days)}</p>
-      <div class="seo-comparison">${image(work.before, workAlt(work, '전'), { eager: true })}${image(work.after, workAlt(work, '후'), { eager: true })}</div>
+      <p>${text(work.part.join(' · '))} · ${work.color ? `${text(work.color)} · ` : ''}${text(work.days)}</p>
+      ${work.parts.map(partSection).join('')}
       <p><strong>${text(work.summary)}</strong></p>
       ${work.body.split('\n\n').map((paragraph) => `<p>${text(paragraph)}</p>`).join('')}
-      ${work.blogUrl ? `<a href="${text(work.blogUrl)}" target="_blank" rel="noopener noreferrer">블로그에서 자세히 보기</a>` : ''}
+      ${work.blogUrl ? `<a href="${text(work.blogUrl)}" target="_blank" rel="noopener noreferrer">블로그에서 더 보기</a>` : ''}
     </article>
     ${related.length ? `<section><h2>같은 작업방식 사례</h2><div class="seo-works-grid">${related.map(workCard).join('')}</div></section>` : ''}
     <section><h2>비슷한 손상이라면 사진으로 문의하세요.</h2><a href="${text(site.contact.phoneHref)}">전화</a><a href="${text(site.contact.smsHref)}">사진 문자</a><a href="${text(naver.talk)}" target="_blank" rel="noopener noreferrer">네이버 톡톡</a></section>

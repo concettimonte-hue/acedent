@@ -8,7 +8,7 @@ import WorksHeader from '@/components/WorksHeader';
 import WorksQuickActions from '@/components/WorksQuickActions';
 import type { WorkItem } from '@/content/works/types';
 import { getWorkCategoryLabel } from '@/content/works/types';
-import { resolveWorkImageSrc } from '@/lib/work-images';
+import { getWorkImageAlt, resolveWorkImageSrc } from '@/lib/work-images';
 import {
   applyClientMetadata,
   getWorkMetadata,
@@ -47,20 +47,36 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
           <div>
             <span>{formatWorkCar(work)}</span>
             <span>{work.part.join(' · ')}</span>
+            {work.color && <span>{work.color}</span>}
             <strong>{work.days}</strong>
           </div>
         </header>
 
-        <div className="work-detail-slider">
-          <BeforeAfterSlider
-            beforeSrc={resolveWorkImageSrc(work.before)}
-            afterSrc={resolveWorkImageSrc(work.after)}
-            beforeAlt={`서울 동대문 ${formatWorkCar(work)} ${work.part.join('·')} ${categoryLabel} 작업 전`}
-            afterAlt={`서울 동대문 ${formatWorkCar(work)} ${work.part.join('·')} ${categoryLabel} 작업 후`}
-            mode={work.sliderType}
-            priority
-            showHint={work.sliderType === 'drag'}
-          />
+        <div className="work-detail-parts">
+          {work.parts.map((part, index) => (
+            <section
+              className="work-detail-part"
+              key={`${part.label}-${index}`}
+              aria-labelledby={`work-part-${index}`}
+            >
+              <header className="work-detail-part-heading">
+                <span>PART {String(index + 1).padStart(2, '0')}</span>
+                <h2 id={`work-part-${index}`}>{part.label}</h2>
+                <p>{part.note}</p>
+              </header>
+              <div className="work-detail-slider">
+                <BeforeAfterSlider
+                  beforeSrc={resolveWorkImageSrc(part.before)}
+                  afterSrc={resolveWorkImageSrc(part.after)}
+                  beforeAlt={getWorkImageAlt(work, part, '전')}
+                  afterAlt={getWorkImageAlt(work, part, '후')}
+                  mode={work.sliderType}
+                  priority={index === 0}
+                  showHint={work.sliderType === 'drag'}
+                />
+              </div>
+            </section>
+          ))}
         </div>
 
         <div className="work-detail-copy">
@@ -75,7 +91,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              블로그에서 자세히 보기 <ArrowUpRight aria-hidden="true" />
+              블로그에서 더 보기 <ArrowUpRight aria-hidden="true" />
             </a>
           )}
         </div>

@@ -24,6 +24,13 @@ export const WORK_PARTS = [
 
 export type WorkPart = (typeof WORK_PARTS)[number];
 
+export interface WorkPartMedia {
+  label: string;
+  before: string;
+  after: string;
+  note: string;
+}
+
 export interface WorkItem {
   slug: string;
   date: string;
@@ -32,9 +39,8 @@ export interface WorkItem {
   part: WorkPart[];
   carMaker: string;
   carModel: string;
-  before: string;
-  after: string;
-  thumbnail?: string;
+  color?: string;
+  parts: WorkPartMedia[];
   summary: string;
   body: string;
   blogUrl?: string;

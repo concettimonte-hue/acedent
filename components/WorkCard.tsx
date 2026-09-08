@@ -2,7 +2,11 @@
 
 import { ArrowUpRight } from 'lucide-react';
 import { getWorkCategoryLabel, type WorkItem } from '@/content/works/types';
-import { getWorkThumbnailSrc } from '@/lib/work-images';
+import {
+  getWorkImageAlt,
+  getWorkPrimaryPart,
+  getWorkThumbnailSrc,
+} from '@/lib/work-images';
 import { formatWorkCar } from '@/lib/works';
 
 interface WorkCardProps {
@@ -10,6 +14,8 @@ interface WorkCardProps {
 }
 
 export default function WorkCard({ work }: WorkCardProps) {
+  const primaryPart = getWorkPrimaryPart(work);
+
   return (
     <a
       className="work-card"
@@ -19,7 +25,7 @@ export default function WorkCard({ work }: WorkCardProps) {
       <span className="work-card-media">
         <img
           src={getWorkThumbnailSrc(work)}
-          alt={`서울 동대문 ${formatWorkCar(work)} ${work.part.join('·')} ${getWorkCategoryLabel(work.category)} 작업 후`}
+          alt={getWorkImageAlt(work, primaryPart, '후')}
           width="800"
           height="600"
           loading="lazy"

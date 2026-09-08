@@ -1,4 +1,5 @@
-import type { WorkItem } from '@/content/works/types';
+import type { WorkItem, WorkPartMedia } from '../content/works/types';
+import { getWorkCategoryLabel } from '../content/works/types';
 
 export const WORK_IMAGE_DIRECTORY = '/works';
 
@@ -13,6 +14,27 @@ export function resolveWorkImageSrc(path: string) {
   return path.startsWith('/') ? path : `/${path}`;
 }
 
+export function getWorkPrimaryPart(work: WorkItem) {
+  return work.parts[0];
+}
+
+export function getWorkPrimaryAfterSrc(work: WorkItem) {
+  return resolveWorkImageSrc(getWorkPrimaryPart(work).after);
+}
+
 export function getWorkThumbnailSrc(work: WorkItem) {
-  return resolveWorkImageSrc(work.thumbnail || work.after);
+  const after = getWorkPrimaryPart(work).after;
+  const thumbnail = after.replace(
+    /^\/works\/(.+)-after\.(?:jpe?g|png|webp)$/i,
+    '/works/thumbnails/$1.jpg',
+  );
+  return resolveWorkImageSrc(thumbnail === after ? after : thumbnail);
+}
+
+export function getWorkImageAlt(
+  work: WorkItem,
+  part: WorkPartMedia,
+  state: '전' | '후',
+) {
+  return `서울 동대문 ${work.carMaker} ${work.carModel} ${part.label} ${getWorkCategoryLabel(work.category)} 작업 ${state}`;
 }

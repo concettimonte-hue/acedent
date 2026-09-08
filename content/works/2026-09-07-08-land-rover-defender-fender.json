@@ -6,9 +6,14 @@
   "part": ["휀더", "범퍼"],
   "carMaker": "랜드로버",
   "carModel": "디펜더",
-  "before": "/works/land-rover-defender-fender-panel-paint-before.jpg",
-  "after": "/works/land-rover-defender-fender-panel-paint-after.jpg",
-  "thumbnail": "/works/thumbnails/land-rover-defender-fender-panel-paint.jpg",
+  "parts": [
+    {
+      "label": "앞휀더·범퍼",
+      "before": "/works/land-rover-defender-fender-panel-paint-before.jpg",
+      "after": "/works/land-rover-defender-fender-panel-paint-after.jpg",
+      "note": "밀려 들어간 앞휀더 라인과 범퍼 주변 손상을 원래 형태에 가깝게 복원"
+    }
+  ],
   "summary": "밀려 들어간 앞휀더 라인과 범퍼 주변 손상을 원래 형태에 가깝게 복원한 사례입니다.",
   "body": "앞휀더와 범퍼에 이어진 긁힘과 휀더 라인의 변형을 확인했습니다. 밀려 들어간 휀더 면을 판금하고 손상 범위를 도장해 정리했습니다. 휠 아치 라인과 범퍼 경계의 연결을 확인한 뒤 출고했습니다.",
   "blogUrl": "https://blog.naver.com/ace_dent_shop/224383645497",

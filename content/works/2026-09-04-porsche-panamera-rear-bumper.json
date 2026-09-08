@@ -1,0 +1,30 @@
+{
+  "slug": "porsche-panamera-rear-bumper-panel-paint",
+  "date": "2026-09-04",
+  "title": "뒤범퍼 비탈거 전체도색",
+  "category": "panel-paint",
+  "part": ["범퍼"],
+  "carMaker": "포르쉐",
+  "carModel": "파나메라",
+  "color": "화이트 계열",
+  "parts": [
+    {
+      "label": "범퍼 후면",
+      "before": "/works/porsche-panamera-bumper-rear-before.jpg",
+      "after": "/works/porsche-panamera-bumper-rear-after.jpg",
+      "note": "좌측 하단 스크래치 및 도장 벗겨짐"
+    },
+    {
+      "label": "범퍼 옆면",
+      "before": "/works/porsche-panamera-bumper-side-before.jpg",
+      "after": "/works/porsche-panamera-bumper-side-after.jpg",
+      "note": "옆면 곡면부까지 이어진 손상, 블렌딩 도색으로 색상 단차 제거"
+    }
+  ],
+  "summary": "뒤범퍼 후면과 옆면으로 이어진 스크래치·도장 손상을 비탈거 전체도색으로 복원했습니다.",
+  "body": "9월 3일 입고된 차량의 뒤범퍼 후면과 옆면 손상 범위를 확인했습니다. 범퍼를 탈거하지 않고 손상 부위를 정리한 뒤 전체도색을 진행했습니다. 옆면 곡면부는 블렌딩 도색으로 색상 단차가 드러나지 않도록 맞췄습니다. 마감 상태를 점검한 뒤 9월 4일 출고했습니다.",
+  "blogUrl": "https://blog.naver.com/ace_dent_shop/224404047873",
+  "featured": false,
+  "days": "2일",
+  "sliderType": "drag"
+}

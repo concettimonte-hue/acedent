@@ -5,6 +5,7 @@ import {
   isWorkPart,
   type WorkCategory,
   type WorkItem,
+  type WorkPartMedia,
 } from '@/content/works/types';
 
 const workModules = import.meta.glob<{ default: unknown }>(
@@ -14,7 +15,7 @@ const workModules = import.meta.glob<{ default: unknown }>(
 
 function requireString(
   value: unknown,
-  field: keyof WorkItem,
+  field: string,
   fileName: string,
 ) {
   if (typeof value !== 'string' || !value.trim()) {
@@ -41,13 +42,29 @@ function parseWork(value: unknown, fileName: string): WorkItem {
   if (!Array.isArray(item.part) || item.part.length === 0) {
     throw new Error(`${fileName}: part는 한 개 이상의 배열이어야 합니다.`);
   }
-  const parts = item.part.map((part) => {
+  const workParts = item.part.map((part) => {
     if (typeof part !== 'string' || !isWorkPart(part)) {
       throw new Error(
         `${fileName}: part는 ${WORK_PARTS.join(', ')} 중에서 선택해야 합니다.`,
       );
     }
     return part;
+  });
+
+  if (!Array.isArray(item.parts) || item.parts.length === 0) {
+    throw new Error(`${fileName}: parts는 한 개 이상의 배열이어야 합니다.`);
+  }
+  const parts = item.parts.map((value, index): WorkPartMedia => {
+    if (!value || typeof value !== 'object') {
+      throw new Error(`${fileName}: parts[${index}]는 객체 형식이어야 합니다.`);
+    }
+    const part = value as Record<string, unknown>;
+    return {
+      label: requireString(part.label, `parts[${index}].label`, fileName),
+      before: requireString(part.before, `parts[${index}].before`, fileName),
+      after: requireString(part.after, `parts[${index}].after`, fileName),
+      note: requireString(part.note, `parts[${index}].note`, fileName),
+    };
   });
 
   const date = requireString(item.date, 'date', fileName);
@@ -66,15 +83,14 @@ function parseWork(value: unknown, fileName: string): WorkItem {
     date,
     title: requireString(item.title, 'title', fileName),
     category,
-    part: parts,
+    part: workParts,
     carMaker: requireString(item.carMaker, 'carMaker', fileName),
     carModel: requireString(item.carModel, 'carModel', fileName),
-    before: requireString(item.before, 'before', fileName),
-    after: requireString(item.after, 'after', fileName),
-    thumbnail:
-      typeof item.thumbnail === 'string' && item.thumbnail.trim()
-        ? item.thumbnail
+    color:
+      typeof item.color === 'string' && item.color.trim()
+        ? item.color
         : undefined,
+    parts,
     summary: requireString(item.summary, 'summary', fileName),
     body: requireString(item.body, 'body', fileName),
     blogUrl:

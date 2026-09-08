@@ -2758,9 +2758,44 @@ footer > a:last-child svg {
   color: #030403;
   font-size: 0.72rem;
 }
+.work-detail-parts {
+  display: grid;
+  gap: clamp(4rem, 8vw, 7rem);
+  margin-top: clamp(2.5rem, 5vw, 4.5rem);
+}
+.work-detail-part + .work-detail-part {
+  padding-top: clamp(3.5rem, 7vw, 6rem);
+  border-top: 1px solid #303330;
+}
+.work-detail-part-heading {
+  max-width: 820px;
+}
+.work-detail-part-heading > span {
+  color: #f8db00;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+.work-detail-part-heading h2 {
+  margin-top: 0.55rem;
+  color: white;
+  font-size: clamp(1.6rem, 3vw, 2.5rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+.work-detail-part-heading p {
+  margin-top: 0.65rem;
+  color: #9a9d99;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  word-break: keep-all;
+}
 .work-detail-slider {
   margin-top: clamp(2.5rem, 5vw, 4.5rem);
   border: 1px solid #303330;
+}
+.work-detail-part .work-detail-slider {
+  margin-top: 1.35rem;
 }
 .work-detail-copy {
   max-width: 820px;

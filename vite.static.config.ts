@@ -24,6 +24,11 @@ import {
   getWorksStaticHtml,
 } from './lib/static-html';
 import { getWorkSeoCopy, getWorksSeoCopy } from './lib/work-seo';
+import {
+  getWorkImageAlt,
+  getWorkPrimaryAfterSrc,
+  getWorkPrimaryPart,
+} from './lib/work-images';
 
 const worksDirectory = fileURLToPath(new URL('./content/works', import.meta.url));
 const projectDirectory = fileURLToPath(new URL('.', import.meta.url));
@@ -71,6 +76,20 @@ function loadBuildWorks(): BuildWork[] {
       }
       if (!Array.isArray(work.part) || work.part.some((part) => !allowedParts.has(part))) {
         throw new Error(`${fileName}: 허용되지 않은 part가 있습니다.`);
+      }
+      if (
+        !Array.isArray(work.parts) ||
+        work.parts.length === 0 ||
+        work.parts.some(
+          (part) =>
+            !part ||
+            typeof part.label !== 'string' ||
+            typeof part.before !== 'string' ||
+            typeof part.after !== 'string' ||
+            typeof part.note !== 'string',
+        )
+      ) {
+        throw new Error(`${fileName}: parts의 label, before, after, note는 필수입니다.`);
       }
       return { ...work, sourceFile: `content/works/${fileName}` };
     })
@@ -220,17 +239,23 @@ function getBreadcrumbJsonLd(work: WorkItem) {
 }
 
 function getWorkImageJsonLd(work: WorkItem) {
-  const image = `${siteUrl}${work.after}`;
   return {
     '@context': 'https://schema.org',
-    '@type': 'ImageObject',
-    contentUrl: image,
-    thumbnailUrl: image,
-    name: `${work.carMaker} ${work.carModel} ${work.part.join('·')} ${getCategoryLabel(work.category)} 작업 후`,
-    caption: work.summary,
-    width: 1600,
-    height: 1200,
-    representativeOfPage: true,
+    '@graph': work.parts.flatMap((part, partIndex) =>
+      (['전', '후'] as const).map((state) => {
+        const image = `${siteUrl}${state === '전' ? part.before : part.after}`;
+        return {
+          '@type': 'ImageObject',
+          contentUrl: image,
+          thumbnailUrl: image,
+          name: getWorkImageAlt(work, part, state),
+          caption: `${part.label}: ${part.note}`,
+          width: 1600,
+          height: 1200,
+          representativeOfPage: partIndex === 0 && state === '후',
+        };
+      }),
+    ),
   };
 }
 
@@ -394,10 +419,10 @@ const seoAssetsPlugin = (): Plugin => ({
           title: workSeo.title,
           description: workSeo.description,
           canonical,
-          image: `${siteUrl}${work.after}`,
+          image: `${siteUrl}${getWorkPrimaryAfterSrc(work)}`,
           imageWidth: 1600,
           imageHeight: 1200,
-          imageAlt: `${work.carMaker} ${work.carModel} ${work.title} 작업 후`,
+          imageAlt: getWorkImageAlt(work, getWorkPrimaryPart(work), '후'),
           type: 'article',
           jsonLd: [
             { id: 'work-breadcrumb-jsonld', data: getBreadcrumbJsonLd(work) },

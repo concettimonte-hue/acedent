@@ -4,12 +4,12 @@
 
 ## 등록 순서
 
-1. 전·후 사진을 같은 각도로 촬영합니다.
-2. 사진은 가로 1600px 이하, 파일당 200KB 이하로 미리 압축합니다.
-3. 원본 사진을 `public/works`에 넣습니다. 파일명은 영문 소문자와 하이픈만 사용하면 관리하기 쉽습니다.
-4. 목록용 작은 사진이 있으면 `public/works/thumbnails`에 넣고 `thumbnail`에 경로를 적습니다. 생략하면 `after` 사진을 목록에도 사용합니다.
+1. 전·후 사진을 같은 각도로 촬영하고 같은 4:3 비율로 맞춥니다.
+2. 상세용 사진은 1600×1200px, 파일당 200KB 이하로 미리 압축합니다.
+3. 상세용 사진을 `public/works`에 넣습니다. 파일명은 영문 소문자와 하이픈만 사용하고 `-before.jpg`, `-after.jpg`로 끝내세요.
+4. 첫 번째 `parts` 항목의 `after` 사진이 목록 대표 이미지가 됩니다. 800×600px 썸네일은 같은 이름에서 `-after`를 뺀 뒤 `public/works/thumbnails`에 저장합니다. 예: `bmw-door-after.jpg` → `thumbnails/bmw-door.jpg`.
 5. 아래 템플릿을 복사해 이 폴더에 `YYYY-MM-DD-slug.json` 형식으로 저장합니다.
-6. `category`는 아래 5개 중 하나만, `part`는 허용된 부위 중 필요한 만큼 선택합니다.
+6. `category`는 아래 5개 중 하나만, 필터용 `part`는 허용된 부위 중 필요한 만큼 선택합니다. 실제 사진 묶음은 `parts`에 작업 부위별로 추가합니다.
 7. `featured`를 `true`로 하면 메인 대표 사례 후보가 됩니다. 메인에는 `featuredOrder` 순서로 최대 8건만 표시됩니다.
 8. `npm run build`와 `npx tsc --noEmit`이 통과하면 `main`에 반영합니다.
 
@@ -32,9 +32,15 @@
   "part": ["도어"],
   "carMaker": "BMW",
   "carModel": "5시리즈",
-  "before": "/works/bmw-door-before.jpg",
-  "after": "/works/bmw-door-after.jpg",
-  "thumbnail": "/works/thumbnails/bmw-door-after.jpg",
+  "color": "화이트 계열",
+  "parts": [
+    {
+      "label": "앞도어",
+      "before": "/works/bmw-door-before.jpg",
+      "after": "/works/bmw-door-after.jpg",
+      "note": "문콕 눌림과 도장 손상"
+    }
+  ],
   "summary": "문콕 눌림, 도어 1패널 판금 후 도색",
   "body": "입고 상태와 손상 범위를 확인했습니다. 필요한 범위만 판금하고 차량 색상에 맞춰 도장했습니다. 작업 후 면과 색상을 확인해 마무리했습니다.",
   "blogUrl": "https://blog.naver.com/ace_dent_shop/게시물번호",
@@ -46,3 +52,5 @@
 ```
 
 `slug`는 상세 주소가 되므로 한번 공개한 뒤에는 바꾸지 않는 것이 좋습니다. `blogUrl`이 없으면 빈 문자열로 두거나 항목을 생략해도 됩니다.
+
+한 차량에서 여러 부위를 작업했다면 `parts` 배열에 같은 형식의 객체를 추가하세요. 상세 페이지에는 적힌 순서대로 부위 제목, 설명, 독립된 전후 비교 슬라이더가 나타납니다. 목록 대표 이미지는 항상 `parts[0].after`를 기준으로 선택되므로 가장 알아보기 쉬운 부위를 첫 번째에 두세요.
