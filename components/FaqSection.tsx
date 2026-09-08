@@ -1,6 +1,4 @@
 'use client';
-
-import { useState } from 'react';
 import SectionNumber from '@/components/SectionNumber';
 import faqData from '@/content/faq.json';
 import type { FaqContent } from '@/content/types';
@@ -8,22 +6,6 @@ import type { FaqContent } from '@/content/types';
 const content = faqData as FaqContent;
 
 export default function FaqSection() {
-  const [openItems, setOpenItems] = useState<Set<number>>(
-    () =>
-      new Set(
-        content.items.flatMap((item, index) => (item.open ? [index] : [])),
-      ),
-  );
-
-  const toggleItem = (index: number) => {
-    setOpenItems((current) => {
-      const next = new Set(current);
-      if (next.has(index)) next.delete(index);
-      else next.add(index);
-      return next;
-    });
-  };
-
   return (
     <section
       id="faq"
@@ -38,30 +20,17 @@ export default function FaqSection() {
       </header>
 
       <div className="faq-list">
-        {content.items.map((item, index) => {
-          const isOpen = openItems.has(index);
-          const panelId = `faq-panel-${index}`;
-          return (
-            <article className="faq-item" key={item.q}>
-              <h3>
-                <button
-                  type="button"
-                  aria-expanded={isOpen}
-                  aria-controls={panelId}
-                  onClick={() => toggleItem(index)}
-                >
-                  <span>{item.q}</span>
-                  <span className="faq-symbol" aria-hidden="true">
-                    {isOpen ? '−' : '+'}
-                  </span>
-                </button>
-              </h3>
-              <div id={panelId} className="faq-answer" hidden={!isOpen}>
-                <p>{item.a}</p>
-              </div>
-            </article>
-          );
-        })}
+        {content.items.map((item) => (
+          <details className="faq-item" open={item.open} key={item.q}>
+            <summary>
+              <span>{item.q}</span>
+              <span className="faq-symbol" aria-hidden="true" />
+            </summary>
+            <div className="faq-answer">
+              <p>{item.a}</p>
+            </div>
+          </details>
+        ))}
       </div>
     </section>
   );

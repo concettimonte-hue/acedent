@@ -1,14 +1,14 @@
 {
   "meta": {
-    "title": "에이스덴트 | 동대문 판금도색·외형복원·덴트",
-    "description": "서울 동대문 에이스덴트는 자동차 판금도색·외형복원·덴트·광택을 차량 상태에 맞춰 안내하고 시공합니다. 실제 작업 전후 사례와 수리 과정을 투명하게 공개하며, 불필요한 수리보다 필요한 범위와 한계를 먼저 설명합니다."
+    "title": "동대문 판금도색·외형복원·덴트·광택 | 에이스덴트",
+    "description": "서울 동대문 에이스덴트는 자동차 판금도색, 외형복원, 무도색 덴트와 광택을 차량 상태에 맞춰 진행합니다. 실제 작업 전후 사진과 수리 과정, 가능한 방법과 한계를 투명하게 안내합니다."
   },
   "brand": {
     "name": "ACE DENT",
     "descriptor": "자동차 외장관리 전문점",
     "tagline": "믿고 맡기는 에이스덴트",
     "logoSrc": "/images/ace-dent-logo.png",
-    "logoAlt": "",
+    "logoAlt": "에이스덴트 로고",
     "homeAriaLabel": "에이스덴트 홈",
     "footerHomeAriaLabel": "에이스덴트 맨 위로"
   },
@@ -42,8 +42,8 @@
     "sliderHint": "← 손잡이를 좌우로 움직여 보세요 →",
     "beforeSrc": "/cases/fender-before.jpg",
     "afterSrc": "/cases/fender-after.jpg",
-    "beforeAlt": "랜드로버 디펜더 휀더 판금도장 전",
-    "afterAlt": "랜드로버 디펜더 휀더 판금도장 후",
+    "beforeAlt": "서울 동대문 랜드로버 디펜더 휀더 판금도장 전",
+    "afterAlt": "서울 동대문 랜드로버 디펜더 휀더 판금도장 후",
     "mode": "drag",
     "workLabel": "WORK",
     "workValue": "휀더 판금도장",

@@ -19,7 +19,7 @@ export default function WorkCard({ work }: WorkCardProps) {
       <span className="work-card-media">
         <img
           src={getWorkThumbnailSrc(work)}
-          alt={`${formatWorkCar(work)} ${work.part.join('·')} 작업 후`}
+          alt={`서울 동대문 ${formatWorkCar(work)} ${work.part.join('·')} ${getWorkCategoryLabel(work.category)} 작업 후`}
           width="800"
           height="600"
           loading="lazy"

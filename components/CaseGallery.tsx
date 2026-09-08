@@ -8,7 +8,7 @@ import casesData from '@/content/cases.json';
 import naverData from '@/content/naver.json';
 import siteData from '@/content/site.json';
 import type { CasesContent, SiteContent } from '@/content/types';
-import type { WorkItem } from '@/content/works/types';
+import { getWorkCategoryLabel, type WorkItem } from '@/content/works/types';
 import { withLandingUtm } from '@/lib/tracking';
 import { getWorkThumbnailSrc } from '@/lib/work-images';
 import {
@@ -22,7 +22,7 @@ const site = siteData as SiteContent;
 const cases = getFeaturedWorks(8);
 
 const imageAlt = (item: WorkItem, state: '전' | '후') =>
-  `${formatWorkCar(item)} ${item.part.join(' ')} ${state}`;
+  `서울 동대문 ${formatWorkCar(item)} ${item.part.join(' ')} ${getWorkCategoryLabel(item.category)} ${state}`;
 
 export default function CaseGallery() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);

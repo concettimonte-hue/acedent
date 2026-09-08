@@ -11,11 +11,9 @@ import { getWorkCategoryLabel } from '@/content/works/types';
 import { resolveWorkImageSrc } from '@/lib/work-images';
 import {
   applyClientMetadata,
-  getWorkBreadcrumbJsonLd,
   getWorkMetadata,
 } from '@/lib/work-metadata';
 import { formatWorkCar, getRelatedWorks } from '@/lib/works';
-import { serializeJsonLd } from '@/lib/seo';
 import { withLandingUtm } from '@/lib/tracking';
 
 interface WorkDetailPageProps {
@@ -32,12 +30,6 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
 
   return (
     <main className="works-page work-detail-page">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: serializeJsonLd(getWorkBreadcrumbJsonLd(work)),
-        }}
-      />
       <WorksHeader />
 
       <nav className="work-breadcrumb" aria-label="현재 위치">
@@ -63,8 +55,8 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
           <BeforeAfterSlider
             beforeSrc={resolveWorkImageSrc(work.before)}
             afterSrc={resolveWorkImageSrc(work.after)}
-            beforeAlt={`${formatWorkCar(work)} ${work.part.join('·')} 작업 전`}
-            afterAlt={`${formatWorkCar(work)} ${work.part.join('·')} 작업 후`}
+            beforeAlt={`서울 동대문 ${formatWorkCar(work)} ${work.part.join('·')} ${categoryLabel} 작업 전`}
+            afterAlt={`서울 동대문 ${formatWorkCar(work)} ${work.part.join('·')} ${categoryLabel} 작업 후`}
             mode={work.sliderType}
             priority
             showHint={work.sliderType === 'drag'}

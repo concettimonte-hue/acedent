@@ -24,14 +24,15 @@ function TrustValue({
   delay: number;
 }) {
   const target = Number.parseInt(item.value, 10);
-  const [currentValue, setCurrentValue] = useState(item.countUp ? 0 : target);
+  // 최종값을 초기 마크업에 먼저 노출하고, JS는 화면 진입 후 0부터
+  // 같은 값까지 애니메이션만 담당합니다.
+  const [currentValue, setCurrentValue] = useState(target);
 
   useEffect(() => {
     if (!item.countUp || !active) return;
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (reducedMotion.matches) {
-      setCurrentValue(target);
       return;
     }
 

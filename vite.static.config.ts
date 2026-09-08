@@ -13,9 +13,16 @@ import {
 import {
   autoRepairJsonLd,
   faqJsonLd,
+  organizationJsonLd,
   serializeJsonLd,
   siteUrl,
 } from './lib/seo';
+import {
+  getHomeStaticHtml,
+  getWorkDetailStaticHtml,
+  getWorksStaticHtml,
+} from './lib/static-html';
+import { getWorkSeoCopy, getWorksSeoCopy } from './lib/work-seo';
 
 const worksDirectory = fileURLToPath(new URL('./content/works', import.meta.url));
 
@@ -71,7 +78,8 @@ interface RouteMetadata {
   imageHeight?: number;
   imageAlt?: string;
   type?: 'website' | 'article';
-  jsonLd?: unknown;
+  jsonLd?: Array<{ id: string; data: unknown }>;
+  bodyHtml: string;
 }
 
 function renderRouteHtml(baseHtml: string, metadata: RouteMetadata) {
@@ -144,12 +152,15 @@ function renderRouteHtml(baseHtml: string, metadata: RouteMetadata) {
     );
 
   if (metadata.jsonLd) {
-    html = html.replace(
-      '</head>',
-      `<script id="work-breadcrumb-jsonld" type="application/ld+json">${serializeJsonLd(metadata.jsonLd)}</script>\n</head>`,
-    );
+    const scripts = metadata.jsonLd
+      .map(
+        ({ id, data }) =>
+          `<script id="${id}" type="application/ld+json">${serializeJsonLd(data)}</script>`,
+      )
+      .join('\n');
+    html = html.replace('</head>', `${scripts}\n</head>`);
   }
-  return html;
+  return html.replace('<div id="root"></div>', `<div id="root">${metadata.bodyHtml}</div>`);
 }
 
 function getCategoryLabel(category: WorkCategory) {
@@ -184,6 +195,21 @@ function getBreadcrumbJsonLd(work: WorkItem) {
   };
 }
 
+function getWorkImageJsonLd(work: WorkItem) {
+  const image = `${siteUrl}${work.after}`;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ImageObject',
+    contentUrl: image,
+    thumbnailUrl: image,
+    name: `${work.carMaker} ${work.carModel} ${work.part.join('·')} ${getCategoryLabel(work.category)} 작업 후`,
+    caption: work.summary,
+    width: 1600,
+    height: 1200,
+    representativeOfPage: true,
+  };
+}
+
 const seoAssetsPlugin = (): Plugin => ({
   name: 'acedent-seo-assets',
   transformIndexHtml: {
@@ -199,6 +225,12 @@ const seoAssetsPlugin = (): Plugin => ({
         tag: 'script',
         attrs: { id: 'acedent-faq-jsonld', type: 'application/ld+json' },
         children: serializeJsonLd(faqJsonLd),
+        injectTo: 'head',
+      },
+      {
+        tag: 'script',
+        attrs: { id: 'acedent-organization-jsonld', type: 'application/ld+json' },
+        children: serializeJsonLd(organizationJsonLd),
         injectTo: 'head',
       },
     ],
@@ -251,43 +283,63 @@ const seoAssetsPlugin = (): Plugin => ({
     };
 
     writeRoute(
+      'index.html',
+      baseHtml.replace(
+        '<div id="root"></div>',
+        `<div id="root">${getHomeStaticHtml(works)}</div>`,
+      ),
+    );
+
+    const allWorksSeo = getWorksSeoCopy();
+
+    writeRoute(
       'works.html',
       renderRouteHtml(baseHtml, {
-        title: '수리사례 | 에이스덴트',
-        description:
-          '서울 동대문 에이스덴트의 덴트, 판금도색, 부분도색, 교환도색, 광택·복원 전후 작업사례를 확인하세요.',
+        title: allWorksSeo.title,
+        description: allWorksSeo.description,
         canonical: `${siteUrl}/works`,
         image: `${siteUrl}/og-image.jpg`,
+        bodyHtml: getWorksStaticHtml(works),
       }),
     );
 
     for (const category of WORK_CATEGORIES) {
-      const label = category.label;
+      const categorySeo = getWorksSeoCopy(category.id);
+      const categoryWorks = works.filter((work) => work.category === category.id);
       writeRoute(
         `works/${category.id}.html`,
         renderRouteHtml(baseHtml, {
-          title: `${label} 수리사례 | 에이스덴트`,
-          description: `서울 동대문 에이스덴트의 ${label} 전후 작업사례를 확인하세요.`,
+          title: categorySeo.title,
+          description: categorySeo.description,
           canonical: `${siteUrl}/works/${category.id}`,
           image: `${siteUrl}/og-image.jpg`,
+          bodyHtml: getWorksStaticHtml(categoryWorks, category.id),
         }),
       );
     }
 
     for (const work of works) {
       const canonical = `${siteUrl}/works/detail/${work.slug}`;
+      const workSeo = getWorkSeoCopy(work);
+      const related = works
+        .filter((candidate) => candidate.category === work.category && candidate.slug !== work.slug)
+        .slice(0, 3);
       writeRoute(
         `works/detail/${work.slug}.html`,
         renderRouteHtml(baseHtml, {
-          title: `${work.title} | 에이스덴트 수리사례`,
-          description: work.summary,
+          title: workSeo.title,
+          description: workSeo.description,
           canonical,
           image: `${siteUrl}${work.after}`,
           imageWidth: 1600,
           imageHeight: 1200,
           imageAlt: `${work.carMaker} ${work.carModel} ${work.title} 작업 후`,
           type: 'article',
-          jsonLd: getBreadcrumbJsonLd(work),
+          jsonLd: [
+            { id: 'work-breadcrumb-jsonld', data: getBreadcrumbJsonLd(work) },
+            { id: 'work-image-jsonld', data: getWorkImageJsonLd(work) },
+          ],
+          bodyHtml: getWorkDetailStaticHtml(work, related),
         }),
       );
     }

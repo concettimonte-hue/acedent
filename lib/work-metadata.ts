@@ -2,6 +2,7 @@ import type { WorkCategory, WorkItem } from '@/content/works/types';
 import { getWorkCategoryLabel } from '@/content/works/types';
 import { resolveWorkImageSrc } from '@/lib/work-images';
 import { siteUrl } from '@/lib/seo';
+import { getWorkSeoCopy, getWorksSeoCopy } from '@/lib/work-seo';
 
 export interface WorkMetadata {
   title: string;
@@ -10,25 +11,39 @@ export interface WorkMetadata {
   image: string;
 }
 
+export function getWorkSeoTitle(work: WorkItem) {
+  return getWorkSeoCopy(work).title;
+}
+
 export function getWorksMetadata(category?: WorkCategory): WorkMetadata {
-  const categoryLabel = category ? getWorkCategoryLabel(category) : '';
-  const title = category
-    ? `${categoryLabel} 수리사례 | 에이스덴트`
-    : '수리사례 | 에이스덴트';
-  const description = category
-    ? `서울 동대문 에이스덴트의 ${categoryLabel} 전후 작업사례를 확인하세요.`
-    : '서울 동대문 에이스덴트의 덴트, 판금도색, 부분도색, 교환도색, 광택·복원 전후 작업사례를 확인하세요.';
+  const { title, description } = getWorksSeoCopy(category);
   const canonical = category ? `${siteUrl}/works/${category}` : `${siteUrl}/works`;
 
   return { title, description, canonical, image: `${siteUrl}/og-image.jpg` };
 }
 
 export function getWorkMetadata(work: WorkItem): WorkMetadata {
+  const { title, description } = getWorkSeoCopy(work);
   return {
-    title: `${work.title} | 에이스덴트 수리사례`,
-    description: work.summary,
+    title,
+    description,
     canonical: `${siteUrl}/works/detail/${work.slug}`,
     image: `${siteUrl}${resolveWorkImageSrc(work.after)}`,
+  };
+}
+
+export function getWorkImageJsonLd(work: WorkItem) {
+  const image = `${siteUrl}${resolveWorkImageSrc(work.after)}`;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ImageObject',
+    contentUrl: image,
+    thumbnailUrl: image,
+    name: `${work.carMaker} ${work.carModel} ${work.part.join('·')} ${getWorkCategoryLabel(work.category)} 작업 후`,
+    caption: work.summary,
+    width: 1600,
+    height: 1200,
+    representativeOfPage: true,
   };
 }
 

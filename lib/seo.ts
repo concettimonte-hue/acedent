@@ -8,16 +8,33 @@ export const faq = faqData as FaqContent;
 export const naver = naverData as NaverContent;
 
 export const siteUrl = business.url;
-export const defaultTitle = '에이스덴트 | 동대문 판금도색·외형복원·덴트';
+export const defaultTitle = '동대문 판금도색·외형복원·덴트·광택 | 에이스덴트';
 export const siteDescription =
-  '서울 동대문 에이스덴트는 자동차 판금도색·외형복원·덴트·광택을 차량 상태에 맞춰 안내하고 시공합니다. 실제 작업 전후 사례와 수리 과정을 투명하게 공개하며, 불필요한 수리보다 필요한 범위와 한계를 먼저 설명합니다.';
+  '서울 동대문 에이스덴트는 자동차 판금도색, 외형복원, 무도색 덴트와 광택을 차량 상태에 맞춰 진행합니다. 실제 작업 전후 사진과 수리 과정, 가능한 방법과 한계를 투명하게 안내합니다.';
 export const ogImageUrl = `${siteUrl}/og-image.jpg`;
+export const logoImageUrl = `${siteUrl}/images/ace-dent-logo.png`;
+
+export const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: business.name,
+  url: siteUrl,
+  logo: {
+    '@type': 'ImageObject',
+    url: logoImageUrl,
+    contentUrl: logoImageUrl,
+    width: 1536,
+    height: 1024,
+  },
+  sameAs: [naver.blog, naver.place],
+};
 
 export const autoRepairJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'AutoRepair',
   name: business.name,
   image: ogImageUrl,
+  logo: logoImageUrl,
   url: siteUrl,
   telephone: business.telephone,
   address: {
@@ -39,6 +56,21 @@ export const autoRepairJsonLd = {
   // 공개된 정액 가격표가 없어 임의 금액 대신 실제 상담 방식으로 표시합니다.
   priceRange: business.priceRange,
   sameAs: [naver.blog, naver.place],
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: '자동차 외장 복원 서비스',
+    itemListElement: [
+      '판금도색',
+      '외형복원',
+      '덴트(무도색)',
+      '부분도색',
+      '교환도색',
+      '광택·오염제거',
+    ].map((name) => ({
+      '@type': 'Offer',
+      itemOffered: { '@type': 'Service', name },
+    })),
+  },
 };
 
 export const faqJsonLd = {

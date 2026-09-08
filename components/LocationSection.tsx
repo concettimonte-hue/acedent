@@ -31,7 +31,7 @@ export default function LocationSection() {
         <div className="location-photo">
           <img
             src="/storefront.jpg"
-            alt="에이스덴트 매장 외관"
+            alt="서울 동대문 판금도색 외형복원 전문 에이스덴트 매장 외관"
             width="1600"
             height="1200"
             loading="lazy"
