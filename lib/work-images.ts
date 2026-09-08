@@ -10,7 +10,7 @@ export const WORK_IMAGE_UPLOAD_RULES = {
 } as const;
 
 export function resolveWorkImageSrc(path: string) {
-  if (/^https?:\/\//i.test(path)) return path;
+  if (/^(?:https?:|blob:|data:)/i.test(path)) return path;
   return path.startsWith('/') ? path : `/${path}`;
 }
 
@@ -23,12 +23,21 @@ export function getWorkPrimaryAfterSrc(work: WorkItem) {
 }
 
 export function getWorkThumbnailSrc(work: WorkItem) {
-  const after = getWorkPrimaryPart(work).after;
+  const primaryPart = getWorkPrimaryPart(work);
+  if (primaryPart.thumbnail) return resolveWorkImageSrc(primaryPart.thumbnail);
+  const after = primaryPart.after;
   const thumbnail = after.replace(
     /^\/works\/(.+)-after\.(?:jpe?g|png|webp)$/i,
     '/works/thumbnails/$1.jpg',
   );
   return resolveWorkImageSrc(thumbnail === after ? after : thumbnail);
+}
+
+export function getAbsoluteWorkImageUrl(path: string, origin: string) {
+  const resolved = resolveWorkImageSrc(path);
+  return /^https?:\/\//i.test(resolved)
+    ? resolved
+    : `${origin.replace(/\/$/, '')}${resolved}`;
 }
 
 export function getWorkImageAlt(

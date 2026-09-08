@@ -1,0 +1,282 @@
+{
+  "records": [
+    {
+      "sourceFile": "content/works/2026-09-04-porsche-panamera-rear-bumper.json",
+      "lastModified": "2026-09-08",
+      "work": {
+        "slug": "porsche-panamera-rear-bumper-panel-paint",
+        "date": "2026-09-04",
+        "title": "뒤범퍼 비탈거 전체도색",
+        "category": "panel-paint",
+        "part": [
+          "범퍼"
+        ],
+        "carMaker": "포르쉐",
+        "carModel": "파나메라",
+        "color": "화이트 계열",
+        "parts": [
+          {
+            "label": "범퍼 후면",
+            "before": "/works/porsche-panamera-bumper-rear-before.jpg",
+            "after": "/works/porsche-panamera-bumper-rear-after.jpg",
+            "note": "좌측 하단 스크래치 및 도장 벗겨짐"
+          },
+          {
+            "label": "범퍼 옆면",
+            "before": "/works/porsche-panamera-bumper-side-before.jpg",
+            "after": "/works/porsche-panamera-bumper-side-after.jpg",
+            "note": "옆면 곡면부까지 이어진 손상, 블렌딩 도색으로 색상 단차 제거"
+          }
+        ],
+        "summary": "뒤범퍼 후면과 옆면으로 이어진 스크래치·도장 손상을 비탈거 전체도색으로 복원했습니다.",
+        "body": "9월 3일 입고된 차량의 뒤범퍼 후면과 옆면 손상 범위를 확인했습니다. 범퍼를 탈거하지 않고 손상 부위를 정리한 뒤 전체도색을 진행했습니다. 옆면 곡면부는 블렌딩 도색으로 색상 단차가 드러나지 않도록 맞췄습니다. 마감 상태를 점검한 뒤 9월 4일 출고했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224404047873",
+        "featured": false,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "content/works/2026-09-07-01-mercedes-e300-door.json",
+      "lastModified": "2026-09-08",
+      "work": {
+        "slug": "mercedes-e300-door-repair",
+        "date": "2026-09-07",
+        "title": "도어 교환 및 판금도장",
+        "category": "replace-paint",
+        "part": [
+          "도어"
+        ],
+        "carMaker": "벤츠",
+        "carModel": "E300",
+        "parts": [
+          {
+            "label": "도어",
+            "before": "/works/mercedes-e300-door-repair-before.jpg",
+            "after": "/works/mercedes-e300-door-repair-after.jpg",
+            "note": "도어 교환과 주변 패널 판금도색으로 단차와 색상을 정리한 작업"
+          }
+        ],
+        "summary": "복원보다 교환이 나은 상태를 확인해 도어를 교체하고 주변 패널의 색을 맞춘 작업입니다.",
+        "body": "도어 여러 부위의 긁힘과 변형 상태를 먼저 확인했습니다. 복원보다 교환이 적합한 도어는 교체하고, 함께 손상된 부분은 판금도색으로 정리했습니다. 작업 후 도어 사이의 단차와 주변 패널의 색 차이를 확인해 마무리했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/222953336039",
+        "featured": true,
+        "featuredOrder": 1,
+        "days": "4일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "content/works/2026-09-07-02-bmw-520i-bumper.json",
+      "lastModified": "2026-09-08",
+      "work": {
+        "slug": "bmw-520i-bumper-partial-paint",
+        "date": "2026-09-07",
+        "title": "범퍼 부분도장",
+        "category": "partial-paint",
+        "part": [
+          "범퍼"
+        ],
+        "carMaker": "BMW",
+        "carModel": "520i",
+        "parts": [
+          {
+            "label": "앞범퍼",
+            "before": "/works/bmw-520i-bumper-partial-paint-before.jpg",
+            "after": "/works/bmw-520i-bumper-partial-paint-after.jpg",
+            "note": "손상 범위만 부분도장해 작업 범위와 기간을 줄인 작업"
+          }
+        ],
+        "summary": "손상 범위만 부분도장해 작업 범위와 기간을 줄인 사례입니다.",
+        "body": "앞범퍼 모서리의 긁힘 위치와 깊이를 확인했습니다. 전체 범퍼를 넓게 작업하지 않고 손상된 범위를 중심으로 부분도장을 진행했습니다. 주변 색상과 광택을 확인한 뒤 출고했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224395064310",
+        "featured": true,
+        "featuredOrder": 2,
+        "days": "1일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "content/works/2026-09-07-03-jeep-renegade-door.json",
+      "lastModified": "2026-09-08",
+      "work": {
+        "slug": "jeep-renegade-door-dent",
+        "date": "2026-09-07",
+        "title": "무천공 덴트",
+        "category": "dent",
+        "part": [
+          "도어"
+        ],
+        "carMaker": "지프",
+        "carModel": "레니게이드",
+        "parts": [
+          {
+            "label": "뒤도어",
+            "before": "/works/jeep-renegade-door-dent-before.jpg",
+            "after": "/works/jeep-renegade-door-dent-after.jpg",
+            "note": "구멍 없이 기존 도장면을 유지해 눌림을 복원"
+          }
+        ],
+        "summary": "구멍을 뚫지 않고 기존 도장면을 유지해 도어 눌림을 복원한 사례입니다.",
+        "body": "뒤 도어에 생긴 눌림과 도장면의 상태를 확인했습니다. 도장이 벗겨지지 않아 도색 없이 무천공 덴트로 원래 라인을 복원했습니다. 작업 후 조명 반사로 면의 흐름을 다시 확인했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224391876581",
+        "featured": true,
+        "featuredOrder": 3,
+        "days": "당일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "content/works/2026-09-07-04-mercedes-g63-wheel-cover.json",
+      "lastModified": "2026-09-08",
+      "work": {
+        "slug": "mercedes-g63-wheel-cover-paint",
+        "date": "2026-09-07",
+        "title": "휠커버 판금도장",
+        "category": "panel-paint",
+        "part": [
+          "휠"
+        ],
+        "carMaker": "벤츠",
+        "carModel": "G63 AMG",
+        "parts": [
+          {
+            "label": "스페어 휠커버",
+            "before": "/works/mercedes-g63-wheel-cover-paint-before.jpg",
+            "after": "/works/mercedes-g63-wheel-cover-paint-after.jpg",
+            "note": "찌그러진 휠커버를 교환하지 않고 판금도장으로 복원"
+          }
+        ],
+        "summary": "찌그러진 휠커버를 교환하지 않고 판금과 도장으로 복원한 사례입니다.",
+        "body": "스페어 휠커버의 눌림과 표면 손상을 확인했습니다. 교환 대신 판금으로 형태를 잡고 기존 흰색에 맞춰 도장했습니다. 곡면의 반사와 가장자리 마감을 확인해 작업을 마쳤습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224309593743",
+        "featured": true,
+        "featuredOrder": 4,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "content/works/2026-09-07-05-tesla-model3-trunk.json",
+      "lastModified": "2026-09-08",
+      "work": {
+        "slug": "tesla-model3-trunk-panel-paint",
+        "date": "2026-09-07",
+        "title": "트렁크 판금도장",
+        "category": "panel-paint",
+        "part": [
+          "트렁크"
+        ],
+        "carMaker": "테슬라",
+        "carModel": "모델3",
+        "parts": [
+          {
+            "label": "트렁크",
+            "before": "/works/tesla-model3-trunk-panel-paint-before.jpg",
+            "after": "/works/tesla-model3-trunk-panel-paint-after.jpg",
+            "note": "트렁크 패널의 깊게 눌린 자국을 판금하고 도장해 마감"
+          }
+        ],
+        "summary": "트렁크 패널의 깊게 눌린 자국을 판금하고 도장해 마감한 사례입니다.",
+        "body": "트렁크 끝부분의 깊은 눌림과 도장 손상을 확인했습니다. 패널 형태와 인접한 테일램프 라인을 고려해 판금한 뒤 도장했습니다. 작업 후 트렁크 단차와 표면 광택을 확인했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224335294851",
+        "featured": true,
+        "featuredOrder": 5,
+        "days": "2일",
+        "sliderType": "split"
+      }
+    },
+    {
+      "sourceFile": "content/works/2026-09-07-06-bmw-x1-door.json",
+      "lastModified": "2026-09-08",
+      "work": {
+        "slug": "bmw-x1-door-panel-paint",
+        "date": "2026-09-07",
+        "title": "도어 판금도장",
+        "category": "panel-paint",
+        "part": [
+          "도어"
+        ],
+        "carMaker": "BMW",
+        "carModel": "X1",
+        "parts": [
+          {
+            "label": "도어",
+            "before": "/works/bmw-x1-door-panel-paint-before.jpg",
+            "after": "/works/bmw-x1-door-panel-paint-after.jpg",
+            "note": "도어 패널의 찍힘과 스크래치를 판금도색으로 복원"
+          }
+        ],
+        "summary": "도어 패널의 찍힘과 스크래치를 판금도색으로 복원한 사례입니다.",
+        "body": "도어와 휀더가 만나는 부분의 찍힘과 스크래치를 확인했습니다. 손상된 도어 면을 판금으로 정리한 뒤 차량 색상에 맞춰 도장했습니다. 패널 경계의 단차와 색상 연결을 확인해 마무리했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224371274165",
+        "featured": true,
+        "featuredOrder": 6,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "content/works/2026-09-07-07-bmw-528i-fender-bumper.json",
+      "lastModified": "2026-09-08",
+      "work": {
+        "slug": "bmw-528i-fender-bumper-panel-paint",
+        "date": "2026-09-07",
+        "title": "휀더·범퍼 경계 단차 판금도장",
+        "category": "panel-paint",
+        "part": [
+          "휀더",
+          "범퍼"
+        ],
+        "carMaker": "BMW",
+        "carModel": "528i",
+        "parts": [
+          {
+            "label": "휀더·범퍼 경계",
+            "before": "/works/bmw-528i-fender-bumper-panel-paint-before.jpg",
+            "after": "/works/bmw-528i-fender-bumper-panel-paint-after.jpg",
+            "note": "휀더와 범퍼 경계의 손상과 단차를 함께 맞춘 판금도색"
+          }
+        ],
+        "summary": "휀더와 범퍼 경계의 손상과 단차를 함께 맞춘 판금도색 사례입니다.",
+        "body": "휀더와 범퍼가 맞닿는 경계의 긁힘과 변형을 확인했습니다. 휀더 면을 판금하고 범퍼 손상부를 함께 정리한 뒤 도장했습니다. 두 패널의 경계선과 단차가 자연스럽게 이어지는지 확인했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224381955370",
+        "featured": true,
+        "featuredOrder": 7,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "content/works/2026-09-07-08-land-rover-defender-fender.json",
+      "lastModified": "2026-09-08",
+      "work": {
+        "slug": "land-rover-defender-fender-panel-paint",
+        "date": "2026-09-07",
+        "title": "휀더 판금도장",
+        "category": "panel-paint",
+        "part": [
+          "휀더",
+          "범퍼"
+        ],
+        "carMaker": "랜드로버",
+        "carModel": "디펜더",
+        "parts": [
+          {
+            "label": "앞휀더·범퍼",
+            "before": "/works/land-rover-defender-fender-panel-paint-before.jpg",
+            "after": "/works/land-rover-defender-fender-panel-paint-after.jpg",
+            "note": "밀려 들어간 앞휀더 라인과 범퍼 주변 손상을 원래 형태에 가깝게 복원"
+          }
+        ],
+        "summary": "밀려 들어간 앞휀더 라인과 범퍼 주변 손상을 원래 형태에 가깝게 복원한 사례입니다.",
+        "body": "앞휀더와 범퍼에 이어진 긁힘과 휀더 라인의 변형을 확인했습니다. 밀려 들어간 휀더 면을 판금하고 손상 범위를 도장해 정리했습니다. 휠 아치 라인과 범퍼 경계의 연결을 확인한 뒤 출고했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224383645497",
+        "featured": true,
+        "featuredOrder": 8,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    }
+  ]
+}

@@ -28,6 +28,7 @@ export interface WorkPartMedia {
   label: string;
   before: string;
   after: string;
+  thumbnail?: string;
   note: string;
 }
 

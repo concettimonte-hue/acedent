@@ -7,11 +7,17 @@ import {
   type WorkItem,
   type WorkPartMedia,
 } from '@/content/works/types';
+import generatedWorksData from '@/content/works.generated.json';
 
-const workModules = import.meta.glob<{ default: unknown }>(
-  '../content/works/*.json',
-  { eager: true },
-);
+interface GeneratedWorkRecord {
+  sourceFile: string;
+  lastModified: string;
+  work: unknown;
+}
+
+interface GeneratedWorksData {
+  records: GeneratedWorkRecord[];
+}
 
 function requireString(
   value: unknown,
@@ -26,7 +32,10 @@ function requireString(
 
 function parseWork(value: unknown, fileName: string): WorkItem {
   const baseName = fileName.split('/').at(-1) ?? fileName;
-  if (!/^\d{4}-\d{2}-\d{2}-[a-z0-9-]+\.json$/.test(baseName)) {
+  if (
+    fileName.startsWith('content/works/') &&
+    !/^\d{4}-\d{2}-\d{2}-[a-z0-9-]+\.json$/.test(baseName)
+  ) {
     throw new Error(`${fileName}: 파일명은 YYYY-MM-DD-slug.json 형식이어야 합니다.`);
   }
   if (!value || typeof value !== 'object') {
@@ -63,6 +72,10 @@ function parseWork(value: unknown, fileName: string): WorkItem {
       label: requireString(part.label, `parts[${index}].label`, fileName),
       before: requireString(part.before, `parts[${index}].before`, fileName),
       after: requireString(part.after, `parts[${index}].after`, fileName),
+      thumbnail:
+        typeof part.thumbnail === 'string' && part.thumbnail.trim()
+          ? part.thumbnail
+          : undefined,
       note: requireString(part.note, `parts[${index}].note`, fileName),
     };
   });
@@ -105,8 +118,8 @@ function parseWork(value: unknown, fileName: string): WorkItem {
   };
 }
 
-const allWorks = Object.entries(workModules)
-  .map(([fileName, module]) => parseWork(module.default, fileName))
+const allWorks = (generatedWorksData as GeneratedWorksData).records
+  .map(({ sourceFile, work }) => parseWork(work, sourceFile))
   .sort(
     (a, b) =>
       b.date.localeCompare(a.date) ||

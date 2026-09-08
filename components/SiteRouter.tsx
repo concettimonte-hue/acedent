@@ -1,6 +1,7 @@
 'use client';
 
 import Home from '@/app/page';
+import AdminPage from '@/components/AdminPage';
 import WorkDetailPage from '@/components/WorkDetailPage';
 import WorksGalleryPage from '@/components/WorksGalleryPage';
 import { isWorkCategory } from '@/content/works/types';
@@ -25,6 +26,7 @@ function WorksNotFound() {
 export default function SiteRouter() {
   const path = normalizePath(window.location.pathname);
   if (path === '/') return <Home />;
+  if (path === '/admin') return <AdminPage />;
   if (path === '/works') return <WorksGalleryPage />;
 
   const detailMatch = path.match(/^\/works\/detail\/([^/]+)$/);

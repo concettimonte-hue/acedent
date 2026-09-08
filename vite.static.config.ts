@@ -1,10 +1,11 @@
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/postcss';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
+import generatedWorksData from './content/works.generated.json';
 import {
   WORK_CATEGORIES,
   WORK_PARTS,
@@ -25,17 +26,26 @@ import {
 } from './lib/static-html';
 import { getWorkSeoCopy, getWorksSeoCopy } from './lib/work-seo';
 import {
+  getAbsoluteWorkImageUrl,
   getWorkImageAlt,
   getWorkPrimaryAfterSrc,
   getWorkPrimaryPart,
 } from './lib/work-images';
 
-const worksDirectory = fileURLToPath(new URL('./content/works', import.meta.url));
 const projectDirectory = fileURLToPath(new URL('.', import.meta.url));
 const sitemapFallbackDate = '2026-09-08';
 
 interface BuildWork extends WorkItem {
   sourceFile: string;
+  lastModified: string;
+}
+
+interface GeneratedWorksData {
+  records: Array<{
+    sourceFile: string;
+    lastModified: string;
+    work: WorkItem;
+  }>;
 }
 
 function getGitLastModified(paths: string[], fallback = sitemapFallbackDate) {
@@ -55,18 +65,23 @@ function getGitLastModified(paths: string[], fallback = sitemapFallbackDate) {
   }
 }
 
+function latestDate(...dates: string[]) {
+  return dates.filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort().at(-1) ?? sitemapFallbackDate;
+}
+
+function getWorkLastModified(work: BuildWork, sharedSources: string[]) {
+  return latestDate(
+    work.lastModified,
+    getGitLastModified(sharedSources, work.lastModified),
+  );
+}
+
 function loadBuildWorks(): BuildWork[] {
   const categoryIds = new Set<string>(WORK_CATEGORIES.map((item) => item.id));
   const allowedParts = new Set<string>(WORK_PARTS);
-  const works = readdirSync(worksDirectory)
-    .filter((fileName) => fileName.endsWith('.json'))
-    .map((fileName) => {
-      if (!/^\d{4}-\d{2}-\d{2}-[a-z0-9-]+\.json$/.test(fileName)) {
-        throw new Error(`${fileName}: 파일명은 YYYY-MM-DD-slug.json 형식이어야 합니다.`);
-      }
-      const work = JSON.parse(
-        readFileSync(`${worksDirectory}/${fileName}`, 'utf8'),
-      ) as WorkItem;
+  const works = (generatedWorksData as GeneratedWorksData).records
+    .map(({ sourceFile, lastModified, work }) => {
+      const fileName = sourceFile;
 
       if (!work.slug || !work.title || !work.date) {
         throw new Error(`${fileName}: slug, title, date는 필수입니다.`);
@@ -91,7 +106,7 @@ function loadBuildWorks(): BuildWork[] {
       ) {
         throw new Error(`${fileName}: parts의 label, before, after, note는 필수입니다.`);
       }
-      return { ...work, sourceFile: `content/works/${fileName}` };
+      return { ...work, sourceFile, lastModified };
     })
     .sort((a, b) => b.date.localeCompare(a.date));
 
@@ -243,7 +258,10 @@ function getWorkImageJsonLd(work: WorkItem) {
     '@context': 'https://schema.org',
     '@graph': work.parts.flatMap((part, partIndex) =>
       (['전', '후'] as const).map((state) => {
-        const image = `${siteUrl}${state === '전' ? part.before : part.after}`;
+        const image = getAbsoluteWorkImageUrl(
+          state === '전' ? part.before : part.after,
+          siteUrl,
+        );
         return {
           '@type': 'ImageObject',
           contentUrl: image,
@@ -292,7 +310,7 @@ const seoAssetsPlugin = (): Plugin => ({
       'lib/work-seo.ts',
       'lib/seo.ts',
     ];
-    const homeLastModified = getGitLastModified([
+    const homeLastModified = latestDate(getGitLastModified([
       ...sharedPageSources,
       'app/page.tsx',
       'content/site.json',
@@ -302,14 +320,12 @@ const seoAssetsPlugin = (): Plugin => ({
       'content/reviews.json',
       'content/insurance.json',
       'content/process.json',
-      ...works.map((work) => work.sourceFile),
-    ]);
-    const worksLastModified = getGitLastModified([
+    ]), ...works.map((work) => work.lastModified));
+    const worksLastModified = latestDate(getGitLastModified([
       ...sharedPageSources,
       'components/WorksGalleryPage.tsx',
       'components/WorkCard.tsx',
-      ...works.map((work) => work.sourceFile),
-    ]);
+    ]), ...works.map((work) => work.lastModified));
     const sitemapEntries = [
       {
         loc: siteUrl,
@@ -325,24 +341,22 @@ const seoAssetsPlugin = (): Plugin => ({
       },
       ...WORK_CATEGORIES.map((category) => ({
         loc: `${siteUrl}/works/${category.id}`,
-        lastmod: getGitLastModified([
+        lastmod: latestDate(getGitLastModified([
           ...sharedPageSources,
           'components/WorksGalleryPage.tsx',
           'components/WorkCard.tsx',
-          ...works
-            .filter((work) => work.category === category.id)
-            .map((work) => work.sourceFile),
-        ]),
+        ]), ...works
+          .filter((work) => work.category === category.id)
+          .map((work) => work.lastModified)),
         changefreq: 'weekly',
         priority: '0.8',
       })),
       ...works.map((work) => ({
         loc: `${siteUrl}/works/detail/${work.slug}`,
-        lastmod: getGitLastModified([
+        lastmod: getWorkLastModified(work, [
           ...sharedPageSources,
           'components/WorkDetailPage.tsx',
           'components/BeforeAfterSlider.tsx',
-          work.sourceFile,
         ]),
         changefreq: 'monthly',
         priority: '0.7',
@@ -376,6 +390,20 @@ const seoAssetsPlugin = (): Plugin => ({
       baseHtml.replace(
         '<div id="root"></div>',
         `<div id="root">${getHomeStaticHtml(works)}</div>`,
+      ),
+    );
+
+    writeRoute(
+      'admin.html',
+      renderRouteHtml(baseHtml, {
+        title: '수리사례 등록 | 에이스덴트',
+        description: '에이스덴트 수리사례 관리자 입력 화면입니다.',
+        canonical: `${siteUrl}/admin`,
+        image: `${siteUrl}/og-image.jpg`,
+        bodyHtml: '<main class="admin-page"><p class="admin-static-loading">관리자 화면을 불러오는 중입니다.</p></main>',
+      }).replace(
+        '<meta name="robots" content="index, follow" />',
+        '<meta name="robots" content="noindex, nofollow" />',
       ),
     );
 
@@ -419,7 +447,7 @@ const seoAssetsPlugin = (): Plugin => ({
           title: workSeo.title,
           description: workSeo.description,
           canonical,
-          image: `${siteUrl}${getWorkPrimaryAfterSrc(work)}`,
+          image: getAbsoluteWorkImageUrl(getWorkPrimaryAfterSrc(work), siteUrl),
           imageWidth: 1600,
           imageHeight: 1200,
           imageAlt: getWorkImageAlt(work, getWorkPrimaryPart(work), '후'),

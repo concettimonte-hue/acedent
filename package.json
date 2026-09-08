@@ -6,9 +6,11 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "dev": "vinext dev",
-    "build": "vinext build",
-    "build:static": "vite build --config vite.static.config.ts",
+    "dev": "node scripts/sync-works.mjs && vinext dev",
+    "build": "node scripts/sync-works.mjs && vinext build",
+    "build:static": "node scripts/sync-works.mjs && vite build --config vite.static.config.ts",
+    "content:sync": "node scripts/sync-works.mjs",
+    "content:migrate:d1": "node scripts/migrate-works-to-d1.mjs",
     "start": "wrangler dev --config dist/server/wrangler.json",
     "lint": "oxlint",
     "format": "oxfmt"

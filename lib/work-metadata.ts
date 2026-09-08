@@ -2,6 +2,7 @@ import type { WorkCategory, WorkItem } from '@/content/works/types';
 import { getWorkCategoryLabel } from '@/content/works/types';
 import {
   getWorkImageAlt,
+  getAbsoluteWorkImageUrl,
   getWorkPrimaryAfterSrc,
   resolveWorkImageSrc,
 } from '@/lib/work-images';
@@ -32,7 +33,7 @@ export function getWorkMetadata(work: WorkItem): WorkMetadata {
     title,
     description,
     canonical: `${siteUrl}/works/detail/${work.slug}`,
-    image: `${siteUrl}${getWorkPrimaryAfterSrc(work)}`,
+    image: getAbsoluteWorkImageUrl(getWorkPrimaryAfterSrc(work), siteUrl),
   };
 }
 
@@ -42,7 +43,7 @@ export function getWorkImageJsonLd(work: WorkItem) {
     '@graph': work.parts.flatMap((part, partIndex) =>
       (['전', '후'] as const).map((state) => {
         const source = state === '전' ? part.before : part.after;
-        const image = `${siteUrl}${resolveWorkImageSrc(source)}`;
+        const image = getAbsoluteWorkImageUrl(resolveWorkImageSrc(source), siteUrl);
         return {
           '@type': 'ImageObject',
           contentUrl: image,

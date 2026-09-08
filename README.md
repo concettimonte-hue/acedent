@@ -39,3 +39,10 @@ npx tsc --noEmit
 - 이미지는 런타임 최적화를 사용하지 않습니다. 가로 1600px 이하, 파일당 200KB 이하로 사전 압축하고 전·후 사진은 같은 각도로 촬영합니다.
 - 상세 등록 방법과 복사용 JSON은 `content/works/README.md`를 확인합니다.
 - Cloudflare 정적 빌드에서는 `vite.static.config.ts`가 사례 JSON을 읽어 갤러리·카테고리·상세 HTML의 canonical, 설명, OG 이미지와 Breadcrumb JSON-LD를 생성합니다.
+
+## 관리자 등록 화면
+
+- `/admin`은 Cloudflare Access의 One-time PIN 정책으로 보호하며, 앱 내부 로그인은 두지 않습니다.
+- 새 사례는 관리자 화면에서 사진과 실제 작업 내용을 입력하면 D1/R2에 저장되고 Deploy Hook이 정적 재빌드를 시작합니다.
+- 손님이 보는 페이지는 D1을 실시간 조회하지 않습니다. 빌드 시 `scripts/sync-works.mjs`가 공개 사례 스냅샷을 만들어 기존 정적 HTML 구조로 출력합니다.
+- 최초 D1/R2 및 Pages 환경 설정과 기존 9건 이전 절차는 `docs/ADMIN_SETUP.md`를 따릅니다.
