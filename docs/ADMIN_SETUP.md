@@ -33,6 +33,8 @@ npx wrangler d1 execute acedent-content --remote --file migrations/0001_admin_co
 npm run content:migrate:d1
 ```
 
+R2 업로드는 Windows의 `npx.cmd`나 Wrangler CLI를 실행하지 않고 Cloudflare R2 REST API를 직접 사용합니다. 한글·공백이 포함된 로컬 경로도 별도 셸 인용 없이 처리되며, 각 파일마다 `[확인]`, `[업로드]`, `[업로드 완료]`, `[건너뜀]` 진행 상태를 출력합니다. 작업이 중간에 멈춰도 같은 크기와 해시의 R2 파일은 다시 올리지 않고 D1 레코드는 slug·object key 기준으로 갱신하므로 같은 명령을 안전하게 다시 실행할 수 있습니다.
+
 이전이 끝난 뒤 D1 콘솔에서 아래 쿼리 결과가 `9`인지 확인합니다.
 
 ```sql
@@ -49,7 +51,7 @@ Cloudflare Pages의 `acedent-git` 프로젝트에서 Settings → Bindings/Varia
 - 암호화 변수: `DEPLOY_HOOK_URL`, `CLOUDFLARE_API_TOKEN`
 - 빌드 환경 변수: `CLOUDFLARE_D1_DATABASE_ID`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`
 
-빌드용 API 토큰에는 최소한 D1 읽기와 Pages 배포 조회 권한이 필요합니다. 로컬 이전 작업에 쓰는 토큰에는 D1 쓰기와 R2 쓰기 권한도 필요합니다. 토큰은 코드, JSON, Wrangler 설정 파일에 넣지 않습니다.
+빌드용 API 토큰에는 최소한 D1 읽기와 Pages 배포 조회 권한이 필요합니다. 로컬 이전 작업에 쓰는 토큰에는 D1 쓰기와 R2 객체 읽기·쓰기 권한도 필요합니다. 토큰은 코드, JSON, Wrangler 설정 파일에 넣지 않습니다.
 
 중요: D1에 기존 9건이 들어간 것을 확인한 뒤 `CLOUDFLARE_D1_DATABASE_ID`를 Pages 빌드 환경에 추가하세요. D1이 비어 있으면 안전을 위해 빌드가 실패합니다.
 
