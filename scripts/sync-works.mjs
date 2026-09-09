@@ -5,6 +5,9 @@ import { resolve } from 'node:path';
 const projectDirectory = resolve(import.meta.dirname, '..');
 const worksDirectory = resolve(projectDirectory, 'content', 'works');
 const outputPath = resolve(projectDirectory, 'content', 'works.generated.json');
+const legacyR2PublicBases = [
+  'https://pub-e6a8f147577c403f93d85e03a6361345.r2.dev',
+];
 
 if (existsSync(resolve(projectDirectory, '.env.local'))) {
   process.loadEnvFile(resolve(projectDirectory, '.env.local'));
@@ -66,6 +69,43 @@ function wranglerDatabaseId() {
   }
 }
 
+function wranglerPublicBase() {
+  const configPath = resolve(projectDirectory, 'wrangler.jsonc');
+  if (!existsSync(configPath)) return undefined;
+
+  try {
+    const config = JSON.parse(readFileSync(configPath, 'utf8'));
+    const publicBase = config?.vars?.R2_PUBLIC_BASE_URL;
+    return typeof publicBase === 'string' && publicBase.trim()
+      ? publicBase.trim().replace(/\/+$/, '')
+      : undefined;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '알 수 없는 오류';
+    throw new Error(`wrangler.jsonc의 R2 공개 주소를 읽지 못했습니다: ${message}`);
+  }
+}
+
+function normalizeR2Url(value, publicBase) {
+  if (typeof value !== 'string' || !publicBase) return value;
+  const legacyBase = legacyR2PublicBases.find((base) => value === base || value.startsWith(`${base}/`));
+  return legacyBase ? `${publicBase}${value.slice(legacyBase.length)}` : value;
+}
+
+function normalizeWorkImageUrls(work) {
+  const publicBase = process.env.R2_PUBLIC_BASE_URL?.trim().replace(/\/+$/, '') || wranglerPublicBase();
+  if (!publicBase) return work;
+
+  return {
+    ...work,
+    parts: work.parts.map((part) => ({
+      ...part,
+      before: normalizeR2Url(part.before, publicBase),
+      after: normalizeR2Url(part.after, publicBase),
+      thumbnail: normalizeR2Url(part.thumbnail, publicBase),
+    })),
+  };
+}
+
 async function d1Records() {
   const databaseId = process.env.CLOUDFLARE_D1_DATABASE_ID?.trim() || wranglerDatabaseId();
   if (!databaseId) return null;
@@ -93,7 +133,9 @@ async function d1Records() {
   if (rows.length === 0) throw new Error('D1에 공개 사례가 없습니다. 기존 9건을 먼저 마이그레이션하세요.');
 
   return rows.map((row) => {
-    const work = validateWork(JSON.parse(row.payload_json), `d1:${row.slug}`);
+    const work = normalizeWorkImageUrls(
+      validateWork(JSON.parse(row.payload_json), `d1:${row.slug}`),
+    );
     const updatedAt = typeof row.updated_at === 'string' ? row.updated_at.slice(0, 10) : work.date;
     return { sourceFile: `d1:${row.slug}`, lastModified: updatedAt, work };
   });

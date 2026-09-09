@@ -4,7 +4,7 @@
   "compatibility_date": "2026-09-07",
   "pages_build_output_dir": "./dist",
   "vars": {
-    "R2_PUBLIC_BASE_URL": "https://pub-e6a8f147577c403f93d85e03a6361345.r2.dev",
+    "R2_PUBLIC_BASE_URL": "https://images.acedentshop.co.kr",
     "CLOUDFLARE_ACCOUNT_ID": "1da573d9f39f8d3a772f3074f7c20d0a",
     "CLOUDFLARE_PAGES_PROJECT": "acedent-git"
   },
