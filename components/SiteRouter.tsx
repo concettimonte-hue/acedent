@@ -2,6 +2,7 @@
 
 import Home from '@/app/page';
 import AdminPage from '@/components/AdminPage';
+import AdminWorksList from '@/components/AdminWorksList';
 import WorkDetailPage from '@/components/WorkDetailPage';
 import WorksGalleryPage from '@/components/WorksGalleryPage';
 import { isWorkCategory } from '@/content/works/types';
@@ -26,7 +27,10 @@ function WorksNotFound() {
 export default function SiteRouter() {
   const path = normalizePath(window.location.pathname);
   if (path === '/') return <Home />;
-  if (path === '/admin') return <AdminPage />;
+  if (path === '/admin') {
+    const adminView = new URLSearchParams(window.location.search).get('view');
+    return adminView === 'new' ? <AdminPage /> : <AdminWorksList />;
+  }
   if (path === '/works') return <WorksGalleryPage />;
 
   const detailMatch = path.match(/^\/works\/detail\/([^/]+)$/);

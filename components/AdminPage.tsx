@@ -109,6 +109,7 @@ function uploadImage(
 
     const request = new XMLHttpRequest();
     request.open('POST', '/admin/api/images');
+    request.withCredentials = true;
     request.upload.onprogress = (event) => {
       if (event.lengthComputable) onProgress(event.loaded / event.total);
     };
@@ -200,7 +201,7 @@ export default function AdminPage() {
   const pollDeployment = async (startedAt: string) => {
     for (let attempt = 0; attempt < 75; attempt += 1) {
       await new Promise((resolve) => window.setTimeout(resolve, 4000));
-      const response = await fetch(`/admin/api/deploy?since=${encodeURIComponent(startedAt)}`, { cache: 'no-store' });
+      const response = await fetch(`/admin/api/deploy?since=${encodeURIComponent(startedAt)}`, { cache: 'no-store', credentials: 'same-origin' });
       const payload = await response.json() as { status?: string; url?: string; error?: string };
       if (!response.ok) throw new Error(payload.error || '배포 상태를 확인하지 못했습니다.');
       if (payload.status === 'success') {
@@ -250,6 +251,7 @@ export default function AdminPage() {
       setStatus('사례 저장 중');
       const saveResponse = await fetch('/admin/api/works', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, uploadId, parts: uploadedParts }),
       });
@@ -257,7 +259,7 @@ export default function AdminPage() {
       if (!saveResponse.ok || !saved.work) throw new Error(saved.error || '사례 저장에 실패했습니다.');
 
       setStatus('Cloudflare 빌드 요청 중');
-      const deployResponse = await fetch('/admin/api/deploy', { method: 'POST' });
+      const deployResponse = await fetch('/admin/api/deploy', { method: 'POST', credentials: 'same-origin' });
       const deployment = await deployResponse.json() as { startedAt?: string; error?: string };
       if (!deployResponse.ok || !deployment.startedAt) throw new Error(deployment.error || '배포 요청에 실패했습니다.');
       await pollDeployment(deployment.startedAt);
@@ -272,7 +274,7 @@ export default function AdminPage() {
   return (
     <main className="admin-page">
       <header className="admin-header">
-        <a href="/" aria-label="에이스덴트 홈페이지">ACE DENT</a>
+        <a href="/admin" aria-label="수리사례 관리 목록">ACE DENT</a>
         <div><span>ADMIN</span><strong>수리사례 등록</strong></div>
       </header>
 

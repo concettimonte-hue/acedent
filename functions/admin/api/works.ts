@@ -162,9 +162,81 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
   if (!env.ACEDENT_DB) return json({ error: 'D1 바인딩이 설정되지 않았습니다.' }, 503);
 
   const rows = await env.ACEDENT_DB.prepare(
-    'SELECT slug, date, category, updated_at FROM works ORDER BY updated_at DESC LIMIT 20',
+    `SELECT slug, date, category, status, payload_json, created_at, updated_at
+     FROM works
+     ORDER BY created_at DESC, date DESC, slug ASC`,
   ).all();
-  return json({ works: rows.results });
+  let cleanupRows: Array<Record<string, unknown>> = [];
+  try {
+    const cleanup = await env.ACEDENT_DB.prepare(
+      `SELECT work_slug, status, attempts, max_attempts, last_error, updated_at
+       FROM asset_cleanup_queue
+       ORDER BY updated_at DESC`,
+    ).all();
+    cleanupRows = cleanup.results as Array<Record<string, unknown>>;
+  } catch {
+    // 목록 조회는 정리 대기열 마이그레이션 적용 전에도 사용할 수 있어야 합니다.
+    cleanupRows = [];
+  }
+
+  const cleanupBySlug = new Map<string, {
+    status: 'pending' | 'failed';
+    attempts: number;
+    maxAttempts: number;
+    lastError: string;
+    assetCount: number;
+  }>();
+  for (const row of cleanupRows) {
+    const workSlug = String(row.work_slug || '');
+    if (!workSlug) continue;
+    const current = cleanupBySlug.get(workSlug);
+    const status = row.status === 'failed' ? 'failed' : 'pending';
+    const attempts = Number(row.attempts) || 0;
+    const maxAttempts = Number(row.max_attempts) || 3;
+    cleanupBySlug.set(workSlug, {
+      status: current?.status === 'failed' || status === 'failed' ? 'failed' : 'pending',
+      attempts: Math.max(current?.attempts || 0, attempts),
+      maxAttempts: Math.max(current?.maxAttempts || 0, maxAttempts),
+      lastError: String(row.last_error || current?.lastError || ''),
+      assetCount: (current?.assetCount || 0) + 1,
+    });
+  }
+
+  const works = rows.results.map((row) => {
+    try {
+      const work = JSON.parse(String(row.payload_json)) as WorkItem;
+      const firstPart = work.parts?.[0];
+      return {
+        slug: String(row.slug),
+        date: String(row.date),
+        category: String(row.category),
+        status: String(row.status),
+        createdAt: String(row.created_at),
+        updatedAt: String(row.updated_at),
+        title: work.title,
+        carMaker: work.carMaker,
+        carModel: work.carModel,
+        thumbnail: firstPart?.thumbnail || firstPart?.after || '',
+        cleanup: cleanupBySlug.get(String(row.slug)) || null,
+      };
+    } catch {
+      return {
+        slug: String(row.slug),
+        date: String(row.date),
+        category: String(row.category),
+        status: String(row.status),
+        createdAt: String(row.created_at),
+        updatedAt: String(row.updated_at),
+        title: '데이터 확인 필요',
+        carMaker: '',
+        carModel: '',
+        thumbnail: '',
+        cleanup: cleanupBySlug.get(String(row.slug)) || null,
+      };
+    }
+  });
+
+  return json({ works, total: works.length });
 };
 
 export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) => {

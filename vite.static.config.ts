@@ -396,8 +396,8 @@ const seoAssetsPlugin = (): Plugin => ({
     writeRoute(
       'admin.html',
       renderRouteHtml(baseHtml, {
-        title: '수리사례 등록 | 에이스덴트',
-        description: '에이스덴트 수리사례 관리자 입력 화면입니다.',
+        title: '수리사례 관리 | 에이스덴트',
+        description: '에이스덴트 수리사례 관리자 목록 및 입력 화면입니다.',
         canonical: `${siteUrl}/admin`,
         image: `${siteUrl}/og-image.jpg`,
         bodyHtml: '<main class="admin-page"><p class="admin-static-loading">관리자 화면을 불러오는 중입니다.</p></main>',
