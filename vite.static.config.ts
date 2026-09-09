@@ -13,7 +13,7 @@ import {
   type WorkItem,
 } from './content/works/types';
 import {
-  autoRepairJsonLd,
+  autoBodyShopJsonLd,
   faqJsonLd,
   organizationJsonLd,
   serializeJsonLd,
@@ -288,7 +288,7 @@ const seoAssetsPlugin = (): Plugin => ({
       {
         tag: 'script',
         attrs: { id: 'acedent-business-jsonld', type: 'application/ld+json' },
-        children: serializeJsonLd(autoRepairJsonLd),
+        children: serializeJsonLd(autoBodyShopJsonLd),
         injectTo: 'head',
       },
       {
@@ -372,7 +372,7 @@ const seoAssetsPlugin = (): Plugin => ({
       )
       .join('\n');
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapBody}\n</urlset>\n`;
-    const robots = `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\nHost: ${siteUrl}\n`;
+    const robots = `User-agent: *\nAllow: /\n\nHost: ${siteUrl}\nSitemap: ${siteUrl}/sitemap.xml\n`;
 
     this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: sitemap });
     this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robots });

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
 import {
-  autoRepairJsonLd,
+  autoBodyShopJsonLd,
   defaultTitle,
   faqJsonLd,
   organizationJsonLd,
@@ -65,7 +65,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(autoRepairJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(autoBodyShopJsonLd) }}
         />
         <script
           type="application/ld+json"

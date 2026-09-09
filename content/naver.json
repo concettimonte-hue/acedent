@@ -4,6 +4,10 @@
   "review": "https://m.place.naver.com/place/1216388930/review/visitor",
   "booking": "https://m.booking.naver.com/booking/6/bizes/867138/items/7200551",
   "talk": "https://talk.naver.com/wc55qv",
+  "sameAs": [
+    "https://blog.naver.com/ace_dent_shop",
+    "https://map.naver.com/p/entry/place/1216388930"
+  ],
   "section": {
     "label": "NAVER CONNECT",
     "title": "필요한 정보를, 익숙한 곳에서.",

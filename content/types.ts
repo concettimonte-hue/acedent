@@ -127,6 +127,7 @@ export interface NaverContent {
   review: string;
   booking: string;
   talk: string;
+  sameAs: string[];
   section: {
     label: string;
     title: string;

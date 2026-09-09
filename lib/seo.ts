@@ -14,6 +14,27 @@ export const siteDescription =
   '서울 동대문 에이스덴트는 자동차 판금도색, 외형복원, 무도색 덴트와 광택을 차량 상태에 맞춰 진행합니다. 실제 작업 전후 사진과 수리 과정, 가능한 방법과 한계를 투명하게 안내합니다.';
 export const ogImageUrl = `${siteUrl}/og-image.jpg`;
 export const logoImageUrl = `${siteUrl}/images/ace-dent-logo.png`;
+export const naverSameAs = Array.from(
+  new Set([naver.blog, naver.place, ...naver.sameAs]),
+);
+
+const schemaDayCodes: Record<string, string> = {
+  Monday: 'Mo',
+  Tuesday: 'Tu',
+  Wednesday: 'We',
+  Thursday: 'Th',
+  Friday: 'Fr',
+  Saturday: 'Sa',
+  Sunday: 'Su',
+};
+
+const openingHours = business.openingHoursSpecification.map(
+  ({ dayOfWeek, opens, closes }) => {
+    const days = dayOfWeek.map((day) => schemaDayCodes[day]).filter(Boolean);
+    const dayRange = days.length > 1 ? `${days[0]}-${days.at(-1)}` : days[0];
+    return `${dayRange} ${opens}-${closes}`;
+  },
+);
 
 export const organizationJsonLd = {
   '@context': 'https://schema.org',
@@ -27,14 +48,14 @@ export const organizationJsonLd = {
     width: 1536,
     height: 1024,
   },
-  sameAs: [naver.blog, naver.place],
+  sameAs: naverSameAs,
 };
 
-export const autoRepairJsonLd = {
+export const autoBodyShopJsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'AutoRepair',
+  '@type': 'AutoBodyShop',
   name: business.name,
-  image: ogImageUrl,
+  image: logoImageUrl,
   logo: logoImageUrl,
   url: siteUrl,
   telephone: business.telephone,
@@ -50,13 +71,14 @@ export const autoRepairJsonLd = {
     '@type': 'OpeningHoursSpecification',
     ...hours,
   })),
+  openingHours,
   areaServed: business.areaServed.map((name) => ({
     '@type': 'AdministrativeArea',
     name,
   })),
   // 공개된 정액 가격표가 없어 임의 금액 대신 실제 상담 방식으로 표시합니다.
   priceRange: business.priceRange,
-  sameAs: [naver.blog, naver.place],
+  sameAs: naverSameAs,
   hasOfferCatalog: {
     '@type': 'OfferCatalog',
     name: '자동차 외장 복원 서비스',
