@@ -20,15 +20,23 @@ interface WorksGalleryPageProps {
 }
 
 export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
-  const [selectedPart, setSelectedPart] = useState<WorkPart | null>(null);
+  const [selectedParts, setSelectedParts] = useState<WorkPart[]>([]);
   const categoryWorks = category ? getWorksByCategory(category) : getWorks();
   const visibleWorks = useMemo(
     () =>
-      selectedPart
-        ? categoryWorks.filter((work) => work.part.includes(selectedPart))
+      selectedParts.length > 0
+        ? categoryWorks.filter((work) => selectedParts.some((part) => work.part.includes(part)))
         : categoryWorks,
-    [categoryWorks, selectedPart],
+    [categoryWorks, selectedParts],
   );
+
+  const togglePart = (part: WorkPart) => {
+    setSelectedParts((current) =>
+      current.includes(part)
+        ? current.filter((item) => item !== part)
+        : [...current, part],
+    );
+  };
 
   useEffect(() => {
     applyClientMetadata(getWorksMetadata(category));
@@ -66,17 +74,18 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
           <span>부위</span>
           <button
             type="button"
-            className={selectedPart === null ? 'is-active' : ''}
-            onClick={() => setSelectedPart(null)}
+            className={selectedParts.length === 0 ? 'is-active' : ''}
+            aria-pressed={selectedParts.length === 0}
+            onClick={() => setSelectedParts([])}
           >
             전체
           </button>
           {WORK_PARTS.map((part) => (
             <button
               type="button"
-              className={selectedPart === part ? 'is-active' : ''}
-              aria-pressed={selectedPart === part}
-              onClick={() => setSelectedPart((current) => (current === part ? null : part))}
+              className={selectedParts.includes(part) ? 'is-active' : ''}
+              aria-pressed={selectedParts.includes(part)}
+              onClick={() => togglePart(part)}
               key={part}
             >
               {part}
@@ -85,7 +94,7 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
         </div>
 
         <div className="works-count">
-          <span>{selectedPart ? `${selectedPart} · ` : ''}{visibleWorks.length}건</span>
+          <span>{selectedParts.length > 0 ? `${selectedParts.join(' · ')} · ` : ''}{visibleWorks.length}건</span>
         </div>
 
         {visibleWorks.length > 0 ? (

@@ -8,7 +8,7 @@ import { defineConfig, type Plugin } from 'vite';
 import generatedWorksData from './content/works.generated.json';
 import {
   WORK_CATEGORIES,
-  WORK_PARTS,
+  isWorkPartValue,
   type WorkCategory,
   type WorkItem,
 } from './content/works/types';
@@ -78,7 +78,6 @@ function getWorkLastModified(work: BuildWork, sharedSources: string[]) {
 
 function loadBuildWorks(): BuildWork[] {
   const categoryIds = new Set<string>(WORK_CATEGORIES.map((item) => item.id));
-  const allowedParts = new Set<string>(WORK_PARTS);
   const works = (generatedWorksData as GeneratedWorksData).records
     .map(({ sourceFile, lastModified, work }) => {
       const fileName = sourceFile;
@@ -89,7 +88,7 @@ function loadBuildWorks(): BuildWork[] {
       if (!categoryIds.has(work.category)) {
         throw new Error(`${fileName}: 허용되지 않은 category입니다.`);
       }
-      if (!Array.isArray(work.part) || work.part.some((part) => !allowedParts.has(part))) {
+      if (!Array.isArray(work.part) || work.part.some((part) => typeof part !== 'string' || !isWorkPartValue(part))) {
         throw new Error(`${fileName}: 허용되지 않은 part가 있습니다.`);
       }
       if (
@@ -101,7 +100,11 @@ function loadBuildWorks(): BuildWork[] {
             typeof part.label !== 'string' ||
             typeof part.before !== 'string' ||
             typeof part.after !== 'string' ||
-            typeof part.note !== 'string',
+            typeof part.note !== 'string' ||
+            (part.part !== undefined && (
+              !Array.isArray(part.part) ||
+              part.part.some((partValue) => typeof partValue !== 'string' || !isWorkPartValue(partValue))
+            )),
         )
       ) {
         throw new Error(`${fileName}: parts의 label, before, after, note는 필수입니다.`);

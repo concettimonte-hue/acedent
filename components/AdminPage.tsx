@@ -10,9 +10,11 @@ import {
   WORK_CATEGORIES,
   WORK_PARTS,
   getWorkCategoryLabel,
+  isWorkPart,
   type WorkCategory,
   type WorkItem,
   type WorkPart,
+  type WorkPartValue,
 } from '@/content/works/types';
 import { getWorkImageAlt } from '@/lib/work-images';
 import { getWorkSeoCopy } from '@/lib/work-seo';
@@ -34,7 +36,9 @@ type ImageDraft = ProcessedImage | ExistingImage;
 
 interface PartDraft {
   id: string;
-  part: WorkPart;
+  parts: WorkPart[];
+  customPartEnabled: boolean;
+  customPart: string;
   detail: string;
   label: string;
   note: string;
@@ -64,20 +68,51 @@ interface AdminPageProps {
 const today = new Date().toISOString().slice(0, 10);
 
 function newPart(): PartDraft {
-  return { id: crypto.randomUUID(), part: '범퍼', detail: '', label: '범퍼', note: '' };
+  return {
+    id: crypto.randomUUID(),
+    parts: ['범퍼'],
+    customPartEnabled: false,
+    customPart: '',
+    detail: '',
+    label: '범퍼',
+    note: '',
+  };
 }
 
 function isProcessedImage(image: ImageDraft): image is ProcessedImage {
   return 'blob' in image;
 }
 
-function splitPartLabel(label: string, fallback: WorkPart) {
-  const matched = label.includes(fallback) ? fallback : (WORK_PARTS.find((part) => label.includes(part)) || fallback);
-  const detail = label
-    .replace(matched, '')
+function selectedPartValues(part: PartDraft): WorkPartValue[] {
+  const values: WorkPartValue[] = [...part.parts];
+  if (part.customPartEnabled && part.customPart.trim()) values.push(part.customPart.trim());
+  return [...new Set(values)];
+}
+
+function composePartLabel(part: Pick<PartDraft, 'parts' | 'customPartEnabled' | 'customPart' | 'detail'>) {
+  const names: string[] = [...part.parts];
+  if (part.customPartEnabled && part.customPart.trim()) names.push(part.customPart.trim());
+  return [names.join(' · '), part.detail.trim()].filter(Boolean).join(' ');
+}
+
+function splitPartLabel(label: string, fallback: WorkPartValue[]) {
+  const matched = WORK_PARTS.filter((part) => label.includes(part));
+  const fallbackFixed = fallback.filter(isWorkPart);
+  const customPart = fallback.find((part) => !isWorkPart(part) && label.includes(part)) || '';
+  const parts = [...new Set(matched.length ? matched : fallbackFixed)];
+  if (parts.length === 0 && !customPart) parts.push('범퍼');
+  const detail = [
+    ...parts,
+    customPart,
+  ].filter(Boolean).reduce((value, part) => value.replace(part, ''), label)
     .replace(/^[\s·_-]+|[\s·_-]+$/g, '')
     .trim();
-  return { part: matched, detail };
+  return {
+    parts,
+    customPartEnabled: Boolean(customPart),
+    customPart,
+    detail,
+  };
 }
 
 function canvasBlob(canvas: HTMLCanvasElement, maxBytes: number) {
@@ -214,14 +249,21 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           blogUrl: work.blogUrl || '',
         });
         setParts(work.parts.map((media, index) => {
-          const parsed = splitPartLabel(media.label, work.part[index] || work.part[0] || '범퍼');
+          const fallbackParts = media.part?.length
+            ? media.part
+            : work.parts.length === 1
+              ? work.part
+              : [work.part[index] || work.part[0] || '범퍼'];
+          const parsed = splitPartLabel(media.label, fallbackParts);
           const beforeAsset = assetByUrl.get(media.before);
           const afterAsset = assetByUrl.get(media.after);
           const thumbnailAsset = media.thumbnail ? assetByUrl.get(media.thumbnail) : afterAsset;
           if (!beforeAsset || !afterAsset) throw new Error(`${index + 1}번 부위의 D1 이미지 기록을 찾지 못했습니다.`);
           return {
             id: crypto.randomUUID(),
-            part: parsed.part,
+            parts: parsed.parts,
+            customPartEnabled: parsed.customPartEnabled,
+            customPart: parsed.customPart,
             detail: parsed.detail,
             label: media.label,
             note: media.note,
@@ -251,12 +293,13 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     date: form.date,
     title: form.title || '작업 제목 미리보기',
     category: form.category,
-    part: [...new Set(parts.map((part) => part.part))],
+    part: [...new Set(parts.flatMap(selectedPartValues))],
     carMaker: form.carMaker || '차량 제조사',
     carModel: form.carModel || '차종',
     color: form.color || '색상',
     parts: parts.map((part) => ({
-      label: part.label || [part.part, part.detail].filter(Boolean).join(' '),
+      part: selectedPartValues(part),
+      label: part.label || composePartLabel(part),
       before: part.before?.preview || '',
       after: part.after?.preview || '',
       thumbnail: part.thumbnail?.preview,
@@ -279,13 +322,24 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     setParts((current) => current.map((part) => (part.id === id ? { ...part, ...patch } : part)));
   };
 
-  const updatePartName = (id: string, patch: { part?: WorkPart; detail?: string }) => {
+  const updatePartName = (
+    id: string,
+    patch: Partial<Pick<PartDraft, 'parts' | 'customPartEnabled' | 'customPart' | 'detail'>>,
+  ) => {
     setParts((current) => current.map((item) => {
       if (item.id !== id) return item;
-      const part = patch.part ?? item.part;
-      const detail = patch.detail ?? item.detail;
-      return { ...item, ...patch, label: [part, detail].filter(Boolean).join(' ') };
+      const next = { ...item, ...patch };
+      return { ...next, label: composePartLabel(next) };
     }));
+  };
+
+  const togglePartName = (id: string, value: WorkPart) => {
+    const current = parts.find((part) => part.id === id);
+    if (!current) return;
+    const nextParts = current.parts.includes(value)
+      ? current.parts.filter((part) => part !== value)
+      : [...current.parts, value];
+    updatePartName(id, { parts: nextParts });
   };
 
   const clearImage = (id: string, kind: 'before' | 'after') => {
@@ -339,6 +393,8 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     setProgress(0);
     setSavedUrl('');
     try {
+      if (parts.some((part) => selectedPartValues(part).length === 0)) throw new Error('각 사진 묶음의 부위를 한 개 이상 선택하세요.');
+      if (parts.some((part) => part.customPartEnabled && !part.customPart.trim())) throw new Error('기타 부위명을 직접 입력하세요.');
       if (parts.some((part) => !part.before || !part.after || !part.thumbnail)) throw new Error('모든 부위의 전·후 사진을 선택하세요.');
       const uploadId = crypto.randomUUID();
       const total = parts.reduce((count, part) => count + [part.before, part.after, part.thumbnail]
@@ -360,7 +416,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           return result;
         };
         uploadedParts.push({
-          part: part.part,
+          part: selectedPartValues(part),
           detail: part.detail,
           label: part.label,
           note: part.note,
@@ -459,7 +515,14 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
                   <legend>PART {String(index + 1).padStart(2, '0')}</legend>
                   {parts.length > 1 && <button type="button" className="admin-remove" onClick={() => setParts((current) => current.filter((item) => item.id !== part.id))}><Trash2 aria-hidden="true" /> 삭제</button>}
                   <div className="admin-fields admin-fields-two">
-                    <label>부위명<select value={part.part} onChange={(e) => updatePartName(part.id, { part: e.target.value as WorkPart })}>{WORK_PARTS.map((item) => <option value={item} key={item}>{item}</option>)}</select></label>
+                    <fieldset className="admin-part-picker">
+                      <legend>부위명 <small>여러 개 선택 가능</small></legend>
+                      <div className="admin-part-toggles">
+                        {WORK_PARTS.map((item) => <button type="button" className={part.parts.includes(item) ? 'is-active' : ''} aria-pressed={part.parts.includes(item)} onClick={() => togglePartName(part.id, item)} key={item}>{item}</button>)}
+                        <button type="button" className={part.customPartEnabled ? 'is-active' : ''} aria-pressed={part.customPartEnabled} onClick={() => updatePartName(part.id, { customPartEnabled: !part.customPartEnabled, customPart: part.customPartEnabled ? '' : part.customPart })}>기타(직접 입력)</button>
+                      </div>
+                      {part.customPartEnabled && <input required value={part.customPart} onChange={(e) => updatePartName(part.id, { customPart: e.target.value })} maxLength={30} placeholder="예: 쿼터패널" aria-label="기타 부위명" />}
+                    </fieldset>
                     <label>세부 위치<input value={part.detail} onChange={(e) => updatePartName(part.id, { detail: e.target.value })} placeholder="예: 후면, 옆면" /></label>
                   </div>
                   <label>부위 설명<textarea required rows={2} maxLength={300} value={part.note} onChange={(e) => updatePart(part.id, { note: e.target.value })} placeholder="실제 손상과 작업 내용을 입력하세요." /></label>
@@ -469,11 +532,11 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
                       return <div className="admin-image-slot" key={kind}>
                         <label className={`admin-image-input${selected ? ' has-image' : ''}`}>
                           <input type="file" accept="image/*" capture="environment" onChange={(e) => chooseImage(part.id, kind, e.target.files?.[0])} />
-                          {selected ? <img src={selected.preview} alt={`${part.part} ${kind === 'before' ? '작업 전' : '작업 후'} 미리보기`} width="1600" height="1200" /> : <ImagePlus aria-hidden="true" />}
+                          {selected ? <img src={selected.preview} alt={`${part.label || '작업 부위'} ${kind === 'before' ? '작업 전' : '작업 후'} 미리보기`} width="1600" height="1200" /> : <ImagePlus aria-hidden="true" />}
                           <strong>{kind === 'before' ? 'BEFORE' : 'AFTER'}</strong>
                           <span>{part.processing === kind ? '사진 처리 중…' : selected ? `${selected.bytes ? `${Math.ceil(selected.bytes / 1024)}KB` : '현재 이미지'} · 다시 선택` : '촬영 또는 갤러리 선택'}</span>
                         </label>
-                        {selected && <button type="button" className="admin-clear-image" onClick={() => clearImage(part.id, kind)} aria-label={`${part.part} ${kind === 'before' ? '작업 전' : '작업 후'} 이미지 삭제`}><X aria-hidden="true" /> 이미지 삭제</button>}
+                        {selected && <button type="button" className="admin-clear-image" onClick={() => clearImage(part.id, kind)} aria-label={`${part.label || '작업 부위'} ${kind === 'before' ? '작업 전' : '작업 후'} 이미지 삭제`}><X aria-hidden="true" /> 이미지 삭제</button>}
                       </div>;
                     })}
                   </div>

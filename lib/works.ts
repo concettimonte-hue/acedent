@@ -2,7 +2,7 @@ import {
   WORK_PARTS,
   getWorkCategoryLabel,
   isWorkCategory,
-  isWorkPart,
+  isWorkPartValue,
   type WorkCategory,
   type WorkItem,
   type WorkPartMedia,
@@ -52,9 +52,9 @@ function parseWork(value: unknown, fileName: string): WorkItem {
     throw new Error(`${fileName}: part는 한 개 이상의 배열이어야 합니다.`);
   }
   const workParts = item.part.map((part) => {
-    if (typeof part !== 'string' || !isWorkPart(part)) {
+    if (typeof part !== 'string' || !isWorkPartValue(part)) {
       throw new Error(
-        `${fileName}: part는 ${WORK_PARTS.join(', ')} 중에서 선택해야 합니다.`,
+        `${fileName}: part는 ${WORK_PARTS.join(', ')} 또는 직접 입력한 부위명이어야 합니다.`,
       );
     }
     return part;
@@ -68,7 +68,16 @@ function parseWork(value: unknown, fileName: string): WorkItem {
       throw new Error(`${fileName}: parts[${index}]는 객체 형식이어야 합니다.`);
     }
     const part = value as Record<string, unknown>;
+    const mediaParts = Array.isArray(part.part)
+      ? part.part.map((partValue) => {
+          if (typeof partValue !== 'string' || !isWorkPartValue(partValue)) {
+            throw new Error(`${fileName}: parts[${index}].part 값이 올바르지 않습니다.`);
+          }
+          return partValue;
+        })
+      : undefined;
     return {
+      part: mediaParts,
       label: requireString(part.label, `parts[${index}].label`, fileName),
       before: requireString(part.before, `parts[${index}].before`, fileName),
       after: requireString(part.after, `parts[${index}].after`, fileName),

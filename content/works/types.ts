@@ -20,11 +20,14 @@ export const WORK_PARTS = [
   '필러',
   '루프',
   '휠',
+  '사이드스텝',
 ] as const;
 
 export type WorkPart = (typeof WORK_PARTS)[number];
+export type WorkPartValue = WorkPart | (string & {});
 
 export interface WorkPartMedia {
+  part?: WorkPartValue[];
   label: string;
   before: string;
   after: string;
@@ -37,7 +40,7 @@ export interface WorkItem {
   date: string;
   title: string;
   category: WorkCategory;
-  part: WorkPart[];
+  part: WorkPartValue[];
   carMaker: string;
   carModel: string;
   color?: string;
@@ -57,6 +60,11 @@ export function isWorkCategory(value: string): value is WorkCategory {
 
 export function isWorkPart(value: string): value is WorkPart {
   return (WORK_PARTS as readonly string[]).includes(value);
+}
+
+export function isWorkPartValue(value: string): value is WorkPartValue {
+  const normalized = value.trim();
+  return Boolean(normalized) && normalized.length <= 30 && !/[<>\u0000-\u001f]/u.test(normalized);
 }
 
 export function getWorkCategoryLabel(category: WorkCategory) {

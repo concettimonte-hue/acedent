@@ -1,8 +1,8 @@
 import {
   isWorkCategory,
-  isWorkPart,
+  isWorkPartValue,
   type WorkItem,
-  type WorkPart,
+  type WorkPartValue,
 } from '../../../content/works/types';
 import { getWorkSeoCopy } from '../../../lib/work-seo';
 import {
@@ -18,7 +18,7 @@ interface AssetReference {
 }
 
 interface PartInput {
-  part: WorkPart;
+  part: unknown;
   detail: string;
   note: string;
   before: AssetReference;
@@ -77,6 +77,7 @@ const partTerms: Record<string, string> = {
   필러: 'pillar',
   루프: 'roof',
   휠: 'wheel',
+  사이드스텝: 'side-step',
 };
 
 const modelTerms: Record<string, string> = {
@@ -113,7 +114,8 @@ function slugTerm(value: string, terms: Record<string, string> = {}) {
 
 function baseSlug(input: WorkInput) {
   const first = input.parts[0];
-  const part = slugTerm(first.part, partTerms);
+  const firstPart = Array.isArray(first.part) ? first.part[0] : first.part;
+  const part = slugTerm(typeof firstPart === 'string' ? firstPart : 'part', partTerms);
   const detailedPart = first.detail
     ? `${slugTerm(first.detail, detailTerms)}-${part}`
     : part;
@@ -123,6 +125,18 @@ function baseSlug(input: WorkInput) {
     detailedPart,
     input.category,
   ].join('-');
+}
+
+function normalizePartValues(value: unknown, index: number): WorkPartValue[] {
+  const values = Array.isArray(value) ? value : [value];
+  if (values.length === 0) throw new Error(`${index + 1}번 작업 부위를 한 개 이상 선택하세요.`);
+  const normalized = values.map((part) => {
+    if (typeof part !== 'string' || !isWorkPartValue(part)) {
+      throw new Error(`${index + 1}번 작업 부위가 올바르지 않습니다.`);
+    }
+    return part.trim() as WorkPartValue;
+  });
+  return [...new Set(normalized)];
 }
 
 function assetUrl(base: string, key: string) {
@@ -256,9 +270,9 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
     if (!Array.isArray(input.parts) || input.parts.length === 0) throw new Error('작업 부위를 한 개 이상 추가하세요.');
 
     const normalizedParts = input.parts.map((part, index) => {
-      if (!isWorkPart(part.part)) throw new Error(`${index + 1}번 작업 부위를 선택하세요.`);
       return {
         ...part,
+        part: normalizePartValues(part.part, index),
         detail: typeof part.detail === 'string' ? part.detail.trim() : '',
         note: required(part.note, `${index + 1}번 부위 설명`, 300),
       };
@@ -286,7 +300,8 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
         { ...thumbnail, kind: 'thumbnail', partIndex: index },
       );
       mediaParts.push({
-        label: [part.part, part.detail].filter(Boolean).join(' '),
+        part: part.part,
+        label: [part.part.join(' · '), part.detail].filter(Boolean).join(' '),
         before: assetUrl(publicBase, before.key),
         after: assetUrl(publicBase, after.key),
         thumbnail: assetUrl(publicBase, thumbnail.key),
@@ -294,7 +309,7 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
       });
     }
 
-    const uniqueParts = [...new Set(normalizedParts.map((part) => part.part))];
+    const uniqueParts = [...new Set(normalizedParts.flatMap((part) => part.part))];
     const work: WorkItem = {
       slug,
       date,

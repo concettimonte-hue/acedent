@@ -3136,6 +3136,13 @@ footer > a:last-child svg {
 .admin-help { margin: -.5rem 0 1.2rem; color: #989c98; font-size: .86rem; line-height: 1.6; }
 .admin-part { position: relative; min-width: 0; padding: 1.25rem; border: 1px solid #343734; }
 .admin-part legend { padding: 0 .45rem; }
+.admin-part-picker { display: grid; min-width: 0; padding: 0; border: 0; gap: .65rem; }
+.admin-part-picker > legend { padding: 0; color: #d5d7d4; font-size: .88rem; font-weight: 800; letter-spacing: 0; }
+.admin-part-picker > legend small { margin-left: .3rem; color: #7f837f; font-weight: 600; }
+.admin-part-toggles { display: flex; flex-wrap: wrap; gap: .45rem; }
+.admin-part-toggles button { min-height: 38px; padding: .5rem .7rem; border: 1px solid #3a3d3a; background: #080908; color: #b7bab7; font-size: .78rem; font-weight: 850; }
+.admin-part-toggles button:hover, .admin-part-toggles button:focus-visible { border-color: #858985; color: #fff; }
+.admin-part-toggles button.is-active { border-color: #f8db00; background: #f8db00; color: #080908; }
 .admin-remove { position: absolute; top: .65rem; right: .75rem; display: inline-flex; align-items: center; gap: .3rem; color: #aeb1ae; font-size: .75rem; }
 .admin-remove svg, .admin-add-part svg, .admin-submit-panel button svg { width: 1rem; height: 1rem; }
 .admin-image-pair { display: grid; margin-top: 1rem; gap: .75rem; }

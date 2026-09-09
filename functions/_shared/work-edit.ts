@@ -1,8 +1,8 @@
 import {
   isWorkCategory,
-  isWorkPart,
+  isWorkPartValue,
   type WorkItem,
-  type WorkPart,
+  type WorkPartValue,
 } from '../../content/works/types';
 import { getWorkSeoCopy } from '../../lib/work-seo';
 import { cleanPublicBase, json, type AdminEnv } from './admin';
@@ -64,6 +64,18 @@ function readAssetKey(reference: AssetReference | undefined, label: string) {
     throw new Error(`${label} 이미지 정보가 올바르지 않습니다.`);
   }
   return key;
+}
+
+function normalizePartValues(value: unknown, index: number): WorkPartValue[] {
+  const values = Array.isArray(value) ? value : [value];
+  if (values.length === 0) throw new Error(`${index + 1}번 작업 부위를 한 개 이상 선택하세요.`);
+  const normalized = values.map((part) => {
+    if (typeof part !== 'string' || !isWorkPartValue(part)) {
+      throw new Error(`${index + 1}번 작업 부위가 올바르지 않습니다.`);
+    }
+    return part.trim() as WorkPartValue;
+  });
+  return [...new Set(normalized)];
 }
 
 async function verifyAsset(
@@ -147,14 +159,13 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
     }
 
     const parts = (input.parts as PartInput[]).map((part, index) => {
-      if (!isWorkPart(String(part.part))) throw new Error(`${index + 1}번 작업 부위를 선택하세요.`);
-      const workPart = String(part.part) as WorkPart;
+      const workParts = normalizePartValues(part.part, index);
       const detail = typeof part.detail === 'string' ? part.detail.trim() : '';
       return {
-        part: workPart,
+        part: workParts,
         label: typeof part.label === 'string' && part.label.trim()
           ? part.label.trim()
-          : [workPart, detail].filter(Boolean).join(' '),
+          : [workParts.join(' · '), detail].filter(Boolean).join(' '),
         note: required(part.note, `${index + 1}번 부위 설명`, 300),
         before: part.before,
         after: part.after,
@@ -184,6 +195,7 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
         if (!recorded || recorded.kind === 'thumbnail') records.set(asset.object_key, { ...asset, part_index: index });
       }
       mediaParts.push({
+        part: part.part,
         label: part.label,
         before: assetUrl(publicBase, before.object_key),
         after: assetUrl(publicBase, after.object_key),
@@ -202,7 +214,7 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
       date,
       title: required(input.title, '제목', 80),
       category,
-      part: [...new Set(parts.map((part) => part.part))],
+      part: [...new Set(parts.flatMap((part) => part.part))],
       carMaker: required(input.carMaker, '차량 제조사', 40),
       carModel: required(input.carModel, '차종', 60),
       color: color || previous.color,
