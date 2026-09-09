@@ -68,7 +68,7 @@ export function cleanPublicBase(value: string | undefined) {
   if (!value || !/^https:\/\//i.test(value)) {
     throw new Error('R2_PUBLIC_BASE_URL 설정이 필요합니다.');
   }
-  return value.replace(/\/$/, '');
+  return value.replace(/\/+$/, '');
 }
 
 export function safeSegment(value: string) {

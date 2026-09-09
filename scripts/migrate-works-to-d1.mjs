@@ -10,7 +10,7 @@ const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
 const token = process.env.CLOUDFLARE_API_TOKEN;
 const databaseId = process.env.CLOUDFLARE_D1_DATABASE_ID;
 const bucket = process.env.CLOUDFLARE_R2_BUCKET_NAME;
-const publicBase = process.env.R2_PUBLIC_BASE_URL?.replace(/\/$/, '');
+const publicBase = process.env.R2_PUBLIC_BASE_URL?.replace(/\/+$/, '');
 
 for (const [name, value] of Object.entries({ accountId, token, databaseId, bucket, publicBase })) {
   if (!value) throw new Error(`마이그레이션 설정 누락: ${name}`);
