@@ -22,12 +22,45 @@ type AccessResult =
   | { ok: true; email: string }
   | { ok: false; response: Response };
 
+interface AccessJwtPayload {
+  email?: unknown;
+  sub?: unknown;
+}
+
+function readAccessJwtPayload(assertion: string): AccessJwtPayload | null {
+  try {
+    const encodedPayload = assertion.split('.')[1];
+    if (!encodedPayload) return null;
+    const base64 = encodedPayload
+      .replaceAll('-', '+')
+      .replaceAll('_', '/')
+      .padEnd(Math.ceil(encodedPayload.length / 4) * 4, '=');
+    const binary = atob(base64);
+    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes)) as AccessJwtPayload;
+  } catch {
+    return null;
+  }
+}
+
 export function requireAccess(request: Request): AccessResult {
   const assertion = request.headers.get('Cf-Access-Jwt-Assertion');
-  const email = request.headers.get('Cf-Access-Authenticated-User-Email');
-  if (!assertion || !email) {
-    return { ok: false, response: json({ error: 'Cloudflare Access 인증이 필요합니다.' }, 403) };
+  const headerEmail = request.headers.get('Cf-Access-Authenticated-User-Email')?.trim();
+  if (!assertion) {
+    const missingHeaders = ['Cf-Access-Jwt-Assertion'];
+    if (!headerEmail) missingHeaders.push('Cf-Access-Authenticated-User-Email');
+    return {
+      ok: false,
+      response: json({
+        error: `Cloudflare Access 인증이 필요합니다: ${missingHeaders.join(', ')} 헤더가 없습니다.`,
+      }, 403),
+    };
   }
+
+  const payload = readAccessJwtPayload(assertion);
+  const jwtEmail = typeof payload?.email === 'string' ? payload.email.trim() : '';
+  const jwtSubject = typeof payload?.sub === 'string' ? payload.sub.trim() : '';
+  const email = headerEmail || jwtEmail || jwtSubject || 'cloudflare-access-user';
   return { ok: true, email };
 }
 
