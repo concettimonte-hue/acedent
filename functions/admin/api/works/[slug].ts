@@ -1,4 +1,5 @@
 import { json, requireAccess, type AdminEnv } from '../../../_shared/admin';
+import { getWorkForEdit, updateWork } from '../../../_shared/work-edit';
 
 function readSlug(value: string | string[] | undefined) {
   const slug = Array.isArray(value) ? value[0] : value;
@@ -10,6 +11,30 @@ function migrationError(error: unknown) {
   const message = error instanceof Error ? error.message : '';
   return /asset_cleanup_queue|no such table/i.test(message);
 }
+
+export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env, params }) => {
+  const access = requireAccess(request);
+  if (!access.ok) return access.response;
+  if (!env.ACEDENT_DB) return json({ error: 'D1 바인딩이 설정되지 않았습니다.' }, 503);
+  const slug = readSlug(params.slug);
+  if (!slug) return json({ error: '사례 주소가 올바르지 않습니다.' }, 400);
+  return getWorkForEdit(env, slug);
+};
+
+export const onRequestPut: PagesFunction<AdminEnv> = async ({ request, env, params }) => {
+  const access = requireAccess(request);
+  if (!access.ok) return access.response;
+  if (!env.ACEDENT_DB || !env.ACEDENT_IMAGES) {
+    return json({ error: 'D1/R2 바인딩이 설정되지 않았습니다.' }, 503);
+  }
+  const slug = readSlug(params.slug);
+  if (!slug) return json({ error: '사례 주소가 올바르지 않습니다.' }, 400);
+  try {
+    return updateWork(env, slug, await request.json());
+  } catch (error) {
+    return json({ error: error instanceof Error ? error.message : '사례 수정 요청을 읽지 못했습니다.' }, 400);
+  }
+};
 
 export const onRequestDelete: PagesFunction<AdminEnv> = async ({ request, env, params }) => {
   const access = requireAccess(request);

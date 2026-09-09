@@ -171,6 +171,7 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
     const cleanup = await env.ACEDENT_DB.prepare(
       `SELECT work_slug, status, attempts, max_attempts, last_error, updated_at
        FROM asset_cleanup_queue
+       WHERE operation = 'delete-work'
        ORDER BY updated_at DESC`,
     ).all();
     cleanupRows = cleanup.results as Array<Record<string, unknown>>;
@@ -336,6 +337,11 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
           asset.bytes,
           now,
         ),
+      ),
+      ...assets.map((asset) =>
+        env.ACEDENT_DB.prepare(
+          'DELETE FROM asset_cleanup_queue WHERE object_key = ? AND work_slug = ?',
+        ).bind(asset.key, `upload-${uploadId}`),
       ),
     ];
     await env.ACEDENT_DB.batch(statements);

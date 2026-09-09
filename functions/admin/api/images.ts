@@ -17,7 +17,7 @@ const sizes = {
 export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) => {
   const access = requireAccess(request);
   if (!access.ok) return access.response;
-  if (!env.ACEDENT_IMAGES) return json({ error: 'R2 바인딩이 설정되지 않았습니다.' }, 503);
+  if (!env.ACEDENT_DB || !env.ACEDENT_IMAGES) return json({ error: 'D1/R2 바인딩이 설정되지 않았습니다.' }, 503);
 
   try {
     const form = await request.formData();
@@ -50,6 +50,12 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
     const nameValue = form.get('name');
     const fileSegment = safeSegment(typeof nameValue === 'string' ? nameValue : 'image') || 'image';
     const key = `works/${uploadId}/${String(partIndex + 1).padStart(2, '0')}-${fileSegment}-${kind}.jpg`;
+    const now = new Date().toISOString();
+    await env.ACEDENT_DB.prepare(
+      `INSERT OR REPLACE INTO asset_cleanup_queue
+       (object_key, work_slug, operation, status, attempts, max_attempts, last_error, created_at, updated_at)
+       VALUES (?, ?, 'replace-asset', 'pending', 0, 3, NULL, ?, ?)`,
+    ).bind(key, `upload-${uploadId}`, now, now).run();
     await env.ACEDENT_IMAGES.put(key, bytes, {
       httpMetadata: { contentType: 'image/jpeg', cacheControl: 'public, max-age=31536000, immutable' },
       customMetadata: {
@@ -58,6 +64,8 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
         width: String(dimensions.width),
         height: String(dimensions.height),
         bytes: String(file.size),
+        uploadId,
+        partIndex: String(partIndex),
       },
     });
 

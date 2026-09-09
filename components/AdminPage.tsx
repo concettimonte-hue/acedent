@@ -2,8 +2,8 @@
 
 /* oxlint-disable next/no-html-link-for-pages, next/no-img-element -- Vite SPA: internal anchors and pre-compressed img assets are intentional. */
 
-import { useMemo, useState, type SyntheticEvent } from 'react';
-import { ArrowUpRight, ImagePlus, Plus, Trash2, UploadCloud } from 'lucide-react';
+import { useEffect, useMemo, useState, type SyntheticEvent } from 'react';
+import { ArrowLeft, ArrowUpRight, ImagePlus, Plus, Trash2, UploadCloud, X } from 'lucide-react';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import WorkCard from '@/components/WorkCard';
 import {
@@ -24,14 +24,23 @@ interface ProcessedImage {
   bytes: number;
 }
 
+interface ExistingImage {
+  key: string;
+  preview: string;
+  bytes: number;
+}
+
+type ImageDraft = ProcessedImage | ExistingImage;
+
 interface PartDraft {
   id: string;
   part: WorkPart;
   detail: string;
+  label: string;
   note: string;
-  before?: ProcessedImage;
-  after?: ProcessedImage;
-  thumbnail?: ProcessedImage;
+  before?: ImageDraft;
+  after?: ImageDraft;
+  thumbnail?: ImageDraft;
   processing?: 'before' | 'after';
 }
 
@@ -40,10 +49,35 @@ interface UploadedAsset {
   url: string;
 }
 
+interface StoredAsset {
+  object_key: string;
+  public_url: string;
+  kind: 'before' | 'after' | 'thumbnail';
+  part_index: number;
+  bytes: number | null;
+}
+
+interface AdminPageProps {
+  editSlug?: string;
+}
+
 const today = new Date().toISOString().slice(0, 10);
 
 function newPart(): PartDraft {
-  return { id: crypto.randomUUID(), part: '범퍼', detail: '', note: '' };
+  return { id: crypto.randomUUID(), part: '범퍼', detail: '', label: '범퍼', note: '' };
+}
+
+function isProcessedImage(image: ImageDraft): image is ProcessedImage {
+  return 'blob' in image;
+}
+
+function splitPartLabel(label: string, fallback: WorkPart) {
+  const matched = label.includes(fallback) ? fallback : (WORK_PARTS.find((part) => label.includes(part)) || fallback);
+  const detail = label
+    .replace(matched, '')
+    .replace(/^[\s·_-]+|[\s·_-]+$/g, '')
+    .trim();
+  return { part: matched, detail };
 }
 
 function canvasBlob(canvas: HTMLCanvasElement, maxBytes: number) {
@@ -127,7 +161,8 @@ function uploadImage(
   });
 }
 
-export default function AdminPage() {
+export default function AdminPage({ editSlug }: AdminPageProps) {
+  const editing = Boolean(editSlug);
   const [form, setForm] = useState({
     date: today,
     carMaker: '',
@@ -146,6 +181,70 @@ export default function AdminPage() {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [savedUrl, setSavedUrl] = useState('');
+  const [loadingWork, setLoadingWork] = useState(editing);
+  const [workLoaded, setWorkLoaded] = useState(!editing);
+
+  useEffect(() => {
+    if (!editSlug) return;
+    let active = true;
+    const load = async () => {
+      setLoadingWork(true);
+      setError('');
+      try {
+        const response = await fetch(`/admin/api/works/${encodeURIComponent(editSlug)}`, {
+          cache: 'no-store',
+          credentials: 'same-origin',
+        });
+        const payload = await response.json() as { work?: WorkItem; assets?: StoredAsset[]; error?: string };
+        if (!response.ok || !payload.work || !payload.assets) throw new Error(payload.error || '사례 정보를 불러오지 못했습니다.');
+        if (!active) return;
+
+        const work = payload.work;
+        const assetByUrl = new Map(payload.assets.map((asset) => [asset.public_url, asset]));
+        setForm({
+          date: work.date,
+          carMaker: work.carMaker,
+          carModel: work.carModel,
+          color: work.color || '',
+          category: work.category,
+          days: work.days,
+          title: work.title,
+          summary: work.summary,
+          body: work.body,
+          blogUrl: work.blogUrl || '',
+        });
+        setParts(work.parts.map((media, index) => {
+          const parsed = splitPartLabel(media.label, work.part[index] || work.part[0] || '범퍼');
+          const beforeAsset = assetByUrl.get(media.before);
+          const afterAsset = assetByUrl.get(media.after);
+          const thumbnailAsset = media.thumbnail ? assetByUrl.get(media.thumbnail) : afterAsset;
+          if (!beforeAsset || !afterAsset) throw new Error(`${index + 1}번 부위의 D1 이미지 기록을 찾지 못했습니다.`);
+          return {
+            id: crypto.randomUUID(),
+            part: parsed.part,
+            detail: parsed.detail,
+            label: media.label,
+            note: media.note,
+            before: { key: beforeAsset.object_key, preview: media.before, bytes: beforeAsset.bytes || 0 },
+            after: { key: afterAsset.object_key, preview: media.after, bytes: afterAsset.bytes || 0 },
+            thumbnail: {
+              key: (thumbnailAsset || afterAsset).object_key,
+              preview: media.thumbnail || media.after,
+              bytes: thumbnailAsset?.bytes || afterAsset.bytes || 0,
+            },
+          } satisfies PartDraft;
+        }));
+        setWorkLoaded(true);
+        setStatus('수정 중');
+      } catch (loadError) {
+        if (active) setError(loadError instanceof Error ? loadError.message : '사례 정보를 불러오지 못했습니다.');
+      } finally {
+        if (active) setLoadingWork(false);
+      }
+    };
+    void load();
+    return () => { active = false; };
+  }, [editSlug]);
 
   const previewWork = useMemo<WorkItem>(() => ({
     slug: 'preview',
@@ -157,7 +256,7 @@ export default function AdminPage() {
     carModel: form.carModel || '차종',
     color: form.color || '색상',
     parts: parts.map((part) => ({
-      label: [part.part, part.detail].filter(Boolean).join(' '),
+      label: part.label || [part.part, part.detail].filter(Boolean).join(' '),
       before: part.before?.preview || '',
       after: part.after?.preview || '',
       thumbnail: part.thumbnail?.preview,
@@ -178,6 +277,24 @@ export default function AdminPage() {
 
   const updatePart = (id: string, patch: Partial<PartDraft>) => {
     setParts((current) => current.map((part) => (part.id === id ? { ...part, ...patch } : part)));
+  };
+
+  const updatePartName = (id: string, patch: { part?: WorkPart; detail?: string }) => {
+    setParts((current) => current.map((item) => {
+      if (item.id !== id) return item;
+      const part = patch.part ?? item.part;
+      const detail = patch.detail ?? item.detail;
+      return { ...item, ...patch, label: [part, detail].filter(Boolean).join(' ') };
+    }));
+  };
+
+  const clearImage = (id: string, kind: 'before' | 'after') => {
+    setParts((current) => current.map((part) => {
+      if (part.id !== id) return part;
+      return kind === 'after'
+        ? { ...part, after: undefined, thumbnail: undefined }
+        : { ...part, before: undefined };
+    }));
   };
 
   const chooseImage = async (id: string, kind: 'before' | 'after', file?: File) => {
@@ -224,23 +341,28 @@ export default function AdminPage() {
     try {
       if (parts.some((part) => !part.before || !part.after || !part.thumbnail)) throw new Error('모든 부위의 전·후 사진을 선택하세요.');
       const uploadId = crypto.randomUUID();
-      const total = parts.length * 3;
+      const total = parts.reduce((count, part) => count + [part.before, part.after, part.thumbnail]
+        .filter((image): image is ImageDraft => Boolean(image))
+        .filter(isProcessedImage).length, 0);
       let completed = 0;
-      setStatus('사진 업로드 중');
+      setStatus(total > 0 ? '사진 업로드 중' : '사례 저장 중');
+      if (total === 0) setProgress(100);
 
       const uploadedParts = [];
       for (const [partIndex, part] of parts.entries()) {
-        const upload = async (image: ProcessedImage, kind: 'before' | 'after' | 'thumbnail') => {
+        const upload = async (image: ImageDraft, kind: 'before' | 'after' | 'thumbnail') => {
+          if (!isProcessedImage(image)) return { key: image.key, url: image.preview };
           const result = await uploadImage(image, kind, uploadId, partIndex, (fraction) => {
-            setProgress(Math.round(((completed + fraction) / total) * 100));
+            setProgress(total > 0 ? Math.round(((completed + fraction) / total) * 100) : 100);
           });
           completed += 1;
-          setProgress(Math.round((completed / total) * 100));
+          setProgress(total > 0 ? Math.round((completed / total) * 100) : 100);
           return result;
         };
         uploadedParts.push({
           part: part.part,
           detail: part.detail,
+          label: part.label,
           note: part.note,
           before: await upload(part.before!, 'before'),
           after: await upload(part.after!, 'after'),
@@ -249,33 +371,63 @@ export default function AdminPage() {
       }
 
       setStatus('사례 저장 중');
-      const saveResponse = await fetch('/admin/api/works', {
-        method: 'POST',
+      const savePath = editing ? `/admin/api/works/${encodeURIComponent(editSlug!)}` : '/admin/api/works';
+      const saveResponse = await fetch(savePath, {
+        method: editing ? 'PUT' : 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, uploadId, parts: uploadedParts }),
       });
-      const saved = await saveResponse.json() as { work?: WorkItem; error?: string };
-      if (!saveResponse.ok || !saved.work) throw new Error(saved.error || '사례 저장에 실패했습니다.');
+      const saved = await saveResponse.json() as { work?: WorkItem; cleanupPending?: number; error?: string };
+      if (!saveResponse.ok || !saved.work) throw new Error(saved.error || `사례 ${editing ? '수정' : '저장'}에 실패했습니다.`);
 
       setStatus('Cloudflare 빌드 요청 중');
       const deployResponse = await fetch('/admin/api/deploy', { method: 'POST', credentials: 'same-origin' });
       const deployment = await deployResponse.json() as { startedAt?: string; error?: string };
       if (!deployResponse.ok || !deployment.startedAt) throw new Error(deployment.error || '배포 요청에 실패했습니다.');
       await pollDeployment(deployment.startedAt);
+      if (editing && saved.cleanupPending) {
+        setStatus('교체 이미지 정리 준비 중');
+        const releaseResponse = await fetch('/admin/api/orphans', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ releaseWorkSlug: editSlug }),
+        });
+        const released = await releaseResponse.json() as { released?: number; error?: string };
+        if (!releaseResponse.ok) throw new Error(released.error || '교체 이미지 정리 준비에 실패했습니다.');
+        setStatus(`수정 및 배포 완료 · 교체 전 이미지 ${released.released || 0}개는 관리 목록에서 수동 정리하세요.`);
+      }
     } catch (submitError) {
       setStatus('확인 필요');
-      setError(submitError instanceof Error ? submitError.message : '등록 중 오류가 발생했습니다.');
+      setError(submitError instanceof Error ? submitError.message : `${editing ? '수정' : '등록'} 중 오류가 발생했습니다.`);
     } finally {
       setSaving(false);
     }
   };
 
+  if (editing && !workLoaded) {
+    return (
+      <main className="admin-page">
+        <header className="admin-header">
+          <a href="/admin" aria-label="수리사례 관리 목록">ACE DENT</a>
+          <div><span>ADMIN</span><strong>수리사례 수정</strong></div>
+        </header>
+        <section className="admin-list-shell">
+          <div className={`admin-list-empty${error ? ' is-error' : ''}`} role={error ? 'alert' : 'status'}>
+            {loadingWork ? '사례 정보를 불러오는 중입니다.' : error}
+          </div>
+          {!loadingWork && <a className="admin-back-link" href="/admin"><ArrowLeft aria-hidden="true" /> 관리 목록으로</a>}
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="admin-page">
       <header className="admin-header">
         <a href="/admin" aria-label="수리사례 관리 목록">ACE DENT</a>
-        <div><span>ADMIN</span><strong>수리사례 등록</strong></div>
+        <div><span>ADMIN</span><strong>수리사례 {editing ? '수정' : '등록'}</strong></div>
       </header>
 
       <div className="admin-layout">
@@ -285,7 +437,7 @@ export default function AdminPage() {
             <div className="admin-fields admin-fields-two">
               <label>차량 제조사<input required value={form.carMaker} onChange={(e) => updateForm('carMaker', e.target.value)} placeholder="예: 포르쉐" /></label>
               <label>차종<input required value={form.carModel} onChange={(e) => updateForm('carModel', e.target.value)} placeholder="예: 파나메라" /></label>
-              <label>색상<input required value={form.color} onChange={(e) => updateForm('color', e.target.value)} placeholder="예: 화이트 계열" /></label>
+              <label>색상<input required={!editing} value={form.color} onChange={(e) => updateForm('color', e.target.value)} placeholder="예: 화이트 계열" /></label>
               <label>카테고리<select value={form.category} onChange={(e) => updateForm('category', e.target.value)}>{WORK_CATEGORIES.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select></label>
               <label>작업기간<input required value={form.days} onChange={(e) => updateForm('days', e.target.value)} placeholder="예: 2일" /></label>
               <label>작업 완료일<input type="date" required value={form.date} onChange={(e) => updateForm('date', e.target.value)} /></label>
@@ -307,19 +459,22 @@ export default function AdminPage() {
                   <legend>PART {String(index + 1).padStart(2, '0')}</legend>
                   {parts.length > 1 && <button type="button" className="admin-remove" onClick={() => setParts((current) => current.filter((item) => item.id !== part.id))}><Trash2 aria-hidden="true" /> 삭제</button>}
                   <div className="admin-fields admin-fields-two">
-                    <label>부위명<select value={part.part} onChange={(e) => updatePart(part.id, { part: e.target.value as WorkPart })}>{WORK_PARTS.map((item) => <option value={item} key={item}>{item}</option>)}</select></label>
-                    <label>세부 위치<input value={part.detail} onChange={(e) => updatePart(part.id, { detail: e.target.value })} placeholder="예: 후면, 옆면" /></label>
+                    <label>부위명<select value={part.part} onChange={(e) => updatePartName(part.id, { part: e.target.value as WorkPart })}>{WORK_PARTS.map((item) => <option value={item} key={item}>{item}</option>)}</select></label>
+                    <label>세부 위치<input value={part.detail} onChange={(e) => updatePartName(part.id, { detail: e.target.value })} placeholder="예: 후면, 옆면" /></label>
                   </div>
                   <label>부위 설명<textarea required rows={2} maxLength={300} value={part.note} onChange={(e) => updatePart(part.id, { note: e.target.value })} placeholder="실제 손상과 작업 내용을 입력하세요." /></label>
                   <div className="admin-image-pair">
                     {(['before', 'after'] as const).map((kind) => {
                       const selected = part[kind];
-                      return <label className={`admin-image-input${selected ? ' has-image' : ''}`} key={kind}>
-                        <input type="file" accept="image/*" capture="environment" onChange={(e) => chooseImage(part.id, kind, e.target.files?.[0])} />
-                        {selected ? <img src={selected.preview} alt={`${part.part} ${kind === 'before' ? '작업 전' : '작업 후'} 미리보기`} width="1600" height="1200" /> : <ImagePlus aria-hidden="true" />}
-                        <strong>{kind === 'before' ? 'BEFORE' : 'AFTER'}</strong>
-                        <span>{part.processing === kind ? '사진 처리 중…' : selected ? `${Math.ceil(selected.bytes / 1024)}KB · 다시 선택` : '촬영 또는 갤러리 선택'}</span>
-                      </label>;
+                      return <div className="admin-image-slot" key={kind}>
+                        <label className={`admin-image-input${selected ? ' has-image' : ''}`}>
+                          <input type="file" accept="image/*" capture="environment" onChange={(e) => chooseImage(part.id, kind, e.target.files?.[0])} />
+                          {selected ? <img src={selected.preview} alt={`${part.part} ${kind === 'before' ? '작업 전' : '작업 후'} 미리보기`} width="1600" height="1200" /> : <ImagePlus aria-hidden="true" />}
+                          <strong>{kind === 'before' ? 'BEFORE' : 'AFTER'}</strong>
+                          <span>{part.processing === kind ? '사진 처리 중…' : selected ? `${selected.bytes ? `${Math.ceil(selected.bytes / 1024)}KB` : '현재 이미지'} · 다시 선택` : '촬영 또는 갤러리 선택'}</span>
+                        </label>
+                        {selected && <button type="button" className="admin-clear-image" onClick={() => clearImage(part.id, kind)} aria-label={`${part.part} ${kind === 'before' ? '작업 전' : '작업 후'} 이미지 삭제`}><X aria-hidden="true" /> 이미지 삭제</button>}
+                      </div>;
                     })}
                   </div>
                 </fieldset>
@@ -330,7 +485,7 @@ export default function AdminPage() {
 
           <section className="admin-submit-panel">
             <div><span>{status}</span>{saving && <progress value={progress} max="100">{progress}%</progress>}<small>{saving ? `${progress}%` : '저장하면 Cloudflare 빌드가 자동으로 시작됩니다.'}</small></div>
-            <button type="submit" disabled={saving}><UploadCloud aria-hidden="true" />{saving ? '등록 진행 중' : '사례 저장 및 배포'}</button>
+            <button type="submit" disabled={saving}><UploadCloud aria-hidden="true" />{saving ? `${editing ? '수정' : '등록'} 진행 중` : `사례 ${editing ? '수정' : '저장'} 및 배포`}</button>
             {error && <p role="alert">{error}</p>}
             {savedUrl && <a href={savedUrl} target="_blank" rel="noopener noreferrer">배포 결과 보기 <ArrowUpRight aria-hidden="true" /></a>}
           </section>

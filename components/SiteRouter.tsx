@@ -28,8 +28,12 @@ export default function SiteRouter() {
   const path = normalizePath(window.location.pathname);
   if (path === '/') return <Home />;
   if (path === '/admin') {
-    const adminView = new URLSearchParams(window.location.search).get('view');
-    return adminView === 'new' ? <AdminPage /> : <AdminWorksList />;
+    const search = new URLSearchParams(window.location.search);
+    const adminView = search.get('view');
+    const editSlug = search.get('slug');
+    if (adminView === 'new') return <AdminPage />;
+    if (adminView === 'edit' && editSlug) return <AdminPage editSlug={editSlug} />;
+    return <AdminWorksList />;
   }
   if (path === '/works') return <WorksGalleryPage />;
 

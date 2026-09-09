@@ -3,7 +3,7 @@
 /* oxlint-disable next/no-html-link-for-pages, next/no-img-element -- Vite SPA routes and pre-compressed R2 images are intentional. */
 
 import { useCallback, useEffect, useState } from 'react';
-import { AlertTriangle, ArrowRight, Plus, RefreshCw, Trash2 } from 'lucide-react';
+import { AlertTriangle, ArrowRight, HardDrive, Pencil, Plus, RefreshCw, Trash2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,6 +46,26 @@ interface ApiError {
   url?: string;
 }
 
+interface OrphanFile {
+  key: string;
+  size: number;
+  uploaded: string;
+  queue: {
+    work_slug: string;
+    operation: 'delete-work' | 'replace-asset';
+    status: 'pending' | 'failed';
+  } | null;
+}
+
+interface OrphanResult {
+  orphans?: OrphanFile[];
+  orphanCount?: number;
+  r2ObjectCount?: number;
+  referencedCount?: number;
+  heldReplacements?: number;
+  error?: string;
+}
+
 const delay = (milliseconds: number) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
 
 function displayDate(value: string) {
@@ -65,6 +85,11 @@ export default function AdminWorksList() {
   const [notice, setNotice] = useState('');
   const [deleteCandidate, setDeleteCandidate] = useState<AdminWorkRow | null>(null);
   const [activeSlug, setActiveSlug] = useState('');
+  const [orphans, setOrphans] = useState<OrphanFile[]>([]);
+  const [orphanStats, setOrphanStats] = useState({ r2: 0, referenced: 0, held: 0 });
+  const [orphanLoading, setOrphanLoading] = useState(true);
+  const [selectedOrphans, setSelectedOrphans] = useState<string[]>([]);
+  const [confirmOrphanDelete, setConfirmOrphanDelete] = useState(false);
 
   const loadWorks = useCallback(async () => {
     setLoading(true);
@@ -84,9 +109,61 @@ export default function AdminWorksList() {
     }
   }, []);
 
+  const loadOrphans = useCallback(async () => {
+    setOrphanLoading(true);
+    try {
+      const response = await fetch('/admin/api/orphans', {
+        cache: 'no-store',
+        credentials: 'same-origin',
+      });
+      const payload = await response.json() as OrphanResult;
+      if (!response.ok || !payload.orphans) throw new Error(payload.error || '고아 파일을 점검하지 못했습니다.');
+      setOrphans(payload.orphans);
+      setOrphanStats({
+        r2: payload.r2ObjectCount || 0,
+        referenced: payload.referencedCount || 0,
+        held: payload.heldReplacements || 0,
+      });
+      setSelectedOrphans((current) => current.filter((key) => payload.orphans!.some((file) => file.key === key)));
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : '고아 파일을 점검하지 못했습니다.');
+    } finally {
+      setOrphanLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     void loadWorks();
-  }, [loadWorks]);
+    void loadOrphans();
+  }, [loadOrphans, loadWorks]);
+
+  const deleteSelectedOrphans = async () => {
+    if (selectedOrphans.length === 0) return;
+    setConfirmOrphanDelete(false);
+    setError('');
+    setNotice(`선택한 고아 파일 ${selectedOrphans.length}개를 삭제하는 중입니다.`);
+    try {
+      const response = await fetch('/admin/api/orphans', {
+        method: 'DELETE',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keys: selectedOrphans }),
+      });
+      const payload = await response.json() as { deleted?: number; error?: string };
+      if (!response.ok) throw new Error(payload.error || '고아 파일 삭제에 실패했습니다.');
+      setNotice(`고아 파일 ${payload.deleted || 0}개를 삭제했습니다.`);
+      setSelectedOrphans([]);
+      await loadOrphans();
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : '고아 파일 삭제에 실패했습니다.');
+    }
+  };
+
+  const toggleOrphan = (key: string) => {
+    setSelectedOrphans((current) => current.includes(key)
+      ? current.filter((item) => item !== key)
+      : [...current, key]);
+  };
 
   const waitForDeployment = async (startedAt: string) => {
     for (let attempt = 0; attempt < 75; attempt += 1) {
@@ -188,16 +265,16 @@ export default function AdminWorksList() {
           <div>
             <span>WORKS</span>
             <h1>수리사례 관리</h1>
-            <p>등록된 사례를 최신순으로 확인하고 중복 사례를 안전하게 삭제할 수 있습니다.</p>
+            <p>등록된 사례를 수정·삭제하고, D1 기록과 R2 파일의 차이를 직접 점검할 수 있습니다.</p>
           </div>
           <a href="/admin?view=new"><Plus aria-hidden="true" /> 새 사례 등록</a>
         </div>
 
         <div className="admin-list-summary" aria-live="polite">
           <div><strong>{works.length}</strong><span>전체 사례</span></div>
-          <div><strong>{pendingCount}</strong><span>삭제 대기</span></div>
-          <div className={failedCount ? 'has-error' : ''}><strong>{failedCount}</strong><span>정리 실패</span></div>
-          <button type="button" onClick={() => void loadWorks()} disabled={loading}><RefreshCw aria-hidden="true" /> 새로고침</button>
+          <div><strong>{pendingCount}</strong><span>삭제 대기열</span></div>
+          <div className={failedCount ? 'has-error' : ''}><strong>{failedCount}</strong><span>대기열 실패</span></div>
+          <button type="button" onClick={() => { void loadWorks(); void loadOrphans(); }} disabled={loading || orphanLoading}><RefreshCw aria-hidden="true" /> 새로고침</button>
         </div>
 
         {(notice || error) && (
@@ -206,6 +283,44 @@ export default function AdminWorksList() {
             <span>{error || notice}</span>
           </div>
         )}
+
+        <section className="admin-orphan-panel" aria-labelledby="orphan-heading">
+          <div className="admin-orphan-heading">
+            <div>
+              <span><HardDrive aria-hidden="true" /> R2 FILE AUDIT</span>
+              <h2 id="orphan-heading">고아 파일 점검</h2>
+              <p><code>work_assets</code>에 없는 R2 파일만 표시합니다. 자동 삭제하지 않으며, 선택 후 확인해야 삭제됩니다.</p>
+            </div>
+            <div className="admin-orphan-count"><strong>{orphanLoading ? '—' : orphans.length}</strong><span>고아 파일</span></div>
+          </div>
+          <div className="admin-orphan-meta">
+            <span>R2 works/ {orphanStats.r2}개</span>
+            <span>D1 참조 {orphanStats.referenced}개</span>
+            <span>배포 후 분리 대기 {orphanStats.held}개</span>
+            <button type="button" onClick={() => void loadOrphans()} disabled={orphanLoading}><RefreshCw aria-hidden="true" /> 다시 점검</button>
+          </div>
+          {orphanLoading ? (
+            <div className="admin-orphan-empty">R2와 D1 키를 비교하는 중입니다.</div>
+          ) : orphans.length === 0 ? (
+            <div className="admin-orphan-empty">현재 확인된 고아 파일이 없습니다.</div>
+          ) : (
+            <>
+              <div className="admin-orphan-list">
+                {orphans.map((file) => (
+                  <label key={file.key}>
+                    <input type="checkbox" checked={selectedOrphans.includes(file.key)} onChange={() => toggleOrphan(file.key)} />
+                    <span><strong>{file.key}</strong><small>{Math.ceil(file.size / 1024)}KB · {displayDate(file.uploaded)}{file.queue ? ' · 정리 대기열 등록됨' : ''}</small></span>
+                  </label>
+                ))}
+              </div>
+              <div className="admin-orphan-actions">
+                <button type="button" onClick={() => setSelectedOrphans(orphans.map((file) => file.key))}>전체 선택</button>
+                <button type="button" onClick={() => setSelectedOrphans([])}>선택 해제</button>
+                <button type="button" className="is-delete" disabled={selectedOrphans.length === 0} onClick={() => setConfirmOrphanDelete(true)}><Trash2 aria-hidden="true" /> 선택 {selectedOrphans.length}개 삭제</button>
+              </div>
+            </>
+          )}
+        </section>
 
         {loading ? (
           <div className="admin-list-empty">사례 목록을 불러오는 중입니다.</div>
@@ -235,7 +350,7 @@ export default function AdminWorksList() {
                     )}
                   </div>
                   <div className="admin-work-actions">
-                    <button type="button" disabled title="수정 기능은 다음 단계에서 추가됩니다.">수정</button>
+                    {!cleanup && work.status === 'published' && <a href={`/admin?view=edit&slug=${encodeURIComponent(work.slug)}`}><Pencil aria-hidden="true" /> 수정</a>}
                     {!cleanup && work.status === 'published' && (
                       <button type="button" className="is-delete" disabled={busy} onClick={() => setDeleteCandidate(work)}><Trash2 aria-hidden="true" /> 삭제</button>
                     )}
@@ -265,6 +380,22 @@ export default function AdminWorksList() {
           <AlertDialogFooter>
             <AlertDialogCancel>취소</AlertDialogCancel>
             <AlertDialogAction className="admin-dialog-delete" onClick={confirmDelete}>사례 삭제</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={confirmOrphanDelete} onOpenChange={setConfirmOrphanDelete}>
+        <AlertDialogContent className="admin-delete-dialog">
+          <AlertDialogHeader>
+            <AlertDialogTitle>선택한 고아 파일을 삭제할까요?</AlertDialogTitle>
+            <AlertDialogDescription>
+              D1의 어떤 사례에서도 참조하지 않는 R2 파일 {selectedOrphans.length}개를 삭제합니다.
+              <br />삭제 직전에 서버가 참조 여부를 다시 확인하며, 삭제 후에는 복구할 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction className="admin-dialog-delete" onClick={() => void deleteSelectedOrphans()}>고아 파일 삭제</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -34,14 +34,14 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
       await env.ACEDENT_DB.prepare(
         `UPDATE asset_cleanup_queue
          SET status = 'pending', attempts = 0, last_error = NULL, updated_at = ?
-         WHERE work_slug = ? AND status = 'failed'`,
+         WHERE work_slug = ? AND operation = 'delete-work' AND status = 'failed'`,
       ).bind(now, slug).run();
     }
 
     const result = await env.ACEDENT_DB.prepare(
       `SELECT object_key, status, attempts, max_attempts
        FROM asset_cleanup_queue
-       WHERE work_slug = ?
+       WHERE work_slug = ? AND operation = 'delete-work'
        ORDER BY object_key`,
     ).bind(slug).all<CleanupRow>();
     const tasks = result.results;
