@@ -52,8 +52,22 @@ function localRecords() {
     });
 }
 
+function wranglerDatabaseId() {
+  const configPath = resolve(projectDirectory, 'wrangler.jsonc');
+  if (!existsSync(configPath)) return undefined;
+
+  try {
+    const config = JSON.parse(readFileSync(configPath, 'utf8'));
+    const databaseId = config?.d1_databases?.[0]?.database_id;
+    return typeof databaseId === 'string' && databaseId.trim() ? databaseId.trim() : undefined;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '알 수 없는 오류';
+    throw new Error(`wrangler.jsonc의 D1 설정을 읽지 못했습니다: ${message}`);
+  }
+}
+
 async function d1Records() {
-  const databaseId = process.env.CLOUDFLARE_D1_DATABASE_ID;
+  const databaseId = process.env.CLOUDFLARE_D1_DATABASE_ID?.trim() || wranglerDatabaseId();
   if (!databaseId) return null;
 
   const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
