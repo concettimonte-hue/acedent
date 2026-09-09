@@ -2,5 +2,18 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "acedent",
   "compatibility_date": "2026-09-07",
-  "pages_build_output_dir": "./dist"
+  "pages_build_output_dir": "./dist",
+  "d1_databases": [
+    {
+      "binding": "ACEDENT_DB",
+      "database_name": "acedent-content",
+      "database_id": "ada6a2b7-14ba-4c14-b9f1-d08e9be2e3ee"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "ACEDENT_IMAGES",
+      "bucket_name": "acedent-images"
+    }
+  ]
 }
