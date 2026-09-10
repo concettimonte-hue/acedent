@@ -1,7 +1,10 @@
 import {
   isWorkCategory,
+  isWorkPart,
   isWorkPartValue,
+  type WorkCategory,
   type WorkItem,
+  type WorkPart,
   type WorkPartValue,
 } from '../../../content/works/types';
 import { getWorkSeoCopy } from '../../../lib/work-seo';
@@ -33,6 +36,8 @@ interface WorkInput {
   carModel: string;
   color: string;
   category: string;
+  subCategories?: unknown;
+  subParts?: unknown;
   days: string;
   title: string;
   summary: string;
@@ -71,7 +76,33 @@ function normalizePartValues(value: unknown, index: number): WorkPartValue[] {
     }
     return part.trim() as WorkPartValue;
   });
-  return [...new Set(normalized)];
+  const unique = [...new Set(normalized)];
+  if (unique.length !== 1) throw new Error(`${index + 1}번 사진 묶음의 주 부위는 1개만 선택하세요.`);
+  return unique;
+}
+
+function normalizeSubCategories(value: unknown, category: WorkCategory) {
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) throw new Error('보조 작업 값이 올바르지 않습니다.');
+  const normalized = [...new Set(value.map((item) => {
+    if (typeof item !== 'string' || !isWorkCategory(item)) throw new Error('보조 작업 값이 올바르지 않습니다.');
+    return item;
+  }))];
+  if (normalized.length > 2) throw new Error('보조 작업은 최대 2개까지 선택할 수 있습니다.');
+  if (normalized.includes(category)) throw new Error('주 카테고리는 보조 작업으로 중복 선택할 수 없습니다.');
+  return normalized;
+}
+
+function normalizeSubParts(value: unknown, primaryPart: WorkPartValue) {
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) throw new Error('보조 부위 값이 올바르지 않습니다.');
+  const normalized = [...new Set(value.map((item) => {
+    if (typeof item !== 'string' || !isWorkPart(item)) throw new Error('보조 부위 값이 올바르지 않습니다.');
+    return item as WorkPart;
+  }))];
+  if (normalized.length > 2) throw new Error('보조 부위는 최대 2개까지 선택할 수 있습니다.');
+  if (normalized.includes(primaryPart as WorkPart)) throw new Error('주 부위는 보조 부위로 중복 선택할 수 없습니다.');
+  return normalized;
 }
 
 function assetUrl(base: string, key: string) {
@@ -200,8 +231,9 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('작업 완료일 형식이 올바르지 않습니다.');
     const uploadId = required(input.uploadId, '업로드 식별자', 64);
     if (!/^[a-zA-Z0-9-]{8,64}$/.test(uploadId)) throw new Error('업로드 식별자가 올바르지 않습니다.');
-    const category = input.category;
-    if (!isWorkCategory(category)) throw new Error('카테고리를 선택하세요.');
+    const categoryValue = input.category;
+    if (!isWorkCategory(categoryValue)) throw new Error('카테고리를 선택하세요.');
+    const category = categoryValue as WorkCategory;
     if (!Array.isArray(input.parts) || input.parts.length === 0) throw new Error('작업 부위를 한 개 이상 추가하세요.');
 
     const normalizedParts = input.parts.map((part, index) => {
@@ -213,6 +245,9 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
       };
     });
     input.parts = normalizedParts;
+    const primaryPart = normalizedParts[0].part[0];
+    const subCategories = normalizeSubCategories(input.subCategories, category);
+    const subParts = normalizeSubParts(input.subParts, primaryPart);
 
     const slugAnalysis = createWorkSlugAnalysis(input);
     const slug = await nextAvailableSlug(env.ACEDENT_DB, slugAnalysis.slug);
@@ -241,13 +276,14 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
       });
     }
 
-    const uniqueParts = [...new Set(normalizedParts.flatMap((part) => part.part))];
     const work: WorkItem = {
       slug,
       date,
       title: required(input.title, '제목', 80),
       category,
-      part: uniqueParts,
+      subCategories,
+      part: [primaryPart],
+      subParts,
       carMaker: required(input.carMaker, '차량 제조사', 40),
       carModel: optional(input.carModel, '차종', 60),
       color: required(input.color, '색상', 40),
@@ -265,9 +301,19 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
     const statements = [
       env.ACEDENT_DB.prepare(
         `INSERT INTO works
-         (slug, date, category, payload_json, status, created_by_email, created_at, updated_at)
-         VALUES (?, ?, ?, ?, 'published', ?, ?, ?)`,
-      ).bind(slug, date, work.category, JSON.stringify(work), access.email, now, now),
+         (slug, date, category, sub_categories, sub_parts, payload_json, status, created_by_email, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, 'published', ?, ?, ?)`,
+      ).bind(
+        slug,
+        date,
+        work.category,
+        JSON.stringify(work.subCategories),
+        JSON.stringify(work.subParts),
+        JSON.stringify(work),
+        access.email,
+        now,
+        now,
+      ),
       ...assets.map((asset) =>
         env.ACEDENT_DB.prepare(
           `INSERT INTO work_assets
@@ -295,6 +341,10 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
 
     return json({ work, metadata: getWorkSeoCopy(work), slugWarnings: slugAnalysis.excludedTerms }, 201);
   } catch (error) {
-    return json({ error: error instanceof Error ? error.message : '사례 저장에 실패했습니다.' }, 400);
+    const message = error instanceof Error ? error.message : '사례 저장에 실패했습니다.';
+    if (/sub_categories|sub_parts|no column named/i.test(message)) {
+      return json({ error: '보조 태그 저장에는 D1 마이그레이션(0005)이 필요합니다.' }, 503);
+    }
+    return json({ error: message }, 400);
   }
 };

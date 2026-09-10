@@ -175,7 +175,7 @@ export default function CaseGallery() {
             type="button"
             key={item.slug}
             onClick={() => {
-              trackCaseView(item.slug, item.part.join(' · '));
+              trackCaseView(item.slug, item.part[0]);
               openCase(index);
             }}
             aria-haspopup="dialog"

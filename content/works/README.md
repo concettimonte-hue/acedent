@@ -9,17 +9,28 @@
 3. 상세용 사진을 `public/works`에 넣습니다. 파일명은 영문 소문자와 하이픈만 사용하고 `-before.jpg`, `-after.jpg`로 끝내세요.
 4. 첫 번째 `parts` 항목의 `after` 사진이 목록 대표 이미지가 됩니다. 800×600px 썸네일은 같은 이름에서 `-after`를 뺀 뒤 `public/works/thumbnails`에 저장합니다. 예: `bmw-door-after.jpg` → `thumbnails/bmw-door.jpg`.
 5. 아래 템플릿을 복사해 이 폴더에 `YYYY-MM-DD-slug.json` 형식으로 저장합니다.
-6. `category`는 아래 5개 중 하나만 선택합니다. 필터용 `part`는 필요한 만큼 복수 선택할 수 있으며, 목록 필터에서는 선택한 부위 중 하나라도 일치하면 표시됩니다. 실제 사진 묶음은 `parts`에 작업 부위별로 추가합니다.
+6. `category`와 `part[0]`은 필터와 주소에 쓰이는 주 값을 각각 하나만 선택합니다. 보조 작업은 `subCategories`, 보조 부위는 `subParts`에 최대 2개까지 넣습니다. 보조 값은 상세 페이지와 검색 문구에만 표시되며 필터·주소에는 사용되지 않습니다. 실제 사진 묶음은 `parts`에 작업 부위별로 추가합니다.
 7. `featured`를 `true`로 하면 메인 대표 사례 후보가 됩니다. 메인에는 `featuredOrder` 순서로 최대 8건만 표시됩니다.
 8. `npm run build`와 `npx tsc --noEmit`이 통과하면 `main`에 반영합니다.
 
-기존 8건은 원래 작업일을 확인할 수 없어 시스템 등록일인 `2026-09-07`로 이전했습니다. 실제 작업일을 확인한 경우 파일명과 `date`를 함께 고치면 됩니다.
+기존 사례는 보조 값이 없어도 빈 배열로 자동 처리됩니다. 실제 작업일을 확인한 경우 파일명과 `date`를 함께 고치면 됩니다.
 
 ## 허용 값
 
 - 작업방식: `dent`, `panel-paint`, `partial-paint`, `replace-paint`, `polish`
 - 작업부위: `범퍼`, `도어`, `휀더`, `후드`, `트렁크`, `사이드미러`, `필러`, `루프`, `휠`, `사이드스텝`
 - 목록에 없는 부위는 관리자 화면에서 `기타(직접 입력)`를 선택한 뒤 실제 부위명을 입력합니다.
+
+기존 사례처럼 `subCategories`, `subParts`가 없는 JSON도 각각 빈 배열로 자동 처리됩니다. 직접 JSON을 추가할 때는 아래 형식을 사용하세요.
+
+```json
+{
+  "category": "panel-paint",
+  "subCategories": ["polish"],
+  "part": ["범퍼"],
+  "subParts": ["휀더"]
+}
+```
 - 슬라이더: 대부분 `drag`, 촬영 각도가 다르면 `split`
 
 ## 복사용 템플릿
@@ -30,7 +41,9 @@
   "date": "2026-09-07",
   "title": "BMW 5시리즈 도어 판금도색",
   "category": "panel-paint",
+  "subCategories": ["polish"],
   "part": ["도어"],
+  "subParts": ["휀더"],
   "carMaker": "BMW",
   "carModel": "5시리즈",
   "color": "화이트 계열",

@@ -65,7 +65,7 @@ function workCard(work: WorkItem) {
       <p>${text(getWorkCategoryLabel(work.category))}</p>
       <h3>${text(car(work))} ${text(work.title)}</h3>
       <p>${text(work.summary)}</p>
-      <small>${text(work.part.join(' · '))} · ${text(work.days)}</small>
+      <small>${text(work.part[0])} · ${text(work.days)}</small>
     </a>
   </article>`;
 }
@@ -146,6 +146,7 @@ export function getWorksStaticHtml(works: WorkItem[], category?: WorkCategory) {
 
 export function getWorkDetailStaticHtml(work: WorkItem, related: WorkItem[]) {
   const categoryLabel = getWorkCategoryLabel(work.category);
+  const subCategoryLabels = work.subCategories.map(getWorkCategoryLabel);
   const partSection = (part: WorkPartMedia, index: number) => `<section>
         <p>PART ${String(index + 1).padStart(2, '0')}</p>
         <h2>${text(part.label)}</h2>
@@ -159,9 +160,9 @@ export function getWorkDetailStaticHtml(work: WorkItem, related: WorkItem[]) {
     <header class="seo-static-header"><a href="/">ACE DENT</a><a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
     <nav aria-label="현재 위치"><a href="/">홈</a> / <a href="/works">수리사례</a> / <a href="/works/${text(work.category)}">${text(categoryLabel)}</a></nav>
     <article>
-      <p>${text(categoryLabel)}</p>
+      <p>${text(categoryLabel)}${subCategoryLabels.length ? ` · 보조 작업: ${subCategoryLabels.map(text).join(' · ')}` : ''}</p>
       <h1>동대문 ${text(car(work))} ${text(work.title)} 수리사례</h1>
-      <p>${text(work.part.join(' · '))} · ${work.color ? `${text(work.color)} · ` : ''}${text(work.days)}</p>
+      <p>${text(work.part[0])}${work.subParts.length ? ` · 보조 부위: ${work.subParts.map(text).join(' · ')}` : ''} · ${work.color ? `${text(work.color)} · ` : ''}${text(work.days)}</p>
       ${work.parts.map(partSection).join('')}
       <p><strong>${text(work.summary)}</strong></p>
       ${work.body.split('\n\n').map((paragraph) => `<p>${text(paragraph)}</p>`).join('')}

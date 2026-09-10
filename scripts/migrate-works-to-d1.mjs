@@ -112,6 +112,8 @@ const files = readdirSync(worksDirectory).filter((name) => name.endsWith('.json'
 for (const [fileIndex, fileName] of files.entries()) {
   console.log(`\n[${fileIndex + 1}/${files.length}] ${fileName}`);
   const work = JSON.parse(readFileSync(resolve(worksDirectory, fileName), 'utf8'));
+  work.subCategories ??= [];
+  work.subParts ??= [];
   const assets = [];
   for (const [partIndex, part] of work.parts.entries()) {
     for (const kind of ['before', 'after']) {
@@ -135,19 +137,32 @@ for (const [fileIndex, fileName] of files.entries()) {
 
   const now = new Date().toISOString();
   await query(
-    `INSERT INTO works (slug, date, category, payload_json, status, created_by_email, created_at, updated_at)
-     VALUES (?, ?, ?, ?, 'published', 'migration', ?, ?)
+    `INSERT INTO works (slug, date, category, sub_categories, sub_parts, payload_json, status, created_by_email, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, 'published', 'migration', ?, ?)
      ON CONFLICT(slug) DO UPDATE SET
        date = excluded.date,
        category = excluded.category,
+       sub_categories = excluded.sub_categories,
+       sub_parts = excluded.sub_parts,
        payload_json = excluded.payload_json,
        status = excluded.status,
        updated_at = excluded.updated_at
      WHERE works.date <> excluded.date
         OR works.category <> excluded.category
+        OR works.sub_categories <> excluded.sub_categories
+        OR works.sub_parts <> excluded.sub_parts
         OR works.payload_json <> excluded.payload_json
-        OR works.status <> excluded.status`,
-    [work.slug, work.date, work.category, JSON.stringify(work), now, now],
+       OR works.status <> excluded.status`,
+    [
+      work.slug,
+      work.date,
+      work.category,
+      JSON.stringify(work.subCategories),
+      JSON.stringify(work.subParts),
+      JSON.stringify(work),
+      now,
+      now,
+    ],
   );
   for (const asset of assets) {
     await query(

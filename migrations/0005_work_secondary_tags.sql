@@ -1,0 +1,7 @@
+ALTER TABLE works
+ADD COLUMN sub_categories TEXT NOT NULL DEFAULT '[]';
+
+ALTER TABLE works
+ADD COLUMN sub_parts TEXT NOT NULL DEFAULT '[]';
+
+PRAGMA optimize;

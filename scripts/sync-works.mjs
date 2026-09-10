@@ -8,6 +8,7 @@ const outputPath = resolve(projectDirectory, 'content', 'works.generated.json');
 const legacyR2PublicBases = [
   'https://pub-e6a8f147577c403f93d85e03a6361345.r2.dev',
 ];
+const workCategories = new Set(['dent', 'panel-paint', 'partial-paint', 'replace-paint', 'polish']);
 
 if (existsSync(resolve(projectDirectory, '.env.local'))) {
   process.loadEnvFile(resolve(projectDirectory, '.env.local'));
@@ -34,6 +35,22 @@ function validateWork(work, sourceFile) {
   if (work.carModel === undefined || work.carModel === null) work.carModel = '';
   if (typeof work.carModel !== 'string') throw new Error(`${sourceFile}: carModel 값이 올바르지 않습니다.`);
   if (!Array.isArray(work.part) || work.part.length === 0) throw new Error(`${sourceFile}: part 배열이 비어 있습니다.`);
+  if (work.subCategories === undefined) work.subCategories = [];
+  if (!Array.isArray(work.subCategories) || work.subCategories.length > 2) {
+    throw new Error(`${sourceFile}: subCategories는 최대 2개의 배열이어야 합니다.`);
+  }
+  work.subCategories = [...new Set(work.subCategories)];
+  if (work.subCategories.some((category) => !workCategories.has(category) || category === work.category)) {
+    throw new Error(`${sourceFile}: subCategories에 허용되지 않거나 주 카테고리와 같은 값이 있습니다.`);
+  }
+  if (work.subParts === undefined) work.subParts = [];
+  if (!Array.isArray(work.subParts) || work.subParts.length > 2) {
+    throw new Error(`${sourceFile}: subParts는 최대 2개의 배열이어야 합니다.`);
+  }
+  work.subParts = [...new Set(work.subParts)];
+  if (work.subParts.some((part) => typeof part !== 'string' || !part.trim() || part === work.part[0])) {
+    throw new Error(`${sourceFile}: subParts에 올바르지 않거나 주 부위와 같은 값이 있습니다.`);
+  }
   if (!Array.isArray(work.parts) || work.parts.length === 0) throw new Error(`${sourceFile}: parts 배열이 비어 있습니다.`);
   for (const [index, part] of work.parts.entries()) {
     for (const key of ['label', 'before', 'after', 'note']) {

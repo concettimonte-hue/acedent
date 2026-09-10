@@ -213,6 +213,8 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     blogUrl: '',
   });
   const [parts, setParts] = useState<PartDraft[]>([newPart()]);
+  const [subCategories, setSubCategories] = useState<WorkCategory[]>([]);
+  const [subParts, setSubParts] = useState<WorkPart[]>([]);
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState('입력 중');
   const [error, setError] = useState('');
@@ -223,6 +225,25 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
   const [deploymentState, setDeploymentState] = useState<DeploymentState>('idle');
   const [loadingWork, setLoadingWork] = useState(editing);
   const [workLoaded, setWorkLoaded] = useState(!editing);
+
+  useEffect(() => {
+    setSubCategories((current) =>
+      current.includes(form.category)
+        ? current.filter((item) => item !== form.category)
+        : current,
+    );
+  }, [form.category]);
+
+  useEffect(() => {
+    const primaryPart = parts[0]?.parts[0];
+    if (primaryPart) {
+      setSubParts((current) =>
+        current.includes(primaryPart as WorkPart)
+          ? current.filter((item) => item !== primaryPart)
+          : current,
+      );
+    }
+  }, [parts]);
 
   useEffect(() => {
     if (!editSlug) return;
@@ -253,6 +274,8 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           body: work.body,
           blogUrl: work.blogUrl || '',
         });
+        setSubCategories(work.subCategories ?? []);
+        setSubParts((work.subParts ?? []).filter(isWorkPart).slice(0, 2));
         setParts(work.parts.map((media, index) => {
           const fallbackParts = media.part?.length
             ? media.part
@@ -266,7 +289,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           if (!beforeAsset || !afterAsset) throw new Error(`${index + 1}번 부위의 D1 이미지 기록을 찾지 못했습니다.`);
           return {
             id: crypto.randomUUID(),
-            parts: parsed.parts,
+            parts: parsed.parts.slice(0, 1),
             customPartEnabled: parsed.customPartEnabled,
             customPart: parsed.customPart,
             detail: parsed.detail,
@@ -298,7 +321,9 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     date: form.date,
     title: form.title || '작업 제목 미리보기',
     category: form.category,
-    part: [...new Set(parts.flatMap(selectedPartValues))],
+    subCategories,
+    part: parts[0] ? selectedPartValues(parts[0]).slice(0, 1) : [],
+    subParts,
     carMaker: form.carMaker || '차량 제조사',
     carModel: form.carModel,
     color: form.color || '색상',
@@ -316,11 +341,33 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     featured: false,
     days: form.days || '작업기간',
     sliderType: 'drag',
-  }), [form, parts]);
+  }), [form, parts, subCategories, subParts]);
   const previewSeo = getWorkSeoCopy(previewWork);
 
   const updateForm = (key: keyof typeof form, value: string) => {
     setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  const updatePrimaryCategory = (category: WorkCategory) => {
+    updateForm('category', category);
+    setSubCategories((current) => current.filter((item) => item !== category));
+  };
+
+  const toggleSubCategory = (category: WorkCategory) => {
+    setSubCategories((current) => {
+      if (current.includes(category)) return current.filter((item) => item !== category);
+      if (current.length >= 2 || category === form.category) return current;
+      return [...current, category];
+    });
+  };
+
+  const toggleSubPart = (part: WorkPart) => {
+    setSubParts((current) => {
+      if (current.includes(part)) return current.filter((item) => item !== part);
+      const primaryPart = parts[0]?.parts[0];
+      if (current.length >= 2 || part === primaryPart) return current;
+      return [...current, part];
+    });
   };
 
   const startNewWork = () => {
@@ -347,13 +394,9 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     }));
   };
 
-  const togglePartName = (id: string, value: WorkPart) => {
-    const current = parts.find((part) => part.id === id);
-    if (!current) return;
-    const nextParts = current.parts.includes(value)
-      ? current.parts.filter((part) => part !== value)
-      : [...current.parts, value];
-    updatePartName(id, { parts: nextParts });
+  const selectPrimaryPart = (id: string, value: WorkPart, index: number) => {
+    updatePartName(id, { parts: [value], customPartEnabled: false, customPart: '' });
+    if (index === 0) setSubParts((current) => current.filter((item) => item !== value));
   };
 
   const clearImage = (id: string, kind: 'before' | 'after') => {
@@ -411,7 +454,8 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     setDeploymentUrl('');
     setDeploymentState('idle');
     try {
-      if (parts.some((part) => selectedPartValues(part).length === 0)) throw new Error('각 사진 묶음의 부위를 한 개 이상 선택하세요.');
+      if (parts.some((part) => selectedPartValues(part).length !== 1)) throw new Error('각 사진 묶음의 주 부위를 1개 선택하세요.');
+      if (subCategories.length > 2 || subParts.length > 2) throw new Error('보조 작업과 보조 부위는 각각 최대 2개까지 선택할 수 있습니다.');
       if (parts.some((part) => part.customPartEnabled && !part.customPart.trim())) throw new Error('기타 부위명을 직접 입력하세요.');
       if (parts.some((part) => !part.before || !part.after || !part.thumbnail)) throw new Error('모든 부위의 전·후 사진을 선택하세요.');
       const uploadId = crypto.randomUUID();
@@ -450,7 +494,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
         method: editing ? 'PUT' : 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, uploadId, parts: uploadedParts }),
+        body: JSON.stringify({ ...form, subCategories, subParts, uploadId, parts: uploadedParts }),
       });
       const saved = await saveResponse.json() as { work?: WorkItem; cleanupPending?: number; slugWarnings?: string[]; error?: string };
       if (!saveResponse.ok || !saved.work) throw new Error(saved.error || `사례 ${editing ? '수정' : '저장'}에 실패했습니다.`);
@@ -516,10 +560,27 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
               <label>차량 제조사<input required value={form.carMaker} onChange={(e) => updateForm('carMaker', e.target.value)} placeholder="예: 포르쉐" /></label>
               <label>차종 <small>선택</small><input value={form.carModel} onChange={(e) => updateForm('carModel', e.target.value)} placeholder="예: 파나메라" /></label>
               <label>색상<input required={!editing} value={form.color} onChange={(e) => updateForm('color', e.target.value)} placeholder="예: 화이트 계열" /></label>
-              <label>카테고리<select value={form.category} onChange={(e) => updateForm('category', e.target.value)}>{WORK_CATEGORIES.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select></label>
+              <label>카테고리<select value={form.category} onChange={(e) => updatePrimaryCategory(e.target.value as WorkCategory)}>{WORK_CATEGORIES.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select></label>
               <label>작업기간<input required value={form.days} onChange={(e) => updateForm('days', e.target.value)} placeholder="예: 2일" /></label>
               <label>작업 완료일<input type="date" required value={form.date} onChange={(e) => updateForm('date', e.target.value)} /></label>
             </div>
+            <fieldset className="admin-part-picker admin-secondary-picker">
+              <legend>보조 작업 <small>선택 · 최대 2개</small></legend>
+              <div className="admin-part-toggles">
+                {WORK_CATEGORIES.filter((item) => item.id !== form.category).map((item) => (
+                  <button
+                    type="button"
+                    className={subCategories.includes(item.id) ? 'is-active' : ''}
+                    aria-pressed={subCategories.includes(item.id)}
+                    disabled={!subCategories.includes(item.id) && subCategories.length >= 2}
+                    onClick={() => toggleSubCategory(item.id)}
+                    key={item.id}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
             <div className="admin-fields">
               <label>제목<input required maxLength={80} value={form.title} onChange={(e) => updateForm('title', e.target.value)} placeholder="예: 뒤범퍼 비탈거 전체도색" /></label>
               <label>요약<textarea required maxLength={300} rows={3} value={form.summary} onChange={(e) => updateForm('summary', e.target.value)} placeholder="카드와 상세 첫 문단에 함께 표시됩니다." /></label>
@@ -538,15 +599,34 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
                   {parts.length > 1 && <button type="button" className="admin-remove" onClick={() => setParts((current) => current.filter((item) => item.id !== part.id))}><Trash2 aria-hidden="true" /> 삭제</button>}
                   <div className="admin-fields admin-fields-two">
                     <fieldset className="admin-part-picker">
-                      <legend>부위명 <small>여러 개 선택 가능</small></legend>
+                      <legend>{index === 0 ? '주 부위' : '사진 부위'} <small>1개 선택</small></legend>
                       <div className="admin-part-toggles">
-                        {WORK_PARTS.map((item) => <button type="button" className={part.parts.includes(item) ? 'is-active' : ''} aria-pressed={part.parts.includes(item)} onClick={() => togglePartName(part.id, item)} key={item}>{item}</button>)}
-                        <button type="button" className={part.customPartEnabled ? 'is-active' : ''} aria-pressed={part.customPartEnabled} onClick={() => updatePartName(part.id, { customPartEnabled: !part.customPartEnabled, customPart: part.customPartEnabled ? '' : part.customPart })}>기타(직접 입력)</button>
+                        {WORK_PARTS.map((item) => <button type="button" className={part.parts.includes(item) ? 'is-active' : ''} aria-pressed={part.parts.includes(item)} onClick={() => selectPrimaryPart(part.id, item, index)} key={item}>{item}</button>)}
+                        <button type="button" className={part.customPartEnabled ? 'is-active' : ''} aria-pressed={part.customPartEnabled} onClick={() => updatePartName(part.id, part.customPartEnabled ? { customPartEnabled: false, customPart: '' } : { parts: [], customPartEnabled: true })}>기타(직접 입력)</button>
                       </div>
                       {part.customPartEnabled && <input required value={part.customPart} onChange={(e) => updatePartName(part.id, { customPart: e.target.value })} maxLength={30} placeholder="예: 쿼터패널" aria-label="기타 부위명" />}
                     </fieldset>
                     <label>세부 위치<input value={part.detail} onChange={(e) => updatePartName(part.id, { detail: e.target.value })} placeholder="예: 후면, 옆면" /></label>
                   </div>
+                  {index === 0 && (
+                    <fieldset className="admin-part-picker admin-secondary-picker">
+                      <legend>보조 부위 <small>선택 · 최대 2개</small></legend>
+                      <div className="admin-part-toggles">
+                        {WORK_PARTS.filter((item) => item !== part.parts[0]).map((item) => (
+                          <button
+                            type="button"
+                            className={subParts.includes(item) ? 'is-active' : ''}
+                            aria-pressed={subParts.includes(item)}
+                            disabled={!subParts.includes(item) && subParts.length >= 2}
+                            onClick={() => toggleSubPart(item)}
+                            key={item}
+                          >
+                            {item}
+                          </button>
+                        ))}
+                      </div>
+                    </fieldset>
+                  )}
                   <label>부위 설명<textarea required rows={2} maxLength={300} value={part.note} onChange={(e) => updatePart(part.id, { note: e.target.value })} placeholder="실제 손상과 작업 내용을 입력하세요." /></label>
                   <div className="admin-image-pair">
                     {(['before', 'after'] as const).map((kind) => {
@@ -628,9 +708,12 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           </div>
           <article className="work-detail admin-detail-preview">
             <header className="work-detail-heading">
-              <p>{getWorkCategoryLabel(previewWork.category)}</p>
+              <div className="work-detail-category-tags">
+                <p>{getWorkCategoryLabel(previewWork.category)}</p>
+                {previewWork.subCategories.map((category) => <span key={category}>{getWorkCategoryLabel(category)}</span>)}
+              </div>
               <h1>{previewWork.title}</h1>
-              <div><span>{formatWorkCar(previewWork)}</span><span>{previewWork.part.join(' · ')}</span><span>{previewWork.color}</span><strong>{previewWork.days}</strong></div>
+              <div className="work-detail-meta"><span>{formatWorkCar(previewWork)}</span><span>{previewWork.part[0]}</span>{previewWork.subParts.map((part) => <span className="work-detail-secondary-part" key={part}>{part}</span>)}<span>{previewWork.color}</span><strong>{previewWork.days}</strong></div>
             </header>
             <div className="work-detail-parts">
               {previewWork.parts.map((part, index) => <section className="work-detail-part" key={`${part.label}-${index}`}>

@@ -68,6 +68,28 @@ function parseWork(value: unknown, fileName: string): WorkItem {
     return part;
   });
 
+  const subCategories = item.subCategories === undefined ? [] : item.subCategories;
+  if (!Array.isArray(subCategories) || subCategories.length > 2) {
+    throw new Error(`${fileName}: subCategories는 최대 2개의 배열이어야 합니다.`);
+  }
+  const normalizedSubCategories = [...new Set(subCategories.map((subCategory) => {
+    if (typeof subCategory !== 'string' || !isWorkCategory(subCategory) || subCategory === category) {
+      throw new Error(`${fileName}: subCategories 값이 올바르지 않습니다.`);
+    }
+    return subCategory;
+  }))];
+
+  const subParts = item.subParts === undefined ? [] : item.subParts;
+  if (!Array.isArray(subParts) || subParts.length > 2) {
+    throw new Error(`${fileName}: subParts는 최대 2개의 배열이어야 합니다.`);
+  }
+  const normalizedSubParts = [...new Set(subParts.map((subPart) => {
+    if (typeof subPart !== 'string' || !isWorkPartValue(subPart) || subPart === workParts[0]) {
+      throw new Error(`${fileName}: subParts 값이 올바르지 않습니다.`);
+    }
+    return subPart;
+  }))];
+
   if (!Array.isArray(item.parts) || item.parts.length === 0) {
     throw new Error(`${fileName}: parts는 한 개 이상의 배열이어야 합니다.`);
   }
@@ -113,7 +135,9 @@ function parseWork(value: unknown, fileName: string): WorkItem {
     date,
     title: requireString(item.title, 'title', fileName),
     category,
+    subCategories: normalizedSubCategories,
     part: workParts,
+    subParts: normalizedSubParts,
     carMaker: requireString(item.carMaker, 'carMaker', fileName),
     carModel: optionalString(item.carModel, 'carModel', fileName),
     color:
@@ -185,5 +209,5 @@ export function formatWorkCar(work: WorkItem) {
 }
 
 export function formatWorkPartAndCategory(work: WorkItem) {
-  return `${work.part.join(' · ')} · ${getWorkCategoryLabel(work.category)}`;
+  return `${work.part[0]} · ${getWorkCategoryLabel(work.category)}`;
 }

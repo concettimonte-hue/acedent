@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import {
   WORK_CATEGORIES,
-  WORK_PARTS,
+  WORK_PART_FILTER_ORDER,
   getWorkCategoryLabel,
   isWorkCategory,
   isWorkPart,
@@ -72,10 +72,16 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
     () => (selectedCategory ? getWorksByCategory(selectedCategory) : getWorks()),
     [selectedCategory],
   );
+  const availablePrimaryParts = useMemo(
+    () => WORK_PART_FILTER_ORDER.filter((part) =>
+      categoryWorks.some((work) => work.part[0] === part),
+    ),
+    [categoryWorks],
+  );
   const visibleWorks = useMemo(
     () =>
       selectedPart
-        ? categoryWorks.filter((work) => work.part.includes(selectedPart))
+        ? categoryWorks.filter((work) => work.part[0] === selectedPart)
         : categoryWorks,
     [categoryWorks, selectedPart],
   );
@@ -94,6 +100,12 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
   useEffect(() => {
     applyClientMetadata(getWorksMetadata(selectedCategory));
   }, [selectedCategory]);
+
+  useEffect(() => {
+    if (!selectedPart || availablePrimaryParts.includes(selectedPart)) return;
+    window.history.replaceState({}, '', getFilterUrl(selectedCategory));
+    setFilters({ category: selectedCategory });
+  }, [availablePrimaryParts, selectedCategory, selectedPart]);
 
   const analyticsCategory = selectedCategory
     ? getWorkCategoryLabel(selectedCategory)
@@ -154,7 +166,7 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
           >
             전체
           </button>
-          {WORK_PARTS.map((part) => (
+          {availablePrimaryParts.map((part) => (
             <button
               type="button"
               className={selectedPart === part ? 'is-active' : ''}

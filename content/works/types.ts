@@ -24,6 +24,20 @@ export const WORK_PARTS = [
 ] as const;
 
 export type WorkPart = (typeof WORK_PARTS)[number];
+
+export const WORK_PART_FILTER_ORDER = [
+  '범퍼',
+  '도어',
+  '휀더',
+  '트렁크',
+  '사이드스텝',
+  '후드',
+  '루프',
+  '필러',
+  '사이드미러',
+  '휠',
+] as const satisfies readonly WorkPart[];
+
 export type WorkPartValue = WorkPart | (string & {});
 
 export interface WorkPartMedia {
@@ -40,7 +54,9 @@ export interface WorkItem {
   date: string;
   title: string;
   category: WorkCategory;
+  subCategories: WorkCategory[];
   part: WorkPartValue[];
+  subParts: WorkPartValue[];
   carMaker: string;
   carModel: string;
   color?: string;

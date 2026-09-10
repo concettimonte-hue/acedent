@@ -26,8 +26,13 @@ export function getWorksSeoCopy(category?: WorkCategory) {
 
 export function getWorkSeoCopy(work: WorkItem) {
   const car = [work.carMaker, work.carModel].filter(Boolean).join(' ');
+  const primaryPart = work.part[0];
+  const searchableParts = [primaryPart, ...work.subParts].filter(Boolean).join('·');
+  const searchableCategories = [work.category, ...work.subCategories]
+    .map(getWorkCategoryLabel)
+    .join('·');
   return {
-    title: `동대문 ${categorySeoTerms[work.category]} ${car} ${work.part.join('·')} 수리사례 | 에이스덴트`,
-    description: `서울 동대문 에이스덴트의 ${car} ${work.part.join('·')} ${getWorkCategoryLabel(work.category)} 사례입니다. ${work.summary} 전후 사진과 작업 설명, 관련 사례를 함께 확인하세요.`,
+    title: `동대문 ${categorySeoTerms[work.category]} ${car} ${primaryPart} 수리사례 | 에이스덴트`,
+    description: `서울 동대문 에이스덴트의 ${car} ${searchableParts} ${searchableCategories} 사례입니다. ${work.summary} 전후 사진과 작업 설명, 관련 사례를 함께 확인하세요.`,
   };
 }

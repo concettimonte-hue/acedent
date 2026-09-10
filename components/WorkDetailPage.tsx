@@ -42,11 +42,19 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
 
       <article className="work-detail">
         <header className="work-detail-heading">
-          <p>{categoryLabel}</p>
+          <div className="work-detail-category-tags">
+            <p>{categoryLabel}</p>
+            {work.subCategories.map((category) => (
+              <span key={category}>{getWorkCategoryLabel(category)}</span>
+            ))}
+          </div>
           <h1>{work.title}</h1>
-          <div>
+          <div className="work-detail-meta">
             <span>{formatWorkCar(work)}</span>
-            <span>{work.part.join(' · ')}</span>
+            <span>{work.part[0]}</span>
+            {work.subParts.map((part) => (
+              <span className="work-detail-secondary-part" key={part}>{part}</span>
+            ))}
             {work.color && <span>{work.color}</span>}
             <strong>{work.days}</strong>
           </div>
