@@ -322,6 +322,15 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     setForm((current) => ({ ...current, [key]: value }));
   };
 
+  const startNewWork = () => {
+    const newWorkPath = '/admin?view=new';
+    if (`${window.location.pathname}${window.location.search}` === newWorkPath) {
+      window.location.reload();
+      return;
+    }
+    window.location.assign(newWorkPath);
+  };
+
   const updatePart = (id: string, patch: Partial<PartDraft>) => {
     setParts((current) => current.map((part) => (part.id === id ? { ...part, ...patch } : part)));
   };
@@ -566,18 +575,36 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
             {savedSlug && deploymentState === 'failed' && (
               <p className="admin-deploy-pending" role="status">사례는 저장됐지만 배포 상태 확인이 필요합니다.</p>
             )}
+            {savedSlug && (deploymentState === 'pending' || deploymentState === 'failed') && (
+              <button className="admin-new-work-disabled" type="button" disabled>
+                <Plus aria-hidden="true" /> 새 사례 등록
+              </button>
+            )}
             {savedSlug && deploymentState === 'ready' && (
               <div className="admin-deploy-links">
-                <a
-                  className="admin-result-link"
-                  href={`${siteUrl}/works/detail/${encodeURIComponent(savedSlug)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  사례 페이지로 가기 <ArrowUpRight aria-hidden="true" />
-                </a>
+                <div className="admin-deploy-actions">
+                  <a
+                    className="admin-result-link"
+                    href={`${siteUrl}/works/detail/${encodeURIComponent(savedSlug)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    사례 페이지로 가기 <ArrowUpRight aria-hidden="true" />
+                  </a>
+                  <button className="admin-secondary-action" type="button" onClick={startNewWork}>
+                    <Plus aria-hidden="true" /> 새 사례 등록
+                  </button>
+                  <a
+                    className="admin-secondary-action"
+                    href="/admin"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    관리 페이지 <ArrowUpRight aria-hidden="true" />
+                  </a>
+                </div>
                 {deploymentUrl && (
-                  <a href={deploymentUrl} target="_blank" rel="noopener noreferrer">
+                  <a className="admin-deploy-log" href={deploymentUrl} target="_blank" rel="noopener noreferrer">
                     배포 로그 <ArrowUpRight aria-hidden="true" />
                   </a>
                 )}
