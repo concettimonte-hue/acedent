@@ -8,6 +8,7 @@ import {
   getWorkThumbnailSrc,
 } from '@/lib/work-images';
 import { formatWorkCar } from '@/lib/works';
+import { trackCaseView } from '@/lib/analytics';
 
 interface WorkCardProps {
   work: WorkItem;
@@ -20,6 +21,7 @@ export default function WorkCard({ work }: WorkCardProps) {
     <a
       className="work-card"
       href={`/works/detail/${work.slug}`}
+      onClick={() => trackCaseView(work.slug, work.part.join(' · '))}
       aria-label={`${formatWorkCar(work)} ${work.title} 상세 보기`}
     >
       <span className="work-card-media">

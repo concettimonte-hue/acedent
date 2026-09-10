@@ -9,6 +9,7 @@ import naverData from '@/content/naver.json';
 import siteData from '@/content/site.json';
 import type { CasesContent, SiteContent } from '@/content/types';
 import { withLandingUtm } from '@/lib/tracking';
+import { trackCaseView, trackTelClick } from '@/lib/analytics';
 import {
   getWorkImageAlt,
   getWorkPrimaryPart,
@@ -173,7 +174,10 @@ export default function CaseGallery() {
             className="case-card"
             type="button"
             key={item.slug}
-            onClick={() => openCase(index)}
+            onClick={() => {
+              trackCaseView(item.slug, item.part.join(' · '));
+              openCase(index);
+            }}
             aria-haspopup="dialog"
             aria-label={`${formatWorkCar(item)} ${item.title} 전후 비교 보기`}
           >
@@ -294,7 +298,11 @@ export default function CaseGallery() {
               </div>
               <p>{selectedCase.summary}</p>
               <div className="case-modal-actions">
-                <a className="case-modal-phone" href={site.contact.phoneHref}>
+                <a
+                  className="case-modal-phone"
+                  href={site.contact.phoneHref}
+                  onClick={() => trackTelClick('하단')}
+                >
                   이런 손상이면 문의하기
                 </a>
                 {selectedCase.blogUrl && (

@@ -5,6 +5,7 @@ import SectionNumber from '@/components/SectionNumber';
 import naverData from '@/content/naver.json';
 import siteData from '@/content/site.json';
 import type { NaverContent, SiteContent } from '@/content/types';
+import { trackTelClick } from '@/lib/analytics';
 import { withLandingUtm } from '@/lib/tracking';
 
 const naver = naverData as NaverContent;
@@ -48,7 +49,13 @@ export default function LocationSection() {
           <div>
             <Phone aria-hidden="true" />
             <span>
-              전화<a href={contact.phoneHref}>{contact.phoneDisplay}</a>
+              전화
+              <a
+                href={contact.phoneHref}
+                onClick={() => trackTelClick('하단')}
+              >
+                {contact.phoneDisplay}
+              </a>
             </span>
           </div>
           <a

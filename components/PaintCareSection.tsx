@@ -5,6 +5,7 @@ import SectionNumber from '@/components/SectionNumber';
 import polishData from '@/content/polish.json';
 import siteData from '@/content/site.json';
 import type { PolishContent, SiteContent } from '@/content/types';
+import { trackSmsClick } from '@/lib/analytics';
 
 const content = polishData as PolishContent;
 const site = siteData as SiteContent;
@@ -48,7 +49,11 @@ export default function PaintCareSection() {
       <div className="section-closing paint-care-closing">
         <p>{content.closing}</p>
         {content.cta.type === 'sms' && (
-          <a className="primary-action" href={site.contact.smsHref}>
+          <a
+            className="primary-action"
+            href={site.contact.smsHref}
+            onClick={trackSmsClick}
+          >
             <Smartphone aria-hidden="true" />
             {content.cta.label}
           </a>

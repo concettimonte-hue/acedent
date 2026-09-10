@@ -3,6 +3,7 @@
 import { ArrowLeft, Phone } from 'lucide-react';
 import siteData from '@/content/site.json';
 import type { SiteContent } from '@/content/types';
+import { trackTelClick } from '@/lib/analytics';
 
 const site = siteData as SiteContent;
 
@@ -28,7 +29,11 @@ export default function WorksHeader() {
           <small>REPAIR WORKS</small>
         </span>
       </a>
-      <a className="header-call" href={site.contact.phoneHref}>
+      <a
+        className="header-call"
+        href={site.contact.phoneHref}
+        onClick={() => trackTelClick('상단')}
+      >
         <Phone aria-hidden="true" />
         <span>{site.contact.headerPhoneLabel}</span>
       </a>

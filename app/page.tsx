@@ -37,6 +37,7 @@ import {
   type NumberedSectionId,
 } from '@/content/section-order';
 import { withLandingUtm } from '@/lib/tracking';
+import { trackSmsClick, trackTelClick } from '@/lib/analytics';
 
 const site = siteData as SiteContent;
 const naver = naverData as NaverContent;
@@ -158,7 +159,11 @@ export default function Home() {
           <p>{contact.description}</p>
         </div>
         <div className="contact-actions">
-          <a href={contact.phoneHref} className="contact-call">
+          <a
+            href={contact.phoneHref}
+            className="contact-call"
+            onClick={() => trackTelClick('하단')}
+          >
             <div>
               <Phone aria-hidden="true" />
               <span>{contact.phoneLabel}</span>
@@ -167,7 +172,7 @@ export default function Home() {
             <ChevronRight aria-hidden="true" />
           </a>
           <div className="contact-secondary">
-            <a href={contact.smsHref}>
+            <a href={contact.smsHref} onClick={trackSmsClick}>
               <Smartphone aria-hidden="true" />
               <span>
                 {contact.smsEyebrow}
@@ -220,7 +225,11 @@ export default function Home() {
             </a>
           ))}
         </nav>
-        <a className="header-call" href={contact.phoneHref}>
+        <a
+          className="header-call"
+          href={contact.phoneHref}
+          onClick={() => trackTelClick('상단')}
+        >
           <Phone aria-hidden="true" />
           <span>{contact.headerPhoneLabel}</span>
         </a>
@@ -253,12 +262,20 @@ export default function Home() {
             ))}
           </p>
           <div className="hero-actions">
-            <a className="primary-action" href={contact.phoneHref}>
+            <a
+              className="primary-action"
+              href={contact.phoneHref}
+              onClick={() => trackTelClick('상단')}
+            >
               <Phone aria-hidden="true" />
               {hero.phoneActionLabel}
               <ChevronRight aria-hidden="true" />
             </a>
-            <a className="secondary-action" href={contact.smsHref}>
+            <a
+              className="secondary-action"
+              href={contact.smsHref}
+              onClick={trackSmsClick}
+            >
               <Smartphone aria-hidden="true" />
               {hero.smsActionLabel}
             </a>
@@ -341,11 +358,11 @@ export default function Home() {
         className="mobile-action-bar"
         aria-label={contact.mobileNavAriaLabel}
       >
-        <a href={contact.phoneHref}>
+        <a href={contact.phoneHref} onClick={() => trackTelClick('플로팅')}>
           <Phone aria-hidden="true" />
           {contact.mobilePhoneLabel}
         </a>
-        <a href={contact.smsHref}>
+        <a href={contact.smsHref} onClick={trackSmsClick}>
           <Smartphone aria-hidden="true" />
           {contact.mobileSmsLabel}
         </a>

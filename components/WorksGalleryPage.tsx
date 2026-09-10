@@ -14,6 +14,7 @@ import { applyClientMetadata, getWorksMetadata } from '@/lib/work-metadata';
 import WorkCard from '@/components/WorkCard';
 import WorksHeader from '@/components/WorksHeader';
 import WorksQuickActions from '@/components/WorksQuickActions';
+import { trackFilterUse } from '@/lib/analytics';
 
 interface WorksGalleryPageProps {
   category?: WorkCategory;
@@ -76,7 +77,10 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
             type="button"
             className={selectedParts.length === 0 ? 'is-active' : ''}
             aria-pressed={selectedParts.length === 0}
-            onClick={() => setSelectedParts([])}
+            onClick={() => {
+              trackFilterUse('전체');
+              setSelectedParts([]);
+            }}
           >
             전체
           </button>
@@ -85,7 +89,10 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
               type="button"
               className={selectedParts.includes(part) ? 'is-active' : ''}
               aria-pressed={selectedParts.includes(part)}
-              onClick={() => togglePart(part)}
+              onClick={() => {
+                trackFilterUse(part);
+                togglePart(part);
+              }}
               key={part}
             >
               {part}
