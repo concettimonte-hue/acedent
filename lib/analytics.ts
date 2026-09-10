@@ -84,6 +84,6 @@ export function trackCaseView(caseId: string, part: string) {
   sendEvent('case_view', { case_id: caseId, part });
 }
 
-export function trackFilterUse(part: string) {
-  sendEvent('filter_use', { part });
+export function trackFilterUse(category: string, part: string) {
+  sendEvent('filter_use', { category, part });
 }

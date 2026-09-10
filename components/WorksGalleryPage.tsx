@@ -6,6 +6,8 @@ import {
   WORK_CATEGORIES,
   WORK_PARTS,
   getWorkCategoryLabel,
+  isWorkCategory,
+  isWorkPart,
   type WorkCategory,
   type WorkPart,
 } from '@/content/works/types';
@@ -20,35 +22,89 @@ interface WorksGalleryPageProps {
   category?: WorkCategory;
 }
 
+interface WorkFilters {
+  category?: WorkCategory;
+  part?: WorkPart;
+}
+
+function categoryFromQuery(value: string | null) {
+  if (!value) return undefined;
+  if (isWorkCategory(value)) return value;
+  return WORK_CATEGORIES.find((item) => item.label === value)?.id;
+}
+
+function categoryFromPath(pathname: string) {
+  const match = pathname.match(/^\/works\/([^/]+)\/?$/);
+  return match && isWorkCategory(match[1]) ? match[1] : undefined;
+}
+
+function readFilters(fallbackCategory?: WorkCategory): WorkFilters {
+  const search = new URLSearchParams(window.location.search);
+  const part = search.get('part');
+
+  return {
+    category:
+      categoryFromQuery(search.get('category')) ??
+      categoryFromPath(window.location.pathname) ??
+      fallbackCategory,
+    part: part && isWorkPart(part) ? part : undefined,
+  };
+}
+
+function getFilterUrl(category?: WorkCategory, part?: WorkPart) {
+  const search = new URLSearchParams(window.location.search);
+
+  if (category) search.set('category', getWorkCategoryLabel(category));
+  else search.delete('category');
+
+  if (part) search.set('part', part);
+  else search.delete('part');
+
+  const query = search.toString();
+  return `/works${query ? `?${query}` : ''}`;
+}
+
 export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
-  const [selectedParts, setSelectedParts] = useState<WorkPart[]>([]);
-  const categoryWorks = category ? getWorksByCategory(category) : getWorks();
+  const [filters, setFilters] = useState<WorkFilters>(() => readFilters(category));
+  const selectedCategory = filters.category;
+  const selectedPart = filters.part;
+  const categoryWorks = useMemo(
+    () => (selectedCategory ? getWorksByCategory(selectedCategory) : getWorks()),
+    [selectedCategory],
+  );
   const visibleWorks = useMemo(
     () =>
-      selectedParts.length > 0
-        ? categoryWorks.filter((work) => selectedParts.some((part) => work.part.includes(part)))
+      selectedPart
+        ? categoryWorks.filter((work) => work.part.includes(selectedPart))
         : categoryWorks,
-    [categoryWorks, selectedParts],
+    [categoryWorks, selectedPart],
   );
 
-  const togglePart = (part: WorkPart) => {
-    setSelectedParts((current) =>
-      current.includes(part)
-        ? current.filter((item) => item !== part)
-        : [...current, part],
-    );
+  const selectFilters = (next: WorkFilters) => {
+    window.history.pushState({}, '', getFilterUrl(next.category, next.part));
+    setFilters(next);
   };
 
   useEffect(() => {
-    applyClientMetadata(getWorksMetadata(category));
+    const syncFiltersFromUrl = () => setFilters(readFilters(category));
+    window.addEventListener('popstate', syncFiltersFromUrl);
+    return () => window.removeEventListener('popstate', syncFiltersFromUrl);
   }, [category]);
+
+  useEffect(() => {
+    applyClientMetadata(getWorksMetadata(selectedCategory));
+  }, [selectedCategory]);
+
+  const analyticsCategory = selectedCategory
+    ? getWorkCategoryLabel(selectedCategory)
+    : '전체';
 
   return (
     <main className="works-page">
       <WorksHeader />
       <section className="works-page-hero">
         <p>ACE DENT · REPAIR ARCHIVE</p>
-        <h1>{category ? getWorkCategoryLabel(category) : '수리사례'}</h1>
+        <h1>{selectedCategory ? getWorkCategoryLabel(selectedCategory) : '수리사례'}</h1>
         <span>
           실제 차량의 작업 전후를 확인하고 내 차와 비슷한 손상을 찾아보세요.
         </span>
@@ -56,14 +112,28 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
 
       <section className="works-browser" aria-label="수리사례 목록">
         <nav className="work-category-tabs" aria-label="작업방식">
-          <a href="/works" className={!category ? 'is-active' : ''}>
+          <a
+            href={getFilterUrl(undefined, selectedPart)}
+            className={!selectedCategory ? 'is-active' : ''}
+            aria-current={!selectedCategory ? 'page' : undefined}
+            onClick={(event) => {
+              event.preventDefault();
+              trackFilterUse('전체', selectedPart ?? '전체');
+              selectFilters({ part: selectedPart });
+            }}
+          >
             전체
           </a>
           {WORK_CATEGORIES.map((item) => (
             <a
-              href={`/works/${item.id}`}
-              className={category === item.id ? 'is-active' : ''}
-              aria-current={category === item.id ? 'page' : undefined}
+              href={getFilterUrl(item.id, selectedPart)}
+              className={selectedCategory === item.id ? 'is-active' : ''}
+              aria-current={selectedCategory === item.id ? 'page' : undefined}
+              onClick={(event) => {
+                event.preventDefault();
+                trackFilterUse(item.label, selectedPart ?? '전체');
+                selectFilters({ category: item.id, part: selectedPart });
+              }}
               key={item.id}
             >
               {item.label}
@@ -75,11 +145,11 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
           <span>부위</span>
           <button
             type="button"
-            className={selectedParts.length === 0 ? 'is-active' : ''}
-            aria-pressed={selectedParts.length === 0}
+            className={!selectedPart ? 'is-active' : ''}
+            aria-pressed={!selectedPart}
             onClick={() => {
-              trackFilterUse('전체');
-              setSelectedParts([]);
+              trackFilterUse(analyticsCategory, '전체');
+              selectFilters({ category: selectedCategory });
             }}
           >
             전체
@@ -87,11 +157,12 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
           {WORK_PARTS.map((part) => (
             <button
               type="button"
-              className={selectedParts.includes(part) ? 'is-active' : ''}
-              aria-pressed={selectedParts.includes(part)}
+              className={selectedPart === part ? 'is-active' : ''}
+              aria-pressed={selectedPart === part}
               onClick={() => {
-                trackFilterUse(part);
-                togglePart(part);
+                const nextPart = selectedPart === part ? undefined : part;
+                trackFilterUse(analyticsCategory, nextPart ?? '전체');
+                selectFilters({ category: selectedCategory, part: nextPart });
               }}
               key={part}
             >
@@ -101,7 +172,7 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
         </div>
 
         <div className="works-count">
-          <span>{selectedParts.length > 0 ? `${selectedParts.join(' · ')} · ` : ''}{visibleWorks.length}건</span>
+          <span>{selectedPart ? `${selectedPart} · ` : ''}{visibleWorks.length}건</span>
         </div>
 
         {visibleWorks.length > 0 ? (
