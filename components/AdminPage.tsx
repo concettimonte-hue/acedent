@@ -218,6 +218,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [savedSlug, setSavedSlug] = useState('');
+  const [slugWarnings, setSlugWarnings] = useState<string[]>([]);
   const [deploymentUrl, setDeploymentUrl] = useState('');
   const [deploymentState, setDeploymentState] = useState<DeploymentState>('idle');
   const [loadingWork, setLoadingWork] = useState(editing);
@@ -406,6 +407,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     setSaving(true);
     setProgress(0);
     setSavedSlug('');
+    setSlugWarnings([]);
     setDeploymentUrl('');
     setDeploymentState('idle');
     try {
@@ -450,9 +452,10 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, uploadId, parts: uploadedParts }),
       });
-      const saved = await saveResponse.json() as { work?: WorkItem; cleanupPending?: number; error?: string };
+      const saved = await saveResponse.json() as { work?: WorkItem; cleanupPending?: number; slugWarnings?: string[]; error?: string };
       if (!saveResponse.ok || !saved.work) throw new Error(saved.error || `사례 ${editing ? '수정' : '저장'}에 실패했습니다.`);
       setSavedSlug(saved.work.slug);
+      setSlugWarnings(saved.slugWarnings || []);
       setDeploymentState('pending');
 
       setStatus('Cloudflare 빌드 요청 중');
@@ -569,6 +572,11 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
             <div><span>{status}</span>{saving && <progress value={progress} max="100">{progress}%</progress>}<small>{saving ? `${progress}%` : '저장하면 Cloudflare 빌드가 자동으로 시작됩니다.'}</small></div>
             <button type="submit" disabled={saving}><UploadCloud aria-hidden="true" />{saving ? `${editing ? '수정' : '등록'} 진행 중` : `사례 ${editing ? '수정' : '저장'} 및 배포`}</button>
             {error && <p role="alert">{error}</p>}
+            {slugWarnings.length > 0 && (
+              <p className="admin-slug-warning" role="status">
+                사전에 없는 단어가 제외되었습니다: {slugWarnings.join(', ')}
+              </p>
+            )}
             {savedSlug && deploymentState === 'pending' && (
               <p className="admin-deploy-pending" role="status">배포 중... (약 1~2분)</p>
             )}

@@ -3167,6 +3167,7 @@ footer > a:last-child svg {
 .admin-submit-panel button { display: flex; min-height: 54px; align-items: center; justify-content: center; gap: .5rem; background: #f8db00; color: #080908; font-size: .95rem; font-weight: 950; }
 .admin-submit-panel button:disabled { cursor: wait; opacity: .62; }
 .admin-submit-panel p { color: #ff9e87; font-size: .85rem; line-height: 1.5; }
+.admin-submit-panel .admin-slug-warning { color: #f8db00; }
 .admin-deploy-pending { color: #c3c6c2 !important; }
 .admin-submit-panel .admin-new-work-disabled { min-height: 44px; border: 1px solid #3a3d3a; background: transparent; color: #8e928e; }
 .admin-deploy-links { display: grid !important; gap: .65rem !important; }

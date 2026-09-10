@@ -11,7 +11,7 @@ import {
   requireAccess,
   type AdminEnv,
 } from '../../_shared/admin';
-import { createBaseWorkSlug, nextNumericWorkSlug } from '../../_shared/work-slug';
+import { createWorkSlugAnalysis, nextNumericWorkSlug } from '../../_shared/work-slug';
 
 interface AssetReference {
   key: string;
@@ -214,7 +214,8 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
     });
     input.parts = normalizedParts;
 
-    const slug = await nextAvailableSlug(env.ACEDENT_DB, createBaseWorkSlug(input));
+    const slugAnalysis = createWorkSlugAnalysis(input);
+    const slug = await nextAvailableSlug(env.ACEDENT_DB, slugAnalysis.slug);
 
     const publicBase = cleanPublicBase(env.R2_PUBLIC_BASE_URL);
     const assets = [];
@@ -292,7 +293,7 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
     ];
     await env.ACEDENT_DB.batch(statements);
 
-    return json({ work, metadata: getWorkSeoCopy(work) }, 201);
+    return json({ work, metadata: getWorkSeoCopy(work), slugWarnings: slugAnalysis.excludedTerms }, 201);
   } catch (error) {
     return json({ error: error instanceof Error ? error.message : '사례 저장에 실패했습니다.' }, 400);
   }
