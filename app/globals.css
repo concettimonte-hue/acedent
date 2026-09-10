@@ -3167,8 +3167,11 @@ footer > a:last-child svg {
 .admin-submit-panel button { display: flex; min-height: 54px; align-items: center; justify-content: center; gap: .5rem; background: #f8db00; color: #080908; font-size: .95rem; font-weight: 950; }
 .admin-submit-panel button:disabled { cursor: wait; opacity: .62; }
 .admin-submit-panel p { color: #ff9e87; font-size: .85rem; line-height: 1.5; }
-.admin-submit-panel > a { display: inline-flex; align-items: center; gap: .35rem; color: #f8db00; font-weight: 850; }
-.admin-submit-panel > a svg { width: 1rem; }
+.admin-deploy-pending { color: #c3c6c2 !important; }
+.admin-deploy-links { display: flex !important; align-items: center; justify-content: space-between; gap: .75rem !important; }
+.admin-deploy-links a { display: inline-flex; align-items: center; gap: .35rem; color: #a9aca8; font-size: .82rem; font-weight: 750; }
+.admin-deploy-links a svg { width: .9rem; }
+.admin-deploy-links .admin-result-link { min-height: 44px; justify-content: center; padding: 0 1rem; background: #f8db00; color: #080908; font-size: .9rem; font-weight: 900; }
 .admin-preview { position: sticky; top: 92px; max-height: calc(100vh - 112px); overflow-y: auto; border: 1px solid #303330; background: #030403; }
 .admin-preview-heading { display: flex; position: sticky; z-index: 4; top: 0; align-items: center; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #303330; background: #101110; }
 .admin-card-preview { width: min(360px, calc(100% - 2rem)); margin: 1rem auto 2rem; }

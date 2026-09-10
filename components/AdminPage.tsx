@@ -19,6 +19,7 @@ import {
 import { getWorkImageAlt } from '@/lib/work-images';
 import { getWorkSeoCopy } from '@/lib/work-seo';
 import { formatWorkCar } from '@/lib/works';
+import { siteUrl } from '@/lib/seo';
 
 interface ProcessedImage {
   blob: Blob;
@@ -33,6 +34,7 @@ interface ExistingImage {
 }
 
 type ImageDraft = ProcessedImage | ExistingImage;
+type DeploymentState = 'idle' | 'pending' | 'ready' | 'failed';
 
 interface PartDraft {
   id: string;
@@ -215,7 +217,9 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
   const [status, setStatus] = useState('입력 중');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
-  const [savedUrl, setSavedUrl] = useState('');
+  const [savedSlug, setSavedSlug] = useState('');
+  const [deploymentUrl, setDeploymentUrl] = useState('');
+  const [deploymentState, setDeploymentState] = useState<DeploymentState>('idle');
   const [loadingWork, setLoadingWork] = useState(editing);
   const [workLoaded, setWorkLoaded] = useState(!editing);
 
@@ -377,7 +381,8 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
       if (!response.ok) throw new Error(payload.error || '배포 상태를 확인하지 못했습니다.');
       if (payload.status === 'success') {
         setStatus('배포 완료');
-        setSavedUrl(payload.url || '');
+        setDeploymentUrl(payload.url || '');
+        setDeploymentState('ready');
         return;
       }
       if (payload.status === 'failure') throw new Error('Cloudflare 빌드가 실패했습니다. 대시보드 빌드 로그를 확인하세요.');
@@ -391,7 +396,9 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     setError('');
     setSaving(true);
     setProgress(0);
-    setSavedUrl('');
+    setSavedSlug('');
+    setDeploymentUrl('');
+    setDeploymentState('idle');
     try {
       if (parts.some((part) => selectedPartValues(part).length === 0)) throw new Error('각 사진 묶음의 부위를 한 개 이상 선택하세요.');
       if (parts.some((part) => part.customPartEnabled && !part.customPart.trim())) throw new Error('기타 부위명을 직접 입력하세요.');
@@ -436,6 +443,8 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
       });
       const saved = await saveResponse.json() as { work?: WorkItem; cleanupPending?: number; error?: string };
       if (!saveResponse.ok || !saved.work) throw new Error(saved.error || `사례 ${editing ? '수정' : '저장'}에 실패했습니다.`);
+      setSavedSlug(saved.work.slug);
+      setDeploymentState('pending');
 
       setStatus('Cloudflare 빌드 요청 중');
       const deployResponse = await fetch('/admin/api/deploy', { method: 'POST', credentials: 'same-origin' });
@@ -456,6 +465,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
       }
     } catch (submitError) {
       setStatus('확인 필요');
+      setDeploymentState((current) => (current === 'pending' ? 'failed' : current));
       setError(submitError instanceof Error ? submitError.message : `${editing ? '수정' : '등록'} 중 오류가 발생했습니다.`);
     } finally {
       setSaving(false);
@@ -550,7 +560,29 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
             <div><span>{status}</span>{saving && <progress value={progress} max="100">{progress}%</progress>}<small>{saving ? `${progress}%` : '저장하면 Cloudflare 빌드가 자동으로 시작됩니다.'}</small></div>
             <button type="submit" disabled={saving}><UploadCloud aria-hidden="true" />{saving ? `${editing ? '수정' : '등록'} 진행 중` : `사례 ${editing ? '수정' : '저장'} 및 배포`}</button>
             {error && <p role="alert">{error}</p>}
-            {savedUrl && <a href={savedUrl} target="_blank" rel="noopener noreferrer">배포 결과 보기 <ArrowUpRight aria-hidden="true" /></a>}
+            {savedSlug && deploymentState === 'pending' && (
+              <p className="admin-deploy-pending" role="status">배포 중... (약 1~2분)</p>
+            )}
+            {savedSlug && deploymentState === 'failed' && (
+              <p className="admin-deploy-pending" role="status">사례는 저장됐지만 배포 상태 확인이 필요합니다.</p>
+            )}
+            {savedSlug && deploymentState === 'ready' && (
+              <div className="admin-deploy-links">
+                <a
+                  className="admin-result-link"
+                  href={`${siteUrl}/works/detail/${encodeURIComponent(savedSlug)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  사례 페이지로 가기 <ArrowUpRight aria-hidden="true" />
+                </a>
+                {deploymentUrl && (
+                  <a href={deploymentUrl} target="_blank" rel="noopener noreferrer">
+                    배포 로그 <ArrowUpRight aria-hidden="true" />
+                  </a>
+                )}
+              </div>
+            )}
           </section>
         </form>
 
