@@ -45,5 +45,6 @@ export function getWorkImageAlt(
   part: WorkPartMedia,
   state: '전' | '후',
 ) {
-  return `서울 동대문 ${work.carMaker} ${work.carModel} ${part.label} ${getWorkCategoryLabel(work.category)} 작업 ${state}`;
+  const car = [work.carMaker, work.carModel].filter(Boolean).join(' ');
+  return `서울 동대문 ${car} ${part.label} ${getWorkCategoryLabel(work.category)} 작업 ${state}`;
 }

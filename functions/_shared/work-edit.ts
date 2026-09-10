@@ -53,6 +53,13 @@ function required(value: unknown, label: string, maxLength = 5000) {
   return value.trim();
 }
 
+function optional(value: unknown, label: string, maxLength: number) {
+  if (value === undefined || value === null || value === '') return '';
+  if (typeof value !== 'string') throw new Error(`${label} 값이 올바르지 않습니다.`);
+  if (value.trim().length > maxLength) throw new Error(`${label}은(는) ${maxLength}자 이하여야 합니다.`);
+  return value.trim();
+}
+
 function assetUrl(base: string, key: string) {
   if (!/^works\/[a-zA-Z0-9/_-]+\.jpg$/.test(key)) throw new Error('업로드 이미지 경로가 올바르지 않습니다.');
   return `${base}/${key}`;
@@ -216,7 +223,7 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
       category,
       part: [...new Set(parts.flatMap((part) => part.part))],
       carMaker: required(input.carMaker, '차량 제조사', 40),
-      carModel: required(input.carModel, '차종', 60),
+      carModel: optional(input.carModel, '차종', 60),
       color: color || previous.color,
       parts: mediaParts,
       summary: required(input.summary, '요약', 300),

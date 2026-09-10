@@ -30,6 +30,14 @@ function requireString(
   return value;
 }
 
+function optionalString(value: unknown, field: string, fileName: string) {
+  if (value === undefined || value === null || value === '') return '';
+  if (typeof value !== 'string') {
+    throw new Error(`${fileName}: ${field} 값이 문자열이 아닙니다.`);
+  }
+  return value.trim();
+}
+
 function parseWork(value: unknown, fileName: string): WorkItem {
   const baseName = fileName.split('/').at(-1) ?? fileName;
   if (
@@ -107,7 +115,7 @@ function parseWork(value: unknown, fileName: string): WorkItem {
     category,
     part: workParts,
     carMaker: requireString(item.carMaker, 'carMaker', fileName),
-    carModel: requireString(item.carModel, 'carModel', fileName),
+    carModel: optionalString(item.carModel, 'carModel', fileName),
     color:
       typeof item.color === 'string' && item.color.trim()
         ? item.color
@@ -173,7 +181,7 @@ export function getRelatedWorks(work: WorkItem, limit = 3) {
 }
 
 export function formatWorkCar(work: WorkItem) {
-  return `${work.carMaker} ${work.carModel}`;
+  return [work.carMaker, work.carModel].filter(Boolean).join(' ');
 }
 
 export function formatWorkPartAndCategory(work: WorkItem) {

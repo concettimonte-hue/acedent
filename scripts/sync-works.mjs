@@ -28,9 +28,11 @@ function gitDate(sourceFile, fallback) {
 
 function validateWork(work, sourceFile) {
   if (!work || typeof work !== 'object') throw new Error(`${sourceFile}: 사례 데이터가 객체가 아닙니다.`);
-  for (const key of ['slug', 'date', 'title', 'category', 'carMaker', 'carModel', 'summary', 'body', 'days']) {
+  for (const key of ['slug', 'date', 'title', 'category', 'carMaker', 'summary', 'body', 'days']) {
     if (typeof work[key] !== 'string' || !work[key].trim()) throw new Error(`${sourceFile}: ${key} 값이 비어 있습니다.`);
   }
+  if (work.carModel === undefined || work.carModel === null) work.carModel = '';
+  if (typeof work.carModel !== 'string') throw new Error(`${sourceFile}: carModel 값이 올바르지 않습니다.`);
   if (!Array.isArray(work.part) || work.part.length === 0) throw new Error(`${sourceFile}: part 배열이 비어 있습니다.`);
   if (!Array.isArray(work.parts) || work.parts.length === 0) throw new Error(`${sourceFile}: parts 배열이 비어 있습니다.`);
   for (const [index, part] of work.parts.entries()) {

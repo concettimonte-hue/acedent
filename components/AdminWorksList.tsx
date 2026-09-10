@@ -37,6 +37,10 @@ interface AdminWorkRow {
   cleanup: CleanupState | null;
 }
 
+function formatAdminWorkCar(work: Pick<AdminWorkRow, 'carMaker' | 'carModel'>) {
+  return [work.carMaker, work.carModel].filter(Boolean).join(' ');
+}
+
 interface ApiError {
   error?: string;
   status?: string;
@@ -335,11 +339,11 @@ export default function AdminWorksList() {
                 <article className={`admin-work-row${cleanup ? ' has-cleanup' : ''}`} key={work.slug}>
                   <div className="admin-work-thumb">
                     {work.thumbnail ? (
-                      <img src={work.thumbnail} alt={`${work.carMaker} ${work.carModel} ${work.title} 썸네일`} width="800" height="600" loading="lazy" decoding="async" />
+                      <img src={work.thumbnail} alt={`${formatAdminWorkCar(work)} ${work.title} 썸네일`} width="800" height="600" loading="lazy" decoding="async" />
                     ) : <span>NO IMAGE</span>}
                   </div>
                   <div className="admin-work-copy">
-                    <span>{work.carMaker} {work.carModel}</span>
+                    <span>{formatAdminWorkCar(work)}</span>
                     <h2>{work.title}</h2>
                     <p>등록일 {displayDate(work.createdAt)} · 작업일 {work.date}</p>
                     {cleanup && (
@@ -373,7 +377,7 @@ export default function AdminWorksList() {
           <AlertDialogHeader>
             <AlertDialogTitle>이 사례를 삭제할까요?</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteCandidate ? `${deleteCandidate.carMaker} ${deleteCandidate.carModel} · ${deleteCandidate.title}` : ''}
+              {deleteCandidate ? `${formatAdminWorkCar(deleteCandidate)} · ${deleteCandidate.title}` : ''}
               <br />공개 사이트에서 제거한 뒤 연결된 R2 이미지도 함께 삭제합니다.
             </AlertDialogDescription>
           </AlertDialogHeader>

@@ -9,9 +9,9 @@ import {
   cleanPublicBase,
   json,
   requireAccess,
-  safeSegment,
   type AdminEnv,
 } from '../../_shared/admin';
+import { createBaseWorkSlug, nextNumericWorkSlug } from '../../_shared/work-slug';
 
 interface AssetReference {
   key: string;
@@ -41,90 +41,25 @@ interface WorkInput {
   parts: PartInput[];
 }
 
-const makerTerms: Record<string, string> = {
-  벤츠: 'mercedes',
-  메르세데스벤츠: 'mercedes',
-  포르쉐: 'porsche',
-  테슬라: 'tesla',
-  지프: 'jeep',
-  랜드로버: 'land-rover',
-  제네시스: 'genesis',
-  현대: 'hyundai',
-  기아: 'kia',
-  아우디: 'audi',
-  폭스바겐: 'volkswagen',
-  볼보: 'volvo',
-  렉서스: 'lexus',
-};
-
-const detailTerms: Record<string, string> = {
-  전면: 'front',
-  후면: 'rear',
-  옆면: 'side',
-  앞: 'front',
-  뒤: 'rear',
-  좌측: 'left',
-  우측: 'right',
-};
-
-const partTerms: Record<string, string> = {
-  범퍼: 'bumper',
-  도어: 'door',
-  휀더: 'fender',
-  후드: 'hood',
-  트렁크: 'trunk',
-  사이드미러: 'side-mirror',
-  필러: 'pillar',
-  루프: 'roof',
-  휠: 'wheel',
-  사이드스텝: 'side-step',
-};
-
-const modelTerms: Record<string, string> = {
-  파나메라: 'panamera',
-  레니게이드: 'renegade',
-  모델3: 'model3',
-  디펜더: 'defender',
-};
-
 function required(value: unknown, label: string, maxLength = 5000) {
   if (typeof value !== 'string' || !value.trim()) throw new Error(`${label}을(를) 입력하세요.`);
   if (value.trim().length > maxLength) throw new Error(`${label}은(는) ${maxLength}자 이하여야 합니다.`);
   return value.trim();
 }
 
-function compactKorean(value: string) {
-  return value.normalize('NFKC').replace(/[\s·.()_-]/g, '').toLowerCase();
+function optional(value: unknown, label: string, maxLength: number) {
+  if (value === undefined || value === null || value === '') return '';
+  if (typeof value !== 'string') throw new Error(`${label} 값이 올바르지 않습니다.`);
+  if (value.trim().length > maxLength) throw new Error(`${label}은(는) ${maxLength}자 이하여야 합니다.`);
+  return value.trim();
 }
 
-function stableFallback(value: string) {
-  let hash = 2166136261;
-  for (const character of value) {
-    hash ^= character.codePointAt(0) ?? 0;
-    hash = Math.imul(hash, 16777619);
-  }
-  return `item-${(hash >>> 0).toString(36)}`;
-}
-
-function slugTerm(value: string, terms: Record<string, string> = {}) {
-  const compact = compactKorean(value);
-  if (terms[compact]) return terms[compact];
-  return safeSegment(value) || stableFallback(value);
-}
-
-function baseSlug(input: WorkInput) {
-  const first = input.parts[0];
-  const firstPart = Array.isArray(first.part) ? first.part[0] : first.part;
-  const part = slugTerm(typeof firstPart === 'string' ? firstPart : 'part', partTerms);
-  const detailedPart = first.detail
-    ? `${slugTerm(first.detail, detailTerms)}-${part}`
-    : part;
-  return [
-    slugTerm(input.carMaker, makerTerms),
-    slugTerm(input.carModel, modelTerms),
-    detailedPart,
-    input.category,
-  ].join('-');
+async function nextAvailableSlug(database: D1Database, base: string) {
+  if (!base) throw new Error('사례 주소를 만들 수 없습니다. 차량 제조사와 작업 부위를 확인하세요.');
+  const rows = await database.prepare(
+    'SELECT slug FROM works WHERE slug = ? OR slug GLOB ?',
+  ).bind(base, `${base}-[0-9]*`).all<{ slug: string }>();
+  return nextNumericWorkSlug(base, rows.results.map((row) => row.slug));
 }
 
 function normalizePartValues(value: unknown, index: number): WorkPartValue[] {
@@ -279,11 +214,7 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
     });
     input.parts = normalizedParts;
 
-    let slug = baseSlug(input);
-    const existing = await env.ACEDENT_DB.prepare('SELECT slug FROM works WHERE slug = ?').bind(slug).first();
-    if (existing) slug = `${slug}-${date.replaceAll('-', '')}`;
-    const secondExisting = await env.ACEDENT_DB.prepare('SELECT slug FROM works WHERE slug = ?').bind(slug).first();
-    if (secondExisting) slug = `${slug}-${crypto.randomUUID().slice(0, 6)}`;
+    const slug = await nextAvailableSlug(env.ACEDENT_DB, createBaseWorkSlug(input));
 
     const publicBase = cleanPublicBase(env.R2_PUBLIC_BASE_URL);
     const assets = [];
@@ -317,7 +248,7 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
       category,
       part: uniqueParts,
       carMaker: required(input.carMaker, '차량 제조사', 40),
-      carModel: required(input.carModel, '차종', 60),
+      carModel: optional(input.carModel, '차종', 60),
       color: required(input.color, '색상', 40),
       parts: mediaParts,
       summary: required(input.summary, '요약', 300),

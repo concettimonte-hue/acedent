@@ -299,7 +299,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     category: form.category,
     part: [...new Set(parts.flatMap(selectedPartValues))],
     carMaker: form.carMaker || '차량 제조사',
-    carModel: form.carModel || '차종',
+    carModel: form.carModel,
     color: form.color || '색상',
     parts: parts.map((part) => ({
       part: selectedPartValues(part),
@@ -502,7 +502,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
             <div className="admin-panel-heading"><span>01</span><h1>차량과 작업 정보</h1></div>
             <div className="admin-fields admin-fields-two">
               <label>차량 제조사<input required value={form.carMaker} onChange={(e) => updateForm('carMaker', e.target.value)} placeholder="예: 포르쉐" /></label>
-              <label>차종<input required value={form.carModel} onChange={(e) => updateForm('carModel', e.target.value)} placeholder="예: 파나메라" /></label>
+              <label>차종 <small>선택</small><input value={form.carModel} onChange={(e) => updateForm('carModel', e.target.value)} placeholder="예: 파나메라" /></label>
               <label>색상<input required={!editing} value={form.color} onChange={(e) => updateForm('color', e.target.value)} placeholder="예: 화이트 계열" /></label>
               <label>카테고리<select value={form.category} onChange={(e) => updateForm('category', e.target.value)}>{WORK_CATEGORIES.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select></label>
               <label>작업기간<input required value={form.days} onChange={(e) => updateForm('days', e.target.value)} placeholder="예: 2일" /></label>

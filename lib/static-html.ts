@@ -47,7 +47,7 @@ const escapeHtml = (value: string) =>
     .replaceAll('>', '&gt;');
 
 const text = (value: string) => escapeHtml(value);
-const car = (work: WorkItem) => `${work.carMaker} ${work.carModel}`;
+const car = (work: WorkItem) => [work.carMaker, work.carModel].filter(Boolean).join(' ');
 
 function image(
   src: string,
