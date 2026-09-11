@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { ArrowLeft, ArrowUpRight } from 'lucide-react';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import WorkCard from '@/components/WorkCard';
+import WorkClassification from '@/components/WorkClassification';
 import WorksHeader from '@/components/WorksHeader';
 import WorksQuickActions from '@/components/WorksQuickActions';
 import type { WorkItem } from '@/content/works/types';
@@ -42,12 +43,10 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
 
       <article className="work-detail">
         <header className="work-detail-heading">
-          <div className="work-detail-category-tags">
-            <p>{categoryLabel}</p>
-            {work.subCategories.map((category) => (
-              <span key={category}>{getWorkCategoryLabel(category)}</span>
-            ))}
-          </div>
+          <WorkClassification
+            category={work.category}
+            subCategories={work.subCategories}
+          />
           <h1>{work.title}</h1>
           <div className="work-detail-meta">
             <span>{formatWorkCar(work)}</span>

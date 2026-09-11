@@ -2736,19 +2736,36 @@ footer > a:last-child svg {
 .work-detail-heading {
   max-width: 900px;
 }
-.work-detail-category-tags {
+.work-detail-classification {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
+  align-items: baseline;
+  column-gap: 0.58rem;
+  row-gap: 0.22rem;
+  color: #b8bbb8;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  letter-spacing: 0.035em;
 }
-.work-detail-category-tags > p {
+.work-detail-classification-primary {
   color: #f8db00;
-  font-size: 0.72rem;
   font-weight: 900;
-  letter-spacing: 0.16em;
+  white-space: nowrap;
 }
-.work-detail-category-tags > span,
+.work-detail-classification-secondary-group {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.58rem;
+  white-space: nowrap;
+}
+.work-detail-classification-separator {
+  color: #727672;
+  font-weight: 700;
+}
+.work-detail-classification-secondary {
+  color: #b8bbb8;
+  font-weight: 650;
+}
 .work-detail-meta .work-detail-secondary-part {
   padding: 0.25rem 0.5rem;
   border: 1px solid #4a4d4a;

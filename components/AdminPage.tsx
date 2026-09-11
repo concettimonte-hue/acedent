@@ -6,10 +6,10 @@ import { useEffect, useMemo, useState, type SyntheticEvent } from 'react';
 import { ArrowLeft, ArrowUpRight, ImagePlus, Plus, Trash2, UploadCloud, X } from 'lucide-react';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import WorkCard from '@/components/WorkCard';
+import WorkClassification from '@/components/WorkClassification';
 import {
   WORK_CATEGORIES,
   WORK_PARTS,
-  getWorkCategoryLabel,
   isWorkPart,
   type WorkCategory,
   type WorkItem,
@@ -738,10 +738,10 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           </div>
           <article className="work-detail admin-detail-preview">
             <header className="work-detail-heading">
-              <div className="work-detail-category-tags">
-                <p>{getWorkCategoryLabel(previewWork.category)}</p>
-                {previewWork.subCategories.map((category) => <span key={category}>{getWorkCategoryLabel(category)}</span>)}
-              </div>
+              <WorkClassification
+                category={previewWork.category}
+                subCategories={previewWork.subCategories}
+              />
               <h1>{previewWork.title}</h1>
               <div className="work-detail-meta"><span>{formatWorkCar(previewWork)}</span><span>{previewWork.part[0]}</span>{previewWork.subParts.map((part) => <span className="work-detail-secondary-part" key={part}>{part}</span>)}<span>{previewWork.color}</span><strong>{previewWork.days}</strong></div>
             </header>
