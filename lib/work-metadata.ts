@@ -8,6 +8,7 @@ import {
 } from '@/lib/work-images';
 import { siteUrl } from '@/lib/seo';
 import { getWorkSeoCopy, getWorksSeoCopy } from '@/lib/work-seo';
+import { getWorksCanonicalPath } from '@/lib/work-routes';
 
 export interface WorkMetadata {
   title: string;
@@ -22,7 +23,7 @@ export function getWorkSeoTitle(work: WorkItem) {
 
 export function getWorksMetadata(category?: WorkCategory): WorkMetadata {
   const { title, description } = getWorksSeoCopy(category);
-  const canonical = category ? `${siteUrl}/works/${category}` : `${siteUrl}/works`;
+  const canonical = `${siteUrl}${getWorksCanonicalPath(category)}`;
 
   return { title, description, canonical, image: `${siteUrl}/og-image.jpg` };
 }

@@ -17,8 +17,8 @@ import {
   type WorkPartValue,
 } from '@/content/works/types';
 import { getWorkImageAlt } from '@/lib/work-images';
-import { getWorkSeoCopy } from '@/lib/work-seo';
-import { formatWorkCar } from '@/lib/works';
+import { getWorkSeoCopy, getWorkSeoWarnings } from '@/lib/work-seo';
+import { formatWorkCar, getWorks } from '@/lib/works';
 import { siteUrl } from '@/lib/seo';
 
 interface ProcessedImage {
@@ -321,7 +321,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
   }, [editSlug]);
 
   const previewWork = useMemo<WorkItem>(() => ({
-    slug: 'preview',
+    slug: editSlug || 'preview',
     date: form.date,
     title: form.title || '작업 제목 미리보기',
     category: form.category,
@@ -345,8 +345,11 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     featured: false,
     days: form.days || '작업기간',
     sliderType: 'drag',
-  }), [form, parts, subCategories, subParts]);
+  }), [editSlug, form, parts, subCategories, subParts]);
   const previewSeo = getWorkSeoCopy(previewWork);
+  const previewSeoWarnings = form.title.trim()
+    ? getWorkSeoWarnings(previewWork, getWorks())
+    : [];
 
   const updateForm = (key: keyof typeof form, value: string) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -753,7 +756,16 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
             </div>
             <div className="work-detail-copy"><p className="work-detail-summary">{previewWork.summary}</p><p>{previewWork.body}</p></div>
           </article>
-          <dl className="admin-seo-preview"><div><dt>자동 제목</dt><dd>{previewSeo.title}</dd></div><div><dt>자동 설명</dt><dd>{previewSeo.description}</dd></div></dl>
+          <dl className="admin-seo-preview">
+            <div><dt>자동 제목</dt><dd>{previewSeo.title}</dd></div>
+            <div><dt>자동 설명</dt><dd>{previewSeo.description}</dd></div>
+            {previewSeoWarnings.length > 0 && (
+              <div className="admin-seo-warnings">
+                <dt>확인 안내</dt>
+                <dd><ul>{previewSeoWarnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></dd>
+              </div>
+            )}
+          </dl>
         </aside>
       </div>
     </main>

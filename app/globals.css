@@ -3238,6 +3238,9 @@ footer > a:last-child svg {
 .admin-seo-preview { display: grid; padding: 1.25rem; border-top: 1px solid #303330; gap: 1rem; }
 .admin-seo-preview dt { color: #f8db00; font-size: .72rem; font-weight: 900; letter-spacing: .1em; }
 .admin-seo-preview dd { margin-top: .35rem; color: #b7bab7; font-size: .82rem; line-height: 1.55; }
+.admin-seo-warnings { padding-top: .85rem; border-top: 1px solid #303330; }
+.admin-seo-warnings dd { color: #d7c870; }
+.admin-seo-warnings ul { display: grid; margin: 0; padding-left: 1.1rem; gap: .3rem; }
 .admin-static-loading { display: grid; min-height: 100vh; place-items: center; color: #f8db00; font-weight: 900; }
 
 .admin-list-shell { width: min(1180px, calc(100% - 5vw)); margin: 0 auto; padding: clamp(1.5rem, 4vw, 3.5rem) 0; }

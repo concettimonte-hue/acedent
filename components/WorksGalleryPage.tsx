@@ -6,8 +6,6 @@ import {
   WORK_CATEGORIES,
   WORK_PART_FILTER_ORDER,
   getWorkCategoryLabel,
-  isWorkCategory,
-  isWorkPart,
   type WorkCategory,
   type WorkPart,
 } from '@/content/works/types';
@@ -18,51 +16,26 @@ import WorkCard from '@/components/WorkCard';
 import WorksHeader from '@/components/WorksHeader';
 import WorksQuickActions from '@/components/WorksQuickActions';
 import { trackFilterUse } from '@/lib/analytics';
+import {
+  getWorksFilterUrl,
+  readWorkFilters,
+  type WorkFilters,
+} from '@/lib/work-routes';
 
 interface WorksGalleryPageProps {
   category?: WorkCategory;
 }
 
-interface WorkFilters {
-  category?: WorkCategory;
-  part?: WorkPart;
-}
-
-function categoryFromQuery(value: string | null) {
-  if (!value) return undefined;
-  if (isWorkCategory(value)) return value;
-  return WORK_CATEGORIES.find((item) => item.label === value)?.id;
-}
-
-function categoryFromPath(pathname: string) {
-  const match = pathname.match(/^\/works\/([^/]+)\/?$/);
-  return match && isWorkCategory(match[1]) ? match[1] : undefined;
-}
-
 function readFilters(fallbackCategory?: WorkCategory): WorkFilters {
-  const search = new URLSearchParams(window.location.search);
-  const part = search.get('part');
-
-  return {
-    category:
-      categoryFromQuery(search.get('category')) ??
-      categoryFromPath(window.location.pathname) ??
-      fallbackCategory,
-    part: part && isWorkPart(part) ? part : undefined,
-  };
+  return readWorkFilters(
+    window.location.pathname,
+    window.location.search,
+    fallbackCategory,
+  );
 }
 
 function getFilterUrl(category?: WorkCategory, part?: WorkPart) {
-  const search = new URLSearchParams(window.location.search);
-
-  if (category) search.set('category', getWorkCategoryLabel(category));
-  else search.delete('category');
-
-  if (part) search.set('part', part);
-  else search.delete('part');
-
-  const query = search.toString();
-  return `/works${query ? `?${query}` : ''}`;
+  return getWorksFilterUrl(category, part, window.location.search);
 }
 
 export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
