@@ -8,6 +8,7 @@ import {
   type WorkPartMedia,
 } from '@/content/works/types';
 import generatedWorksData from '@/content/works.generated.json';
+import { formatWorkCardParts } from '@/lib/work-parts';
 
 interface GeneratedWorkRecord {
   sourceFile: string;
@@ -99,13 +100,16 @@ function parseWork(value: unknown, fileName: string): WorkItem {
     }
     const part = value as Record<string, unknown>;
     const mediaParts = Array.isArray(part.part)
-      ? part.part.map((partValue) => {
+      ? [...new Set(part.part.map((partValue) => {
           if (typeof partValue !== 'string' || !isWorkPartValue(partValue)) {
             throw new Error(`${fileName}: parts[${index}].part 값이 올바르지 않습니다.`);
           }
           return partValue;
-        })
+        }))]
       : undefined;
+    if (mediaParts && (mediaParts.length === 0 || mediaParts.length > 3)) {
+      throw new Error(`${fileName}: parts[${index}].part는 1개 이상 3개 이하의 배열이어야 합니다.`);
+    }
     return {
       part: mediaParts,
       label: requireString(part.label, `parts[${index}].label`, fileName),
@@ -209,5 +213,5 @@ export function formatWorkCar(work: WorkItem) {
 }
 
 export function formatWorkPartAndCategory(work: WorkItem) {
-  return `${work.part[0]} · ${getWorkCategoryLabel(work.category)}`;
+  return `${formatWorkCardParts(work)} · ${getWorkCategoryLabel(work.category)}`;
 }

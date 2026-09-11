@@ -29,6 +29,7 @@ import {
   getWorkPrimaryPart,
   getWorkThumbnailSrc,
 } from './work-images';
+import { formatWorkCardParts } from './work-parts';
 
 const site = siteData as SiteContent;
 const faq = faqData as FaqContent;
@@ -65,7 +66,7 @@ function workCard(work: WorkItem) {
       <p>${text(getWorkCategoryLabel(work.category))}</p>
       <h3>${text(car(work))} ${text(work.title)}</h3>
       <p>${text(work.summary)}</p>
-      <small>${text(work.part[0])} · ${text(work.days)}</small>
+      <small>${text(formatWorkCardParts(work))} · ${text(work.days)}</small>
     </a>
   </article>`;
 }

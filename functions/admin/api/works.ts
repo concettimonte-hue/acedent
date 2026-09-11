@@ -77,7 +77,7 @@ function normalizePartValues(value: unknown, index: number): WorkPartValue[] {
     return part.trim() as WorkPartValue;
   });
   const unique = [...new Set(normalized)];
-  if (unique.length !== 1) throw new Error(`${index + 1}번 사진 묶음의 주 부위는 1개만 선택하세요.`);
+  if (unique.length > 3) throw new Error(`${index + 1}번 사진 묶음의 작업 부위는 최대 3개까지 선택할 수 있습니다.`);
   return unique;
 }
 

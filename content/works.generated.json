@@ -431,10 +431,7 @@
         "title": "앞범퍼 사이드스텝 탈거 도장 및 측면 흠집제거(폴리싱)",
         "category": "panel-paint",
         "part": [
-          "범퍼",
-          "사이드스텝",
-          "도어",
-          "휀더"
+          "범퍼"
         ],
         "carMaker": "벤츠",
         "carModel": "CLS 450",
@@ -462,8 +459,7 @@
           },
           {
             "part": [
-              "도어",
-              "휀더"
+              "도어"
             ],
             "label": "도어 휀더로 이어지는 스크레치",
             "before": "https://images.acedentshop.co.kr/works/a94994b4-03d0-446b-95ad-b8d1eaa58e3e/03-image-before.jpg",
@@ -478,7 +474,9 @@
         "featured": false,
         "days": "2일",
         "sliderType": "drag",
-        "subCategories": [],
+        "subCategories": [
+          "polish"
+        ],
         "subParts": []
       }
     }

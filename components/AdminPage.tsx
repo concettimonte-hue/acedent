@@ -91,6 +91,10 @@ function selectedPartValues(part: PartDraft): WorkPartValue[] {
   return [...new Set(values)];
 }
 
+function partSelectionCount(part: PartDraft) {
+  return part.parts.length + (part.customPartEnabled ? 1 : 0);
+}
+
 function composePartLabel(part: Pick<PartDraft, 'parts' | 'customPartEnabled' | 'customPart' | 'detail'>) {
   const names: string[] = [...part.parts];
   if (part.customPartEnabled && part.customPart.trim()) names.push(part.customPart.trim());
@@ -100,8 +104,8 @@ function composePartLabel(part: Pick<PartDraft, 'parts' | 'customPartEnabled' | 
 function splitPartLabel(label: string, fallback: WorkPartValue[]) {
   const matched = WORK_PARTS.filter((part) => label.includes(part));
   const fallbackFixed = fallback.filter(isWorkPart);
-  const customPart = fallback.find((part) => !isWorkPart(part) && label.includes(part)) || '';
-  const parts = [...new Set(matched.length ? matched : fallbackFixed)];
+  const customPart = fallback.find((part) => !isWorkPart(part)) || '';
+  const parts = [...new Set(fallbackFixed.length || customPart ? fallbackFixed : matched)].slice(0, 3);
   if (parts.length === 0 && !customPart) parts.push('범퍼');
   const detail = [
     ...parts,
@@ -289,7 +293,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           if (!beforeAsset || !afterAsset) throw new Error(`${index + 1}번 부위의 D1 이미지 기록을 찾지 못했습니다.`);
           return {
             id: crypto.randomUUID(),
-            parts: parsed.parts.slice(0, 1),
+            parts: parsed.parts,
             customPartEnabled: parsed.customPartEnabled,
             customPart: parsed.customPart,
             detail: parsed.detail,
@@ -394,9 +398,32 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     }));
   };
 
-  const selectPrimaryPart = (id: string, value: WorkPart, index: number) => {
-    updatePartName(id, { parts: [value], customPartEnabled: false, customPart: '' });
-    if (index === 0) setSubParts((current) => current.filter((item) => item !== value));
+  const togglePartName = (id: string, value: WorkPart) => {
+    setParts((current) => current.map((item) => {
+      if (item.id !== id) return item;
+      const selected = item.parts.includes(value);
+      if (!selected && partSelectionCount(item) >= 3) return item;
+      const next = {
+        ...item,
+        parts: selected
+          ? item.parts.filter((part) => part !== value)
+          : [...item.parts, value],
+      };
+      return { ...next, label: composePartLabel(next) };
+    }));
+  };
+
+  const toggleCustomPart = (id: string) => {
+    setParts((current) => current.map((item) => {
+      if (item.id !== id) return item;
+      if (!item.customPartEnabled && partSelectionCount(item) >= 3) return item;
+      const next = {
+        ...item,
+        customPartEnabled: !item.customPartEnabled,
+        customPart: item.customPartEnabled ? '' : item.customPart,
+      };
+      return { ...next, label: composePartLabel(next) };
+    }));
   };
 
   const clearImage = (id: string, kind: 'before' | 'after') => {
@@ -454,7 +481,10 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     setDeploymentUrl('');
     setDeploymentState('idle');
     try {
-      if (parts.some((part) => selectedPartValues(part).length !== 1)) throw new Error('각 사진 묶음의 주 부위를 1개 선택하세요.');
+      if (parts.some((part) => {
+        const count = selectedPartValues(part).length;
+        return count < 1 || count > 3;
+      })) throw new Error('각 사진 묶음의 작업 부위를 1개 이상 3개 이하로 선택하세요.');
       if (subCategories.length > 2 || subParts.length > 2) throw new Error('보조 작업과 보조 부위는 각각 최대 2개까지 선택할 수 있습니다.');
       if (parts.some((part) => part.customPartEnabled && !part.customPart.trim())) throw new Error('기타 부위명을 직접 입력하세요.');
       if (parts.some((part) => !part.before || !part.after || !part.thumbnail)) throw new Error('모든 부위의 전·후 사진을 선택하세요.');
@@ -599,10 +629,10 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
                   {parts.length > 1 && <button type="button" className="admin-remove" onClick={() => setParts((current) => current.filter((item) => item.id !== part.id))}><Trash2 aria-hidden="true" /> 삭제</button>}
                   <div className="admin-fields admin-fields-two">
                     <fieldset className="admin-part-picker">
-                      <legend>{index === 0 ? '주 부위' : '사진 부위'} <small>1개 선택</small></legend>
+                      <legend>{index === 0 ? '주 PART 부위' : '사진 부위'} <small>{index === 0 ? '첫 선택이 주 부위 · 최대 3개' : '복수 선택 · 최대 3개'}</small></legend>
                       <div className="admin-part-toggles">
-                        {WORK_PARTS.map((item) => <button type="button" className={part.parts.includes(item) ? 'is-active' : ''} aria-pressed={part.parts.includes(item)} onClick={() => selectPrimaryPart(part.id, item, index)} key={item}>{item}</button>)}
-                        <button type="button" className={part.customPartEnabled ? 'is-active' : ''} aria-pressed={part.customPartEnabled} onClick={() => updatePartName(part.id, part.customPartEnabled ? { customPartEnabled: false, customPart: '' } : { parts: [], customPartEnabled: true })}>기타(직접 입력)</button>
+                        {WORK_PARTS.map((item) => <button type="button" className={part.parts.includes(item) ? 'is-active' : ''} aria-pressed={part.parts.includes(item)} disabled={!part.parts.includes(item) && partSelectionCount(part) >= 3} onClick={() => togglePartName(part.id, item)} key={item}>{item}</button>)}
+                        <button type="button" className={part.customPartEnabled ? 'is-active' : ''} aria-pressed={part.customPartEnabled} disabled={!part.customPartEnabled && partSelectionCount(part) >= 3} onClick={() => toggleCustomPart(part.id)}>기타(직접 입력)</button>
                       </div>
                       {part.customPartEnabled && <input required value={part.customPart} onChange={(e) => updatePartName(part.id, { customPart: e.target.value })} maxLength={30} placeholder="예: 쿼터패널" aria-label="기타 부위명" />}
                     </fieldset>

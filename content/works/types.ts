@@ -41,6 +41,7 @@ export const WORK_PART_FILTER_ORDER = [
 export type WorkPartValue = WorkPart | (string & {});
 
 export interface WorkPartMedia {
+  /** 이 사진 묶음에서 실제로 작업한 부위. 1~3개이며 /works 필터에 사용합니다. */
   part?: WorkPartValue[];
   label: string;
   before: string;
@@ -55,7 +56,9 @@ export interface WorkItem {
   title: string;
   category: WorkCategory;
   subCategories: WorkCategory[];
+  /** 첫 번째 값만 주 부위로 사용하며 slug와 카드의 기준이 됩니다. */
   part: WorkPartValue[];
+  /** 상세 표시와 검색에만 사용하는 보조 태그입니다. */
   subParts: WorkPartValue[];
   carMaker: string;
   carModel: string;

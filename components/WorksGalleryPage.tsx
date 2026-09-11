@@ -13,6 +13,7 @@ import {
 } from '@/content/works/types';
 import { getWorks, getWorksByCategory } from '@/lib/works';
 import { applyClientMetadata, getWorksMetadata } from '@/lib/work-metadata';
+import { getWorkFilterParts } from '@/lib/work-parts';
 import WorkCard from '@/components/WorkCard';
 import WorksHeader from '@/components/WorksHeader';
 import WorksQuickActions from '@/components/WorksQuickActions';
@@ -72,16 +73,16 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
     () => (selectedCategory ? getWorksByCategory(selectedCategory) : getWorks()),
     [selectedCategory],
   );
-  const availablePrimaryParts = useMemo(
+  const availableFilterParts = useMemo(
     () => WORK_PART_FILTER_ORDER.filter((part) =>
-      categoryWorks.some((work) => work.part[0] === part),
+      categoryWorks.some((work) => getWorkFilterParts(work).includes(part)),
     ),
     [categoryWorks],
   );
   const visibleWorks = useMemo(
     () =>
       selectedPart
-        ? categoryWorks.filter((work) => work.part[0] === selectedPart)
+        ? categoryWorks.filter((work) => getWorkFilterParts(work).includes(selectedPart))
         : categoryWorks,
     [categoryWorks, selectedPart],
   );
@@ -102,10 +103,10 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
   }, [selectedCategory]);
 
   useEffect(() => {
-    if (!selectedPart || availablePrimaryParts.includes(selectedPart)) return;
+    if (!selectedPart || availableFilterParts.includes(selectedPart)) return;
     window.history.replaceState({}, '', getFilterUrl(selectedCategory));
     setFilters({ category: selectedCategory });
-  }, [availablePrimaryParts, selectedCategory, selectedPart]);
+  }, [availableFilterParts, selectedCategory, selectedPart]);
 
   const analyticsCategory = selectedCategory
     ? getWorkCategoryLabel(selectedCategory)
@@ -166,7 +167,7 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
           >
             전체
           </button>
-          {availablePrimaryParts.map((part) => (
+          {availableFilterParts.map((part) => (
             <button
               type="button"
               className={selectedPart === part ? 'is-active' : ''}

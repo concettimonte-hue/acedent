@@ -122,16 +122,18 @@ function removeGenericParts(values: string[]) {
 export function createWorkSlugAnalysis(input: WorkSlugInput): WorkSlugAnalysis {
   const first = input.parts[0];
   const firstParts = Array.isArray(first?.part) ? first.part : [first?.part];
-  const partSources = [
+  const primaryPart = typeof firstParts[0] === 'string' ? firstParts[0] : undefined;
+  const locationSources = [
     first?.detail,
-    ...firstParts.filter((part): part is string => typeof part === 'string'),
-  ];
+    primaryPart,
+  ].filter((part): part is string => typeof part === 'string');
+  const partSources = primaryPart ? [primaryPart] : [];
   const maker = analyzeField(input.carMaker, SLUG_CAR_MAKER_TERMS, true);
   const model = analyzeField(input.carModel, SLUG_CAR_MODEL_TERMS, true);
-  const locationsFromParts = partSources.map((part) => analyzeField(part, SLUG_LOCATION_TERMS, false));
+  const locationsFromParts = locationSources.map((part) => analyzeField(part, SLUG_LOCATION_TERMS, false));
   const normalizedParts = partSources.map((part) => analyzeField(part, SLUG_PART_TERMS, false));
   const combinedPartTerms = { ...SLUG_LOCATION_TERMS, ...SLUG_PART_TERMS };
-  const analyzedPartSources = partSources.map((part) => analyzeField(part, combinedPartTerms, false));
+  const analyzedPartSources = locationSources.map((part) => analyzeField(part, combinedPartTerms, false));
   const work = analyzeField(input.category, SLUG_WORK_TERMS, true);
 
   const parts = removeGenericParts(normalizedParts.flatMap((part) => part.tokens));

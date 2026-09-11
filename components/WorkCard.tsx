@@ -8,6 +8,7 @@ import {
   getWorkThumbnailSrc,
 } from '@/lib/work-images';
 import { formatWorkCar } from '@/lib/works';
+import { formatWorkCardParts } from '@/lib/work-parts';
 import { trackCaseView } from '@/lib/analytics';
 
 interface WorkCardProps {
@@ -42,7 +43,7 @@ export default function WorkCard({ work }: WorkCardProps) {
         <strong>{work.title}</strong>
         <span className="work-card-summary">{work.summary}</span>
         <span className="work-card-footer">
-          <span>{work.part[0]}</span>
+          <span className="work-card-parts">{formatWorkCardParts(work)}</span>
           <span className="work-card-open">
             상세 보기 <ArrowUpRight aria-hidden="true" />
           </span>

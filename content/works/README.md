@@ -9,7 +9,7 @@
 3. 상세용 사진을 `public/works`에 넣습니다. 파일명은 영문 소문자와 하이픈만 사용하고 `-before.jpg`, `-after.jpg`로 끝내세요.
 4. 첫 번째 `parts` 항목의 `after` 사진이 목록 대표 이미지가 됩니다. 800×600px 썸네일은 같은 이름에서 `-after`를 뺀 뒤 `public/works/thumbnails`에 저장합니다. 예: `bmw-door-after.jpg` → `thumbnails/bmw-door.jpg`.
 5. 아래 템플릿을 복사해 이 폴더에 `YYYY-MM-DD-slug.json` 형식으로 저장합니다.
-6. `category`와 `part[0]`은 필터와 주소에 쓰이는 주 값을 각각 하나만 선택합니다. 보조 작업은 `subCategories`, 보조 부위는 `subParts`에 최대 2개까지 넣습니다. 보조 값은 상세 페이지와 검색 문구에만 표시되며 필터·주소에는 사용되지 않습니다. 실제 사진 묶음은 `parts`에 작업 부위별로 추가합니다.
+6. 최상위 `part[0]`은 slug와 카드 배지에 쓰이는 주 부위입니다. 각 사진 묶음의 `parts[].part`에는 실제 작업 부위를 최대 3개까지 넣으며 `/works` 부위 필터는 이 값을 합산합니다. `subParts`는 상세 표시와 검색에만 쓰이고 필터에는 포함되지 않습니다. 보조 작업 `subCategories`와 보조 부위 `subParts`는 각각 최대 2개입니다.
 7. `featured`를 `true`로 하면 메인 대표 사례 후보가 됩니다. 메인에는 `featuredOrder` 순서로 최대 8건만 표시됩니다.
 8. `npm run build`와 `npx tsc --noEmit`이 통과하면 `main`에 반영합니다.
 
@@ -49,7 +49,8 @@
   "color": "화이트 계열",
   "parts": [
     {
-      "label": "앞도어",
+      "part": ["도어", "휀더"],
+      "label": "도어 · 휀더 조수석 측면",
       "before": "/works/bmw-door-before.jpg",
       "after": "/works/bmw-door-after.jpg",
       "note": "문콕 눌림과 도장 손상"

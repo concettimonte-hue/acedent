@@ -2626,6 +2626,12 @@ footer > a:last-child svg {
   color: #777b77;
   font-size: 0.72rem;
 }
+.work-card-parts {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .work-card-open {
   display: inline-flex;
   flex: 0 0 auto;
