@@ -2,7 +2,13 @@
 
 /* oxlint-disable next/no-html-link-for-pages, next/no-img-element -- Vite SPA: internal anchors and pre-compressed img assets are intentional. */
 
-import { useEffect, useMemo, useState, type SyntheticEvent } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type DragEvent,
+  type SyntheticEvent,
+} from 'react';
 import { ArrowLeft, ArrowUpRight, ImagePlus, Plus, Trash2, UploadCloud, X } from 'lucide-react';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import WorkCard from '@/components/WorkCard';
@@ -230,6 +236,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
   const [slugWarnings, setSlugWarnings] = useState<string[]>([]);
   const [deploymentUrl, setDeploymentUrl] = useState('');
   const [deploymentState, setDeploymentState] = useState<DeploymentState>('idle');
+  const [dragTarget, setDragTarget] = useState('');
   const [loadingWork, setLoadingWork] = useState(editing);
   const [workLoaded, setWorkLoaded] = useState(!editing);
 
@@ -461,6 +468,50 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     }
   };
 
+  const handleImageDrag = (
+    event: DragEvent<HTMLLabelElement>,
+    target: string,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = 'copy';
+    setDragTarget(target);
+  };
+
+  const handleImageDragLeave = (
+    event: DragEvent<HTMLLabelElement>,
+    target: string,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const nextTarget = event.relatedTarget;
+    if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) return;
+    setDragTarget((current) => (current === target ? '' : current));
+  };
+
+  const handleImageDrop = (
+    event: DragEvent<HTMLLabelElement>,
+    id: string,
+    kind: 'before' | 'after',
+    target: string,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragTarget((current) => (current === target ? '' : current));
+
+    const files = [...event.dataTransfer.files];
+    if (files.length !== 1) {
+      setError('BEFORE와 AFTER 칸에는 사진을 한 장씩 끌어놓아 주세요.');
+      return;
+    }
+    const [file] = files;
+    if (!file.type.startsWith('image/')) {
+      setError('이미지 파일만 등록할 수 있습니다.');
+      return;
+    }
+    void chooseImage(id, kind, file);
+  };
+
   const pollDeployment = async (startedAt: string) => {
     for (let attempt = 0; attempt < 75; attempt += 1) {
       await new Promise((resolve) => window.setTimeout(resolve, 4000));
@@ -678,12 +729,23 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
                   <div className="admin-image-pair">
                     {(['before', 'after'] as const).map((kind) => {
                       const selected = part[kind];
+                      const dropTarget = `${part.id}:${kind}`;
+                      const dragging = dragTarget === dropTarget;
                       return <div className="admin-image-slot" key={kind}>
-                        <label className={`admin-image-input${selected ? ' has-image' : ''}`}>
-                          <input type="file" accept="image/*" capture="environment" onChange={(e) => chooseImage(part.id, kind, e.target.files?.[0])} />
+                        <label
+                          className={`admin-image-input${selected ? ' has-image' : ''}${dragging ? ' is-dragging' : ''}`}
+                          onDragEnter={(event) => handleImageDrag(event, dropTarget)}
+                          onDragOver={(event) => handleImageDrag(event, dropTarget)}
+                          onDragLeave={(event) => handleImageDragLeave(event, dropTarget)}
+                          onDrop={(event) => handleImageDrop(event, part.id, kind, dropTarget)}
+                        >
+                          <input type="file" accept="image/*" capture="environment" onChange={(event) => {
+                            void chooseImage(part.id, kind, event.currentTarget.files?.[0]);
+                            event.currentTarget.value = '';
+                          }} />
                           {selected ? <img src={selected.preview} alt={`${part.label || '작업 부위'} ${kind === 'before' ? '작업 전' : '작업 후'} 미리보기`} width="1600" height="1200" /> : <ImagePlus aria-hidden="true" />}
                           <strong>{kind === 'before' ? 'BEFORE' : 'AFTER'}</strong>
-                          <span>{part.processing === kind ? '사진 처리 중…' : selected ? `${selected.bytes ? `${Math.ceil(selected.bytes / 1024)}KB` : '현재 이미지'} · 다시 선택` : '촬영 또는 갤러리 선택'}</span>
+                          <span>{dragging ? '여기에 놓으세요' : part.processing === kind ? '사진 처리 중…' : selected ? `${selected.bytes ? `${Math.ceil(selected.bytes / 1024)}KB` : '현재 이미지'} · 다시 선택하거나 끌어놓기` : '촬영·갤러리 선택 / PC는 끌어놓기'}</span>
                         </label>
                         {selected && <button type="button" className="admin-clear-image" onClick={() => clearImage(part.id, kind)} aria-label={`${part.label || '작업 부위'} ${kind === 'before' ? '작업 전' : '작업 후'} 이미지 삭제`}><X aria-hidden="true" /> 이미지 삭제</button>}
                       </div>;

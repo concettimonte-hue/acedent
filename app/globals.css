@@ -3196,6 +3196,7 @@ footer > a:last-child svg {
 .admin-image-pair { display: grid; margin-top: 1rem; gap: .75rem; }
 .admin-image-slot { position: relative; display: grid; gap: .45rem; }
 .admin-image-input { position: relative; display: flex !important; min-height: 190px; cursor: pointer; align-items: center; justify-content: center; overflow: hidden; border: 1px dashed #4a4d4a; background: #080908; text-align: center; }
+.admin-image-input.is-dragging { border-color: #f8db00; background: #191700; box-shadow: inset 0 0 0 2px rgb(248 219 0 / 42%); }
 .admin-image-input input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .admin-image-input > svg { width: 1.8rem; height: 1.8rem; color: #f8db00; }
 .admin-image-input strong, .admin-image-input span { position: relative; z-index: 2; }
@@ -3203,6 +3204,7 @@ footer > a:last-child svg {
 .admin-image-input span { color: #a5a8a5; font-size: .76rem; font-weight: 600; }
 .admin-image-input img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .admin-image-input.has-image::after { position: absolute; inset: 0; z-index: 1; background: linear-gradient(transparent 42%, rgb(0 0 0 / 82%)); content: ''; }
+.admin-image-input.has-image.is-dragging::after { background: rgb(0 0 0 / 66%); }
 .admin-image-input.has-image { justify-content: flex-end; padding: 1rem; }
 .admin-clear-image { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; gap: .3rem; border: 1px solid #4d302b; color: #ff9e87; font-size: .76rem; font-weight: 850; }
 .admin-clear-image svg, .admin-back-link svg { width: 1rem; height: 1rem; }

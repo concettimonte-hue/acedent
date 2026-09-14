@@ -1,6 +1,54 @@
 {
   "records": [
     {
+      "sourceFile": "d1:kia-sportage-side-door-panel-paint",
+      "lastModified": "2026-09-14",
+      "work": {
+        "slug": "kia-sportage-side-door-panel-paint",
+        "date": "2026-09-14",
+        "title": "후도어 함몰 판금도장 및 앞범퍼 긁힘 부분도장",
+        "category": "panel-paint",
+        "subCategories": [
+          "partial-paint"
+        ],
+        "part": [
+          "도어"
+        ],
+        "subParts": [],
+        "carMaker": "기아",
+        "carModel": "스포티지",
+        "color": "정글 우드 그린 (카키 계열)",
+        "parts": [
+          {
+            "part": [
+              "도어"
+            ],
+            "label": "도어 측면 캐릭터 라인",
+            "before": "https://images.acedentshop.co.kr/works/31d9d65c-45cb-4cd8-bb3f-3ab03f53c858/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/31d9d65c-45cb-4cd8-bb3f-3ab03f53c858/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/31d9d65c-45cb-4cd8-bb3f-3ab03f53c858/01-image-thumbnail.jpg",
+            "note": "캐릭터 라인을 따라 깊게 찌그러진 철판 함몰 손상. 스폿 판금으로 뭉개진 각을 정교하게 당겨내어 원래의 형태를 잡고, 열처리 도장으로 왜곡 없는 맑은 반사광 복원 완료."
+          },
+          {
+            "part": [
+              "범퍼"
+            ],
+            "category": "partial-paint",
+            "label": "범퍼 측면 모서리",
+            "before": "https://images.acedentshop.co.kr/works/31d9d65c-45cb-4cd8-bb3f-3ab03f53c858/02-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/31d9d65c-45cb-4cd8-bb3f-3ab03f53c858/02-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/31d9d65c-45cb-4cd8-bb3f-3ab03f53c858/02-image-thumbnail.jpg",
+            "note": "마찰로 인한 페인트 이염 및 깊은 긁힘 발생. 전체 도장 대신 손상 부위만 다듬고 그라데이션 기법(보카시)을 적용한 정밀 부분도장으로 비용을 절감하며 이질감 없이 마감 완료."
+          }
+        ],
+        "summary": "깊게 찌그러진 후도어는 정석 판금도장으로 면을 펴내고, 긁힘이 발생한 앞범퍼 측면은 부분도장(보카시)을 적용하여 수리 비용을 최소화하며 이색 없이 말끔하게 복원했습니다.",
+        "body": "측면 충돌로 인해 후도어 캐릭터 라인이 깊게 함몰되었고, 앞범퍼 측면 모서리 부분에 타 물체의 페인트 이염과 깊은 긁힘이 발생하여 입고되었습니다. 정밀 진단 결과, 철판 면적이 넓고 굴곡이 심한 도어는 정석대로 전체 판금도장을 진행해야 하자가 없으나, 플라스틱 앞범퍼는 손상 부위가 측면 모서리에 국한되어 있어 비용 절감을 위한 부분도장이 충분히 가능한 상태였습니다.\n\n후도어는 스폿 용접기를 이용해 안으로 꺾여 들어간 캐릭터 라인을 정교하게 당겨내어 0점 단차를 맞춘 뒤, 최소한의 퍼티 공정으로 면을 평탄화했습니다. 반면 앞범퍼는 전체를 탈거하지 않고 손상된 모서리 표면만 매끄럽게 샌딩하여 부분 도장 준비를 마쳤습니다. 스포티지 특유의 카키색 도료를 정밀 조색한 후, 도어는 전체 열처리 도장을, 앞범퍼는 기존 도장면과 경계선이 생기지 않도록 그라데이션 보카시 기법을 적용하여 이색 현상과 꿀렁임 없는 완벽한 결과물을 완성했습니다.",
+        "featured": false,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    },
+    {
       "sourceFile": "d1:genesis-gv70-side-bumper-partial-paint",
       "lastModified": "2026-09-13",
       "work": {
@@ -629,7 +677,7 @@
     },
     {
       "sourceFile": "d1:mercedes-cls-450-item-18s5pvs-bumper-panel-paint",
-      "lastModified": "2026-09-11",
+      "lastModified": "2026-09-14",
       "work": {
         "slug": "mercedes-cls-450-item-18s5pvs-bumper-panel-paint",
         "date": "2026-08-29",
@@ -667,6 +715,7 @@
               "도어",
               "휀더"
             ],
+            "category": "polish",
             "label": "도어 · 휀더",
             "before": "https://images.acedentshop.co.kr/works/a94994b4-03d0-446b-95ad-b8d1eaa58e3e/03-image-before.jpg",
             "after": "https://images.acedentshop.co.kr/works/a94994b4-03d0-446b-95ad-b8d1eaa58e3e/03-image-after.jpg",
