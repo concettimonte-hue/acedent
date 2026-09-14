@@ -2779,11 +2779,20 @@ footer > a:last-child svg {
   background: #f8db00;
   color: #030403;
 }
+.work-filter-group + .work-filter-group {
+  margin-top: 1.25rem;
+}
+.work-filter-heading,
+.work-filter-edge {
+  display: none;
+}
+.work-filter-rail-shell {
+  position: relative;
+}
 .work-part-filter {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 1.25rem;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -3244,22 +3253,92 @@ footer > a:last-child svg {
   .works-browser {
     padding: 2rem 1.25rem 4rem;
   }
+  .work-filter-group + .work-filter-group {
+    margin-top: 1.35rem;
+  }
+  .work-filter-heading {
+    display: flex;
+    min-height: 22px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.55rem;
+    color: #8f938f;
+    font-size: 0.69rem;
+    font-weight: 850;
+    letter-spacing: 0.1em;
+  }
+  .work-filter-swipe-hint {
+    color: #f8db00;
+    font-size: 0.67rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .work-filter-rail-shell {
+    margin-right: -1.25rem;
+  }
   .work-category-tabs {
     display: flex;
-    margin-right: -1.25rem;
     overflow-x: auto;
+    padding-right: 2.75rem;
     border-right: 0;
+    scroll-padding-inline: 1rem;
+    scroll-snap-type: x proximity;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
   .work-category-tabs::-webkit-scrollbar {
     display: none;
   }
   .work-category-tabs a {
-    min-width: 104px;
+    min-width: 108px;
     flex: 0 0 auto;
+    scroll-snap-align: center;
   }
   .work-part-filter {
-    margin-right: -1.25rem;
+    padding-right: 2.75rem;
+    scroll-padding-inline: 1rem;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+  .work-part-filter > span {
+    display: none;
+  }
+  .work-part-filter button {
+    scroll-snap-align: center;
+  }
+  .work-filter-edge {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    bottom: 0;
+    width: 42px;
+    align-items: center;
+    color: #f8db00;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms ease;
+  }
+  .work-filter-edge.is-visible {
+    display: flex;
+    opacity: 1;
+  }
+  .work-filter-edge.is-left {
+    left: 0;
+    justify-content: flex-start;
+    padding-left: 0.15rem;
+    background: linear-gradient(90deg, #030403 35%, rgb(3 4 3 / 0%));
+  }
+  .work-filter-edge.is-right {
+    right: 0;
+    justify-content: flex-end;
+    padding-right: 0.5rem;
+    background: linear-gradient(270deg, #030403 35%, rgb(3 4 3 / 0%));
+  }
+  .work-filter-edge svg {
+    width: 19px;
+    height: 19px;
+    stroke-width: 3;
   }
   .works-grid {
     grid-template-columns: 1fr;
