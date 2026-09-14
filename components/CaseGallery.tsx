@@ -57,13 +57,15 @@ export default function CaseGallery() {
     window.requestAnimationFrame(() => closeButtonRef.current?.focus());
 
     const handleModalKeys = (event: globalThis.KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('[data-image-zoom-dialog]')) return;
+
       if (event.key === 'Escape') {
         event.preventDefault();
         closeModal();
         return;
       }
 
-      const target = event.target as HTMLElement | null;
       if (
         target?.getAttribute('role') !== 'slider' &&
         event.key === 'ArrowLeft'
@@ -267,6 +269,7 @@ export default function CaseGallery() {
                 beforeAlt={getWorkImageAlt(selectedCase, selectedPart, '전')}
                 afterAlt={getWorkImageAlt(selectedCase, selectedPart, '후')}
                 mode={selectedCase.sliderType}
+                enableZoom
               />
               <button
                 className="case-modal-nav case-modal-prev"

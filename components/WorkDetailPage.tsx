@@ -80,6 +80,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
                   mode={work.sliderType}
                   priority={index === 0}
                   showHint={work.sliderType === 'drag'}
+                  enableZoom
                 />
               </div>
             </section>

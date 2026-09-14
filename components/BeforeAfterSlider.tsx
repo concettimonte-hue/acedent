@@ -1,6 +1,8 @@
 'use client';
 
-import { useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { useCallback, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { ZoomIn } from 'lucide-react';
+import ImageZoomViewer from '@/components/ImageZoomViewer';
 import type { BeforeAfterMode } from '@/content/types';
 
 interface BeforeAfterSliderProps {
@@ -12,6 +14,7 @@ interface BeforeAfterSliderProps {
   priority?: boolean;
   showHint?: boolean;
   hintText?: string;
+  enableZoom?: boolean;
 }
 
 const clamp = (value: number) => Math.min(100, Math.max(0, value));
@@ -25,12 +28,15 @@ export default function BeforeAfterSlider({
   priority = false,
   showHint = false,
   hintText = '← 손잡이를 좌우로 움직여 보세요 →',
+  enableZoom = false,
 }: BeforeAfterSliderProps) {
   const sliderRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
   const [position, setPosition] = useState(50);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [zoomOpen, setZoomOpen] = useState(false);
   const loading = priority ? 'eager' : 'lazy';
+  const closeZoom = useCallback(() => setZoomOpen(false), []);
 
   const updateFromPointer = (clientX: number) => {
     const bounds = sliderRef.current?.getBoundingClientRect();
@@ -66,8 +72,8 @@ export default function BeforeAfterSlider({
     );
   };
 
-  if (mode === 'split') {
-    return (
+  const slider = mode === 'split'
+    ? (
       <div className="before-after-slider before-after-split">
         <div className="before-after-panel">
           <img
@@ -94,10 +100,8 @@ export default function BeforeAfterSlider({
           <span className="comparison-label comparison-label-after">AFTER</span>
         </div>
       </div>
-    );
-  }
-
-  const slider = (
+    )
+    : (
     <div
       ref={sliderRef}
       className="before-after-slider before-after-drag"
@@ -152,14 +156,38 @@ export default function BeforeAfterSlider({
     </div>
   );
 
-  if (!showHint) return slider;
+  const sliderWithZoom = enableZoom ? (
+    <div className="before-after-zoom-shell">
+      {slider}
+      <button
+        className="before-after-zoom-trigger"
+        type="button"
+        onClick={() => setZoomOpen(true)}
+        aria-label="전후 사진 크게 보기"
+        aria-haspopup="dialog"
+      >
+        <ZoomIn aria-hidden="true" />
+        <span>크게 보기</span>
+      </button>
+      <ImageZoomViewer
+        open={zoomOpen}
+        beforeSrc={beforeSrc}
+        afterSrc={afterSrc}
+        beforeAlt={beforeAlt}
+        afterAlt={afterAlt}
+        onClose={closeZoom}
+      />
+    </div>
+  ) : slider;
+
+  if (!showHint) return sliderWithZoom;
 
   return (
     <div className="before-after-with-hint">
       <span className={`comparison-hint${hasInteracted ? ' is-hidden' : ''}`}>
         {hintText}
       </span>
-      {slider}
+      {sliderWithZoom}
     </div>
   );
 }
