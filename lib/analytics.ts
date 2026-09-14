@@ -87,3 +87,12 @@ export function trackCaseView(caseId: string, part: string) {
 export function trackFilterUse(category: string, part: string) {
   sendEvent('filter_use', { category, part });
 }
+
+export type WorksNavigationLocation =
+  | 'header_desktop'
+  | 'header_mobile'
+  | 'bottom_mobile';
+
+export function trackWorksNavigation(location: WorksNavigationLocation) {
+  sendEvent('works_nav_click', { location });
+}

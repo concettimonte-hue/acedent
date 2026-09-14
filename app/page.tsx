@@ -6,6 +6,7 @@ import {
   ChevronRight,
   Clock3,
   MessageCircle,
+  Images,
   Phone,
   ShieldCheck,
   Smartphone,
@@ -32,12 +33,17 @@ import ProcessSection from '@/components/ProcessSection';
 import ReviewsSection from '@/components/ReviewsSection';
 import SectionNumber from '@/components/SectionNumber';
 import TrustBar from '@/components/TrustBar';
+import SmartHeader from '@/components/SmartHeader';
 import {
   NUMBERED_SECTION_ORDER,
   type NumberedSectionId,
 } from '@/content/section-order';
 import { withLandingUtm } from '@/lib/tracking';
-import { trackSmsClick, trackTelClick } from '@/lib/analytics';
+import {
+  trackSmsClick,
+  trackTelClick,
+  trackWorksNavigation,
+} from '@/lib/analytics';
 
 const site = siteData as SiteContent;
 const naver = naverData as NaverContent;
@@ -201,7 +207,7 @@ export default function Home() {
 
   return (
     <main id="top" className="site-shell">
-      <header className="site-header">
+      <SmartHeader>
         <a href="#top" className="brand" aria-label={brand.homeAriaLabel}>
           <span className="brand-logo" aria-hidden="true">
             <img
@@ -220,7 +226,14 @@ export default function Home() {
         </a>
         <nav className="desktop-nav" aria-label={navigation.ariaLabel}>
           {navigation.items.map((item) => (
-            <a href={item.href} key={item.href}>
+            <a
+              href={item.href}
+              className={item.href === '/works' ? 'is-primary-nav' : undefined}
+              onClick={item.href === '/works'
+                ? () => trackWorksNavigation('header_desktop')
+                : undefined}
+              key={item.href}
+            >
               {item.label}
             </a>
           ))}
@@ -235,12 +248,19 @@ export default function Home() {
         </a>
         <nav className="mobile-section-nav" aria-label={navigation.ariaLabel}>
           {navigation.items.map((item) => (
-            <a href={item.href} key={item.href}>
+            <a
+              href={item.href}
+              className={item.href === '/works' ? 'is-primary-nav' : undefined}
+              onClick={item.href === '/works'
+                ? () => trackWorksNavigation('header_mobile')
+                : undefined}
+              key={item.href}
+            >
               {item.label}
             </a>
           ))}
         </nav>
-      </header>
+      </SmartHeader>
 
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-copy">
@@ -358,15 +378,36 @@ export default function Home() {
         className="mobile-action-bar"
         aria-label={contact.mobileNavAriaLabel}
       >
-        <a href={contact.phoneHref} onClick={() => trackTelClick('플로팅')}>
+        <a
+          className="mobile-action-works"
+          href="/works"
+          onClick={() => trackWorksNavigation('bottom_mobile')}
+        >
+          <Images aria-hidden="true" />
+          수리사례
+        </a>
+        <a
+          href={contact.phoneHref}
+          aria-label={contact.phoneLabel}
+          onClick={() => trackTelClick('플로팅')}
+        >
           <Phone aria-hidden="true" />
           {contact.mobilePhoneLabel}
         </a>
-        <a href={contact.smsHref} onClick={trackSmsClick}>
+        <a
+          href={contact.smsHref}
+          aria-label={contact.smsLabel}
+          onClick={trackSmsClick}
+        >
           <Smartphone aria-hidden="true" />
           {contact.mobileSmsLabel}
         </a>
-        <a href={talkUrl} target="_blank" rel="noopener noreferrer">
+        <a
+          href={talkUrl}
+          aria-label={contact.talkLabel}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <MessageCircle aria-hidden="true" />
           {contact.mobileNaverLabel}
         </a>
