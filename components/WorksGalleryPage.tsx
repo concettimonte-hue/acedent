@@ -164,7 +164,11 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
         {visibleWorks.length > 0 ? (
           <div className="works-grid">
             {visibleWorks.map((work) => (
-              <WorkCard work={work} key={work.slug} />
+              <WorkCard
+                work={work}
+                contextCategory={selectedCategory}
+                key={work.slug}
+              />
             ))}
           </div>
         ) : (

@@ -10,6 +10,7 @@ import WorkClassification from '@/components/WorkClassification';
 import {
   WORK_CATEGORIES,
   WORK_PARTS,
+  getWorkCategoryLabel,
   isWorkPart,
   type WorkCategory,
   type WorkItem,
@@ -39,6 +40,7 @@ type DeploymentState = 'idle' | 'pending' | 'ready' | 'failed';
 interface PartDraft {
   id: string;
   parts: WorkPart[];
+  category: WorkCategory | '';
   customPartEnabled: boolean;
   customPart: string;
   detail: string;
@@ -73,6 +75,7 @@ function newPart(): PartDraft {
   return {
     id: crypto.randomUUID(),
     parts: ['범퍼'],
+    category: '',
     customPartEnabled: false,
     customPart: '',
     detail: '',
@@ -294,6 +297,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           return {
             id: crypto.randomUUID(),
             parts: parsed.parts,
+            category: media.category ?? '',
             customPartEnabled: parsed.customPartEnabled,
             customPart: parsed.customPart,
             detail: parsed.detail,
@@ -333,6 +337,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     color: form.color || '색상',
     parts: parts.map((part) => ({
       part: selectedPartValues(part),
+      category: part.category || undefined,
       label: part.label || composePartLabel(part),
       before: part.before?.preview || '',
       after: part.after?.preview || '',
@@ -512,6 +517,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
         };
         uploadedParts.push({
           part: selectedPartValues(part),
+          category: part.category || undefined,
           detail: part.detail,
           label: part.label,
           note: part.note,
@@ -639,7 +645,15 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
                       </div>
                       {part.customPartEnabled && <input required value={part.customPart} onChange={(e) => updatePartName(part.id, { customPart: e.target.value })} maxLength={30} placeholder="예: 쿼터패널" aria-label="기타 부위명" />}
                     </fieldset>
-                    <label>세부 위치<input value={part.detail} onChange={(e) => updatePartName(part.id, { detail: e.target.value })} placeholder="예: 후면, 옆면" /></label>
+                    <div className="admin-fields">
+                      <label>PART 작업 방식 <small>실제로 작업한 경우만 선택</small>
+                        <select value={part.category} onChange={(e) => updatePart(part.id, { category: e.target.value as WorkCategory | '' })}>
+                          <option value="">선택 안 함</option>
+                          {WORK_CATEGORIES.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}
+                        </select>
+                      </label>
+                      <label>세부 위치<input value={part.detail} onChange={(e) => updatePartName(part.id, { detail: e.target.value })} placeholder="예: 후면, 옆면" /></label>
+                    </div>
                   </div>
                   {index === 0 && (
                     <fieldset className="admin-part-picker admin-secondary-picker">
@@ -741,16 +755,13 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           </div>
           <article className="work-detail admin-detail-preview">
             <header className="work-detail-heading">
-              <WorkClassification
-                category={previewWork.category}
-                subCategories={previewWork.subCategories}
-              />
+              <WorkClassification work={previewWork} />
               <h1>{previewWork.title}</h1>
               <div className="work-detail-meta"><span>{formatWorkCar(previewWork)}</span><span>{previewWork.part[0]}</span>{previewWork.subParts.map((part) => <span className="work-detail-secondary-part" key={part}>{part}</span>)}<span>{previewWork.color}</span><strong>{previewWork.days}</strong></div>
             </header>
             <div className="work-detail-parts">
               {previewWork.parts.map((part, index) => <section className="work-detail-part" key={`${part.label}-${index}`}>
-                <header className="work-detail-part-heading"><span>PART {String(index + 1).padStart(2, '0')}</span><h2>{part.label}</h2><p>{part.note}</p></header>
+                <header className="work-detail-part-heading"><span>PART {String(index + 1).padStart(2, '0')}{part.category && ` · ${getWorkCategoryLabel(part.category)}`}</span><h2>{part.label}</h2><p>{part.note}</p></header>
                 {part.before && part.after ? <div className="work-detail-slider"><BeforeAfterSlider beforeSrc={part.before} afterSrc={part.after} beforeAlt={getWorkImageAlt(previewWork, part, '전')} afterAlt={getWorkImageAlt(previewWork, part, '후')} mode="drag" /></div> : <div className="admin-preview-empty">전·후 사진을 선택하면 비교 슬라이더가 표시됩니다.</div>}
               </section>)}
             </div>

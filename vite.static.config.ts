@@ -31,6 +31,7 @@ import {
   getWorkPrimaryAfterSrc,
   getWorkPrimaryPart,
 } from './lib/work-images';
+import { workMatchesCategory } from './lib/work-categories';
 
 const projectDirectory = fileURLToPath(new URL('.', import.meta.url));
 const sitemapFallbackDate = '2026-09-08';
@@ -101,6 +102,7 @@ function loadBuildWorks(): BuildWork[] {
             typeof part.before !== 'string' ||
             typeof part.after !== 'string' ||
             typeof part.note !== 'string' ||
+            (part.category !== undefined && !categoryIds.has(part.category)) ||
             (part.part !== undefined && (
               !Array.isArray(part.part) ||
               part.part.some((partValue) => typeof partValue !== 'string' || !isWorkPartValue(partValue))
@@ -349,7 +351,7 @@ const seoAssetsPlugin = (): Plugin => ({
           'components/WorksGalleryPage.tsx',
           'components/WorkCard.tsx',
         ]), ...works
-          .filter((work) => work.category === category.id)
+          .filter((work) => workMatchesCategory(work, category.id))
           .map((work) => work.lastModified)),
         changefreq: 'weekly',
         priority: '0.8',
@@ -425,7 +427,6 @@ const seoAssetsPlugin = (): Plugin => ({
 
     for (const category of WORK_CATEGORIES) {
       const categorySeo = getWorksSeoCopy(category.id);
-      const categoryWorks = works.filter((work) => work.category === category.id);
       writeRoute(
         `works/${category.id}.html`,
         renderRouteHtml(baseHtml, {
@@ -433,7 +434,7 @@ const seoAssetsPlugin = (): Plugin => ({
           description: categorySeo.description,
           canonical: `${siteUrl}/works/${category.id}`,
           image: `${siteUrl}/og-image.jpg`,
-          bodyHtml: getWorksStaticHtml(categoryWorks, category.id),
+          bodyHtml: getWorksStaticHtml(works, category.id),
         }),
       );
     }
@@ -442,7 +443,7 @@ const seoAssetsPlugin = (): Plugin => ({
       const canonical = `${siteUrl}/works/detail/${work.slug}`;
       const workSeo = getWorkSeoCopy(work);
       const related = works
-        .filter((candidate) => candidate.category === work.category && candidate.slug !== work.slug)
+        .filter((candidate) => workMatchesCategory(candidate, work.category) && candidate.slug !== work.slug)
         .slice(0, 3);
       writeRoute(
         `works/detail/${work.slug}.html`,

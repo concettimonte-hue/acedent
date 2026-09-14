@@ -43,10 +43,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
 
       <article className="work-detail">
         <header className="work-detail-heading">
-          <WorkClassification
-            category={work.category}
-            subCategories={work.subCategories}
-          />
+          <WorkClassification work={work} />
           <h1>{work.title}</h1>
           <div className="work-detail-meta">
             <span>{formatWorkCar(work)}</span>
@@ -67,7 +64,10 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
               aria-labelledby={`work-part-${index}`}
             >
               <header className="work-detail-part-heading">
-                <span>PART {String(index + 1).padStart(2, '0')}</span>
+                <span>
+                  PART {String(index + 1).padStart(2, '0')}
+                  {part.category && ` · ${getWorkCategoryLabel(part.category)}`}
+                </span>
                 <h2 id={`work-part-${index}`}>{part.label}</h2>
                 <p>{part.note}</p>
               </header>

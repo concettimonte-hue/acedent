@@ -27,6 +27,7 @@ interface AssetReference {
 
 interface PartInput {
   part?: unknown;
+  category?: unknown;
   detail?: unknown;
   label?: unknown;
   note?: unknown;
@@ -90,6 +91,14 @@ function normalizePartValues(value: unknown, index: number): WorkPartValue[] {
   const unique = [...new Set(normalized)];
   if (unique.length > 3) throw new Error(`${index + 1}번 사진 묶음의 작업 부위는 최대 3개까지 선택할 수 있습니다.`);
   return unique;
+}
+
+function normalizePartCategory(value: unknown, index: number): WorkCategory | undefined {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (typeof value !== 'string' || !isWorkCategory(value)) {
+    throw new Error(`${index + 1}번 PART 작업 방식이 올바르지 않습니다.`);
+  }
+  return value;
 }
 
 function normalizeSubCategories(value: unknown, category: WorkCategory) {
@@ -206,6 +215,7 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
       const detail = typeof part.detail === 'string' ? part.detail.trim() : '';
       return {
         part: workParts,
+        category: normalizePartCategory(part.category, index),
         label: typeof part.label === 'string' && part.label.trim()
           ? part.label.trim()
           : [workParts.join(' · '), detail].filter(Boolean).join(' '),
@@ -242,6 +252,7 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
       }
       mediaParts.push({
         part: part.part,
+        category: part.category,
         label: part.label,
         before: assetUrl(publicBase, before.object_key),
         after: assetUrl(publicBase, after.object_key),

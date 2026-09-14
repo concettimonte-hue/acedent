@@ -9,6 +9,8 @@ import {
   SLUG_PART_TERMS,
 } from './slug-dictionary';
 import { getWorkFilterParts } from './work-parts';
+import { getExplicitPartCategories } from './work-categories';
+import { getPartImageDescription } from './work-images';
 
 export const categorySeoTerms: Record<WorkCategory, string> = {
   dent: '무도색 덴트 복원',
@@ -177,11 +179,26 @@ export function getWorkSeoCopy(work: WorkItem) {
     descriptionParts.push(`관련 부위는 ${missingSubParts.join('·')}입니다.`);
   }
 
+  const explicitPartWorkFacts = uniqueValues(
+    work.parts.flatMap((part) => part.category
+      ? [`${getPartImageDescription(part)} ${getWorkCategoryLabel(part.category)}`]
+      : []),
+  );
+  const missingPartWorkFacts = explicitPartWorkFacts.filter(
+    (fact) => !includesText(coveredText, fact),
+  );
+  if (missingPartWorkFacts.length > 0) {
+    descriptionParts.push(`부위별 작업은 ${missingPartWorkFacts.join(', ')}입니다.`);
+  }
+
   if (!hasCategoryMeaning(coveredText, work.category)) {
     descriptionParts.push(`주 작업은 ${getWorkCategoryLabel(work.category)}입니다.`);
   }
+  const explicitPartCategories = getExplicitPartCategories(work);
   const missingSubCategories = work.subCategories.filter(
-    (category) => !hasCategoryMeaning(coveredText, category),
+    (category) =>
+      !explicitPartCategories.includes(category) &&
+      !hasCategoryMeaning(coveredText, category),
   );
   if (missingSubCategories.length > 0) {
     descriptionParts.push(

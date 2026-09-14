@@ -53,6 +53,9 @@ function validateWork(work, sourceFile) {
   }
   if (!Array.isArray(work.parts) || work.parts.length === 0) throw new Error(`${sourceFile}: parts 배열이 비어 있습니다.`);
   for (const [index, part] of work.parts.entries()) {
+    if (part.category !== undefined && !workCategories.has(part.category)) {
+      throw new Error(`${sourceFile}: parts[${index}].category 값이 올바르지 않습니다.`);
+    }
     if (part.part !== undefined) {
       if (!Array.isArray(part.part) || part.part.length === 0 || part.part.length > 3) {
         throw new Error(`${sourceFile}: parts[${index}].part는 1개 이상 3개 이하의 배열이어야 합니다.`);

@@ -1,22 +1,30 @@
 'use client';
 
 import { ArrowUpRight } from 'lucide-react';
-import { getWorkCategoryLabel, type WorkItem } from '@/content/works/types';
+import {
+  getWorkCategoryLabel,
+  type WorkCategory,
+  type WorkItem,
+} from '@/content/works/types';
 import {
   getWorkImageAlt,
-  getWorkPrimaryPart,
-  getWorkThumbnailSrc,
+  getWorkThumbnailSrcForCategory,
 } from '@/lib/work-images';
+import { getWorkRepresentativePart } from '@/lib/work-categories';
 import { formatWorkCar } from '@/lib/works';
 import { formatWorkCardParts } from '@/lib/work-parts';
 import { trackCaseView } from '@/lib/analytics';
 
 interface WorkCardProps {
   work: WorkItem;
+  contextCategory?: WorkCategory;
 }
 
-export default function WorkCard({ work }: WorkCardProps) {
-  const primaryPart = getWorkPrimaryPart(work);
+export default function WorkCard({ work, contextCategory }: WorkCardProps) {
+  const representativePart = getWorkRepresentativePart(work, contextCategory);
+  const displayedCategory = contextCategory && representativePart.category === contextCategory
+    ? contextCategory
+    : work.category;
 
   return (
     <a
@@ -27,15 +35,15 @@ export default function WorkCard({ work }: WorkCardProps) {
     >
       <span className="work-card-media">
         <img
-          src={getWorkThumbnailSrc(work)}
-          alt={getWorkImageAlt(work, primaryPart, '후')}
+          src={getWorkThumbnailSrcForCategory(work, contextCategory)}
+          alt={getWorkImageAlt(work, representativePart, '후')}
           width="800"
           height="600"
           loading="lazy"
           decoding="async"
         />
         <span className="work-card-category">
-          {getWorkCategoryLabel(work.category)}
+          {getWorkCategoryLabel(displayedCategory)}
         </span>
       </span>
       <span className="work-card-copy">

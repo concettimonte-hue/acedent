@@ -1,29 +1,27 @@
 'use client';
 
-import {
-  getWorkCategoryLabel,
-  type WorkCategory,
-} from '@/content/works/types';
+import { getWorkCategoryLabel, type WorkItem } from '@/content/works/types';
+import { getWorkDisplayCategories } from '@/lib/work-categories';
 
 interface WorkClassificationProps {
-  category: WorkCategory;
-  subCategories?: readonly WorkCategory[];
+  work: WorkItem;
 }
 
-export default function WorkClassification({
-  category,
-  subCategories = [],
-}: WorkClassificationProps) {
+export default function WorkClassification({ work }: WorkClassificationProps) {
+  const categories = getWorkDisplayCategories(work);
+  const primaryCategory = categories[0] ?? work.category;
+  const secondaryCategories = categories.slice(1);
+
   return (
     <div className="work-detail-classification">
       <span className="work-detail-classification-primary">
-        {getWorkCategoryLabel(category)}
+        {getWorkCategoryLabel(primaryCategory)}
       </span>
-      {subCategories.map((subCategory) => (
-        <span className="work-detail-classification-secondary-group" key={subCategory}>
+      {secondaryCategories.map((category) => (
+        <span className="work-detail-classification-secondary-group" key={category}>
           <span className="work-detail-classification-separator" aria-hidden="true">·</span>
           <span className="work-detail-classification-secondary">
-            {getWorkCategoryLabel(subCategory)}
+            {getWorkCategoryLabel(category)}
           </span>
         </span>
       ))}

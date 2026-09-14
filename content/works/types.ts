@@ -43,6 +43,8 @@ export type WorkPartValue = WorkPart | (string & {});
 export interface WorkPartMedia {
   /** 이 사진 묶음에서 실제로 작업한 부위. 1~3개이며 /works 필터에 사용합니다. */
   part?: WorkPartValue[];
+  /** 이 사진 묶음에 실제로 적용한 작업 방식. 기존 데이터는 값이 없을 수 있습니다. */
+  category?: WorkCategory;
   label: string;
   before: string;
   after: string;

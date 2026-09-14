@@ -1,8 +1,190 @@
 {
   "records": [
     {
+      "sourceFile": "d1:genesis-gv70-side-bumper-partial-paint",
+      "lastModified": "2026-09-13",
+      "work": {
+        "slug": "genesis-gv70-side-bumper-partial-paint",
+        "date": "2026-09-13",
+        "title": "뒤범퍼 하단 찢어짐(크랙) 철심 보강 및 부분도장",
+        "category": "partial-paint",
+        "subCategories": [],
+        "part": [
+          "범퍼"
+        ],
+        "subParts": [],
+        "carMaker": "제네시스",
+        "carModel": "GV70",
+        "color": "화이트펄",
+        "parts": [
+          {
+            "part": [
+              "범퍼"
+            ],
+            "label": "범퍼 뒤범퍼 하단 측면",
+            "before": "https://images.acedentshop.co.kr/works/efd51d54-f9b2-44ca-9d7d-23aca13bf63e/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/efd51d54-f9b2-44ca-9d7d-23aca13bf63e/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/efd51d54-f9b2-44ca-9d7d-23aca13bf63e/01-image-thumbnail.jpg",
+            "note": "플라스틱 범퍼 하단이 갈라지고 찢어진 크랙 손상. 크랙 내부에 철심을 박아 구조적 강성을 튼튼하게 복원하고, 정밀한 그라데이션 부분도장으로 경계선이나 이질감 없이 깨끗하게 마감 완료."
+          }
+        ],
+        "summary": "충격으로 찢어진 뒤범퍼 하단부를 철심으로 튼튼하게 융착한 뒤, 이색을 최소화하는 정교한 부분도장(보카시)을 적용하여 수리 범위와 비용을 낮춰 복원했습니다.",
+        "body": "뒤범퍼 하단 커버 경계선 부위에 충격으로 인한 찢어짐(크랙)이 발생하여 입고되었습니다. 플라스틱 범퍼가 찢어진 상태로 방치하면 방지턱을 넘는 등의 작은 진동에도 크랙이 다시 벌어질 수 있어 견고한 내부 보강이 필수적입니다.\n\n원칙적으로 도장은 한 판 전체를 칠하는 것이 정석이나, 수리 부위를 최소화하고 싶다는 고객님의 요청에 따라 '부분도장'을 진행했습니다. 일반적인 부분도장은 추후 경계선의 칠 떨어짐이나 이색 리스크가 있지만, 해당 부위는 위쪽으로 색상이 다른 몰딩이 지나가 시선이 분리되고 도장 면적이 좁아 부분도장으로도 충분히 이질감 없는 마감이 가능한 구조적 이점이 있었습니다.\n\n범퍼를 완전히 탈거하지 않고 크랙 안쪽에 철심을 촘촘히 박아 넣어 내구성을 튼튼하게 보강했습니다. 이후 기존 도장면과 자연스럽게 스며들도록 보카시(그라데이션) 기법을 적용하여 이색이나 경계선 표시 없이 말끔하게 작업을 완료했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/223121816934",
+        "featured": false,
+        "days": "1일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "d1:kia-carnival-ka4-side-fender-dent-3",
+      "lastModified": "2026-09-13",
+      "work": {
+        "slug": "kia-carnival-ka4-side-fender-dent-3",
+        "date": "2026-09-13",
+        "title": "앞휀더 날카로운 문콕 무도색 덴트(PDR) 복원",
+        "category": "dent",
+        "subCategories": [],
+        "part": [
+          "휀더"
+        ],
+        "subParts": [],
+        "carMaker": "기아",
+        "carModel": "카니발 (KA4)",
+        "color": "화이트 펄",
+        "parts": [
+          {
+            "part": [
+              "휀더"
+            ],
+            "label": "휀더 운전 앞휀더 측면",
+            "before": "https://images.acedentshop.co.kr/works/7b3cc482-1bad-4799-8440-63f2cfa788e5/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/7b3cc482-1bad-4799-8440-63f2cfa788e5/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/7b3cc482-1bad-4799-8440-63f2cfa788e5/01-image-thumbnail.jpg",
+            "note": "페인트 손상 없는 날카로운 문콕 함몰 발생. 판금도장 없이 안쪽으로 로드를 진입시켜 철판만 정교하게 펴내는 덴트(PDR) 공법으로 원칠을 완벽하게 보존하며 복원 완료."
+          }
+        ],
+        "summary": "조수석 앞휀더에 발생한 날카로운 문콕 찌그러짐을 페인트 손상 없이 정교하게 펴내는 덴트(PDR) 공법을 적용하여 이색 없이 매끄럽게 복원했습니다.",
+        "body": "조수석 앞휀더 측면에 타 차량의 문에 찍힌 것으로 추정되는 깊고 날카로운 문콕(함몰) 손상이 발생하여 입고되었습니다. 정밀 진단 결과, 다행히 페인트(투명 클리어층) 까짐이나 철판의 심각한 늘어남은 없는 상태였습니다.\n\n이 경우 퍼티를 바르고 새로 칠을 올리는 판금도장을 진행하면 불필요한 비용이 발생하고 이색 리스크가 생기므로, 출고 당시의 원칠(오리지널 도장면)을 100% 보존하는 무판금 무도색 덴트(PDR) 공정을 선택했습니다. 덴트 전용 조명을 비춰 굴곡을 확인한 뒤, 휀더 휠 하우스 안쪽으로 공구(로드)를 진입시켜 찌그러진 철판의 중심점을 미세하게 밀어 올리고 뭉친 응력을 펀치로 다듬어 넣는 과정을 반복했습니다. 결과적으로 재도장으로 인한 색상 차이나 중고차 감가 없이, 찌그러지기 전의 완벽하고 매끄러운 곡면 밸런스를 되찾았습니다.",
+        "blogUrl": "https://blog.naver.com/PostView.naver?blogId=ace_dent_shop&logNo=224207067288&categoryNo=13&parentCategoryNo=&from=thumbnailList",
+        "featured": false,
+        "days": "당",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "d1:tesla-model3-fender-polish",
+      "lastModified": "2026-09-13",
+      "work": {
+        "slug": "tesla-model3-fender-polish",
+        "date": "2026-09-13",
+        "title": "휀더 휠 아치 페인트 이염 및 스크래치 폴리싱(흠집제거)",
+        "category": "polish",
+        "subCategories": [],
+        "part": [
+          "휀더"
+        ],
+        "subParts": [],
+        "carMaker": "테슬라",
+        "carModel": "모델 3",
+        "color": "화이트 계열",
+        "parts": [
+          {
+            "part": [
+              "휀더"
+            ],
+            "label": "휀더 휠 아치 라인",
+            "before": "https://images.acedentshop.co.kr/works/0e015acb-5c54-4e29-95a9-a7dfa09cd1dc/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/0e015acb-5c54-4e29-95a9-a7dfa09cd1dc/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/0e015acb-5c54-4e29-95a9-a7dfa09cd1dc/01-image-thumbnail.jpg",
+            "note": "마찰로 인한 타 물체의 페인트 이염 및 얕은 스크래치 발생. 불필요한 재도장 없이 정밀 폴리싱(흠집제거)만으로 이염을 걷어내고 원칠을 100% 보존하며 복원 완료."
+          }
+        ],
+        "summary": "휀더 휠 아치 라인에 발생한 페인트 이염과 스크래치를 재도장 없이 정밀 폴리싱으로 다듬어, 원칠을 보존하면서 수리 비용을 최소화했습니다.",
+        "body": "휀더 휠 아치 끝단을 따라 녹색 페인트가 묻어나고 긁힌 자국이 발생한 상태로 입고되었습니다. 표면을 정밀 진단한 결과, 다행히 철판의 변형이나 베이스 칠이 깊게 파인 손상이 아닌 투명 클리어층 표면에 타 물체의 페인트가 묻어난 '이염'과 얕은 스크래치로 확인되었습니다.\n\n이러한 손상에 무조건적인 판금도장을 적용하면 수리 비용이 크게 발생하고 원칠(출고 도장)이 훼손되어 중고차 감가의 원인이 됩니다. 따라서 고객님의 비용 부담을 대폭 낮추고 차량의 가치를 보존하기 위해 정밀 폴리싱(광택) 공정을 진행했습니다. 도장면에 대미지를 주지 않는 전용 컴파운드와 듀얼 폴리셔를 이용해 표면에 고착된 녹색 페인트를 안전하게 걷어내고, 미세한 스크래치들의 단차를 매끄럽게 다듬어 재도장 없이도 맑고 깨끗한 도장면을 완벽하게 되찾았습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224143797445",
+        "featured": false,
+        "days": "당",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "d1:byd-atto-3-side-bumper-panel-paint",
+      "lastModified": "2026-09-11",
+      "work": {
+        "slug": "byd-atto-3-side-bumper-panel-paint",
+        "date": "2026-09-11",
+        "title": "앞휀더 단차 교정 판금도장 및 범퍼·가니쉬 부분 복원",
+        "category": "panel-paint",
+        "subCategories": [
+          "polish"
+        ],
+        "part": [
+          "범퍼"
+        ],
+        "subParts": [],
+        "carMaker": "BYD",
+        "carModel": "ATTO 3 (아토 3)",
+        "color": "블랙 계열",
+        "parts": [
+          {
+            "part": [
+              "범퍼",
+              "휀더"
+            ],
+            "label": "범퍼 · 휀더 측면 및 휠 아치 가니쉬",
+            "before": "https://images.acedentshop.co.kr/works/be4e5894-4bca-4c15-8194-cf7b2bf4d8e4/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/be4e5894-4bca-4c15-8194-cf7b2bf4d8e4/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/be4e5894-4bca-4c15-8194-cf7b2bf4d8e4/01-image-thumbnail.jpg",
+            "note": "휀더 함몰 및 가니쉬·범퍼 긁힘 복합 손상. 휀더는 단차 교정 판금도장, 범퍼는 폴리싱 흠집제거, 가니쉬는 전용 복원제 시공으로 교환 없이 마감 완료."
+          }
+        ],
+        "summary": "부품 수급이 불가한 무광 가니쉬는 전용 복원제로 커버하고, 찌그러진 앞휀더는 판금도장으로 단차를 교정하여 전체 수리 비용을 최소화했습니다.",
+        "body": "BYD 차량 특성상 외부로 부품 유통이 되지 않아 가니쉬 1:1 교체가 불가능하고, 고객님의 비용 절감 니즈가 명확했던 입고 건입니다.\n\n조립 틈새가 틀어진 앞휀더는 범퍼를 부분적으로 탈거한 뒤 스폿 판금으로 찌그러진 철판을 당겨내어 단차를 0점으로 맞추고, 이색 없는 정밀 열처리 도장을 진행했습니다. 도색을 생략한 앞범퍼 측면은 정밀 폴리싱(광택)으로 스크래치를 다듬은 후 붓터치로 마감했으며, 긁혀서 하얗게 일어난 플라스틱 휀더 가니쉬에는 전용 복원제를 꼼꼼히 도포하여 본연의 짙은 무광 색감을 이질감 없이 되살렸습니다. 불필요한 전체 도색과 부품 교환을 배제한 가장 효율적인 복원 공정입니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224408454078",
+        "featured": false,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "d1:kia-sg2-trunk-panel-paint",
+      "lastModified": "2026-09-11",
+      "work": {
+        "slug": "kia-sg2-trunk-panel-paint",
+        "date": "2026-09-11",
+        "title": "트렁크 하단 엣지 판금도장 및 몰딩 교환",
+        "category": "panel-paint",
+        "subCategories": [],
+        "part": [
+          "트렁크"
+        ],
+        "subParts": [],
+        "carMaker": "기아",
+        "carModel": "디 올 뉴 니로 (SG2)",
+        "color": "실버/그레이 계열",
+        "parts": [
+          {
+            "part": [
+              "트렁크"
+            ],
+            "label": "트렁크 하단",
+            "before": "https://images.acedentshop.co.kr/works/bc222367-c027-4c2d-9a2d-154e3335c388/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/bc222367-c027-4c2d-9a2d-154e3335c388/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/bc222367-c027-4c2d-9a2d-154e3335c388/01-image-thumbnail.jpg",
+            "note": "트렁크 하단 엣지 함몰 및 몰딩 긁힘 발생. 무너진 엣지 각을 스폿 판금으로 정밀 교정 후 열처리 도장으로 복원했으며, 하단 몰딩은 새 부품으로 교환하여 조립 마감."
+          }
+        ],
+        "summary": "트렁크 도어 하단 엣지 라인의 찌그러짐을 정밀 판금도장으로 펴내어 원래의 각을 살리고, 긁힌 범퍼 하단 몰딩은 새 부품으로 교환하여 이질감 없이 깔끔하게 복원했습니다.",
+        "body": "트렁크 도어(테일게이트) 최하단 엣지 라인에 찍힘으로 인한 철판 함몰과 페인트 손상이 발생했으며, 뒤범퍼 하단 몰딩부에도 긁힌 자국이 동반된 상태였습니다. 철판이 두 겹으로 접히는 엣지(모서리) 라인은 평면보다 강성이 높아, 무너진 각을 반듯하게 펴내는 판금 공정이 까다로운 부위입니다.\n\n찌그러진 트렁크 엣지 라인은 스폿 용접기로 당겨내어 원래의 면과 각을 교정한 뒤, 퍼티로 미세한 단차를 잡았습니다. 이후 차량 색상에 맞춘 정밀 조색 및 열처리 도장 공정을 거쳐 주변 패널과 이색 현상 없이 단정하게 마감했습니다. 긁힘이 있던 하단 몰딩은 복원 대신 기아 정품 새 부품으로 1:1 교환하여 단차 없이 견고하게 조립을 완료했습니다.",
+        "featured": false,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    },
+    {
       "sourceFile": "d1:bmw-530i-josuseok-hudoeo-dwitmun-door-panel-paint",
-      "lastModified": "2026-09-10",
+      "lastModified": "2026-09-11",
       "work": {
         "slug": "bmw-530i-josuseok-hudoeo-dwitmun-door-panel-paint",
         "date": "2026-09-10",
@@ -30,7 +212,7 @@
         "body": "페인트 베이스층까지 깊게 까져 철판이 노출된 상태였기에, 단순 덴트(PDR)로 펴내면 추후 부식(녹)이 발생할 위험이 컸습니다.\n\n따라서 내구성을 완벽히 확보하기 위해 정석 판금도장 수리를 진행했습니다. 스폿 용접기로 둔탁하게 밀려 들어간 철판을 0점으로 당겨내어 굴곡을 맞춘 뒤, 수입차 전용 아연 퍼티로 미세한 면을 다듬었습니다. 이후 BMW 고유의 블루 펄감을 살리는 정밀 미세 조색과 60도 이상 특수 고온 열처리를 거쳐, 앞문이나 뒤휀더 등 주변 패널과 비교해도 전혀 이질감 없는 맑은 광도와 평활도를 완성했습니다.",
         "blogUrl": "https://blog.naver.com/ace_dent_shop/224399551713",
         "featured": false,
-        "days": "2",
+        "days": "2일",
         "sliderType": "drag",
         "subCategories": [],
         "subParts": []
@@ -245,36 +427,40 @@
     },
     {
       "sourceFile": "d1:land-rover-defender-fender-panel-paint",
-      "lastModified": "2026-09-07",
+      "lastModified": "2026-09-13",
       "work": {
         "slug": "land-rover-defender-fender-panel-paint",
         "date": "2026-09-07",
-        "title": "휀더 판금도장",
+        "title": "앞휀더 함몰 정밀 판금도장 및 가니쉬 교환",
         "category": "panel-paint",
         "part": [
-          "휀더",
-          "범퍼"
+          "휀더"
         ],
         "carMaker": "랜드로버",
         "carModel": "디펜더",
         "parts": [
           {
-            "label": "앞휀더·범퍼",
+            "part": [
+              "휀더",
+              "범퍼"
+            ],
+            "label": "휀더 · 범퍼 측면",
             "before": "https://images.acedentshop.co.kr/works/land-rover-defender-fender-panel-paint-before.jpg",
             "after": "https://images.acedentshop.co.kr/works/land-rover-defender-fender-panel-paint-after.jpg",
-            "note": "밀려 들어간 앞휀더 라인과 범퍼 주변 손상을 원래 형태에 가깝게 복원",
-            "thumbnail": "https://images.acedentshop.co.kr/works/land-rover-defender-fender-panel-paint-after.jpg"
+            "thumbnail": "https://images.acedentshop.co.kr/works/land-rover-defender-fender-panel-paint-after.jpg",
+            "note": "깊게 함몰된 철판과 단차 붕괴 발생. 부품 외부 반출 제한으로 교환이 불가한 상황에서, 정밀 스폿 판금으로 무너진 뼈대를 펴내고 이색 없는 열처리 도장으로 완벽하게 복원 완료."
           }
         ],
-        "summary": "밀려 들어간 앞휀더 라인과 범퍼 주변 손상을 원래 형태에 가깝게 복원한 사례입니다.",
-        "body": "앞휀더와 범퍼에 이어진 긁힘과 휀더 라인의 변형을 확인했습니다. 밀려 들어간 휀더 면을 판금하고 손상 범위를 도장해 정리했습니다. 휠 아치 라인과 범퍼 경계의 연결을 확인한 뒤 출고했습니다.",
+        "summary": "조수석 전면부에 발생한 심각한 철판 함몰과 가니쉬 파손을 진단하고, 휀더와 범퍼는 부품 교환 없이 정밀 판금도장으로 살려낸 뒤 가니쉬는 새 부품으로 교환하여 완벽하게 복원했습니다.",
+        "body": "조수석 앞휀더가 뼈대까지 깊게 함몰되고 앞범퍼와 휠 아치 가니쉬가 심하게 찢겨 나간 상태로 입고되었습니다. 휀더의 파손이 워낙 심각하여 부품 교환이 필요한 상황이었으나, 브랜드 서비스센터 규정상 해당 메인 패널의 외부 반출(부품 유통)이 엄격히 제한되어 있었습니다. 센터 입고 시 발생할 막대한 대기 시간과 수리 비용을 방지하기 위해, 반출이 가능한 가니쉬 부품만 새로 주문하고 메인 철판과 범퍼는 에이스덴트의 기술력으로 직접 펴내어 복원하기로 결정했습니다.\n\n찢어진 가니쉬를 안전하게 탈거한 뒤, 안으로 훅 꺼져 들어간 휀더 프레임에 스포트기를 연결하여 엣지 라인이 살아날 때까지 강하게 당겨내는 정밀 판금 작업을 진행했습니다. 뭉개진 범퍼와의 조립 단차를 0점으로 맞추고 얇은 퍼티 작업으로 면을 잡은 뒤, 딥블랙 고유의 색상을 정밀 조색하여 특수 열처리 도장으로 마감했습니다. 플라스틱 가니쉬는 새 부품으로 조립하여, 부품 수급의 한계를 극복하고 신차 수준의 외관 컨디션을 완성했습니다.",
         "blogUrl": "https://blog.naver.com/ace_dent_shop/224383645497",
         "featured": true,
         "featuredOrder": 8,
         "days": "2일",
         "sliderType": "drag",
         "subCategories": [],
-        "subParts": []
+        "subParts": [],
+        "color": "블랙 계열 (딥블랙)"
       }
     },
     {
@@ -312,44 +498,48 @@
     },
     {
       "sourceFile": "d1:mercedes-g63-wheel-cover-paint",
-      "lastModified": "2026-09-07",
+      "lastModified": "2026-09-13",
       "work": {
         "slug": "mercedes-g63-wheel-cover-paint",
         "date": "2026-09-07",
-        "title": "휠커버 판금도장",
+        "title": "스페어타이어 휠커버 알루미늄 패널 함몰 판금도장",
         "category": "panel-paint",
         "part": [
           "휠"
         ],
         "carMaker": "벤츠",
-        "carModel": "G63 AMG",
+        "carModel": "G클래스 (지바겐 / G63 AMG)",
         "parts": [
           {
-            "label": "스페어 휠커버",
+            "part": [
+              "휠"
+            ],
+            "label": "휠 후면 스페어타이어 휠커버",
             "before": "https://images.acedentshop.co.kr/works/mercedes-g63-wheel-cover-paint-before.jpg",
             "after": "https://images.acedentshop.co.kr/works/mercedes-g63-wheel-cover-paint-after.jpg",
-            "note": "찌그러진 휠커버를 교환하지 않고 판금도장으로 복원",
-            "thumbnail": "https://images.acedentshop.co.kr/works/mercedes-g63-wheel-cover-paint-after.jpg"
+            "thumbnail": "https://images.acedentshop.co.kr/works/mercedes-g63-wheel-cover-paint-after.jpg",
+            "note": "깊게 찌그러진 알루미늄 합금 패널 손상. 부품 통교환 없이 알루미늄 전용 미세 타격 판금으로 구형 곡면을 복원하고, 정석 열처리 도장을 거쳐 외곽 크롬 링과 단차 없이 조립 완료."
           }
         ],
-        "summary": "찌그러진 휠커버를 교환하지 않고 판금과 도장으로 복원한 사례입니다.",
-        "body": "스페어 휠커버의 눌림과 표면 손상을 확인했습니다. 교환 대신 판금으로 형태를 잡고 기존 흰색에 맞춰 도장했습니다. 곡면의 반사와 가장자리 마감을 확인해 작업을 마쳤습니다.",
+        "summary": "찌그러지면 부품을 교환해야 하는 까다로운 알루미늄 휠커버 패널을 특수 판금과 정밀 도장으로 복원하여, 부품 비용을 절감하고 완벽한 단차를 맞추었습니다.",
+        "body": "후진 중 발생한 충격으로 후면 스페어타이어 휠커버 중앙 플레이트가 깊게 함몰되어 입고되었습니다. 지바겐의 휠커버는 무게 절감을 위해 일반 철판이 아닌 알루미늄 합금으로 제작됩니다. 알루미늄은 연성이 낮아 무리하게 펴내면 금속이 찢어지거나 늘어나기 때문에, 공식 센터에서는 고가의 '전체 부품 교환'을 진단하는 경우가 대부분입니다.\n\n부품 교환 없이 오리지널리티를 보존하기 위해 알루미늄 전용 특수 판금 복원을 진행했습니다. 휠커버와 외곽 스테인리스 링을 안전하게 분리한 뒤, 미세 타격 공법으로 늘어난 장력을 조율하여 왜곡 없이 매끄러운 구형 곡면을 되살렸습니다. 이후 최소량의 퍼티 샌딩과 서페이서로 신차 수준의 평탄도를 확보하고, 특수 열처리 도장으로 마감했습니다. 정교하게 교정된 알루미늄 패널 덕분에 조립 후 크롬 가이드링과의 틈새가 벌어지는 하자 없이, 완벽한 일체감과 맑은 도장 면을 완성했습니다.",
         "blogUrl": "https://blog.naver.com/ace_dent_shop/224309593743",
         "featured": true,
         "featuredOrder": 4,
         "days": "2일",
         "sliderType": "drag",
         "subCategories": [],
-        "subParts": []
+        "subParts": [],
+        "color": "화이트 계열"
       }
     },
     {
       "sourceFile": "d1:tesla-model3-trunk-panel-paint",
-      "lastModified": "2026-09-07",
+      "lastModified": "2026-09-13",
       "work": {
         "slug": "tesla-model3-trunk-panel-paint",
         "date": "2026-09-07",
-        "title": "트렁크 판금도장",
+        "title": "트렁크 리드 함몰 및 후도어·후휀더 긁힘 판금도장 복원",
         "category": "panel-paint",
         "part": [
           "트렁크"
@@ -358,22 +548,37 @@
         "carModel": "모델3",
         "parts": [
           {
-            "label": "트렁크",
+            "part": [
+              "트렁크"
+            ],
+            "label": "트렁크 리드 번호판 상단 각 라인",
             "before": "https://images.acedentshop.co.kr/works/tesla-model3-trunk-panel-paint-before.jpg",
             "after": "https://images.acedentshop.co.kr/works/tesla-model3-trunk-panel-paint-after.jpg",
-            "note": "트렁크 패널의 깊게 눌린 자국을 판금하고 도장해 마감",
-            "thumbnail": "https://images.acedentshop.co.kr/works/tesla-model3-trunk-panel-paint-after.jpg"
+            "thumbnail": "https://images.acedentshop.co.kr/works/tesla-model3-trunk-panel-paint-after.jpg",
+            "note": "충격으로 인해 패널이 안으로 심하게 꺾이고 주저앉은 상태. 부품 교환 없이 스폿 판금으로 무너진 장력을 풀어내어 원래의 엣지 각을 살려낸 뒤 열처리 도장 완료."
+          },
+          {
+            "part": [
+              "도어",
+              "휀더"
+            ],
+            "label": "도어 · 휀더 하단 및 후휀더 휠 아치",
+            "before": "https://images.acedentshop.co.kr/works/6ba6372b-0705-467a-85e4-adb40a10b0c4/02-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/6ba6372b-0705-467a-85e4-adb40a10b0c4/02-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/6ba6372b-0705-467a-85e4-adb40a10b0c4/02-image-thumbnail.jpg",
+            "note": "측면 구조물 마찰로 인한 철판 찌그러짐 및 깊은 스크래치. 휀더 엣지 단차를 정밀 교정하고 이색 현상 없는 정석 판금도장으로 오리지널 도장면 수준의 맑은 광도 복원 완료."
           }
         ],
-        "summary": "트렁크 패널의 깊게 눌린 자국을 판금하고 도장해 마감한 사례입니다.",
-        "body": "트렁크 끝부분의 깊은 눌림과 도장 손상을 확인했습니다. 패널 형태와 인접한 테일램프 라인을 고려해 판금한 뒤 도장했습니다. 작업 후 트렁크 단차와 표면 광택을 확인했습니다.",
+        "summary": "공식 센터에서 교환 판정을 받을 만큼 심하게 꺾인 트렁크 리드와 측면부 찌그러짐을 정밀 스폿 판금도장으로 펴내어, 감가 하락(부품 교환) 없이 완벽하게 복원했습니다.",
+        "body": "주차 중 충격으로 인해 트렁크 리드(번호판 상단 각 라인)가 안쪽으로 깊게 함몰되며 장력이 무너졌고, 조수석 후도어부터 후휀더 아치 라인까지 찌그러짐과 깊은 스크래치가 동반된 상태로 입고되었습니다. 특히 트렁크의 꺾임이 심해 공식 센터 방문 시 무조건적인 부품 교환을 진단받기 쉬운 심각한 손상이었습니다.\n\n트렁크 리드나 일체형 프레임인 후휀더를 절단 및 교환할 경우 '사고차'로 분류되어 막대한 중고차 감가가 발생합니다. 고객님의 차량 자산 가치를 보존하기 위해 부품 교환 없이 오리지널 차체를 살리는 정석 복원을 진행했습니다.\n\n고장력 강판의 특성을 이용해 꺾인 트렁크 중심선을 스폿 용접기로 정밀하게 유도해 내어 외판을 90% 이상 본래 형태로 교정했습니다. 안으로 밀려 들어간 휀더 엣지 라인 역시 미세 타격 공법으로 단차를 맞추었습니다. 면을 확실히 펴낸 덕분에 퍼티를 최소한으로 얇게 도포하여 내구성을 극대화할 수 있었으며, 테슬라 특유의 화이트 도료를 정밀 조색 후 특수 열처리 도장으로 마감하여 이색이나 꿀렁임 없는 완벽한 평활도를 완성했습니다.",
         "blogUrl": "https://blog.naver.com/ace_dent_shop/224335294851",
         "featured": true,
         "featuredOrder": 5,
         "days": "2일",
         "sliderType": "split",
         "subCategories": [],
-        "subParts": []
+        "subParts": [],
+        "color": "화이트 계열"
       }
     },
     {
@@ -424,7 +629,7 @@
     },
     {
       "sourceFile": "d1:mercedes-cls-450-item-18s5pvs-bumper-panel-paint",
-      "lastModified": "2026-09-10",
+      "lastModified": "2026-09-11",
       "work": {
         "slug": "mercedes-cls-450-item-18s5pvs-bumper-panel-paint",
         "date": "2026-08-29",
@@ -459,9 +664,10 @@
           },
           {
             "part": [
-              "도어"
+              "도어",
+              "휀더"
             ],
-            "label": "도어 휀더로 이어지는 스크레치",
+            "label": "도어 · 휀더",
             "before": "https://images.acedentshop.co.kr/works/a94994b4-03d0-446b-95ad-b8d1eaa58e3e/03-image-before.jpg",
             "after": "https://images.acedentshop.co.kr/works/a94994b4-03d0-446b-95ad-b8d1eaa58e3e/03-image-after.jpg",
             "thumbnail": "https://images.acedentshop.co.kr/works/a94994b4-03d0-446b-95ad-b8d1eaa58e3e/03-image-thumbnail.jpg",

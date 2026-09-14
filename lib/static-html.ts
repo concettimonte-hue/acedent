@@ -26,9 +26,13 @@ import {
 } from '../content/works/types';
 import {
   getWorkImageAlt,
-  getWorkPrimaryPart,
-  getWorkThumbnailSrc,
+  getWorkThumbnailSrcForCategory,
 } from './work-images';
+import {
+  getWorkDisplayCategories,
+  getWorkRepresentativePart,
+  workMatchesCategory,
+} from './work-categories';
 import { formatWorkCardParts } from './work-parts';
 
 const site = siteData as SiteContent;
@@ -58,12 +62,15 @@ function image(
   return `<img src="${text(src)}" alt="${text(alt)}" width="${options.width ?? 1600}" height="${options.height ?? 1200}" loading="${options.eager ? 'eager' : 'lazy'}"${options.eager ? ' fetchpriority="high"' : ' decoding="async"'} />`;
 }
 
-function workCard(work: WorkItem) {
-  const primaryPart = getWorkPrimaryPart(work);
+function workCard(work: WorkItem, contextCategory?: WorkCategory) {
+  const representativePart = getWorkRepresentativePart(work, contextCategory);
+  const displayedCategory = contextCategory && representativePart.category === contextCategory
+    ? contextCategory
+    : work.category;
   return `<article class="seo-work-card">
     <a href="/works/detail/${text(work.slug)}">
-      ${image(getWorkThumbnailSrc(work), getWorkImageAlt(work, primaryPart, '후'), { width: 800, height: 600 })}
-      <p>${text(getWorkCategoryLabel(work.category))}</p>
+      ${image(getWorkThumbnailSrcForCategory(work, contextCategory), getWorkImageAlt(work, representativePart, '후'), { width: 800, height: 600 })}
+      <p>${text(getWorkCategoryLabel(displayedCategory))}</p>
       <h3>${text(car(work))} ${text(work.title)}</h3>
       <p>${text(work.summary)}</p>
       <small>${text(formatWorkCardParts(work))} · ${text(work.days)}</small>
@@ -118,7 +125,7 @@ export function getHomeStaticHtml(works: WorkItem[]) {
     <section id="services"><p>${text(services.kicker)}</p><h2>${services.titleLines.map(text).join(' ')}</h2><div class="seo-grid">${services.items
       .map((item) => `<article><small>${text(item.number)}</small><h3>${text(item.title)}</h3><p>${text(item.copy).replaceAll('\n', '<br />')}</p></article>`)
       .join('')}</div></section>
-    <section id="cases"><p>${text(casesData.sectionLabel)}</p><h2>${casesData.headingLines.map(text).join(' ')}</h2><p>${text(casesData.instruction)}</p><div class="seo-works-grid">${featured.map(workCard).join('')}</div><a href="/works">${text(casesData.moreLinkLabel)}</a></section>
+    <section id="cases"><p>${text(casesData.sectionLabel)}</p><h2>${casesData.headingLines.map(text).join(' ')}</h2><p>${text(casesData.instruction)}</p><div class="seo-works-grid">${featured.map((work) => workCard(work)).join('')}</div><a href="/works">${text(casesData.moreLinkLabel)}</a></section>
     <section id="paint-care"><p>${text(polish.sectionLabel)}</p><h2>${text(polish.heading)}</h2><p>${text(polish.subCopy)}</p><div class="seo-grid">${polish.items
       .map((item) => `<article><small>${text(item.no)} · ${text(item.days)}</small><h3>${text(item.title)}</h3><p>${text(item.keywords)}</p><p>${text(item.desc)}</p>${item.notWhen ? `<p><strong>이런 경우는</strong> ${text(item.notWhen)}</p>` : ''}</article>`)
       .join('')}</div></section>
@@ -135,25 +142,25 @@ export function getHomeStaticHtml(works: WorkItem[]) {
 }
 
 export function getWorksStaticHtml(works: WorkItem[], category?: WorkCategory) {
-  const visible = category ? works.filter((work) => work.category === category) : works;
+  const visible = category ? works.filter((work) => workMatchesCategory(work, category)) : works;
   const heading = category ? getWorkCategoryLabel(category) : '수리사례';
   return `<main class="seo-static seo-works">
     <header class="seo-static-header"><a href="/">ACE DENT</a><a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
     <section><p>ACE DENT · REPAIR ARCHIVE</p><h1>${category ? `동대문 ${text(heading)} 전후 수리사례` : '동대문 판금도색·덴트·외형복원 수리사례'}</h1><p>실제 차량의 작업 전후를 확인하고 내 차와 비슷한 손상을 찾아보세요.</p></section>
     <nav aria-label="작업방식"><a href="/works">전체</a>${WORK_CATEGORIES.map((item) => `<a href="/works/${item.id}">${text(item.label)}</a>`).join('')}</nav>
-    <section aria-label="수리사례 목록"><p>${visible.length}건</p><div class="seo-works-grid">${visible.map(workCard).join('')}</div></section>
+    <section aria-label="수리사례 목록"><p>${visible.length}건</p><div class="seo-works-grid">${visible.map((work) => workCard(work, category)).join('')}</div></section>
   </main>`;
 }
 
 export function getWorkDetailStaticHtml(work: WorkItem, related: WorkItem[]) {
   const categoryLabel = getWorkCategoryLabel(work.category);
-  const subCategoryLabels = work.subCategories.map(getWorkCategoryLabel);
+  const [, ...secondaryCategories] = getWorkDisplayCategories(work);
   const classification = `<div class="work-detail-classification">
         <span class="work-detail-classification-primary">${text(categoryLabel)}</span>
-        ${subCategoryLabels.map((label) => `<span class="work-detail-classification-secondary-group"><span class="work-detail-classification-separator" aria-hidden="true">·</span><span class="work-detail-classification-secondary">${text(label)}</span></span>`).join('')}
+        ${secondaryCategories.map((category) => `<span class="work-detail-classification-secondary-group"><span class="work-detail-classification-separator" aria-hidden="true">·</span><span class="work-detail-classification-secondary">${text(getWorkCategoryLabel(category))}</span></span>`).join('')}
       </div>`;
   const partSection = (part: WorkPartMedia, index: number) => `<section>
-        <p>PART ${String(index + 1).padStart(2, '0')}</p>
+        <p>PART ${String(index + 1).padStart(2, '0')}${part.category ? ` · ${text(getWorkCategoryLabel(part.category))}` : ''}</p>
         <h2>${text(part.label)}</h2>
         <p>${text(part.note)}</p>
         <div class="seo-comparison">
@@ -173,7 +180,7 @@ export function getWorkDetailStaticHtml(work: WorkItem, related: WorkItem[]) {
       ${work.body.split('\n\n').map((paragraph) => `<p>${text(paragraph)}</p>`).join('')}
       ${work.blogUrl ? `<a href="${text(work.blogUrl)}" target="_blank" rel="noopener noreferrer">블로그에서 더 보기</a>` : ''}
     </article>
-    ${related.length ? `<section><h2>같은 작업방식 사례</h2><div class="seo-works-grid">${related.map(workCard).join('')}</div></section>` : ''}
+    ${related.length ? `<section><h2>같은 작업방식 사례</h2><div class="seo-works-grid">${related.map((relatedWork) => workCard(relatedWork)).join('')}</div></section>` : ''}
     <section><h2>비슷한 손상이라면 사진으로 문의하세요.</h2><a href="${text(site.contact.phoneHref)}">전화</a><a href="${text(site.contact.smsHref)}">사진 문자</a><a href="${text(naver.talk)}" target="_blank" rel="noopener noreferrer">네이버 톡톡</a></section>
   </main>`;
 }

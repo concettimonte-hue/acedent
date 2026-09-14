@@ -1,5 +1,11 @@
-import type { WorkItem, WorkPartMedia } from '../content/works/types';
+import {
+  getWorkCategoryLabel,
+  type WorkCategory,
+  type WorkItem,
+  type WorkPartMedia,
+} from '../content/works/types';
 import { SLUG_PART_TERMS } from './slug-dictionary';
+import { getWorkRepresentativePart } from './work-categories';
 
 export const WORK_IMAGE_DIRECTORY = '/works';
 
@@ -35,7 +41,7 @@ function labelHasPartMeaning(label: string, value: string) {
   });
 }
 
-function getPartImageDescription(part: WorkPartMedia) {
+export function getPartImageDescription(part: WorkPartMedia) {
   const label = part.label.trim().replace(/\s+/g, ' ');
   const partValues = [...new Set((part.part ?? []).map((value) => value.trim()).filter(Boolean))];
   const partPrefix = partValues.join(' · ');
@@ -71,9 +77,16 @@ export function getWorkPrimaryAfterSrc(work: WorkItem) {
 }
 
 export function getWorkThumbnailSrc(work: WorkItem) {
-  const primaryPart = getWorkPrimaryPart(work);
-  if (primaryPart.thumbnail) return resolveWorkImageSrc(primaryPart.thumbnail);
-  const after = primaryPart.after;
+  return getWorkThumbnailSrcForCategory(work);
+}
+
+export function getWorkThumbnailSrcForCategory(
+  work: WorkItem,
+  category?: WorkCategory,
+) {
+  const representativePart = getWorkRepresentativePart(work, category);
+  if (representativePart.thumbnail) return resolveWorkImageSrc(representativePart.thumbnail);
+  const after = representativePart.after;
   const thumbnail = after.replace(
     /^\/works\/(.+)-after\.(?:jpe?g|png|webp)$/i,
     '/works/thumbnails/$1.jpg',
@@ -95,6 +108,11 @@ export function getWorkImageAlt(
 ) {
   const car = [work.carMaker, work.carModel].filter(Boolean).join(' ');
   const partDescription = getPartImageDescription(part);
+  const explicitCategory = part.category
+    ? getWorkCategoryLabel(part.category)
+    : '';
 
-  return `서울 동대문 ${car} ${partDescription} 수리 ${state}`.replace(/\s+/g, ' ').trim();
+  return `서울 동대문 ${car} ${partDescription} ${explicitCategory} 수리 ${state}`
+    .replace(/\s+/g, ' ')
+    .trim();
 }

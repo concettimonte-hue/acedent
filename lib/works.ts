@@ -8,6 +8,7 @@ import {
   type WorkPartMedia,
 } from '@/content/works/types';
 import generatedWorksData from '@/content/works.generated.json';
+import { workMatchesCategory } from '@/lib/work-categories';
 import { formatWorkCardParts } from '@/lib/work-parts';
 
 interface GeneratedWorkRecord {
@@ -99,6 +100,14 @@ function parseWork(value: unknown, fileName: string): WorkItem {
       throw new Error(`${fileName}: parts[${index}]는 객체 형식이어야 합니다.`);
     }
     const part = value as Record<string, unknown>;
+    const partCategory = part.category === undefined || part.category === ''
+      ? undefined
+      : part.category;
+    if (partCategory !== undefined && (
+      typeof partCategory !== 'string' || !isWorkCategory(partCategory)
+    )) {
+      throw new Error(`${fileName}: parts[${index}].category 값이 올바르지 않습니다.`);
+    }
     const mediaParts = Array.isArray(part.part)
       ? [...new Set(part.part.map((partValue) => {
           if (typeof partValue !== 'string' || !isWorkPartValue(partValue)) {
@@ -112,6 +121,7 @@ function parseWork(value: unknown, fileName: string): WorkItem {
     }
     return {
       part: mediaParts,
+      category: partCategory,
       label: requireString(part.label, `parts[${index}].label`, fileName),
       before: requireString(part.before, `parts[${index}].before`, fileName),
       after: requireString(part.after, `parts[${index}].after`, fileName),
@@ -188,7 +198,7 @@ export function getWorkBySlug(slug: string) {
 }
 
 export function getWorksByCategory(category: WorkCategory) {
-  return allWorks.filter((work) => work.category === category);
+  return allWorks.filter((work) => workMatchesCategory(work, category));
 }
 
 export function getFeaturedWorks(limit = 8) {
