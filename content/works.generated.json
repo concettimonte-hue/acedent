@@ -158,7 +158,7 @@
     },
     {
       "sourceFile": "d1:byd-atto-3-side-bumper-panel-paint",
-      "lastModified": "2026-09-11",
+      "lastModified": "2026-09-14",
       "work": {
         "slug": "byd-atto-3-side-bumper-panel-paint",
         "date": "2026-09-11",
@@ -168,7 +168,7 @@
           "polish"
         ],
         "part": [
-          "범퍼"
+          "휀더"
         ],
         "subParts": [],
         "carMaker": "BYD",
@@ -177,14 +177,25 @@
         "parts": [
           {
             "part": [
-              "범퍼",
               "휀더"
             ],
-            "label": "범퍼 · 휀더 측면 및 휠 아치 가니쉬",
-            "before": "https://images.acedentshop.co.kr/works/be4e5894-4bca-4c15-8194-cf7b2bf4d8e4/01-image-before.jpg",
-            "after": "https://images.acedentshop.co.kr/works/be4e5894-4bca-4c15-8194-cf7b2bf4d8e4/01-image-after.jpg",
-            "thumbnail": "https://images.acedentshop.co.kr/works/be4e5894-4bca-4c15-8194-cf7b2bf4d8e4/01-image-thumbnail.jpg",
-            "note": "휀더 함몰 및 가니쉬·범퍼 긁힘 복합 손상. 휀더는 단차 교정 판금도장, 범퍼는 폴리싱 흠집제거, 가니쉬는 전용 복원제 시공으로 교환 없이 마감 완료."
+            "category": "panel-paint",
+            "label": "휀더 경계면",
+            "before": "https://images.acedentshop.co.kr/works/21123d0a-cd40-499a-898d-9df83d0a3e73/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/21123d0a-cd40-499a-898d-9df83d0a3e73/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/21123d0a-cd40-499a-898d-9df83d0a3e73/01-image-thumbnail.jpg",
+            "note": "철판 함몰로 인해 범퍼와의 조립 단차가 벌어진 손상. 범퍼 부분 탈거 후 스폿 판금으로 찌그러진 철판을 0점으로 당겨내어 단차를 완벽히 교정하고, 정밀 열처리 도장으로 맑게 복원 완료."
+          },
+          {
+            "part": [
+              "범퍼"
+            ],
+            "category": "polish",
+            "label": "범퍼 측면 무광 휠 아치 가니쉬",
+            "before": "https://images.acedentshop.co.kr/works/21123d0a-cd40-499a-898d-9df83d0a3e73/02-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/21123d0a-cd40-499a-898d-9df83d0a3e73/02-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/21123d0a-cd40-499a-898d-9df83d0a3e73/02-image-thumbnail.jpg",
+            "note": "마찰로 인한 범퍼 스크래치 및 가니쉬 긁힘 손상. 비용 절감을 위해 앞범퍼는 정밀 폴리싱과 붓터치로 흠집을 완화하고, 부품 교환이 불가한 무광 가니쉬는 전용 복원제를 꼼꼼히 도포하여 본연의 짙은 색감으로 이질감 없이 커버 완료."
           }
         ],
         "summary": "부품 수급이 불가한 무광 가니쉬는 전용 복원제로 커버하고, 찌그러진 앞휀더는 판금도장으로 단차를 교정하여 전체 수리 비용을 최소화했습니다.",
@@ -694,6 +705,7 @@
             "part": [
               "범퍼"
             ],
+            "category": "panel-paint",
             "label": "범퍼 측면",
             "before": "https://images.acedentshop.co.kr/works/c623728f-f033-4940-8563-ae6fabf44fda/01-image-before.jpg",
             "after": "https://images.acedentshop.co.kr/works/a94994b4-03d0-446b-95ad-b8d1eaa58e3e/01-image-after.jpg",
@@ -704,6 +716,7 @@
             "part": [
               "사이드스텝"
             ],
+            "category": "panel-paint",
             "label": "사이드스텝",
             "before": "https://images.acedentshop.co.kr/works/a94994b4-03d0-446b-95ad-b8d1eaa58e3e/02-image-before.jpg",
             "after": "https://images.acedentshop.co.kr/works/a94994b4-03d0-446b-95ad-b8d1eaa58e3e/02-image-after.jpg",

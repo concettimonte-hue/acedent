@@ -5,6 +5,7 @@ import {
   getWorkCategoryLabel,
   type WorkCategory,
   type WorkItem,
+  type WorkPart,
 } from '@/content/works/types';
 import {
   getWorkImageAlt,
@@ -18,10 +19,15 @@ import { trackCaseView } from '@/lib/analytics';
 interface WorkCardProps {
   work: WorkItem;
   contextCategory?: WorkCategory;
+  contextPart?: WorkPart;
 }
 
-export default function WorkCard({ work, contextCategory }: WorkCardProps) {
-  const representativePart = getWorkRepresentativePart(work, contextCategory);
+export default function WorkCard({ work, contextCategory, contextPart }: WorkCardProps) {
+  const representativePart = getWorkRepresentativePart(
+    work,
+    contextCategory,
+    contextPart,
+  );
   const displayedCategory = contextCategory && representativePart.category === contextCategory
     ? contextCategory
     : work.category;
@@ -35,7 +41,7 @@ export default function WorkCard({ work, contextCategory }: WorkCardProps) {
     >
       <span className="work-card-media">
         <img
-          src={getWorkThumbnailSrcForCategory(work, contextCategory)}
+          src={getWorkThumbnailSrcForCategory(work, contextCategory, contextPart)}
           alt={getWorkImageAlt(work, representativePart, '후')}
           width="800"
           height="600"

@@ -2,6 +2,7 @@ import {
   getWorkCategoryLabel,
   type WorkCategory,
   type WorkItem,
+  type WorkPart,
   type WorkPartMedia,
 } from '../content/works/types';
 import { SLUG_PART_TERMS } from './slug-dictionary';
@@ -83,8 +84,9 @@ export function getWorkThumbnailSrc(work: WorkItem) {
 export function getWorkThumbnailSrcForCategory(
   work: WorkItem,
   category?: WorkCategory,
+  part?: WorkPart,
 ) {
-  const representativePart = getWorkRepresentativePart(work, category);
+  const representativePart = getWorkRepresentativePart(work, category, part);
   if (representativePart.thumbnail) return resolveWorkImageSrc(representativePart.thumbnail);
   const after = representativePart.after;
   const thumbnail = after.replace(

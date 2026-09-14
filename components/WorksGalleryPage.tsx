@@ -167,6 +167,7 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
               <WorkCard
                 work={work}
                 contextCategory={selectedCategory}
+                contextPart={selectedPart}
                 key={work.slug}
               />
             ))}
