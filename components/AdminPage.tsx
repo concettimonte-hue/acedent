@@ -1089,11 +1089,11 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
               {previewWork.parts.map((part, index) => <section className="work-detail-part" key={`${part.label}-${index}`}>
                 <header className="work-detail-part-heading"><span>PART {String(index + 1).padStart(2, '0')}{part.category && ` · ${getWorkCategoryLabel(part.category)}`}</span><h2>{part.label}</h2><p>{part.note}</p></header>
                 {part.before && part.after ? <div className="work-detail-slider"><BeforeAfterSlider beforeSrc={part.before} afterSrc={part.after} beforeAlt={getWorkImageAlt(previewWork, part, '전')} afterAlt={getWorkImageAlt(previewWork, part, '후')} mode="drag" /></div> : <div className="admin-preview-empty">전·후 사진을 선택하면 비교 슬라이더가 표시됩니다.</div>}
-                {part.gallery && part.gallery.length > 0 && <WorkPhotoGallery images={part.gallery} work={previewWork} part={part} title={`${part.label} 추가 사진`} compact />}
+                {part.gallery && part.gallery.length > 0 && <WorkPhotoGallery images={part.gallery} work={previewWork} part={part} title="해당 부위 사진 더 보기" compact />}
               </section>)}
             </div>
             <div className="work-detail-copy"><p className="work-detail-summary">{previewWork.summary}</p><p>{previewWork.body}</p></div>
-            {previewWork.gallery && previewWork.gallery.length > 0 && <WorkPhotoGallery images={previewWork.gallery} work={previewWork} label="MORE PHOTOS" title="작업 전체 추가 사진" />}
+            {previewWork.gallery && previewWork.gallery.length > 0 && <WorkPhotoGallery images={previewWork.gallery} work={previewWork} label="MORE PHOTOS" title="사례 사진 더 보기" />}
           </article>
           <dl className="admin-seo-preview">
             <div><dt>자동 제목</dt><dd>{previewSeo.title}</dd></div>

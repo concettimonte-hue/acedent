@@ -5,6 +5,7 @@ import {
   useId,
   useRef,
   useState,
+  type UIEvent,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Expand, X } from 'lucide-react';
@@ -159,11 +160,31 @@ export default function WorkPhotoGallery({
   work,
   part,
   label = 'DETAIL PHOTOS',
-  title = '추가 작업 사진',
+  title = '사진 더 보기',
   compact = false,
 }: WorkPhotoGalleryProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [visibleIndex, setVisibleIndex] = useState(0);
   if (images.length === 0) return null;
+
+  const handleScroll = (event: UIEvent<HTMLDivElement>) => {
+    const items = Array.from(
+      event.currentTarget.querySelectorAll<HTMLElement>('.work-photo-gallery-item'),
+    );
+    const firstOffset = items[0]?.offsetLeft ?? 0;
+    const currentLeft = event.currentTarget.scrollLeft;
+    let closestIndex = 0;
+    let closestDistance = Number.POSITIVE_INFINITY;
+
+    items.forEach((item, index) => {
+      const distance = Math.abs(item.offsetLeft - firstOffset - currentLeft);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = index;
+      }
+    });
+    setVisibleIndex(closestIndex);
+  };
 
   return (
     <section className={`work-photo-gallery${compact ? ' is-compact' : ''}`}>
@@ -172,7 +193,11 @@ export default function WorkPhotoGallery({
         <h3>{title}</h3>
         <span>사진을 누르면 크게 볼 수 있습니다.</span>
       </header>
-      <div className="work-photo-gallery-grid" data-count={Math.min(images.length, 4)}>
+      <div
+        className="work-photo-gallery-grid"
+        data-count={Math.min(images.length, 4)}
+        onScroll={handleScroll}
+      >
         {images.map((image, index) => (
           <button
             type="button"
@@ -197,6 +222,20 @@ export default function WorkPhotoGallery({
           </button>
         ))}
       </div>
+      {images.length > 1 && (
+        <div className="work-photo-gallery-swipe-guide" aria-hidden="true">
+          <span>옆으로 넘겨보세요</span>
+          <div className="work-photo-gallery-dots">
+            {images.map((image, index) => (
+              <i
+                className={index === visibleIndex ? 'is-active' : undefined}
+                key={`${image.src}-dot-${index}`}
+              />
+            ))}
+          </div>
+          <strong>{visibleIndex + 1} / {images.length}</strong>
+        </div>
+      )}
       {activeIndex !== null && (
         <GalleryViewer
           images={images}

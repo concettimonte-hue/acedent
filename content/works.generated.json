@@ -64,7 +64,23 @@
             "before": "https://images.acedentshop.co.kr/works/ce6d5561-1618-45d3-b2a5-d63a46b5e672/01-image-before.jpg",
             "after": "https://images.acedentshop.co.kr/works/ce6d5561-1618-45d3-b2a5-d63a46b5e672/01-image-after.jpg",
             "thumbnail": "https://images.acedentshop.co.kr/works/ce6d5561-1618-45d3-b2a5-d63a46b5e672/01-image-thumbnail.jpg",
-            "note": "페인트 까짐 없이 철판만 날카롭게 찍힌 함몰 손상. 차체에 구멍을 뚫지 않고 후방 카메라 홀을 이용해 로드를 진입시켰으며, 외부 텐션과 내부 로드 덴트를 병행하여 중고차 감가나 이색 현상 없이 찌그러지기 전의 완벽한 밸런스로 복원 완료."
+            "note": "페인트 까짐 없이 철판만 날카롭게 찍힌 함몰 손상. 차체에 구멍을 뚫지 않고 후방 카메라 홀을 이용해 로드를 진입시켰으며, 외부 텐션과 내부 로드 덴트를 병행하여 중고차 감가나 이색 현상 없이 찌그러지기 전의 완벽한 밸런스로 복원 완료.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/d6c0bade-e0b0-42c8-ad75-d190a122d0e2/01-gallery-1-72fe5e71-fd8d-44e8-bbc5-bbee5e29cd2a-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/d6c0bade-e0b0-42c8-ad75-d190a122d0e2/01-gallery-1-72fe5e71-fd8d-44e8-bbc5-bbee5e29cd2a-gallery-thumbnail.jpg",
+                "caption": "로드덴트",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/d6c0bade-e0b0-42c8-ad75-d190a122d0e2/01-gallery-2-de12e8a4-a317-4292-bd15-ff0837025499-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/d6c0bade-e0b0-42c8-ad75-d190a122d0e2/01-gallery-2-de12e8a4-a317-4292-bd15-ff0837025499-gallery-thumbnail.jpg",
+                "caption": "텐션덴트",
+                "width": 1600,
+                "height": 1200
+              }
+            ]
           }
         ],
         "summary": "트렁크 번호판 상단 각 라인에 발생한 날카로운 찌그러짐을 후방 카메라 홀을 이용한 무타공 텐션 로드 덴트 공법으로 펴내어, 원칠 손상 없이 완벽하게 복원했습니다.",
@@ -72,7 +88,33 @@
         "blogUrl": "https://blog.naver.com/PostView.naver?blogId=ace_dent_shop&logNo=224168736002",
         "featured": false,
         "days": "당일",
-        "sliderType": "drag"
+        "sliderType": "drag",
+        "gallery": [
+          {
+            "src": "https://images.acedentshop.co.kr/works/d6c0bade-e0b0-42c8-ad75-d190a122d0e2/21-gallery-1-3a928dde-10c4-482b-b142-05d5d08a0d8e-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/d6c0bade-e0b0-42c8-ad75-d190a122d0e2/21-gallery-1-3a928dde-10c4-482b-b142-05d5d08a0d8e-gallery-thumbnail.jpg",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/d6c0bade-e0b0-42c8-ad75-d190a122d0e2/21-gallery-2-21825d5a-0257-4ab1-83db-2f7eb825391e-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/d6c0bade-e0b0-42c8-ad75-d190a122d0e2/21-gallery-2-21825d5a-0257-4ab1-83db-2f7eb825391e-gallery-thumbnail.jpg",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/d6c0bade-e0b0-42c8-ad75-d190a122d0e2/21-gallery-3-823d4d5f-14c6-4cd1-bc86-0f7a981b6da1-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/d6c0bade-e0b0-42c8-ad75-d190a122d0e2/21-gallery-3-823d4d5f-14c6-4cd1-bc86-0f7a981b6da1-gallery-thumbnail.jpg",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/d6c0bade-e0b0-42c8-ad75-d190a122d0e2/21-gallery-4-57824c76-b0c8-40e7-a347-b69af1719a63-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/d6c0bade-e0b0-42c8-ad75-d190a122d0e2/21-gallery-4-57824c76-b0c8-40e7-a347-b69af1719a63-gallery-thumbnail.jpg",
+            "width": 1600,
+            "height": 1200
+          }
+        ]
       }
     },
     {

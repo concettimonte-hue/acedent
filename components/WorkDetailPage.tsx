@@ -101,7 +101,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
                   images={part.gallery}
                   work={work}
                   part={part}
-                  title={`${part.label} 추가 사진`}
+                  title="해당 부위 사진 더 보기"
                   compact
                 />
               )}
@@ -131,7 +131,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
             images={work.gallery}
             work={work}
             label="MORE PHOTOS"
-            title="작업 전체 추가 사진"
+            title="사례 사진 더 보기"
           />
         )}
 
