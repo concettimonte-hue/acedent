@@ -1,10 +1,13 @@
 import {
   WORK_PARTS,
+  WORK_GALLERY_MAX_PER_SCOPE,
+  WORK_GALLERY_MAX_TOTAL,
   getWorkCategoryLabel,
   isWorkCategory,
   isWorkPartValue,
   type WorkCategory,
   type WorkItem,
+  type WorkGalleryImage,
   type WorkPartMedia,
 } from '@/content/works/types';
 import generatedWorksData from '@/content/works.generated.json';
@@ -39,6 +42,29 @@ function optionalString(value: unknown, field: string, fileName: string) {
     throw new Error(`${fileName}: ${field} 값이 문자열이 아닙니다.`);
   }
   return value.trim();
+}
+
+function parseGallery(value: unknown, field: string, fileName: string): WorkGalleryImage[] {
+  if (value === undefined) return [];
+  if (!Array.isArray(value) || value.length > WORK_GALLERY_MAX_PER_SCOPE) {
+    throw new Error(`${fileName}: ${field}는 최대 ${WORK_GALLERY_MAX_PER_SCOPE}개의 배열이어야 합니다.`);
+  }
+  return value.map((entry, index) => {
+    if (!entry || typeof entry !== 'object') throw new Error(`${fileName}: ${field}[${index}] 값이 올바르지 않습니다.`);
+    const image = entry as Record<string, unknown>;
+    const width = Number(image.width);
+    const height = Number(image.height);
+    if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0 || width > 1600 || height > 1600) {
+      throw new Error(`${fileName}: ${field}[${index}] 이미지 크기가 올바르지 않습니다.`);
+    }
+    return {
+      src: requireString(image.src, `${field}[${index}].src`, fileName),
+      thumbnail: optionalString(image.thumbnail, `${field}[${index}].thumbnail`, fileName) || undefined,
+      caption: optionalString(image.caption, `${field}[${index}].caption`, fileName) || undefined,
+      width,
+      height,
+    };
+  });
 }
 
 function parseWork(value: unknown, fileName: string): WorkItem {
@@ -131,8 +157,15 @@ function parseWork(value: unknown, fileName: string): WorkItem {
           ? part.thumbnail
           : undefined,
       note: requireString(part.note, `parts[${index}].note`, fileName),
+      gallery: parseGallery(part.gallery, `parts[${index}].gallery`, fileName),
     };
   });
+
+  const gallery = parseGallery(item.gallery, 'gallery', fileName);
+  const totalGalleryImages = gallery.length + parts.reduce((count, part) => count + (part.gallery?.length ?? 0), 0);
+  if (totalGalleryImages > WORK_GALLERY_MAX_TOTAL) {
+    throw new Error(`${fileName}: 추가 사진은 사례 전체 최대 ${WORK_GALLERY_MAX_TOTAL}장이어야 합니다.`);
+  }
 
   const date = requireString(item.date, 'date', fileName);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -160,6 +193,7 @@ function parseWork(value: unknown, fileName: string): WorkItem {
         ? item.color
         : undefined,
     parts,
+    gallery,
     summary: requireString(item.summary, 'summary', fileName),
     body: requireString(item.body, 'body', fileName),
     blogUrl:

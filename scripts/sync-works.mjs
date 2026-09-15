@@ -9,6 +9,8 @@ const legacyR2PublicBases = [
   'https://pub-e6a8f147577c403f93d85e03a6361345.r2.dev',
 ];
 const workCategories = new Set(['dent', 'panel-paint', 'partial-paint', 'replace-paint', 'polish']);
+const galleryMaxPerScope = 6;
+const galleryMaxTotal = 12;
 
 if (existsSync(resolve(projectDirectory, '.env.local'))) {
   process.loadEnvFile(resolve(projectDirectory, '.env.local'));
@@ -52,6 +54,31 @@ function validateWork(work, sourceFile) {
     throw new Error(`${sourceFile}: subParts에 올바르지 않거나 주 부위와 같은 값이 있습니다.`);
   }
   if (!Array.isArray(work.parts) || work.parts.length === 0) throw new Error(`${sourceFile}: parts 배열이 비어 있습니다.`);
+  let galleryCount = 0;
+  const validateGallery = (gallery, field) => {
+    if (gallery === undefined) return undefined;
+    if (!Array.isArray(gallery) || gallery.length > galleryMaxPerScope) {
+      throw new Error(`${sourceFile}: ${field}는 최대 ${galleryMaxPerScope}개의 배열이어야 합니다.`);
+    }
+    galleryCount += gallery.length;
+    return gallery.map((image, index) => {
+      if (!image || typeof image !== 'object' || typeof image.src !== 'string' || !image.src.trim()) {
+        throw new Error(`${sourceFile}: ${field}[${index}].src 값이 올바르지 않습니다.`);
+      }
+      const width = Number(image.width);
+      const height = Number(image.height);
+      if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0 || width > 1600 || height > 1600) {
+        throw new Error(`${sourceFile}: ${field}[${index}] 이미지 크기가 올바르지 않습니다.`);
+      }
+      if (image.thumbnail !== undefined && (typeof image.thumbnail !== 'string' || !image.thumbnail.trim())) {
+        throw new Error(`${sourceFile}: ${field}[${index}].thumbnail 값이 올바르지 않습니다.`);
+      }
+      if (image.caption !== undefined && (typeof image.caption !== 'string' || image.caption.length > 120)) {
+        throw new Error(`${sourceFile}: ${field}[${index}].caption은 120자 이하여야 합니다.`);
+      }
+      return { ...image, width, height };
+    });
+  };
   for (const [index, part] of work.parts.entries()) {
     if (part.category !== undefined && !workCategories.has(part.category)) {
       throw new Error(`${sourceFile}: parts[${index}].category 값이 올바르지 않습니다.`);
@@ -68,7 +95,12 @@ function validateWork(work, sourceFile) {
     for (const key of ['label', 'before', 'after', 'note']) {
       if (typeof part[key] !== 'string' || !part[key].trim()) throw new Error(`${sourceFile}: parts[${index}].${key} 값이 비어 있습니다.`);
     }
+    const partGallery = validateGallery(part.gallery, `parts[${index}].gallery`);
+    if (partGallery) part.gallery = partGallery;
   }
+  const workGallery = validateGallery(work.gallery, 'gallery');
+  if (workGallery) work.gallery = workGallery;
+  if (galleryCount > galleryMaxTotal) throw new Error(`${sourceFile}: 추가 사진은 사례 전체 최대 ${galleryMaxTotal}장이어야 합니다.`);
   return work;
 }
 
@@ -133,7 +165,21 @@ function normalizeWorkImageUrls(work) {
       before: normalizeR2Url(part.before, publicBase),
       after: normalizeR2Url(part.after, publicBase),
       thumbnail: normalizeR2Url(part.thumbnail, publicBase),
+      ...(part.gallery ? {
+        gallery: part.gallery.map((image) => ({
+          ...image,
+          src: normalizeR2Url(image.src, publicBase),
+          thumbnail: normalizeR2Url(image.thumbnail, publicBase),
+        })),
+      } : {}),
     })),
+    ...(work.gallery ? {
+      gallery: work.gallery.map((image) => ({
+        ...image,
+        src: normalizeR2Url(image.src, publicBase),
+        thumbnail: normalizeR2Url(image.thumbnail, publicBase),
+      })),
+    } : {}),
   };
 }
 

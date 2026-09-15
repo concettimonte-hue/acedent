@@ -2,6 +2,7 @@ import {
   getWorkCategoryLabel,
   type WorkCategory,
   type WorkItem,
+  type WorkGalleryImage,
   type WorkPartValue,
   type WorkPartMedia,
 } from '../content/works/types';
@@ -117,4 +118,25 @@ export function getWorkImageAlt(
   return `서울 동대문 ${car} ${partDescription} ${explicitCategory} 수리 ${state}`
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+export function getWorkGalleryImageAlt(
+  work: WorkItem,
+  image: WorkGalleryImage,
+  index: number,
+  part?: WorkPartMedia,
+) {
+  const car = [work.carMaker, work.carModel].filter(Boolean).join(' ');
+  const context = part
+    ? getPartImageDescription(part)
+    : `${work.title} 전체 작업`;
+  const caption = image.caption?.trim();
+
+  return [
+    '서울 동대문',
+    car,
+    context,
+    caption,
+    `추가 사진 ${index + 1}`,
+  ].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
 }

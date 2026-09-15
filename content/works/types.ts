@@ -40,6 +40,24 @@ export const WORK_PART_FILTER_ORDER = [
 
 export type WorkPartValue = WorkPart | (string & {});
 
+export const WORK_GALLERY_MAX_PER_SCOPE = 6;
+export const WORK_GALLERY_MAX_TOTAL = 12;
+
+export type WorkAssetKind =
+  | 'before'
+  | 'after'
+  | 'thumbnail'
+  | 'gallery'
+  | 'gallery-thumbnail';
+
+export interface WorkGalleryImage {
+  src: string;
+  thumbnail?: string;
+  caption?: string;
+  width: number;
+  height: number;
+}
+
 export interface WorkPartMedia {
   /** 이 사진 묶음에서 실제로 작업한 부위. 1~3개이며 /works 필터에 사용합니다. */
   part?: WorkPartValue[];
@@ -49,6 +67,8 @@ export interface WorkPartMedia {
   before: string;
   after: string;
   thumbnail?: string;
+  /** 이 PART의 다른 각도·작업 과정·마감 사진입니다. 전후 비교와 필터에는 관여하지 않습니다. */
+  gallery?: WorkGalleryImage[];
   note: string;
 }
 
@@ -66,6 +86,8 @@ export interface WorkItem {
   carModel: string;
   color?: string;
   parts: WorkPartMedia[];
+  /** 특정 PART에 속하지 않는 차량 전경·출고 등 사례 전체 추가 사진입니다. */
+  gallery?: WorkGalleryImage[];
   summary: string;
   body: string;
   blogUrl?: string;

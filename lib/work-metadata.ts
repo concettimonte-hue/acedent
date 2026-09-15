@@ -2,6 +2,7 @@ import type { WorkCategory, WorkItem } from '@/content/works/types';
 import { getWorkCategoryLabel } from '@/content/works/types';
 import {
   getWorkImageAlt,
+  getWorkGalleryImageAlt,
   getAbsoluteWorkImageUrl,
   getWorkPrimaryAfterSrc,
   resolveWorkImageSrc,
@@ -39,24 +40,52 @@ export function getWorkMetadata(work: WorkItem): WorkMetadata {
 }
 
 export function getWorkImageJsonLd(work: WorkItem) {
+  const partImages = work.parts.flatMap((part, partIndex) => [
+    ...(['전', '후'] as const).map((state) => {
+      const source = state === '전' ? part.before : part.after;
+      const image = getAbsoluteWorkImageUrl(resolveWorkImageSrc(source), siteUrl);
+      return {
+        '@type': 'ImageObject',
+        contentUrl: image,
+        thumbnailUrl: image,
+        name: getWorkImageAlt(work, part, state),
+        caption: `${part.label}: ${part.note}`,
+        width: 1600,
+        height: 1200,
+        representativeOfPage: partIndex === 0 && state === '후',
+      };
+    }),
+    ...(part.gallery ?? []).map((galleryImage, imageIndex) => ({
+      '@type': 'ImageObject',
+      contentUrl: getAbsoluteWorkImageUrl(resolveWorkImageSrc(galleryImage.src), siteUrl),
+      thumbnailUrl: getAbsoluteWorkImageUrl(
+        resolveWorkImageSrc(galleryImage.thumbnail || galleryImage.src),
+        siteUrl,
+      ),
+      name: getWorkGalleryImageAlt(work, galleryImage, imageIndex, part),
+      caption: galleryImage.caption || `${part.label} 추가 작업 사진`,
+      width: galleryImage.width,
+      height: galleryImage.height,
+      representativeOfPage: false,
+    })),
+  ]);
+  const workGalleryImages = (work.gallery ?? []).map((galleryImage, imageIndex) => ({
+    '@type': 'ImageObject',
+    contentUrl: getAbsoluteWorkImageUrl(resolveWorkImageSrc(galleryImage.src), siteUrl),
+    thumbnailUrl: getAbsoluteWorkImageUrl(
+      resolveWorkImageSrc(galleryImage.thumbnail || galleryImage.src),
+      siteUrl,
+    ),
+    name: getWorkGalleryImageAlt(work, galleryImage, imageIndex),
+    caption: galleryImage.caption || `${work.title} 전체 작업 추가 사진`,
+    width: galleryImage.width,
+    height: galleryImage.height,
+    representativeOfPage: false,
+  }));
+
   return {
     '@context': 'https://schema.org',
-    '@graph': work.parts.flatMap((part, partIndex) =>
-      (['전', '후'] as const).map((state) => {
-        const source = state === '전' ? part.before : part.after;
-        const image = getAbsoluteWorkImageUrl(resolveWorkImageSrc(source), siteUrl);
-        return {
-          '@type': 'ImageObject',
-          contentUrl: image,
-          thumbnailUrl: image,
-          name: getWorkImageAlt(work, part, state),
-          caption: `${part.label}: ${part.note}`,
-          width: 1600,
-          height: 1200,
-          representativeOfPage: partIndex === 0 && state === '후',
-        };
-      }),
-    ),
+    '@graph': [...partImages, ...workGalleryImages],
   };
 }
 

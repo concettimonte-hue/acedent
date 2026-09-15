@@ -11,15 +11,21 @@ import {
 } from 'react';
 import { ArrowLeft, ArrowUpRight, ImagePlus, Plus, Trash2, UploadCloud, X } from 'lucide-react';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
+import AdminGalleryEditor, { type AdminGalleryItemView } from '@/components/AdminGalleryEditor';
 import WorkCard from '@/components/WorkCard';
 import WorkClassification from '@/components/WorkClassification';
+import WorkPhotoGallery from '@/components/WorkPhotoGallery';
 import WorkVehicleTag from '@/components/WorkVehicleTag';
 import {
+  WORK_GALLERY_MAX_PER_SCOPE,
+  WORK_GALLERY_MAX_TOTAL,
   WORK_CATEGORIES,
   WORK_PARTS,
   getWorkCategoryLabel,
   isWorkPart,
+  type WorkAssetKind,
   type WorkCategory,
+  type WorkGalleryImage,
   type WorkItem,
   type WorkPart,
   type WorkPartValue,
@@ -33,16 +39,28 @@ interface ProcessedImage {
   blob: Blob;
   preview: string;
   bytes: number;
+  width: number;
+  height: number;
 }
 
 interface ExistingImage {
   key: string;
   preview: string;
   bytes: number;
+  width: number;
+  height: number;
 }
 
 type ImageDraft = ProcessedImage | ExistingImage;
 type DeploymentState = 'idle' | 'pending' | 'ready' | 'failed';
+
+interface GalleryDraft {
+  id: string;
+  image?: ImageDraft;
+  thumbnail?: ImageDraft;
+  caption: string;
+  processing?: boolean;
+}
 
 interface PartDraft {
   id: string;
@@ -56,6 +74,7 @@ interface PartDraft {
   before?: ImageDraft;
   after?: ImageDraft;
   thumbnail?: ImageDraft;
+  gallery: GalleryDraft[];
   processing?: 'before' | 'after';
 }
 
@@ -67,9 +86,11 @@ interface UploadedAsset {
 interface StoredAsset {
   object_key: string;
   public_url: string;
-  kind: 'before' | 'after' | 'thumbnail';
+  kind: WorkAssetKind;
   part_index: number;
   bytes: number | null;
+  width: number;
+  height: number;
 }
 
 interface AdminPageProps {
@@ -88,6 +109,7 @@ function newPart(): PartDraft {
     detail: '',
     label: '범퍼',
     note: '',
+    gallery: [],
   };
 }
 
@@ -175,15 +197,35 @@ async function processImage(file: File, width: number, height: number, maxBytes:
   context.drawImage(bitmap, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, width, height);
   bitmap.close();
   const blob = await canvasBlob(canvas, maxBytes);
-  return { blob, preview: URL.createObjectURL(blob), bytes: blob.size };
+  return { blob, preview: URL.createObjectURL(blob), bytes: blob.size, width, height };
+}
+
+async function processGalleryImage(file: File) {
+  const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  const scale = Math.min(1, 1600 / bitmap.width, 1600 / bitmap.height);
+  const width = Math.max(1, Math.round(bitmap.width * scale));
+  const height = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext('2d', { alpha: false });
+  if (!context) {
+    bitmap.close();
+    throw new Error('이 브라우저에서 사진을 처리할 수 없습니다.');
+  }
+  context.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
+  const blob = await canvasBlob(canvas, 200_000);
+  return { blob, preview: URL.createObjectURL(blob), bytes: blob.size, width, height };
 }
 
 function uploadImage(
   image: ProcessedImage,
-  kind: 'before' | 'after' | 'thumbnail',
+  kind: WorkAssetKind,
   uploadId: string,
   partIndex: number,
   onProgress: (value: number) => void,
+  name = 'image',
 ) {
   return new Promise<UploadedAsset>((resolve, reject) => {
     const form = new FormData();
@@ -191,6 +233,7 @@ function uploadImage(
     form.append('kind', kind);
     form.append('uploadId', uploadId);
     form.append('partIndex', String(partIndex));
+    form.append('name', name);
 
     const request = new XMLHttpRequest();
     request.open('POST', '/admin/api/images');
@@ -227,6 +270,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     blogUrl: '',
   });
   const [parts, setParts] = useState<PartDraft[]>([newPart()]);
+  const [workGallery, setWorkGallery] = useState<GalleryDraft[]>([]);
   const [subCategories, setSubCategories] = useState<WorkCategory[]>([]);
   const [subParts, setSubParts] = useState<WorkPart[]>([]);
   const [progress, setProgress] = useState(0);
@@ -277,6 +321,24 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
 
         const work = payload.work;
         const assetByUrl = new Map(payload.assets.map((asset) => [asset.public_url, asset]));
+        const existingImage = (url: string, label: string): ExistingImage => {
+          const asset = assetByUrl.get(url);
+          if (!asset) throw new Error(`${label}의 D1 이미지 기록을 찾지 못했습니다.`);
+          return {
+            key: asset.object_key,
+            preview: url,
+            bytes: asset.bytes || 0,
+            width: asset.width,
+            height: asset.height,
+          };
+        };
+        const galleryDrafts = (gallery: readonly WorkGalleryImage[] | undefined, label: string) =>
+          (gallery ?? []).map((image, galleryIndex) => ({
+            id: crypto.randomUUID(),
+            image: existingImage(image.src, `${label} ${galleryIndex + 1}번 원본`),
+            thumbnail: existingImage(image.thumbnail || image.src, `${label} ${galleryIndex + 1}번 썸네일`),
+            caption: image.caption || '',
+          } satisfies GalleryDraft));
         setForm({
           date: work.date,
           carMaker: work.carMaker,
@@ -311,15 +373,19 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
             detail: parsed.detail,
             label: media.label,
             note: media.note,
-            before: { key: beforeAsset.object_key, preview: media.before, bytes: beforeAsset.bytes || 0 },
-            after: { key: afterAsset.object_key, preview: media.after, bytes: afterAsset.bytes || 0 },
+            before: { key: beforeAsset.object_key, preview: media.before, bytes: beforeAsset.bytes || 0, width: beforeAsset.width, height: beforeAsset.height },
+            after: { key: afterAsset.object_key, preview: media.after, bytes: afterAsset.bytes || 0, width: afterAsset.width, height: afterAsset.height },
             thumbnail: {
               key: (thumbnailAsset || afterAsset).object_key,
               preview: media.thumbnail || media.after,
               bytes: thumbnailAsset?.bytes || afterAsset.bytes || 0,
+              width: (thumbnailAsset || afterAsset).width,
+              height: (thumbnailAsset || afterAsset).height,
             },
+            gallery: galleryDrafts(media.gallery, `${index + 1}번 PART 추가 사진`),
           } satisfies PartDraft;
         }));
+        setWorkGallery(galleryDrafts(work.gallery, '사례 전체 추가 사진'));
         setWorkLoaded(true);
         setStatus('수정 중');
       } catch (loadError) {
@@ -331,6 +397,16 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     void load();
     return () => { active = false; };
   }, [editSlug]);
+
+  const galleryPreview = (gallery: readonly GalleryDraft[]): WorkGalleryImage[] => gallery
+    .filter((item): item is GalleryDraft & { image: ImageDraft; thumbnail: ImageDraft } => Boolean(item.image && item.thumbnail))
+    .map((item) => ({
+      src: item.image.preview,
+      thumbnail: item.thumbnail.preview,
+      caption: item.caption.trim() || undefined,
+      width: item.image.width,
+      height: item.image.height,
+    }));
 
   const previewWork = useMemo<WorkItem>(() => ({
     slug: editSlug || 'preview',
@@ -351,14 +427,16 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
       after: part.after?.preview || '',
       thumbnail: part.thumbnail?.preview,
       note: part.note || '부위 설명 미리보기',
+      gallery: galleryPreview(part.gallery),
     })),
+    gallery: galleryPreview(workGallery),
     summary: form.summary || '카드와 상세 페이지에 함께 표시될 요약입니다.',
     body: form.body || '상세 작업 설명이 여기에 표시됩니다.',
     blogUrl: form.blogUrl || undefined,
     featured: false,
     days: form.days || '작업기간',
     sliderType: 'drag',
-  }), [editSlug, form, parts, subCategories, subParts]);
+  }), [editSlug, form, parts, subCategories, subParts, workGallery]);
   const previewSeo = getWorkSeoCopy(previewWork);
   const previewSeoWarnings = form.title.trim()
     ? getWorkSeoWarnings(previewWork, getWorks())
@@ -469,6 +547,123 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     }
   };
 
+  const galleryTotal = workGallery.length + parts.reduce((count, part) => count + part.gallery.length, 0);
+
+  const processGalleryFile = async (file: File, id: string) => {
+    const [image, thumbnail] = await Promise.all([
+      processGalleryImage(file),
+      processImage(file, 800, 600, 120_000),
+    ]);
+    return { id, image, thumbnail, caption: '', processing: false } satisfies GalleryDraft;
+  };
+
+  const addPartGalleryFiles = async (partId: string, files: File[]) => {
+    const part = parts.find((item) => item.id === partId);
+    if (!part) return;
+    const accepted = files.filter((file) => file.type.startsWith('image/'));
+    const limit = Math.min(
+      WORK_GALLERY_MAX_PER_SCOPE - part.gallery.length,
+      WORK_GALLERY_MAX_TOTAL - galleryTotal,
+    );
+    if (limit <= 0) {
+      setError(`추가 사진은 PART당 ${WORK_GALLERY_MAX_PER_SCOPE}장, 사례 전체 ${WORK_GALLERY_MAX_TOTAL}장까지 등록할 수 있습니다.`);
+      return;
+    }
+    if (accepted.length !== files.length || accepted.length > limit) {
+      setError(`이미지 파일만 가능하며 현재 ${limit}장까지 더 추가할 수 있습니다.`);
+    } else {
+      setError('');
+    }
+    const selectedFiles = accepted.slice(0, limit);
+    const placeholders = selectedFiles.map(() => ({ id: crypto.randomUUID(), caption: '', processing: true } satisfies GalleryDraft));
+    setParts((current) => current.map((item) => item.id === partId
+      ? { ...item, gallery: [...item.gallery, ...placeholders] }
+      : item));
+    await Promise.all(selectedFiles.map(async (file, index) => {
+      const placeholder = placeholders[index];
+      try {
+        const draft = await processGalleryFile(file, placeholder.id);
+        updatePartGallery(partId, placeholder.id, draft);
+      } catch (imageError) {
+        removePartGallery(partId, placeholder.id);
+        setError(imageError instanceof Error ? imageError.message : '추가 사진 처리에 실패했습니다.');
+      }
+    }));
+  };
+
+  const addWorkGalleryFiles = async (files: File[]) => {
+    const accepted = files.filter((file) => file.type.startsWith('image/'));
+    const limit = Math.min(
+      WORK_GALLERY_MAX_PER_SCOPE - workGallery.length,
+      WORK_GALLERY_MAX_TOTAL - galleryTotal,
+    );
+    if (limit <= 0) {
+      setError(`추가 사진은 영역당 ${WORK_GALLERY_MAX_PER_SCOPE}장, 사례 전체 ${WORK_GALLERY_MAX_TOTAL}장까지 등록할 수 있습니다.`);
+      return;
+    }
+    if (accepted.length !== files.length || accepted.length > limit) {
+      setError(`이미지 파일만 가능하며 현재 ${limit}장까지 더 추가할 수 있습니다.`);
+    } else {
+      setError('');
+    }
+    const selectedFiles = accepted.slice(0, limit);
+    const placeholders = selectedFiles.map(() => ({ id: crypto.randomUUID(), caption: '', processing: true } satisfies GalleryDraft));
+    setWorkGallery((current) => [...current, ...placeholders]);
+    await Promise.all(selectedFiles.map(async (file, index) => {
+      const placeholder = placeholders[index];
+      try {
+        const draft = await processGalleryFile(file, placeholder.id);
+        setWorkGallery((current) => current.map((item) => item.id === placeholder.id ? draft : item));
+      } catch (imageError) {
+        setWorkGallery((current) => current.filter((item) => item.id !== placeholder.id));
+        setError(imageError instanceof Error ? imageError.message : '추가 사진 처리에 실패했습니다.');
+      }
+    }));
+  };
+
+  const updatePartGallery = (partId: string, galleryId: string, patch: Partial<GalleryDraft>) => {
+    setParts((current) => current.map((part) => part.id === partId
+      ? { ...part, gallery: part.gallery.map((item) => item.id === galleryId ? { ...item, ...patch } : item) }
+      : part));
+  };
+
+  const movePartGallery = (partId: string, galleryId: string, direction: -1 | 1) => {
+    setParts((current) => current.map((part) => {
+      if (part.id !== partId) return part;
+      const index = part.gallery.findIndex((item) => item.id === galleryId);
+      const nextIndex = index + direction;
+      if (index < 0 || nextIndex < 0 || nextIndex >= part.gallery.length) return part;
+      const gallery = [...part.gallery];
+      [gallery[index], gallery[nextIndex]] = [gallery[nextIndex], gallery[index]];
+      return { ...part, gallery };
+    }));
+  };
+
+  const removePartGallery = (partId: string, galleryId: string) => {
+    setParts((current) => current.map((part) => part.id === partId
+      ? { ...part, gallery: part.gallery.filter((item) => item.id !== galleryId) }
+      : part));
+  };
+
+  const moveWorkGallery = (galleryId: string, direction: -1 | 1) => {
+    setWorkGallery((current) => {
+      const index = current.findIndex((item) => item.id === galleryId);
+      const nextIndex = index + direction;
+      if (index < 0 || nextIndex < 0 || nextIndex >= current.length) return current;
+      const gallery = [...current];
+      [gallery[index], gallery[nextIndex]] = [gallery[nextIndex], gallery[index]];
+      return gallery;
+    });
+  };
+
+  const galleryView = (gallery: readonly GalleryDraft[]): AdminGalleryItemView[] => gallery.map((item) => ({
+    id: item.id,
+    preview: item.thumbnail?.preview || item.image?.preview,
+    bytes: item.image?.bytes,
+    caption: item.caption,
+    processing: item.processing,
+  }));
+
   const handleImageDrag = (
     event: DragEvent<HTMLLabelElement>,
     target: string,
@@ -548,25 +743,51 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
       if (subCategories.length > 2 || subParts.length > 2) throw new Error('보조 작업과 보조 부위는 각각 최대 2개까지 선택할 수 있습니다.');
       if (parts.some((part) => part.customPartEnabled && !part.customPart.trim())) throw new Error('기타 부위명을 직접 입력하세요.');
       if (parts.some((part) => !part.before || !part.after || !part.thumbnail)) throw new Error('모든 부위의 전·후 사진을 선택하세요.');
+      const allGalleries = [...parts.flatMap((part) => part.gallery), ...workGallery];
+      if (parts.some((part) => part.gallery.length > WORK_GALLERY_MAX_PER_SCOPE) || workGallery.length > WORK_GALLERY_MAX_PER_SCOPE) {
+        throw new Error(`추가 사진은 각 영역에 최대 ${WORK_GALLERY_MAX_PER_SCOPE}장까지 등록할 수 있습니다.`);
+      }
+      if (allGalleries.length > WORK_GALLERY_MAX_TOTAL) {
+        throw new Error(`추가 사진은 사례 전체 최대 ${WORK_GALLERY_MAX_TOTAL}장까지 등록할 수 있습니다.`);
+      }
+      if (allGalleries.some((item) => !item.image || !item.thumbnail || item.processing)) {
+        throw new Error('추가 사진 처리가 끝날 때까지 잠시 기다려 주세요.');
+      }
       const uploadId = crypto.randomUUID();
       const total = parts.reduce((count, part) => count + [part.before, part.after, part.thumbnail]
         .filter((image): image is ImageDraft => Boolean(image))
-        .filter(isProcessedImage).length, 0);
+        .filter(isProcessedImage).length
+        + part.gallery.reduce((galleryCount, item) => galleryCount
+          + [item.image, item.thumbnail]
+            .filter((image): image is ImageDraft => Boolean(image))
+            .filter(isProcessedImage).length, 0), 0)
+        + workGallery.reduce((count, item) => count
+          + [item.image, item.thumbnail]
+            .filter((image): image is ImageDraft => Boolean(image))
+            .filter(isProcessedImage).length, 0);
       let completed = 0;
       setStatus(total > 0 ? '사진 업로드 중' : '사례 저장 중');
       if (total === 0) setProgress(100);
 
       const uploadedParts = [];
       for (const [partIndex, part] of parts.entries()) {
-        const upload = async (image: ImageDraft, kind: 'before' | 'after' | 'thumbnail') => {
+        const upload = async (image: ImageDraft, kind: WorkAssetKind, name = 'image') => {
           if (!isProcessedImage(image)) return { key: image.key, url: image.preview };
           const result = await uploadImage(image, kind, uploadId, partIndex, (fraction) => {
             setProgress(total > 0 ? Math.round(((completed + fraction) / total) * 100) : 100);
-          });
+          }, name);
           completed += 1;
           setProgress(total > 0 ? Math.round((completed / total) * 100) : 100);
           return result;
         };
+        const gallery = [];
+        for (const [galleryIndex, item] of part.gallery.entries()) {
+          gallery.push({
+            image: await upload(item.image!, 'gallery', `gallery-${galleryIndex + 1}-${item.id}`),
+            thumbnail: await upload(item.thumbnail!, 'gallery-thumbnail', `gallery-${galleryIndex + 1}-${item.id}`),
+            caption: item.caption.trim() || undefined,
+          });
+        }
         uploadedParts.push({
           part: selectedPartValues(part),
           category: part.category || undefined,
@@ -576,6 +797,25 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           before: await upload(part.before!, 'before'),
           after: await upload(part.after!, 'after'),
           thumbnail: await upload(part.thumbnail!, 'thumbnail'),
+          gallery,
+        });
+      }
+
+      const uploadedWorkGallery = [];
+      for (const [galleryIndex, item] of workGallery.entries()) {
+        const upload = async (image: ImageDraft, kind: WorkAssetKind) => {
+          if (!isProcessedImage(image)) return { key: image.key, url: image.preview };
+          const result = await uploadImage(image, kind, uploadId, 20, (fraction) => {
+            setProgress(total > 0 ? Math.round(((completed + fraction) / total) * 100) : 100);
+          }, `gallery-${galleryIndex + 1}-${item.id}`);
+          completed += 1;
+          setProgress(total > 0 ? Math.round((completed / total) * 100) : 100);
+          return result;
+        };
+        uploadedWorkGallery.push({
+          image: await upload(item.image!, 'gallery'),
+          thumbnail: await upload(item.thumbnail!, 'gallery-thumbnail'),
+          caption: item.caption.trim() || undefined,
         });
       }
 
@@ -585,7 +825,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
         method: editing ? 'PUT' : 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, subCategories, subParts, uploadId, parts: uploadedParts }),
+        body: JSON.stringify({ ...form, subCategories, subParts, uploadId, parts: uploadedParts, gallery: uploadedWorkGallery }),
       });
       const saved = await saveResponse.json() as { work?: WorkItem; cleanupPending?: number; slugWarnings?: string[]; error?: string };
       if (!saveResponse.ok || !saved.work) throw new Error(saved.error || `사례 ${editing ? '수정' : '저장'}에 실패했습니다.`);
@@ -752,10 +992,33 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
                       </div>;
                     })}
                   </div>
+                  <AdminGalleryEditor
+                    title="PART 추가 사진"
+                    description="전·후 비교 외에 가까운 손상, 작업 과정, 마감 상태를 보충합니다. 원본 비율은 유지됩니다."
+                    items={galleryView(part.gallery)}
+                    maxItems={WORK_GALLERY_MAX_PER_SCOPE}
+                    availableSlots={Math.max(0, WORK_GALLERY_MAX_TOTAL - galleryTotal)}
+                    onFiles={(files) => { void addPartGalleryFiles(part.id, files); }}
+                    onCaptionChange={(galleryId, caption) => updatePartGallery(part.id, galleryId, { caption })}
+                    onMove={(galleryId, direction) => movePartGallery(part.id, galleryId, direction)}
+                    onRemove={(galleryId) => removePartGallery(part.id, galleryId)}
+                  />
                 </fieldset>
               ))}
             </div>
             <button className="admin-add-part" type="button" onClick={() => setParts((current) => [...current, newPart()])}><Plus aria-hidden="true" /> 작업 부위 추가</button>
+            <AdminGalleryEditor
+              title="사례 전체 추가 사진"
+              description="특정 PART에 속하지 않는 차량 전체 모습, 입고·출고 사진 등을 등록합니다."
+              items={galleryView(workGallery)}
+              maxItems={WORK_GALLERY_MAX_PER_SCOPE}
+              availableSlots={Math.max(0, WORK_GALLERY_MAX_TOTAL - galleryTotal)}
+              onFiles={(files) => { void addWorkGalleryFiles(files); }}
+              onCaptionChange={(galleryId, caption) => setWorkGallery((current) => current.map((item) => item.id === galleryId ? { ...item, caption } : item))}
+              onMove={moveWorkGallery}
+              onRemove={(galleryId) => setWorkGallery((current) => current.filter((item) => item.id !== galleryId))}
+            />
+            <p className="admin-gallery-limit">추가 사진은 PART별·전체 영역별 최대 {WORK_GALLERY_MAX_PER_SCOPE}장, 사례 한 건에 총 {WORK_GALLERY_MAX_TOTAL}장까지 등록됩니다.</p>
           </section>
 
           <section className="admin-submit-panel">
@@ -826,9 +1089,11 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
               {previewWork.parts.map((part, index) => <section className="work-detail-part" key={`${part.label}-${index}`}>
                 <header className="work-detail-part-heading"><span>PART {String(index + 1).padStart(2, '0')}{part.category && ` · ${getWorkCategoryLabel(part.category)}`}</span><h2>{part.label}</h2><p>{part.note}</p></header>
                 {part.before && part.after ? <div className="work-detail-slider"><BeforeAfterSlider beforeSrc={part.before} afterSrc={part.after} beforeAlt={getWorkImageAlt(previewWork, part, '전')} afterAlt={getWorkImageAlt(previewWork, part, '후')} mode="drag" /></div> : <div className="admin-preview-empty">전·후 사진을 선택하면 비교 슬라이더가 표시됩니다.</div>}
+                {part.gallery && part.gallery.length > 0 && <WorkPhotoGallery images={part.gallery} work={previewWork} part={part} title={`${part.label} 추가 사진`} compact />}
               </section>)}
             </div>
             <div className="work-detail-copy"><p className="work-detail-summary">{previewWork.summary}</p><p>{previewWork.body}</p></div>
+            {previewWork.gallery && previewWork.gallery.length > 0 && <WorkPhotoGallery images={previewWork.gallery} work={previewWork} label="MORE PHOTOS" title="작업 전체 추가 사진" />}
           </article>
           <dl className="admin-seo-preview">
             <div><dt>자동 제목</dt><dd>{previewSeo.title}</dd></div>

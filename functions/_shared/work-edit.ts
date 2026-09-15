@@ -2,6 +2,9 @@ import {
   isWorkCategory,
   isWorkPart,
   isWorkPartValue,
+  WORK_GALLERY_MAX_PER_SCOPE,
+  WORK_GALLERY_MAX_TOTAL,
+  type WorkAssetKind,
   type WorkCategory,
   type WorkItem,
   type WorkPart,
@@ -13,7 +16,7 @@ import { cleanPublicBase, json, type AdminEnv } from './admin';
 interface AssetRow {
   object_key: string;
   public_url: string;
-  kind: 'before' | 'after' | 'thumbnail';
+  kind: WorkAssetKind;
   part_index: number;
   width: number;
   height: number;
@@ -34,6 +37,13 @@ interface PartInput {
   before?: AssetReference;
   after?: AssetReference;
   thumbnail?: AssetReference;
+  gallery?: unknown;
+}
+
+interface GalleryInput {
+  image?: AssetReference;
+  thumbnail?: AssetReference;
+  caption?: string;
 }
 
 interface UpdateInput {
@@ -51,6 +61,7 @@ interface UpdateInput {
   body?: unknown;
   blogUrl?: unknown;
   parts?: unknown;
+  gallery?: unknown;
 }
 
 function required(value: unknown, label: string, maxLength = 5000) {
@@ -125,6 +136,23 @@ function normalizeSubParts(value: unknown, primaryPart: WorkPartValue) {
   return normalized;
 }
 
+function normalizeGallery(value: unknown, label: string): GalleryInput[] {
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) throw new Error(`${label} 값이 올바르지 않습니다.`);
+  if (value.length > WORK_GALLERY_MAX_PER_SCOPE) {
+    throw new Error(`${label}은(는) 최대 ${WORK_GALLERY_MAX_PER_SCOPE}장까지 등록할 수 있습니다.`);
+  }
+  return value.map((item, index) => {
+    if (!item || typeof item !== 'object') throw new Error(`${label} ${index + 1}번 정보가 올바르지 않습니다.`);
+    const gallery = item as { image?: AssetReference; thumbnail?: AssetReference; caption?: unknown };
+    return {
+      image: gallery.image,
+      thumbnail: gallery.thumbnail,
+      caption: optional(gallery.caption, `${label} ${index + 1}번 설명`, 120) || undefined,
+    };
+  });
+}
+
 async function verifyAsset(
   env: AdminEnv,
   currentAssets: Map<string, AssetRow>,
@@ -147,12 +175,15 @@ async function verifyAsset(
   if (!object || object.customMetadata?.kind !== expectedKind) {
     throw new Error(`${expectedKind} 이미지 확인에 실패했습니다.`);
   }
-  const expectedWidth = expectedKind === 'thumbnail' ? 800 : 1600;
-  const expectedHeight = expectedKind === 'thumbnail' ? 600 : 1200;
   const width = Number(object.customMetadata.width);
   const height = Number(object.customMetadata.height);
   const bytes = Number(object.customMetadata.bytes);
-  if (width !== expectedWidth || height !== expectedHeight || !Number.isFinite(bytes) || bytes > 200_000) {
+  const validDimensions = expectedKind === 'gallery'
+    ? width > 0 && height > 0 && width <= 1600 && height <= 1600
+    : expectedKind === 'thumbnail' || expectedKind === 'gallery-thumbnail'
+      ? width === 800 && height === 600
+      : width === 1600 && height === 1200;
+  if (!validDimensions || !Number.isFinite(bytes) || bytes > 200_000) {
     throw new Error(`${expectedKind} 이미지 규격이 올바르지 않습니다.`);
   }
   return {
@@ -179,6 +210,8 @@ export async function getWorkForEdit(env: AdminEnv, slug: string) {
       ...storedWork,
       subCategories: storedWork.subCategories ?? [],
       subParts: storedWork.subParts ?? [],
+      parts: storedWork.parts.map((part) => ({ ...part, gallery: part.gallery ?? [] })),
+      gallery: storedWork.gallery ?? [],
     };
     const assets = await env.ACEDENT_DB.prepare(
       `SELECT object_key, public_url, kind, part_index, width, height, bytes, created_at
@@ -223,11 +256,17 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
         before: part.before,
         after: part.after,
         thumbnail: part.thumbnail,
+        gallery: normalizeGallery(part.gallery, `${index + 1}번 PART 추가 사진`),
       };
     });
     const primaryPart = parts[0].part[0];
     const subCategories = normalizeSubCategories(input.subCategories, category);
     const subParts = normalizeSubParts(input.subParts, primaryPart);
+    const workGallery = normalizeGallery(input.gallery, '사례 전체 추가 사진');
+    const totalGalleryImages = workGallery.length + parts.reduce((count, part) => count + part.gallery.length, 0);
+    if (totalGalleryImages > WORK_GALLERY_MAX_TOTAL) {
+      throw new Error(`추가 사진은 사례 전체 최대 ${WORK_GALLERY_MAX_TOTAL}장까지 등록할 수 있습니다.`);
+    }
 
     const currentRows = await env.ACEDENT_DB.prepare(
       `SELECT object_key, public_url, kind, part_index, width, height, bytes, created_at
@@ -250,6 +289,24 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
         const recorded = records.get(asset.object_key);
         if (!recorded || recorded.kind === 'thumbnail') records.set(asset.object_key, { ...asset, part_index: index });
       }
+      const gallery = [];
+      for (const item of part.gallery) {
+        const [image, galleryThumbnail] = await Promise.all([
+          verifyAsset(env, currentAssets, item.image, 'gallery', uploadId),
+          verifyAsset(env, currentAssets, item.thumbnail, 'gallery-thumbnail', uploadId),
+        ]);
+        for (const asset of [image, galleryThumbnail]) {
+          usedKeys.add(asset.object_key);
+          records.set(asset.object_key, { ...asset, part_index: index });
+        }
+        gallery.push({
+          src: assetUrl(publicBase, image.object_key),
+          thumbnail: assetUrl(publicBase, galleryThumbnail.object_key),
+          caption: item.caption,
+          width: image.width,
+          height: image.height,
+        });
+      }
       mediaParts.push({
         part: part.part,
         category: part.category,
@@ -258,6 +315,26 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
         after: assetUrl(publicBase, after.object_key),
         thumbnail: assetUrl(publicBase, thumbnail.object_key),
         note: part.note,
+        gallery,
+      });
+    }
+
+    const gallery = [];
+    for (const item of workGallery) {
+      const [image, galleryThumbnail] = await Promise.all([
+        verifyAsset(env, currentAssets, item.image, 'gallery', uploadId),
+        verifyAsset(env, currentAssets, item.thumbnail, 'gallery-thumbnail', uploadId),
+      ]);
+      for (const asset of [image, galleryThumbnail]) {
+        usedKeys.add(asset.object_key);
+        records.set(asset.object_key, { ...asset, part_index: 20 });
+      }
+      gallery.push({
+        src: assetUrl(publicBase, image.object_key),
+        thumbnail: assetUrl(publicBase, galleryThumbnail.object_key),
+        caption: item.caption,
+        width: image.width,
+        height: image.height,
       });
     }
 
@@ -278,6 +355,7 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
       carModel: optional(input.carModel, '차종', 60),
       color: color || previous.color,
       parts: mediaParts,
+      gallery,
       summary: required(input.summary, '요약', 300),
       body: required(input.body, '상세 설명', 5000),
       blogUrl: blogUrl || undefined,
@@ -346,6 +424,9 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
     }
     if (/asset_cleanup_queue|no such table/i.test(message)) {
       return json({ error: '이미지 수정에는 삭제 대기열 마이그레이션(0003)이 필요합니다.' }, 503);
+    }
+    if (/CHECK constraint failed.*work_assets|work_assets.*CHECK constraint failed/i.test(message)) {
+      return json({ error: '추가 사진 저장에는 D1 마이그레이션(0006)이 필요합니다.' }, 503);
     }
     return json({ error: message }, 400);
   }

@@ -1,6 +1,44 @@
 {
   "records": [
     {
+      "sourceFile": "d1:traverse-side-door-dent",
+      "lastModified": "2026-09-15",
+      "work": {
+        "slug": "traverse-side-door-dent",
+        "date": "2026-09-15",
+        "title": "도어 꺾임 및 찌그러짐 무도색 덴트복원 및 폴리싱",
+        "category": "dent",
+        "subCategories": [
+          "polish"
+        ],
+        "part": [
+          "도어"
+        ],
+        "subParts": [],
+        "carMaker": "쉐보레",
+        "carModel": "트래버스 (Traverse)",
+        "color": "화이트 펄",
+        "parts": [
+          {
+            "part": [
+              "도어"
+            ],
+            "category": "dent",
+            "label": "도어 패널 측면",
+            "before": "https://images.acedentshop.co.kr/works/02e33589-720c-439e-b036-87dc43b7d816/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/02e33589-720c-439e-b036-87dc43b7d816/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/02e33589-720c-439e-b036-87dc43b7d816/01-image-thumbnail.jpg",
+            "note": "철판이 일자로 꺾이고 넓게 우그러진 복합 함몰 손상. 화이트 펄 특유의 이색 리스크를 원천 차단하기 위해 재도장을 배제하고, 덴트(PDR) 공법으로 철판 면을 정교하게 펴낸 뒤 폴리싱으로 표면 흠집을 제거하여 이질감 없이 완벽하게 복원 완료."
+          }
+        ],
+        "summary": "화이트 펄 도장의 이색(색상 차이)을 걱정하시는 고객님의 니즈에 맞춰, 도어에 발생한 꺾임과 우그러짐을 재도장 없이 덴트 공법으로 펴내고 얕은 흠집은 폴리싱으로 다듬어 복원했습니다.",
+        "body": "측면부 충격으로 인해 도어 패널 철판이 일자로 날카롭게 꺾인 부위와 넓게 우그러진 함몰 손상이 복합적으로 발생하여 입고되었습니다. 차량 색상이 '화이트 펄'인 탓에, 퍼티를 바르고 새로 칠을 올리는 판금도장을 진행할 경우 불가피하게 발생할 수 있는 이색 현상에 대해 차주님께서 큰 걱정을 안고 계셨습니다.\n\n정밀 진단 결과, 다행히 페인트 층의 깊은 파임이나 벗겨짐은 관찰되지 않아 출고 당시의 원칠을 100% 보존할 수 있는 무판금 무도색 덴트(PDR) 작업을 제안해 드렸습니다. 덴트 전용 로드와 글루 탭을 병행하여 일자로 꺾인 엣지의 텐션을 부드럽게 풀어주고, 넓게 우그러진 철판의 중심을 정교하게 밀어 올려 원래의 평활도를 회복했습니다. 표면에 묻어있던 이물질과 얕은 스크래치는 정밀 폴리싱(광택) 공정으로 깨끗하게 깎아내어, 재도장 없이도 이색 걱정이 완벽하게 해소된 말끔한 외관을 완성했습니다.",
+        "featured": false,
+        "days": "1일",
+        "sliderType": "drag"
+      }
+    },
+    {
       "sourceFile": "d1:volvo-xc40-trunk-dent",
       "lastModified": "2026-09-15",
       "work": {

@@ -6,12 +6,14 @@ import {
   safeSegment,
   type AdminEnv,
 } from '../../_shared/admin';
+import { type WorkAssetKind } from '../../../content/works/types';
 
 const IMAGE_LIMIT = 200_000;
 const sizes = {
   before: { width: 1600, height: 1200 },
   after: { width: 1600, height: 1200 },
   thumbnail: { width: 800, height: 600 },
+  'gallery-thumbnail': { width: 800, height: 600 },
 } as const;
 
 export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) => {
@@ -30,10 +32,10 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
     if (!(file instanceof File) || file.type !== 'image/jpeg') {
       return json({ error: 'JPEG 이미지만 업로드할 수 있습니다.' }, 400);
     }
-    if (kind !== 'before' && kind !== 'after' && kind !== 'thumbnail') {
+    if (kind !== 'before' && kind !== 'after' && kind !== 'thumbnail' && kind !== 'gallery' && kind !== 'gallery-thumbnail') {
       return json({ error: '이미지 종류가 올바르지 않습니다.' }, 400);
     }
-    if (!/^[a-zA-Z0-9-]{8,64}$/.test(uploadId) || !Number.isInteger(partIndex) || partIndex < 0 || partIndex > 19) {
+    if (!/^[a-zA-Z0-9-]{8,64}$/.test(uploadId) || !Number.isInteger(partIndex) || partIndex < 0 || partIndex > 20) {
       return json({ error: '업로드 식별자가 올바르지 않습니다.' }, 400);
     }
     if (file.size > IMAGE_LIMIT) {
@@ -42,9 +44,14 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
 
     const bytes = new Uint8Array(await file.arrayBuffer());
     const dimensions = jpegDimensions(bytes);
-    const expected = sizes[kind];
-    if (!dimensions || dimensions.width !== expected.width || dimensions.height !== expected.height) {
-      return json({ error: `${kind} 이미지는 ${expected.width}×${expected.height}px이어야 합니다.` }, 400);
+    const expected = kind === 'gallery' ? null : sizes[kind];
+    if (!dimensions || (expected && (dimensions.width !== expected.width || dimensions.height !== expected.height))) {
+      return json({ error: expected
+        ? `${kind} 이미지는 ${expected.width}×${expected.height}px이어야 합니다.`
+        : '추가 사진 크기를 확인하지 못했습니다.' }, 400);
+    }
+    if (kind === 'gallery' && (dimensions.width > 1600 || dimensions.height > 1600)) {
+      return json({ error: '추가 사진은 가로·세로 모두 1600px 이하여야 합니다.' }, 400);
     }
 
     const nameValue = form.get('name');
@@ -60,7 +67,7 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
       httpMetadata: { contentType: 'image/jpeg', cacheControl: 'public, max-age=31536000, immutable' },
       customMetadata: {
         uploadedBy: access.email,
-        kind,
+        kind: kind as WorkAssetKind,
         width: String(dimensions.width),
         height: String(dimensions.height),
         bytes: String(file.size),

@@ -5,6 +5,7 @@ import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import WorkCard from '@/components/WorkCard';
 import WorkClassification from '@/components/WorkClassification';
+import WorkPhotoGallery from '@/components/WorkPhotoGallery';
 import WorksHeader from '@/components/WorksHeader';
 import WorksQuickActions from '@/components/WorksQuickActions';
 import WorkVehicleTag from '@/components/WorkVehicleTag';
@@ -95,6 +96,15 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
                   enableZoom
                 />
               </div>
+              {part.gallery && part.gallery.length > 0 && (
+                <WorkPhotoGallery
+                  images={part.gallery}
+                  work={work}
+                  part={part}
+                  title={`${part.label} 추가 사진`}
+                  compact
+                />
+              )}
             </section>
           ))}
         </div>
@@ -115,6 +125,15 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
             </a>
           )}
         </div>
+
+        {work.gallery && work.gallery.length > 0 && (
+          <WorkPhotoGallery
+            images={work.gallery}
+            work={work}
+            label="MORE PHOTOS"
+            title="작업 전체 추가 사진"
+          />
+        )}
 
         <section className="work-result-summary" aria-labelledby="work-result-summary-title">
           <header>

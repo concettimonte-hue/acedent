@@ -27,6 +27,7 @@ import {
 } from '../content/works/types';
 import {
   getWorkImageAlt,
+  getWorkGalleryImageAlt,
   getWorkThumbnailSrcForCategory,
 } from './work-images';
 import {
@@ -179,6 +180,15 @@ export function getWorkDetailStaticHtml(
         <span class="work-detail-classification-primary">${text(categoryLabel)}</span>
         ${secondaryCategories.map((category) => `<span class="work-detail-classification-secondary-group"><span class="work-detail-classification-separator" aria-hidden="true">·</span><span class="work-detail-classification-secondary">${text(getWorkCategoryLabel(category))}</span></span>`).join('')}
       </div>`;
+  const gallerySection = (
+    images: NonNullable<WorkItem['gallery']>,
+    title: string,
+    part?: WorkPartMedia,
+  ) => `<section><p>ADDITIONAL PHOTOS</p><h3>${text(title)}</h3><div class="seo-comparison">${images.map((galleryImage, imageIndex) => image(
+    galleryImage.thumbnail || galleryImage.src,
+    getWorkGalleryImageAlt(work, galleryImage, imageIndex, part),
+    { width: 800, height: 600 },
+  )).join('')}</div></section>`;
   const partSection = (part: WorkPartMedia, index: number) => `<section>
         <p>PART ${String(index + 1).padStart(2, '0')}${part.category ? ` · ${text(getWorkCategoryLabel(part.category))}` : ''}</p>
         <h2>${text(part.label)}</h2>
@@ -187,6 +197,7 @@ export function getWorkDetailStaticHtml(
           ${image(part.before, getWorkImageAlt(work, part, '전'), { eager: index === 0 })}
           ${image(part.after, getWorkImageAlt(work, part, '후'), { eager: index === 0 })}
         </div>
+        ${part.gallery?.length ? gallerySection(part.gallery, `${part.label} 추가 사진`, part) : ''}
       </section>`;
   return `<main class="seo-static seo-work-detail">
     <header class="seo-static-header"><a href="/">ACE DENT</a><a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
@@ -199,6 +210,7 @@ export function getWorkDetailStaticHtml(
       <p><strong>${text(work.summary)}</strong></p>
       ${work.body.split('\n\n').map((paragraph) => `<p>${text(paragraph)}</p>`).join('')}
       ${work.blogUrl ? `<a href="${text(work.blogUrl)}" target="_blank" rel="noopener noreferrer">블로그에서 더 보기</a>` : ''}
+      ${work.gallery?.length ? gallerySection(work.gallery, '작업 전체 추가 사진') : ''}
       <section><p>RESULT SUMMARY</p><h2>이번 작업 한눈에 보기</h2><dl><div><dt>차량</dt><dd>${text(car(work))}</dd></div><div><dt>작업 부위</dt><dd>${text(formatWorkCardParts(work))}</dd></div><div><dt>작업 분류</dt><dd>${workCategories.map((category) => text(getWorkCategoryLabel(category))).join(' · ')}</dd></div><div><dt>소요 기간</dt><dd>${text(work.days)}</dd></div></dl></section>
     </article>
     ${relatedSuggestions.length ? `<section><p>RELATED WORKS</p><h2>비슷한 수리사례</h2><p>같은 부위 또는 작업방식의 실제 전후 결과를 더 확인해보세요.</p><div class="seo-works-grid">${relatedSuggestions.map(({ work: relatedWork, reasons, matchedCategory, matchedPart }) => workCard(relatedWork, matchedCategory, reasons.map(getRelatedWorkReasonLabel), matchedPart)).join('')}</div><a href="/works/${text(work.category)}">${text(categoryLabel)} 수리사례 ${categoryWorkCount}건 전체 보기</a></section>` : ''}

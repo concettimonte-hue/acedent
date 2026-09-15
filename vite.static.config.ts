@@ -8,6 +8,8 @@ import { defineConfig, type Plugin } from 'vite';
 import generatedWorksData from './content/works.generated.json';
 import {
   WORK_CATEGORIES,
+  WORK_GALLERY_MAX_PER_SCOPE,
+  WORK_GALLERY_MAX_TOTAL,
   isWorkPartValue,
   type WorkCategory,
   type WorkItem,
@@ -28,6 +30,7 @@ import { getWorkSeoCopy, getWorksSeoCopy } from './lib/work-seo';
 import {
   getAbsoluteWorkImageUrl,
   getWorkImageAlt,
+  getWorkGalleryImageAlt,
   getWorkPrimaryAfterSrc,
   getWorkPrimaryPart,
 } from './lib/work-images';
@@ -80,6 +83,17 @@ function getWorkLastModified(work: BuildWork, sharedSources: string[]) {
 
 function loadBuildWorks(): BuildWork[] {
   const categoryIds = new Set<string>(WORK_CATEGORIES.map((item) => item.id));
+  const normalizeGallery = (gallery: WorkItem['gallery'], field: string, fileName: string) => {
+    const value = gallery ?? [];
+    if (!Array.isArray(value) || value.length > WORK_GALLERY_MAX_PER_SCOPE || value.some((image) =>
+      !image || typeof image.src !== 'string' || !image.src ||
+      !Number.isFinite(image.width) || !Number.isFinite(image.height) ||
+      image.width <= 0 || image.height <= 0 || image.width > 1600 || image.height > 1600
+    )) {
+      throw new Error(`${fileName}: ${field} 추가 사진 정보가 올바르지 않습니다.`);
+    }
+    return value;
+  };
   const works = (generatedWorksData as GeneratedWorksData).records
     .map(({ sourceFile, lastModified, work }) => {
       const fileName = sourceFile;
@@ -112,7 +126,16 @@ function loadBuildWorks(): BuildWork[] {
       ) {
         throw new Error(`${fileName}: parts의 label, before, after, note는 필수입니다.`);
       }
-      return { ...work, sourceFile, lastModified };
+      const parts = work.parts.map((part, index) => ({
+        ...part,
+        gallery: normalizeGallery(part.gallery, `parts[${index}].gallery`, fileName),
+      }));
+      const gallery = normalizeGallery(work.gallery, 'gallery', fileName);
+      const totalGalleryImages = gallery.length + parts.reduce((count, part) => count + (part.gallery?.length ?? 0), 0);
+      if (totalGalleryImages > WORK_GALLERY_MAX_TOTAL) {
+        throw new Error(`${fileName}: 추가 사진은 사례 전체 최대 ${WORK_GALLERY_MAX_TOTAL}장이어야 합니다.`);
+      }
+      return { ...work, parts, gallery, sourceFile, lastModified };
     })
     .sort((a, b) => b.date.localeCompare(a.date));
 
@@ -260,26 +283,54 @@ function getBreadcrumbJsonLd(work: WorkItem) {
 }
 
 function getWorkImageJsonLd(work: WorkItem) {
+  const partImages = work.parts.flatMap((part, partIndex) => [
+    ...(['전', '후'] as const).map((state) => {
+      const image = getAbsoluteWorkImageUrl(
+        state === '전' ? part.before : part.after,
+        siteUrl,
+      );
+      return {
+        '@type': 'ImageObject',
+        contentUrl: image,
+        thumbnailUrl: image,
+        name: getWorkImageAlt(work, part, state),
+        caption: `${part.label}: ${part.note}`,
+        width: 1600,
+        height: 1200,
+        representativeOfPage: partIndex === 0 && state === '후',
+      };
+    }),
+    ...(part.gallery ?? []).map((galleryImage, imageIndex) => ({
+      '@type': 'ImageObject',
+      contentUrl: getAbsoluteWorkImageUrl(galleryImage.src, siteUrl),
+      thumbnailUrl: getAbsoluteWorkImageUrl(
+        galleryImage.thumbnail || galleryImage.src,
+        siteUrl,
+      ),
+      name: getWorkGalleryImageAlt(work, galleryImage, imageIndex, part),
+      caption: galleryImage.caption || `${part.label} 추가 작업 사진`,
+      width: galleryImage.width,
+      height: galleryImage.height,
+      representativeOfPage: false,
+    })),
+  ]);
+  const workGalleryImages = (work.gallery ?? []).map((galleryImage, imageIndex) => ({
+    '@type': 'ImageObject',
+    contentUrl: getAbsoluteWorkImageUrl(galleryImage.src, siteUrl),
+    thumbnailUrl: getAbsoluteWorkImageUrl(
+      galleryImage.thumbnail || galleryImage.src,
+      siteUrl,
+    ),
+    name: getWorkGalleryImageAlt(work, galleryImage, imageIndex),
+    caption: galleryImage.caption || `${work.title} 전체 작업 추가 사진`,
+    width: galleryImage.width,
+    height: galleryImage.height,
+    representativeOfPage: false,
+  }));
+
   return {
     '@context': 'https://schema.org',
-    '@graph': work.parts.flatMap((part, partIndex) =>
-      (['전', '후'] as const).map((state) => {
-        const image = getAbsoluteWorkImageUrl(
-          state === '전' ? part.before : part.after,
-          siteUrl,
-        );
-        return {
-          '@type': 'ImageObject',
-          contentUrl: image,
-          thumbnailUrl: image,
-          name: getWorkImageAlt(work, part, state),
-          caption: `${part.label}: ${part.note}`,
-          width: 1600,
-          height: 1200,
-          representativeOfPage: partIndex === 0 && state === '후',
-        };
-      }),
-    ),
+    '@graph': [...partImages, ...workGalleryImages],
   };
 }
 
