@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowUpRight } from 'lucide-react';
+import WorkVehicleTag from '@/components/WorkVehicleTag';
 import {
   getWorkCategoryLabel,
   type WorkCategory,
@@ -53,7 +54,7 @@ export default function WorkCard({ work, contextCategory, contextPart }: WorkCar
         </span>
       </span>
       <span className="work-card-copy">
-        <span className="work-card-car">{formatWorkCar(work)}</span>
+        <WorkVehicleTag maker={work.carMaker} model={work.carModel} />
         <strong>{work.title}</strong>
         <span className="work-card-summary">{work.summary}</span>
         <span className="work-card-footer">

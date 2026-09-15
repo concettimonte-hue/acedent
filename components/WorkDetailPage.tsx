@@ -7,6 +7,7 @@ import WorkCard from '@/components/WorkCard';
 import WorkClassification from '@/components/WorkClassification';
 import WorksHeader from '@/components/WorksHeader';
 import WorksQuickActions from '@/components/WorksQuickActions';
+import WorkVehicleTag from '@/components/WorkVehicleTag';
 import type { WorkItem } from '@/content/works/types';
 import { getWorkCategoryLabel } from '@/content/works/types';
 import { getWorkImageAlt, resolveWorkImageSrc } from '@/lib/work-images';
@@ -14,7 +15,7 @@ import {
   applyClientMetadata,
   getWorkMetadata,
 } from '@/lib/work-metadata';
-import { formatWorkCar, getRelatedWorks } from '@/lib/works';
+import { getRelatedWorks } from '@/lib/works';
 import { withLandingUtm } from '@/lib/tracking';
 
 interface WorkDetailPageProps {
@@ -46,7 +47,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
           <WorkClassification work={work} />
           <h1>{work.title}</h1>
           <div className="work-detail-meta">
-            <span>{formatWorkCar(work)}</span>
+            <WorkVehicleTag maker={work.carMaker} model={work.carModel} />
             <span>{work.part[0]}</span>
             {work.subParts.map((part) => (
               <span className="work-detail-secondary-part" key={part}>{part}</span>

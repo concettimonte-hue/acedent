@@ -13,6 +13,7 @@ import { ArrowLeft, ArrowUpRight, ImagePlus, Plus, Trash2, UploadCloud, X } from
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import WorkCard from '@/components/WorkCard';
 import WorkClassification from '@/components/WorkClassification';
+import WorkVehicleTag from '@/components/WorkVehicleTag';
 import {
   WORK_CATEGORIES,
   WORK_PARTS,
@@ -25,7 +26,7 @@ import {
 } from '@/content/works/types';
 import { getWorkImageAlt } from '@/lib/work-images';
 import { getWorkSeoCopy, getWorkSeoWarnings } from '@/lib/work-seo';
-import { formatWorkCar, getWorks } from '@/lib/works';
+import { getWorks } from '@/lib/works';
 import { siteUrl } from '@/lib/seo';
 
 interface ProcessedImage {
@@ -819,7 +820,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
             <header className="work-detail-heading">
               <WorkClassification work={previewWork} />
               <h1>{previewWork.title}</h1>
-              <div className="work-detail-meta"><span>{formatWorkCar(previewWork)}</span><span>{previewWork.part[0]}</span>{previewWork.subParts.map((part) => <span className="work-detail-secondary-part" key={part}>{part}</span>)}<span>{previewWork.color}</span><strong>{previewWork.days}</strong></div>
+              <div className="work-detail-meta"><WorkVehicleTag maker={previewWork.carMaker} model={previewWork.carModel} /><span>{previewWork.part[0]}</span>{previewWork.subParts.map((part) => <span className="work-detail-secondary-part" key={part}>{part}</span>)}<span>{previewWork.color}</span><strong>{previewWork.days}</strong></div>
             </header>
             <div className="work-detail-parts">
               {previewWork.parts.map((part, index) => <section className="work-detail-part" key={`${part.label}-${index}`}>
