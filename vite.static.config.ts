@@ -32,6 +32,7 @@ import {
   getWorkPrimaryPart,
 } from './lib/work-images';
 import { workMatchesCategory } from './lib/work-categories';
+import { selectRelatedWorkSuggestions } from './lib/work-related';
 
 const projectDirectory = fileURLToPath(new URL('.', import.meta.url));
 const sitemapFallbackDate = '2026-09-08';
@@ -444,9 +445,7 @@ const seoAssetsPlugin = (): Plugin => ({
       const workSeo = getWorkSeoCopy(work);
       const categoryWorks = works
         .filter((candidate) => workMatchesCategory(candidate, work.category));
-      const related = categoryWorks
-        .filter((candidate) => candidate.slug !== work.slug)
-        .slice(0, 3);
+      const relatedSuggestions = selectRelatedWorkSuggestions(works, work, 3);
       writeRoute(
         `works/detail/${work.slug}.html`,
         renderRouteHtml(baseHtml, {
@@ -462,7 +461,11 @@ const seoAssetsPlugin = (): Plugin => ({
             { id: 'work-breadcrumb-jsonld', data: getBreadcrumbJsonLd(work) },
             { id: 'work-image-jsonld', data: getWorkImageJsonLd(work) },
           ],
-          bodyHtml: getWorkDetailStaticHtml(work, related, categoryWorks.length),
+          bodyHtml: getWorkDetailStaticHtml(
+            work,
+            relatedSuggestions,
+            categoryWorks.length,
+          ),
         }),
       );
     }

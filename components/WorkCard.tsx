@@ -6,7 +6,7 @@ import {
   getWorkCategoryLabel,
   type WorkCategory,
   type WorkItem,
-  type WorkPart,
+  type WorkPartValue,
 } from '@/content/works/types';
 import {
   getWorkImageAlt,
@@ -20,10 +20,16 @@ import { trackCaseView } from '@/lib/analytics';
 interface WorkCardProps {
   work: WorkItem;
   contextCategory?: WorkCategory;
-  contextPart?: WorkPart;
+  contextPart?: WorkPartValue;
+  reasonLabels?: readonly string[];
 }
 
-export default function WorkCard({ work, contextCategory, contextPart }: WorkCardProps) {
+export default function WorkCard({
+  work,
+  contextCategory,
+  contextPart,
+  reasonLabels = [],
+}: WorkCardProps) {
   const representativePart = getWorkRepresentativePart(
     work,
     contextCategory,
@@ -52,6 +58,9 @@ export default function WorkCard({ work, contextCategory, contextPart }: WorkCar
         <span className="work-card-category">
           {getWorkCategoryLabel(displayedCategory)}
         </span>
+        {reasonLabels.length > 0 && (
+          <span className="work-card-reasons">{reasonLabels.join(' · ')}</span>
+        )}
       </span>
       <span className="work-card-copy">
         <WorkVehicleTag maker={work.carMaker} model={work.carModel} />

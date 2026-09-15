@@ -10,6 +10,7 @@ import {
 import generatedWorksData from '@/content/works.generated.json';
 import { workMatchesCategory } from '@/lib/work-categories';
 import { formatWorkCardParts } from '@/lib/work-parts';
+import { selectRelatedWorkSuggestions } from '@/lib/work-related';
 
 interface GeneratedWorkRecord {
   sourceFile: string;
@@ -213,9 +214,11 @@ export function getFeaturedWorks(limit = 8) {
 }
 
 export function getRelatedWorks(work: WorkItem, limit = 3) {
-  return getWorksByCategory(work.category)
-    .filter((item) => item.slug !== work.slug)
-    .slice(0, limit);
+  return getRelatedWorkSuggestions(work, limit).map(({ work: related }) => related);
+}
+
+export function getRelatedWorkSuggestions(work: WorkItem, limit = 3) {
+  return selectRelatedWorkSuggestions(allWorks, work, limit);
 }
 
 export function formatWorkCar(work: WorkItem) {

@@ -23,6 +23,7 @@ import {
   type WorkCategory,
   type WorkItem,
   type WorkPartMedia,
+  type WorkPartValue,
 } from '../content/works/types';
 import {
   getWorkImageAlt,
@@ -34,6 +35,10 @@ import {
   workMatchesCategory,
 } from './work-categories';
 import { formatWorkCardParts } from './work-parts';
+import {
+  getRelatedWorkReasonLabel,
+  type RelatedWorkSuggestion,
+} from './work-related';
 
 const site = siteData as SiteContent;
 const faq = faqData as FaqContent;
@@ -62,15 +67,25 @@ function image(
   return `<img src="${text(src)}" alt="${text(alt)}" width="${options.width ?? 1600}" height="${options.height ?? 1200}" loading="${options.eager ? 'eager' : 'lazy'}"${options.eager ? ' fetchpriority="high"' : ' decoding="async"'} />`;
 }
 
-function workCard(work: WorkItem, contextCategory?: WorkCategory) {
-  const representativePart = getWorkRepresentativePart(work, contextCategory);
+function workCard(
+  work: WorkItem,
+  contextCategory?: WorkCategory,
+  reasonLabels: readonly string[] = [],
+  contextPart?: WorkPartValue,
+) {
+  const representativePart = getWorkRepresentativePart(
+    work,
+    contextCategory,
+    contextPart,
+  );
   const displayedCategory = contextCategory && representativePart.category === contextCategory
     ? contextCategory
     : work.category;
   return `<article class="seo-work-card">
     <a href="/works/detail/${text(work.slug)}">
-      ${image(getWorkThumbnailSrcForCategory(work, contextCategory), getWorkImageAlt(work, representativePart, '후'), { width: 800, height: 600 })}
+      ${image(getWorkThumbnailSrcForCategory(work, contextCategory, contextPart), getWorkImageAlt(work, representativePart, '후'), { width: 800, height: 600 })}
       <p>${text(getWorkCategoryLabel(displayedCategory))}</p>
+      ${reasonLabels.length ? `<p>${reasonLabels.map(text).join(' · ')}</p>` : ''}
       <h3>${text(car(work))} ${text(work.title)}</h3>
       <p>${text(work.summary)}</p>
       <small>${text(formatWorkCardParts(work))} · ${text(work.days)}</small>
@@ -154,11 +169,12 @@ export function getWorksStaticHtml(works: WorkItem[], category?: WorkCategory) {
 
 export function getWorkDetailStaticHtml(
   work: WorkItem,
-  related: WorkItem[],
+  relatedSuggestions: RelatedWorkSuggestion[],
   categoryWorkCount: number,
 ) {
   const categoryLabel = getWorkCategoryLabel(work.category);
-  const [, ...secondaryCategories] = getWorkDisplayCategories(work);
+  const workCategories = getWorkDisplayCategories(work);
+  const [, ...secondaryCategories] = workCategories;
   const classification = `<div class="work-detail-classification">
         <span class="work-detail-classification-primary">${text(categoryLabel)}</span>
         ${secondaryCategories.map((category) => `<span class="work-detail-classification-secondary-group"><span class="work-detail-classification-separator" aria-hidden="true">·</span><span class="work-detail-classification-secondary">${text(getWorkCategoryLabel(category))}</span></span>`).join('')}
@@ -183,8 +199,9 @@ export function getWorkDetailStaticHtml(
       <p><strong>${text(work.summary)}</strong></p>
       ${work.body.split('\n\n').map((paragraph) => `<p>${text(paragraph)}</p>`).join('')}
       ${work.blogUrl ? `<a href="${text(work.blogUrl)}" target="_blank" rel="noopener noreferrer">블로그에서 더 보기</a>` : ''}
+      <section><p>RESULT SUMMARY</p><h2>이번 작업 한눈에 보기</h2><dl><div><dt>차량</dt><dd>${text(car(work))}</dd></div><div><dt>작업 부위</dt><dd>${text(formatWorkCardParts(work))}</dd></div><div><dt>작업 분류</dt><dd>${workCategories.map((category) => text(getWorkCategoryLabel(category))).join(' · ')}</dd></div><div><dt>소요 기간</dt><dd>${text(work.days)}</dd></div></dl></section>
     </article>
-    ${related.length ? `<section><p>RELATED WORKS</p><h2>비슷한 수리사례</h2><p>같은 작업방식의 실제 전후 결과를 더 확인해보세요.</p><div class="seo-works-grid">${related.map((relatedWork) => workCard(relatedWork)).join('')}</div><a href="/works/${text(work.category)}">${text(categoryLabel)} 수리사례 ${categoryWorkCount}건 전체 보기</a></section>` : ''}
-    <section><p>PHOTO CONSULTATION</p><h2>내 차도 비슷하게 손상됐나요?</h2><p>손상 부위가 잘 보이는 사진을 보내주시면 수리 가능 여부와 예상 작업 범위를 먼저 안내드립니다.</p><a href="${text(site.contact.smsHref)}">사진 상담 시작</a><a href="${text(site.contact.phoneHref)}">전화 문의</a><a href="${text(naver.talk)}" target="_blank" rel="noopener noreferrer">네이버 톡톡</a></section>
+    ${relatedSuggestions.length ? `<section><p>RELATED WORKS</p><h2>비슷한 수리사례</h2><p>같은 부위 또는 작업방식의 실제 전후 결과를 더 확인해보세요.</p><div class="seo-works-grid">${relatedSuggestions.map(({ work: relatedWork, reasons, matchedCategory, matchedPart }) => workCard(relatedWork, matchedCategory, reasons.map(getRelatedWorkReasonLabel), matchedPart)).join('')}</div><a href="/works/${text(work.category)}">${text(categoryLabel)} 수리사례 ${categoryWorkCount}건 전체 보기</a></section>` : ''}
+    <section><p>PHOTO CONSULTATION</p><h2>내 차도 비슷하게 손상됐나요?</h2><p>손상 부위가 잘 보이는 사진을 보내주시면 수리 가능 여부와 예상 작업 범위를 먼저 안내드립니다.</p><a href="${text(site.contact.smsHref)}">사진 상담 시작</a><a href="${text(site.contact.phoneHref)}">전화 문의</a><a href="${text(naver.talk)}" target="_blank" rel="noopener noreferrer">네이버 톡톡</a><p><strong>수리가 필요한지, 교환이 나은지부터 확인해드립니다.</strong> 불필요한 작업은 권하지 않습니다.</p></section>
   </main>`;
 }

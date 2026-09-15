@@ -1,7 +1,7 @@
 import type {
   WorkCategory,
   WorkItem,
-  WorkPart,
+  WorkPartValue,
   WorkPartMedia,
 } from '../content/works/types';
 
@@ -36,7 +36,7 @@ export function getWorkDisplayCategories(work: WorkItem): WorkCategory[] {
 export function getWorkRepresentativePart(
   work: WorkItem,
   category?: WorkCategory,
-  part?: WorkPart,
+  part?: WorkPartValue,
 ): WorkPartMedia {
   if (category && part) {
     const matched = work.parts.find(

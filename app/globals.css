@@ -2882,6 +2882,22 @@ footer > a:last-child svg {
   font-size: 0.68rem;
   font-weight: 900;
 }
+.work-card-reasons {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  max-width: calc(100% - 7rem);
+  overflow: hidden;
+  padding: 0.38rem 0.55rem;
+  border: 1px solid rgb(255 255 255 / 22%);
+  background: rgb(3 4 3 / 82%);
+  color: #e1e3df;
+  font-size: 0.66rem;
+  font-weight: 800;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .work-card-copy {
   display: flex;
   min-height: 230px;
@@ -3181,6 +3197,51 @@ footer > a:last-child svg {
   font-weight: 800;
   line-height: 1.55;
 }
+.work-result-summary {
+  margin-top: clamp(3.5rem, 7vw, 6rem);
+  padding-top: clamp(2.25rem, 4vw, 3.5rem);
+  border-top: 1px solid #3a3d3a;
+}
+.work-result-summary header > p {
+  color: #f8db00;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+.work-result-summary header h2 {
+  margin-top: 0.65rem;
+  font-size: clamp(1.55rem, 3vw, 2.35rem);
+  font-weight: 900;
+  letter-spacing: -0.035em;
+}
+.work-result-summary dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 1.5rem;
+  border: 1px solid #343734;
+  background: #0d0f0d;
+}
+.work-result-summary dl > div {
+  min-width: 0;
+  padding: 1.25rem;
+}
+.work-result-summary dl > div + div {
+  border-left: 1px solid #343734;
+}
+.work-result-summary dt {
+  color: #777b77;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+.work-result-summary dd {
+  margin-top: 0.55rem;
+  color: #f2f3ef;
+  font-size: 0.9rem;
+  font-weight: 850;
+  line-height: 1.45;
+  word-break: keep-all;
+}
 .work-blog-link {
   display: inline-flex;
   min-height: 50px;
@@ -3229,6 +3290,25 @@ footer > a:last-child svg {
 }
 .work-detail-contact .works-quick-actions {
   margin-top: 2rem;
+}
+.work-detail-trust {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #303330;
+}
+.work-detail-trust strong {
+  color: #e4e6e1;
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+.work-detail-trust span {
+  color: #8f938f;
+  font-size: 0.78rem;
+  line-height: 1.55;
 }
 .related-works {
   width: min(1200px, calc(100% - 8vw));
@@ -3310,6 +3390,15 @@ footer > a:last-child svg {
 @media (max-width: 980px) {
   .works-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .work-result-summary dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .work-result-summary dl > div:nth-child(3) {
+    border-left: 0;
+  }
+  .work-result-summary dl > div:nth-child(n + 3) {
+    border-top: 1px solid #343734;
   }
 }
 
@@ -3479,6 +3568,16 @@ footer > a:last-child svg {
   .work-detail-copy {
     padding-top: 2.5rem;
   }
+  .work-result-summary {
+    margin-top: 3.5rem;
+    padding-top: 2.25rem;
+  }
+  .work-result-summary dl > div {
+    padding: 1rem;
+  }
+  .work-result-summary dd {
+    font-size: 0.82rem;
+  }
   .work-detail-contact {
     padding: 2.5rem 1.25rem;
   }
@@ -3489,8 +3588,34 @@ footer > a:last-child svg {
     margin-right: 0;
     margin-left: 0;
   }
+  .work-detail-trust {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
   .related-works {
     padding: 3.5rem 0 5rem;
+  }
+  .related-works-grid {
+    display: flex;
+    overflow-x: auto;
+    margin-right: -1.25rem;
+    padding-right: 3.5rem;
+    gap: 1rem;
+    overscroll-behavior-inline: contain;
+    scroll-padding-inline: 0;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .related-works-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .related-works-grid .work-card {
+    width: 82vw;
+    max-width: 330px;
+    flex: 0 0 82vw;
+    scroll-snap-align: start;
   }
   .related-works-more {
     min-height: 58px;
