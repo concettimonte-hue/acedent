@@ -2725,8 +2725,8 @@ footer > a:last-child svg {
 }
 .works-page-hero > p,
 .work-detail-heading > p,
-.work-detail-contact > p,
-.related-works > div:first-child > p {
+.work-detail-contact > p:first-child,
+.related-works-heading > p:first-child {
   color: #f8db00;
   font-size: 0.72rem;
   font-weight: 900;
@@ -3206,6 +3206,7 @@ footer > a:last-child svg {
   margin: 0 auto;
   padding: clamp(3rem, 6vw, 5rem);
   border: 1px solid #343734;
+  border-top: 2px solid #f8db00;
   background: #101210;
 }
 .work-detail-contact h2,
@@ -3216,13 +3217,72 @@ footer > a:last-child svg {
   line-height: 1.12;
   word-break: keep-all;
 }
+.work-detail-contact h2 {
+  margin-bottom: 0.9rem;
+}
+.work-detail-contact-copy {
+  max-width: 680px;
+  color: #aeb1ae;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+.work-detail-contact .works-quick-actions {
+  margin-top: 2rem;
+}
 .related-works {
   width: min(1200px, calc(100% - 8vw));
   margin: 0 auto;
-  padding: clamp(5rem, 9vw, 8rem) 0;
+  padding: clamp(3.5rem, 6vw, 5.5rem) 0 clamp(5rem, 9vw, 8rem);
+  border-top: 1px solid #3a3d3a;
+}
+.related-works-heading {
+  max-width: 720px;
+}
+.related-works-heading h2 {
+  margin-bottom: 0.75rem;
+}
+.related-works-heading > p:last-child {
+  color: #969a96;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  word-break: keep-all;
 }
 .related-works-grid {
-  margin-top: 0;
+  margin-top: 2.25rem;
+}
+.related-works-more {
+  display: flex;
+  width: 100%;
+  min-height: 62px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 0 1.25rem;
+  border: 1px solid #77715a;
+  color: #e6e7e2;
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+.related-works-more strong {
+  color: #f8db00;
+  font-weight: 900;
+}
+.related-works-more svg {
+  width: 18px;
+  flex: 0 0 auto;
+  color: #f8db00;
+  transition: transform 180ms ease;
+}
+.related-works-more:hover,
+.related-works-more:focus-visible {
+  border-color: #f8db00;
+  color: white;
+}
+.related-works-more:hover svg,
+.related-works-more:focus-visible svg {
+  transform: translateX(3px);
 }
 .works-not-found {
   display: grid;
@@ -3422,12 +3482,20 @@ footer > a:last-child svg {
   .work-detail-contact {
     padding: 2.5rem 1.25rem;
   }
+  .work-detail-contact-copy {
+    font-size: 0.88rem;
+  }
   .work-detail-contact .works-quick-actions {
     margin-right: 0;
     margin-left: 0;
   }
   .related-works {
-    padding: 5rem 0;
+    padding: 3.5rem 0 5rem;
+  }
+  .related-works-more {
+    min-height: 58px;
+    padding: 0 1rem;
+    font-size: 0.8rem;
   }
 }
 

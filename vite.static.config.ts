@@ -442,8 +442,10 @@ const seoAssetsPlugin = (): Plugin => ({
     for (const work of works) {
       const canonical = `${siteUrl}/works/detail/${work.slug}`;
       const workSeo = getWorkSeoCopy(work);
-      const related = works
-        .filter((candidate) => workMatchesCategory(candidate, work.category) && candidate.slug !== work.slug)
+      const categoryWorks = works
+        .filter((candidate) => workMatchesCategory(candidate, work.category));
+      const related = categoryWorks
+        .filter((candidate) => candidate.slug !== work.slug)
         .slice(0, 3);
       writeRoute(
         `works/detail/${work.slug}.html`,
@@ -460,7 +462,7 @@ const seoAssetsPlugin = (): Plugin => ({
             { id: 'work-breadcrumb-jsonld', data: getBreadcrumbJsonLd(work) },
             { id: 'work-image-jsonld', data: getWorkImageJsonLd(work) },
           ],
-          bodyHtml: getWorkDetailStaticHtml(work, related),
+          bodyHtml: getWorkDetailStaticHtml(work, related, categoryWorks.length),
         }),
       );
     }

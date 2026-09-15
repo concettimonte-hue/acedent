@@ -152,7 +152,11 @@ export function getWorksStaticHtml(works: WorkItem[], category?: WorkCategory) {
   </main>`;
 }
 
-export function getWorkDetailStaticHtml(work: WorkItem, related: WorkItem[]) {
+export function getWorkDetailStaticHtml(
+  work: WorkItem,
+  related: WorkItem[],
+  categoryWorkCount: number,
+) {
   const categoryLabel = getWorkCategoryLabel(work.category);
   const [, ...secondaryCategories] = getWorkDisplayCategories(work);
   const classification = `<div class="work-detail-classification">
@@ -180,7 +184,7 @@ export function getWorkDetailStaticHtml(work: WorkItem, related: WorkItem[]) {
       ${work.body.split('\n\n').map((paragraph) => `<p>${text(paragraph)}</p>`).join('')}
       ${work.blogUrl ? `<a href="${text(work.blogUrl)}" target="_blank" rel="noopener noreferrer">블로그에서 더 보기</a>` : ''}
     </article>
-    ${related.length ? `<section><h2>같은 작업방식 사례</h2><div class="seo-works-grid">${related.map((relatedWork) => workCard(relatedWork)).join('')}</div></section>` : ''}
-    <section><h2>비슷한 손상이라면 사진으로 문의하세요.</h2><a href="${text(site.contact.phoneHref)}">전화</a><a href="${text(site.contact.smsHref)}">사진 문자</a><a href="${text(naver.talk)}" target="_blank" rel="noopener noreferrer">네이버 톡톡</a></section>
+    ${related.length ? `<section><p>RELATED WORKS</p><h2>비슷한 수리사례</h2><p>같은 작업방식의 실제 전후 결과를 더 확인해보세요.</p><div class="seo-works-grid">${related.map((relatedWork) => workCard(relatedWork)).join('')}</div><a href="/works/${text(work.category)}">${text(categoryLabel)} 수리사례 ${categoryWorkCount}건 전체 보기</a></section>` : ''}
+    <section><p>PHOTO CONSULTATION</p><h2>내 차도 비슷하게 손상됐나요?</h2><p>손상 부위가 잘 보이는 사진을 보내주시면 수리 가능 여부와 예상 작업 범위를 먼저 안내드립니다.</p><a href="${text(site.contact.smsHref)}">사진 상담 시작</a><a href="${text(site.contact.phoneHref)}">전화 문의</a><a href="${text(naver.talk)}" target="_blank" rel="noopener noreferrer">네이버 톡톡</a></section>
   </main>`;
 }

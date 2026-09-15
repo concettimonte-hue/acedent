@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { ArrowLeft, ArrowUpRight } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import WorkCard from '@/components/WorkCard';
 import WorkClassification from '@/components/WorkClassification';
@@ -15,7 +15,7 @@ import {
   applyClientMetadata,
   getWorkMetadata,
 } from '@/lib/work-metadata';
-import { getRelatedWorks } from '@/lib/works';
+import { getRelatedWorks, getWorksByCategory } from '@/lib/works';
 import { withLandingUtm } from '@/lib/tracking';
 
 interface WorkDetailPageProps {
@@ -25,6 +25,7 @@ interface WorkDetailPageProps {
 export default function WorkDetailPage({ work }: WorkDetailPageProps) {
   const relatedWorks = getRelatedWorks(work, 3);
   const categoryLabel = getWorkCategoryLabel(work.category);
+  const categoryWorkCount = getWorksByCategory(work.category).length;
 
   useEffect(() => {
     applyClientMetadata(getWorkMetadata(work));
@@ -108,25 +109,32 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
 
       {relatedWorks.length > 0 && (
         <section className="related-works" aria-labelledby="related-works-title">
-          <div>
+          <div className="related-works-heading">
             <p>RELATED WORKS</p>
-            <h2 id="related-works-title">같은 작업방식 사례</h2>
+            <h2 id="related-works-title">비슷한 수리사례</h2>
+            <p>같은 작업방식의 실제 전후 결과를 더 확인해보세요.</p>
           </div>
           <div className="works-grid related-works-grid">
             {relatedWorks.map((related) => (
               <WorkCard work={related} key={related.slug} />
             ))}
           </div>
-          <a className="works-back-link" href={`/works/${work.category}`}>
-            <ArrowLeft aria-hidden="true" /> {categoryLabel} 전체 보기
+          <a className="related-works-more" href={`/works/${work.category}`}>
+            <span>
+              <strong>{categoryLabel}</strong> 수리사례 {categoryWorkCount}건 전체 보기
+            </span>
+            <ArrowRight aria-hidden="true" />
           </a>
         </section>
       )}
 
       <section className="work-detail-contact" aria-labelledby="work-contact-title">
-        <p>CONTACT</p>
-        <h2 id="work-contact-title">비슷한 손상이라면 사진으로 문의하세요.</h2>
-        <WorksQuickActions />
+        <p>PHOTO CONSULTATION</p>
+        <h2 id="work-contact-title">내 차도 비슷하게 손상됐나요?</h2>
+        <p className="work-detail-contact-copy">
+          손상 부위가 잘 보이는 사진을 보내주시면 수리 가능 여부와 예상 작업 범위를 먼저 안내드립니다.
+        </p>
+        <WorksQuickActions photoPrimary />
       </section>
     </main>
   );

@@ -12,25 +12,40 @@ const naver = naverData as NaverContent;
 
 interface WorksQuickActionsProps {
   compact?: boolean;
+  photoPrimary?: boolean;
 }
 
-export default function WorksQuickActions({ compact = false }: WorksQuickActionsProps) {
+export default function WorksQuickActions({
+  compact = false,
+  photoPrimary = false,
+}: WorksQuickActionsProps) {
+  const phoneAction = (
+    <a
+      href={site.contact.phoneHref}
+      onClick={() => trackTelClick(compact ? '플로팅' : '하단')}
+    >
+      <Phone aria-hidden="true" />
+      <span>전화 문의</span>
+    </a>
+  );
+  const photoAction = (
+    <a href={site.contact.smsHref} onClick={trackSmsClick}>
+      <Smartphone aria-hidden="true" />
+      <span>{photoPrimary ? '사진 상담 시작' : '사진 문자'}</span>
+    </a>
+  );
+
   return (
     <nav
-      className={compact ? 'works-quick-actions is-compact' : 'works-quick-actions'}
+      className={[
+        'works-quick-actions',
+        compact ? 'is-compact' : '',
+        photoPrimary ? 'is-photo-primary' : '',
+      ].filter(Boolean).join(' ')}
       aria-label="수리 상담"
     >
-      <a
-        href={site.contact.phoneHref}
-        onClick={() => trackTelClick(compact ? '플로팅' : '하단')}
-      >
-        <Phone aria-hidden="true" />
-        <span>전화 문의</span>
-      </a>
-      <a href={site.contact.smsHref} onClick={trackSmsClick}>
-        <Smartphone aria-hidden="true" />
-        <span>사진 문자</span>
-      </a>
+      {photoPrimary ? photoAction : phoneAction}
+      {photoPrimary ? phoneAction : photoAction}
       <a
         href={withLandingUtm(naver.talk, 'work_detail')}
         target="_blank"
