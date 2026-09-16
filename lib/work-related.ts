@@ -24,34 +24,78 @@ export function getRelatedWorkReasonLabel(reason: RelatedWorkReason) {
   return reasonLabels[reason];
 }
 
+interface RelatedWorkMatch extends Omit<RelatedWorkSuggestion, 'work'> {
+  score: number;
+}
+
 function getRelatedWorkReasons(
   source: WorkItem,
   candidate: WorkItem,
-): Omit<RelatedWorkSuggestion, 'work'> {
+): RelatedWorkMatch {
   const sourceParts = getWorkFilterParts(source);
   const sourceCategories = getWorkFilterCategories(source);
   const candidateParts = new Set(getWorkFilterParts(candidate));
   const candidateCategories = new Set(getWorkFilterCategories(candidate));
-  const matchedPart = sourceParts.find((part) => candidateParts.has(part));
-  const matchedCategory = sourceCategories.find((category) =>
+  const samePart = sourceParts.find((part) => candidateParts.has(part));
+  const sameCategory = sourceCategories.find((category) =>
     candidateCategories.has(category),
   );
 
-  return {
-    reasons: [
-      ...(matchedPart ? ['part' as const] : []),
-      ...(matchedCategory ? ['category' as const] : []),
-    ],
-    matchedCategory,
-    matchedPart,
-  };
-}
+  // 부위와 작업이 각각 다른 PART에서 일치하는 교차 판정은
+  // "같은 부위 · 같은 작업"으로 취급하지 않습니다.
+  const exactPartMatch = source.parts.flatMap((sourcePart) => {
+    if (!sourcePart.category) return [];
+    return (sourcePart.part ?? []).map((part) => ({
+      part,
+      category: sourcePart.category!,
+    }));
+  }).find(({ part, category }) => candidate.parts.some(
+    (candidatePart) =>
+      candidatePart.category === category &&
+      candidatePart.part?.includes(part),
+  ));
 
-function getReasonScore(reasons: RelatedWorkReason[]) {
-  return (
-    (reasons.includes('part') ? 2 : 0) +
-    (reasons.includes('category') ? 1 : 0)
-  );
+  if (exactPartMatch) {
+    return {
+      reasons: ['part', 'category'],
+      matchedCategory: exactPartMatch.category,
+      matchedPart: exactPartMatch.part,
+      score: 8,
+    };
+  }
+
+  // 정확한 PART 조합이 없으면 사진과 안내 문구가 서로 어긋나지 않도록
+  // 부위 일치를 작업 일치보다 우선해 하나의 기준만 사용합니다.
+  if (samePart) {
+    const sourcePart = source.parts.find((part) =>
+      part.part?.includes(samePart),
+    );
+    const candidateParts = candidate.parts.filter((part) =>
+      part.part?.includes(samePart),
+    );
+    const legacySinglePartCategoryMatch = Boolean(
+      sourcePart?.category &&
+      candidate.parts.length === 1 &&
+      candidateParts.length === 1 &&
+      !candidateParts[0].category &&
+      candidate.category === sourcePart.category,
+    );
+    const primaryPart = source.part[0] ?? sourceParts[0];
+
+    return {
+      reasons: ['part'],
+      matchedPart: samePart,
+      score:
+        (samePart === primaryPart ? 4 : 2) +
+        (legacySinglePartCategoryMatch ? 1 : 0),
+    };
+  }
+
+  return {
+    reasons: sameCategory ? ['category'] : [],
+    matchedCategory: sameCategory,
+    score: sameCategory ? 1 : 0,
+  };
 }
 
 export function selectRelatedWorkSuggestions(
@@ -69,7 +113,7 @@ export function selectRelatedWorkSuggestions(
       candidate.slug !== source.slug && reasons.length > 0
     ))
     .sort((a, b) => (
-      getReasonScore(b.reasons) - getReasonScore(a.reasons) || a.index - b.index
+      b.score - a.score || a.index - b.index
     ))
     .slice(0, limit)
     .map(({ candidate, reasons, matchedCategory, matchedPart }) => ({

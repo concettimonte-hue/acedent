@@ -179,7 +179,7 @@
     },
     {
       "sourceFile": "d1:kia-sportage-side-door-panel-paint",
-      "lastModified": "2026-09-14",
+      "lastModified": "2026-09-16",
       "work": {
         "slug": "kia-sportage-side-door-panel-paint",
         "date": "2026-09-14",
@@ -200,11 +200,13 @@
             "part": [
               "도어"
             ],
+            "category": "panel-paint",
             "label": "도어 측면 캐릭터 라인",
             "before": "https://images.acedentshop.co.kr/works/31d9d65c-45cb-4cd8-bb3f-3ab03f53c858/01-image-before.jpg",
             "after": "https://images.acedentshop.co.kr/works/31d9d65c-45cb-4cd8-bb3f-3ab03f53c858/01-image-after.jpg",
             "thumbnail": "https://images.acedentshop.co.kr/works/31d9d65c-45cb-4cd8-bb3f-3ab03f53c858/01-image-thumbnail.jpg",
-            "note": "캐릭터 라인을 따라 깊게 찌그러진 철판 함몰 손상. 스폿 판금으로 뭉개진 각을 정교하게 당겨내어 원래의 형태를 잡고, 열처리 도장으로 왜곡 없는 맑은 반사광 복원 완료."
+            "note": "캐릭터 라인을 따라 깊게 찌그러진 철판 함몰 손상. 스폿 판금으로 뭉개진 각을 정교하게 당겨내어 원래의 형태를 잡고, 열처리 도장으로 왜곡 없는 맑은 반사광 복원 완료.",
+            "gallery": []
           },
           {
             "part": [
@@ -215,14 +217,16 @@
             "before": "https://images.acedentshop.co.kr/works/31d9d65c-45cb-4cd8-bb3f-3ab03f53c858/02-image-before.jpg",
             "after": "https://images.acedentshop.co.kr/works/31d9d65c-45cb-4cd8-bb3f-3ab03f53c858/02-image-after.jpg",
             "thumbnail": "https://images.acedentshop.co.kr/works/31d9d65c-45cb-4cd8-bb3f-3ab03f53c858/02-image-thumbnail.jpg",
-            "note": "마찰로 인한 페인트 이염 및 깊은 긁힘 발생. 전체 도장 대신 손상 부위만 다듬고 그라데이션 기법(보카시)을 적용한 정밀 부분도장으로 비용을 절감하며 이질감 없이 마감 완료."
+            "note": "마찰로 인한 페인트 이염 및 깊은 긁힘 발생. 전체 도장 대신 손상 부위만 다듬고 그라데이션 기법(보카시)을 적용한 정밀 부분도장으로 비용을 절감하며 이질감 없이 마감 완료.",
+            "gallery": []
           }
         ],
         "summary": "깊게 찌그러진 후도어는 정석 판금도장으로 면을 펴내고, 긁힘이 발생한 앞범퍼 측면은 부분도장(보카시)을 적용하여 수리 비용을 최소화하며 이색 없이 말끔하게 복원했습니다.",
         "body": "측면 충돌로 인해 후도어 캐릭터 라인이 깊게 함몰되었고, 앞범퍼 측면 모서리 부분에 타 물체의 페인트 이염과 깊은 긁힘이 발생하여 입고되었습니다. 정밀 진단 결과, 철판 면적이 넓고 굴곡이 심한 도어는 정석대로 전체 판금도장을 진행해야 하자가 없으나, 플라스틱 앞범퍼는 손상 부위가 측면 모서리에 국한되어 있어 비용 절감을 위한 부분도장이 충분히 가능한 상태였습니다.\n\n후도어는 스폿 용접기를 이용해 안으로 꺾여 들어간 캐릭터 라인을 정교하게 당겨내어 0점 단차를 맞춘 뒤, 최소한의 퍼티 공정으로 면을 평탄화했습니다. 반면 앞범퍼는 전체를 탈거하지 않고 손상된 모서리 표면만 매끄럽게 샌딩하여 부분 도장 준비를 마쳤습니다. 스포티지 특유의 카키색 도료를 정밀 조색한 후, 도어는 전체 열처리 도장을, 앞범퍼는 기존 도장면과 경계선이 생기지 않도록 그라데이션 보카시 기법을 적용하여 이색 현상과 꿀렁임 없는 완벽한 결과물을 완성했습니다.",
         "featured": false,
         "days": "2일",
-        "sliderType": "drag"
+        "sliderType": "drag",
+        "gallery": []
       }
     },
     {
@@ -299,7 +303,7 @@
     },
     {
       "sourceFile": "d1:tesla-model3-fender-polish",
-      "lastModified": "2026-09-13",
+      "lastModified": "2026-09-16",
       "work": {
         "slug": "tesla-model3-fender-polish",
         "date": "2026-09-13",
@@ -318,19 +322,22 @@
             "part": [
               "휀더"
             ],
+            "category": "polish",
             "label": "휀더 휠 아치 라인",
             "before": "https://images.acedentshop.co.kr/works/0e015acb-5c54-4e29-95a9-a7dfa09cd1dc/01-image-before.jpg",
             "after": "https://images.acedentshop.co.kr/works/0e015acb-5c54-4e29-95a9-a7dfa09cd1dc/01-image-after.jpg",
             "thumbnail": "https://images.acedentshop.co.kr/works/0e015acb-5c54-4e29-95a9-a7dfa09cd1dc/01-image-thumbnail.jpg",
-            "note": "마찰로 인한 타 물체의 페인트 이염 및 얕은 스크래치 발생. 불필요한 재도장 없이 정밀 폴리싱(흠집제거)만으로 이염을 걷어내고 원칠을 100% 보존하며 복원 완료."
+            "note": "마찰로 인한 타 물체의 페인트 이염 및 얕은 스크래치 발생. 불필요한 재도장 없이 정밀 폴리싱(흠집제거)만으로 이염을 걷어내고 원칠을 100% 보존하며 복원 완료.",
+            "gallery": []
           }
         ],
         "summary": "휀더 휠 아치 라인에 발생한 페인트 이염과 스크래치를 재도장 없이 정밀 폴리싱으로 다듬어, 원칠을 보존하면서 수리 비용을 최소화했습니다.",
         "body": "휀더 휠 아치 끝단을 따라 녹색 페인트가 묻어나고 긁힌 자국이 발생한 상태로 입고되었습니다. 표면을 정밀 진단한 결과, 다행히 철판의 변형이나 베이스 칠이 깊게 파인 손상이 아닌 투명 클리어층 표면에 타 물체의 페인트가 묻어난 '이염'과 얕은 스크래치로 확인되었습니다.\n\n이러한 손상에 무조건적인 판금도장을 적용하면 수리 비용이 크게 발생하고 원칠(출고 도장)이 훼손되어 중고차 감가의 원인이 됩니다. 따라서 고객님의 비용 부담을 대폭 낮추고 차량의 가치를 보존하기 위해 정밀 폴리싱(광택) 공정을 진행했습니다. 도장면에 대미지를 주지 않는 전용 컴파운드와 듀얼 폴리셔를 이용해 표면에 고착된 녹색 페인트를 안전하게 걷어내고, 미세한 스크래치들의 단차를 매끄럽게 다듬어 재도장 없이도 맑고 깨끗한 도장면을 완벽하게 되찾았습니다.",
         "blogUrl": "https://blog.naver.com/ace_dent_shop/224143797445",
         "featured": false,
-        "days": "당",
-        "sliderType": "drag"
+        "days": "당일",
+        "sliderType": "drag",
+        "gallery": []
       }
     },
     {

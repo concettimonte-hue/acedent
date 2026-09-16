@@ -37,9 +37,12 @@ export default function WorkCard({
     contextCategory,
     contextPart,
   );
-  const displayedCategory = contextCategory && representativePart.category === contextCategory
-    ? contextCategory
-    : work.category;
+  const displayedCategory =
+    contextCategory && representativePart.category === contextCategory
+      ? contextCategory
+      : contextPart && representativePart.category
+        ? representativePart.category
+        : work.category;
 
   return (
     <a

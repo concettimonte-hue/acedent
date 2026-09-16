@@ -80,9 +80,12 @@ function workCard(
     contextCategory,
     contextPart,
   );
-  const displayedCategory = contextCategory && representativePart.category === contextCategory
-    ? contextCategory
-    : work.category;
+  const displayedCategory =
+    contextCategory && representativePart.category === contextCategory
+      ? contextCategory
+      : contextPart && representativePart.category
+        ? representativePart.category
+        : work.category;
   return `<article class="seo-work-card">
     <a href="/works/detail/${text(work.slug)}">
       ${image(getWorkCardImageSrcForCategory(work, contextCategory, contextPart, imageState), getWorkImageAlt(work, representativePart, imageState === 'before' ? '전' : '후'), { width: 800, height: 600 })}
