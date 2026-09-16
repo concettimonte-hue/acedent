@@ -5,7 +5,6 @@ import {
   useId,
   useRef,
   useState,
-  type UIEvent,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Expand, X } from 'lucide-react';
@@ -163,40 +162,92 @@ export default function WorkPhotoGallery({
   title = '사진 더 보기',
   compact = false,
 }: WorkPhotoGalleryProps) {
+  const gridRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [visibleIndex, setVisibleIndex] = useState(0);
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
+  const [canScroll, setCanScroll] = useState({ left: false, right: false });
+
+  const updateCarouselState = () => {
+    const grid = gridRef.current;
+    if (!grid) return;
+
+    const items = Array.from(
+      grid.querySelectorAll<HTMLElement>('.work-photo-gallery-item'),
+    );
+    const viewportStart = grid.scrollLeft;
+    const viewportEnd = viewportStart + grid.clientWidth;
+    const visibleItems = items
+      .map((item, index) => {
+        const itemStart = item.offsetLeft;
+        const itemEnd = itemStart + item.offsetWidth;
+        const overlap = Math.max(
+          0,
+          Math.min(itemEnd, viewportEnd) - Math.max(itemStart, viewportStart),
+        );
+        return { index, ratio: overlap / Math.max(item.offsetWidth, 1) };
+      })
+      .filter(({ ratio }) => ratio >= 0.55);
+    const start = visibleItems[0]?.index ?? 0;
+    const end = visibleItems.at(-1)?.index ?? start;
+    const maxScrollLeft = Math.max(0, grid.scrollWidth - grid.clientWidth);
+
+    setVisibleIndex(start);
+    setVisibleRange({ start, end });
+    setCanScroll({
+      left: grid.scrollLeft > 2,
+      right: grid.scrollLeft < maxScrollLeft - 2,
+    });
+  };
+
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+
+    const frame = window.requestAnimationFrame(updateCarouselState);
+    const observer = new ResizeObserver(updateCarouselState);
+    observer.observe(grid);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [images.length]);
+
   if (images.length === 0) return null;
 
-  const handleScroll = (event: UIEvent<HTMLDivElement>) => {
+  const scrollCarousel = (direction: -1 | 1) => {
+    const grid = gridRef.current;
+    if (!grid) return;
     const items = Array.from(
-      event.currentTarget.querySelectorAll<HTMLElement>('.work-photo-gallery-item'),
+      grid.querySelectorAll<HTMLElement>('.work-photo-gallery-item'),
     );
-    const firstOffset = items[0]?.offsetLeft ?? 0;
-    const currentLeft = event.currentTarget.scrollLeft;
-    let closestIndex = 0;
-    let closestDistance = Number.POSITIVE_INFINITY;
-
-    items.forEach((item, index) => {
-      const distance = Math.abs(item.offsetLeft - firstOffset - currentLeft);
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestIndex = index;
-      }
+    const first = items[0];
+    const second = items[1];
+    const step = second && first
+      ? second.offsetLeft - first.offsetLeft
+      : grid.clientWidth * 0.8;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    grid.scrollBy({
+      left: direction * step,
+      behavior: reduceMotion ? 'auto' : 'smooth',
     });
-    setVisibleIndex(closestIndex);
   };
 
   return (
-    <section className={`work-photo-gallery${compact ? ' is-compact' : ''}`}>
+    <section
+      className={`work-photo-gallery${compact ? ' is-compact' : ''}`}
+      data-scrollable={images.length > 3}
+    >
       <header>
         <p>{label}</p>
         <h3>{title}</h3>
         <span>사진을 누르면 크게 볼 수 있습니다.</span>
       </header>
       <div
+        ref={gridRef}
         className="work-photo-gallery-grid"
         data-count={Math.min(images.length, 4)}
-        onScroll={handleScroll}
+        onScroll={updateCarouselState}
       >
         {images.map((image, index) => (
           <button
@@ -216,16 +267,14 @@ export default function WorkPhotoGallery({
             />
             <span className="work-photo-gallery-expand"><Expand aria-hidden="true" /></span>
             {image.caption && <span className="work-photo-gallery-caption">{image.caption}</span>}
-            {index === 3 && images.length > 4 && (
-              <span className="work-photo-gallery-more">+{images.length - 4}장</span>
-            )}
           </button>
         ))}
       </div>
       {images.length > 1 && (
-        <div className="work-photo-gallery-swipe-guide" aria-hidden="true">
-          <span>옆으로 넘겨보세요</span>
-          <div className="work-photo-gallery-dots">
+        <div className="work-photo-gallery-swipe-guide">
+          <span className="is-desktop">사진을 좌우로 넘겨보세요</span>
+          <span className="is-mobile">옆으로 넘겨보세요</span>
+          <div className="work-photo-gallery-dots" aria-hidden="true">
             {images.map((image, index) => (
               <i
                 className={index === visibleIndex ? 'is-active' : undefined}
@@ -233,7 +282,30 @@ export default function WorkPhotoGallery({
               />
             ))}
           </div>
-          <strong>{visibleIndex + 1} / {images.length}</strong>
+          <strong aria-live="polite">
+            {visibleRange.start === visibleRange.end
+              ? visibleRange.start + 1
+              : `${visibleRange.start + 1}–${visibleRange.end + 1}`}
+            {' / '}{images.length}
+          </strong>
+          <div className="work-photo-gallery-navigation">
+            <button
+              type="button"
+              onClick={() => scrollCarousel(-1)}
+              disabled={!canScroll.left}
+              aria-label="이전 추가 사진"
+            >
+              <ChevronLeft aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollCarousel(1)}
+              disabled={!canScroll.right}
+              aria-label="다음 추가 사진"
+            >
+              <ChevronRight aria-hidden="true" />
+            </button>
+          </div>
         </div>
       )}
       {activeIndex !== null && (
