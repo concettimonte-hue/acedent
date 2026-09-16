@@ -6,6 +6,7 @@ import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import WorkCard from '@/components/WorkCard';
 import WorkClassification from '@/components/WorkClassification';
 import WorkPhotoGallery from '@/components/WorkPhotoGallery';
+import SiteFooter from '@/components/SiteFooter';
 import WorksHeader from '@/components/WorksHeader';
 import WorksQuickActions from '@/components/WorksQuickActions';
 import WorkVehicleTag from '@/components/WorkVehicleTag';
@@ -43,8 +44,9 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
   }, [work]);
 
   return (
-    <main className="works-page work-detail-page">
-      <WorksHeader />
+    <>
+      <main className="works-page work-detail-page">
+        <WorksHeader />
 
       <nav className="work-breadcrumb" aria-label="현재 위치">
         <a href="/">홈</a>
@@ -194,18 +196,20 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
         </section>
       )}
 
-      <section className="work-detail-contact" aria-labelledby="work-contact-title">
-        <p>PHOTO CONSULTATION</p>
-        <h2 id="work-contact-title">내 차도 비슷하게 손상됐나요?</h2>
-        <p className="work-detail-contact-copy">
-          손상 부위가 잘 보이는 사진을 보내주시면 수리 가능 여부와 예상 작업 범위를 먼저 안내드립니다.
-        </p>
-        <WorksQuickActions photoPrimary />
-        <div className="work-detail-trust">
-          <strong>수리가 필요한지, 교환이 나은지부터 확인해드립니다.</strong>
-          <span>불필요한 작업은 권하지 않습니다.</span>
-        </div>
-      </section>
-    </main>
+        <section className="work-detail-contact" aria-labelledby="work-contact-title">
+          <p>PHOTO CONSULTATION</p>
+          <h2 id="work-contact-title">내 차도 비슷하게 손상됐나요?</h2>
+          <p className="work-detail-contact-copy">
+            손상 부위가 잘 보이는 사진을 보내주시면 수리 가능 여부와 예상 작업 범위를 먼저 안내드립니다.
+          </p>
+          <WorksQuickActions photoPrimary />
+          <div className="work-detail-trust">
+            <strong>수리가 필요한지, 교환이 나은지부터 확인해드립니다.</strong>
+            <span>불필요한 작업은 권하지 않습니다.</span>
+          </div>
+        </section>
+      </main>
+      <SiteFooter />
+    </>
   );
 }

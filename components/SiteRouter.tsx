@@ -3,6 +3,7 @@
 import Home from '@/app/page';
 import AdminPage from '@/components/AdminPage';
 import AdminWorksList from '@/components/AdminWorksList';
+import SiteFooter from '@/components/SiteFooter';
 import WorkDetailPage from '@/components/WorkDetailPage';
 import WorksGalleryPage from '@/components/WorksGalleryPage';
 import { isWorkCategory } from '@/content/works/types';
@@ -16,11 +17,14 @@ function normalizePath(pathname: string) {
 
 function WorksNotFound() {
   return (
-    <main className="works-page works-not-found">
-      <p>404 · NOT FOUND</p>
-      <h1>요청하신 수리사례를 찾을 수 없습니다.</h1>
-      <a href="/works">전체 수리사례 보기</a>
-    </main>
+    <>
+      <main className="works-page works-not-found">
+        <p>404 · NOT FOUND</p>
+        <h1>요청하신 수리사례를 찾을 수 없습니다.</h1>
+        <a href="/works">전체 수리사례 보기</a>
+      </main>
+      <SiteFooter />
+    </>
   );
 }
 

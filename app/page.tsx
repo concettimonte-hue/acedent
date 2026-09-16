@@ -32,6 +32,7 @@ import PaintCareSection from '@/components/PaintCareSection';
 import ProcessSection from '@/components/ProcessSection';
 import ReviewsSection from '@/components/ReviewsSection';
 import SectionNumber from '@/components/SectionNumber';
+import SiteFooter from '@/components/SiteFooter';
 import TrustBar from '@/components/TrustBar';
 import SmartHeader from '@/components/SmartHeader';
 import {
@@ -57,7 +58,6 @@ const serviceIconMap: Record<ServiceIconName, LucideIcon> = {
 
 export default function Home() {
   const { brand, navigation, hero, services, principles, contact } = site;
-  const placeUrl = withLandingUtm(naver.place, 'place');
   const talkUrl = withLandingUtm(naver.talk, 'talk');
 
   const numberedSections: Record<NumberedSectionId, ReactNode> = {
@@ -342,37 +342,7 @@ export default function Home() {
       <ClosingMessage />
       <NaverConnect />
 
-      <footer>
-        <a
-          href="#top"
-          className="brand footer-brand"
-          aria-label={brand.footerHomeAriaLabel}
-        >
-          <span className="brand-logo" aria-hidden="true">
-            <img
-              src={brand.logoSrc}
-              alt={brand.logoAlt}
-              width="1600"
-              height="1200"
-              loading="lazy"
-              decoding="async"
-            />
-          </span>
-          <span>
-            <strong>{brand.name}</strong>
-            <small>{brand.tagline}</small>
-          </span>
-        </a>
-        <div>
-          <p>{contact.footerAddress}</p>
-          <p>
-            {contact.footerPhonePrefix} {contact.phoneDisplay}
-          </p>
-        </div>
-        <a href={placeUrl} target="_blank" rel="noopener noreferrer">
-          {contact.footerPlaceLabel} <ArrowUpRight aria-hidden="true" />
-        </a>
-      </footer>
+      <SiteFooter />
 
       <nav
         className="mobile-action-bar"

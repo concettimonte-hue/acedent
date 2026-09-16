@@ -13,6 +13,7 @@ import { getWorks, getWorksByCategory } from '@/lib/works';
 import { applyClientMetadata, getWorksMetadata } from '@/lib/work-metadata';
 import { getWorkPartsForCategory } from '@/lib/work-categories';
 import WorkCard from '@/components/WorkCard';
+import SiteFooter from '@/components/SiteFooter';
 import WorksHeader from '@/components/WorksHeader';
 import WorksQuickActions from '@/components/WorksQuickActions';
 import { trackFilterUse } from '@/lib/analytics';
@@ -175,17 +176,18 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
   const hasOverflowingFilter = categoryRail.canScrollRight || partRail.canScrollRight;
 
   return (
-    <main className="works-page">
-      <WorksHeader />
-      <section className="works-page-hero">
+    <>
+      <main className="works-page">
+        <WorksHeader />
+        <section className="works-page-hero">
         <p>ACE DENT · REPAIR ARCHIVE</p>
         <h1>{selectedCategory ? getWorkCategoryLabel(selectedCategory) : '수리사례'}</h1>
         <span>
           실제 차량의 작업 전후를 확인하고 내 차와 비슷한 손상을 찾아보세요.
         </span>
-      </section>
+        </section>
 
-      <section className="works-browser" aria-label="수리사례 목록">
+        <section className="works-browser" aria-label="수리사례 목록">
         <div className="work-filter-group">
           <div className="work-filter-heading">
             <span>작업 방식</span>
@@ -323,9 +325,11 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
         <a className="works-back-link" href="/#cases">
           <ArrowLeft aria-hidden="true" /> 메인 대표사례로 돌아가기
         </a>
-      </section>
+        </section>
 
-      <WorksQuickActions compact />
-    </main>
+        <WorksQuickActions compact />
+      </main>
+      <SiteFooter />
+    </>
   );
 }
