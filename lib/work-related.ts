@@ -28,6 +28,23 @@ interface RelatedWorkMatch extends Omit<RelatedWorkSuggestion, 'work'> {
   score: number;
 }
 
+function getRelatedPartPairs(work: WorkItem) {
+  return work.parts.flatMap((mediaPart) => {
+    const isSingleLegacyPart = work.parts.length === 1;
+    const category = mediaPart.category ?? (
+      isSingleLegacyPart ? work.category : undefined
+    );
+    const parts = mediaPart.part?.length
+      ? mediaPart.part
+      : isSingleLegacyPart
+        ? work.part
+        : [];
+
+    if (!category) return [];
+    return parts.map((part) => ({ part, category }));
+  });
+}
+
 function getRelatedWorkReasons(
   source: WorkItem,
   candidate: WorkItem,
@@ -42,18 +59,15 @@ function getRelatedWorkReasons(
   );
 
   // 부위와 작업이 각각 다른 PART에서 일치하는 교차 판정은
-  // "같은 부위 · 같은 작업"으로 취급하지 않습니다.
-  const exactPartMatch = source.parts.flatMap((sourcePart) => {
-    if (!sourcePart.category) return [];
-    return (sourcePart.part ?? []).map((part) => ({
-      part,
-      category: sourcePart.category!,
-    }));
-  }).find(({ part, category }) => candidate.parts.some(
-    (candidatePart) =>
-      candidatePart.category === category &&
-      candidatePart.part?.includes(part),
-  ));
+  // "같은 부위 · 같은 작업"으로 취급하지 않습니다. 다만 PART가 하나뿐인
+  // 기존 사례는 사례 대표 부위·작업 외에 연결할 대상이 없으므로 호환합니다.
+  const candidatePartPairs = getRelatedPartPairs(candidate);
+  const exactPartMatch = getRelatedPartPairs(source).find(
+    ({ part, category }) => candidatePartPairs.some(
+      (candidatePair) =>
+        candidatePair.part === part && candidatePair.category === category,
+    ),
+  );
 
   if (exactPartMatch) {
     return {
@@ -67,27 +81,12 @@ function getRelatedWorkReasons(
   // 정확한 PART 조합이 없으면 사진과 안내 문구가 서로 어긋나지 않도록
   // 부위 일치를 작업 일치보다 우선해 하나의 기준만 사용합니다.
   if (samePart) {
-    const sourcePart = source.parts.find((part) =>
-      part.part?.includes(samePart),
-    );
-    const candidateParts = candidate.parts.filter((part) =>
-      part.part?.includes(samePart),
-    );
-    const legacySinglePartCategoryMatch = Boolean(
-      sourcePart?.category &&
-      candidate.parts.length === 1 &&
-      candidateParts.length === 1 &&
-      !candidateParts[0].category &&
-      candidate.category === sourcePart.category,
-    );
     const primaryPart = source.part[0] ?? sourceParts[0];
 
     return {
       reasons: ['part'],
       matchedPart: samePart,
-      score:
-        (samePart === primaryPart ? 4 : 2) +
-        (legacySinglePartCategoryMatch ? 1 : 0),
+      score: samePart === primaryPart ? 4 : 2,
     };
   }
 
