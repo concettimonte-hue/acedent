@@ -123,7 +123,7 @@ export function getHomeStaticHtml(works: WorkItem[]) {
     <section class="seo-static-hero">
       <div>
         <p>${text(hero.eyebrow)}</p>
-        <h1>${text(hero.subtitleAccent)} ${text(hero.subtitle)} · ${text(hero.title)} ${text(hero.titleAccent)}</h1>
+        <h1>${text(hero.title)} ${text(hero.titleAccent)}</h1>
         <p>${hero.descriptionLines.map(text).join('<br />')}</p>
         <a href="${text(contact.phoneHref)}">${text(hero.phoneActionLabel)}</a>
         <a href="${text(contact.smsHref)}">${text(hero.smsActionLabel)}</a>
@@ -164,7 +164,7 @@ export function getWorksStaticHtml(works: WorkItem[], category?: WorkCategory) {
   const heading = category ? getWorkCategoryLabel(category) : '수리사례';
   return `<main class="seo-static seo-works">
     <header class="seo-static-header"><a href="/">ACE DENT</a><a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
-    <section><p>ACE DENT · REPAIR ARCHIVE</p><h1>${category ? `동대문 ${text(heading)} 전후 수리사례` : '동대문 판금도색·덴트·외형복원 수리사례'}</h1><p>실제 차량의 작업 전후를 확인하고 내 차와 비슷한 손상을 찾아보세요.</p></section>
+    <section><p>ACE DENT · REPAIR ARCHIVE</p><h1>${text(heading)}</h1><p>실제 차량의 작업 전후를 확인하고 내 차와 비슷한 손상을 찾아보세요.</p></section>
     <nav aria-label="작업방식"><a href="/works">전체</a>${WORK_CATEGORIES.map((item) => `<a href="/works/${item.id}">${text(item.label)}</a>`).join('')}</nav>
     <section aria-label="수리사례 목록"><p>${visible.length}건</p><div class="seo-works-grid">${visible.map((work) => workCard(work, category, [], undefined, 'before')).join('')}</div></section>
   </main>`;
@@ -206,7 +206,7 @@ export function getWorkDetailStaticHtml(
     <nav aria-label="현재 위치"><a href="/">홈</a> / <a href="/works">수리사례</a> / <a href="/works/${text(work.category)}">${text(categoryLabel)}</a></nav>
     <article>
       ${classification}
-      <h1>동대문 ${text(car(work))} ${text(work.title)} 수리사례</h1>
+      <h1>${text(work.title)}</h1>
       <p>${text(work.part[0])}${work.subParts.length ? ` · 보조 부위: ${work.subParts.map(text).join(' · ')}` : ''} · ${work.color ? `${text(work.color)} · ` : ''}${text(work.days)}</p>
       ${work.parts.map(partSection).join('')}
       <p><strong>${text(work.summary)}</strong></p>

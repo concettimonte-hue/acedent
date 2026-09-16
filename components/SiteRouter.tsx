@@ -1,13 +1,15 @@
 'use client';
 
+import { lazy, Suspense } from 'react';
 import Home from '@/app/page';
-import AdminPage from '@/components/AdminPage';
-import AdminWorksList from '@/components/AdminWorksList';
 import SiteFooter from '@/components/SiteFooter';
 import WorkDetailPage from '@/components/WorkDetailPage';
 import WorksGalleryPage from '@/components/WorksGalleryPage';
 import { isWorkCategory } from '@/content/works/types';
 import { getWorkBySlug } from '@/lib/works';
+
+const AdminPage = lazy(() => import('@/components/AdminPage'));
+const AdminWorksList = lazy(() => import('@/components/AdminWorksList'));
 
 function normalizePath(pathname: string) {
   const decoded = decodeURIComponent(pathname);
@@ -28,6 +30,14 @@ function WorksNotFound() {
   );
 }
 
+function AdminLoading() {
+  return (
+    <main className="admin-page">
+      <p className="admin-static-loading" role="status">관리자 화면을 불러오는 중입니다.</p>
+    </main>
+  );
+}
+
 export default function SiteRouter() {
   const path = normalizePath(window.location.pathname);
   if (path === '/') return <Home />;
@@ -35,9 +45,17 @@ export default function SiteRouter() {
     const search = new URLSearchParams(window.location.search);
     const adminView = search.get('view');
     const editSlug = search.get('slug');
-    if (adminView === 'new') return <AdminPage />;
-    if (adminView === 'edit' && editSlug) return <AdminPage editSlug={editSlug} />;
-    return <AdminWorksList />;
+    return (
+      <Suspense fallback={<AdminLoading />}>
+        {adminView === 'new' ? (
+          <AdminPage />
+        ) : adminView === 'edit' && editSlug ? (
+          <AdminPage editSlug={editSlug} />
+        ) : (
+          <AdminWorksList />
+        )}
+      </Suspense>
+    );
   }
   if (path === '/works') return <WorksGalleryPage />;
 

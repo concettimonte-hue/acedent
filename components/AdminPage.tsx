@@ -708,10 +708,16 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     void chooseImage(id, kind, file);
   };
 
-  const pollDeployment = async (startedAt: string) => {
+  const pollDeployment = async (
+    startedAt: string,
+    deploymentId: string | undefined,
+    slug: string,
+  ) => {
     for (let attempt = 0; attempt < 75; attempt += 1) {
       await new Promise((resolve) => window.setTimeout(resolve, 4000));
-      const response = await fetch(`/admin/api/deploy?since=${encodeURIComponent(startedAt)}`, { cache: 'no-store', credentials: 'same-origin' });
+      const query = new URLSearchParams({ since: startedAt, slug });
+      if (deploymentId) query.set('deploymentId', deploymentId);
+      const response = await fetch(`/admin/api/deploy?${query.toString()}`, { cache: 'no-store', credentials: 'same-origin' });
       const payload = await response.json() as { status?: string; url?: string; error?: string };
       if (!response.ok) throw new Error(payload.error || '배포 상태를 확인하지 못했습니다.');
       if (payload.status === 'success') {
@@ -720,6 +726,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
         setDeploymentState('ready');
         return;
       }
+      if (payload.status === 'verifying') setStatus('배포 콘텐츠 확인 중');
       if (payload.status === 'failure') throw new Error('Cloudflare 빌드가 실패했습니다. 대시보드 빌드 로그를 확인하세요.');
       setStatus(payload.status === 'waiting' ? '빌드 대기 중' : 'Cloudflare 빌드 중');
     }
@@ -835,9 +842,13 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
 
       setStatus('Cloudflare 빌드 요청 중');
       const deployResponse = await fetch('/admin/api/deploy', { method: 'POST', credentials: 'same-origin' });
-      const deployment = await deployResponse.json() as { startedAt?: string; error?: string };
+      const deployment = await deployResponse.json() as {
+        startedAt?: string;
+        deploymentId?: string;
+        error?: string;
+      };
       if (!deployResponse.ok || !deployment.startedAt) throw new Error(deployment.error || '배포 요청에 실패했습니다.');
-      await pollDeployment(deployment.startedAt);
+      await pollDeployment(deployment.startedAt, deployment.deploymentId, saved.work.slug);
       if (editing && saved.cleanupPending) {
         setStatus('교체 이미지 정리 준비 중');
         const releaseResponse = await fetch('/admin/api/orphans', {

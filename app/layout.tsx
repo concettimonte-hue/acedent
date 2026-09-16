@@ -8,6 +8,7 @@ import {
   serializeJsonLd,
   siteDescription,
   siteUrl,
+  websiteJsonLd,
 } from '@/lib/seo';
 import './globals.css';
 
@@ -45,10 +46,7 @@ export const metadata: Metadata = {
     description: siteDescription,
     images: ['/og-image.jpg'],
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  robots: 'index, follow, max-image-preview:large',
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '48x48' },
@@ -70,6 +68,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(organizationJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(websiteJsonLd) }}
         />
         <script
           type="application/ld+json"

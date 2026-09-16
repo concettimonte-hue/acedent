@@ -20,6 +20,7 @@ import {
   organizationJsonLd,
   serializeJsonLd,
   siteUrl,
+  websiteJsonLd,
 } from './lib/seo';
 import {
   getHomeStaticHtml,
@@ -72,13 +73,6 @@ function getGitLastModified(paths: string[], fallback = sitemapFallbackDate) {
 
 function latestDate(...dates: string[]) {
   return dates.filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort().at(-1) ?? sitemapFallbackDate;
-}
-
-function getWorkLastModified(work: BuildWork, sharedSources: string[]) {
-  return latestDate(
-    work.lastModified,
-    getGitLastModified(sharedSources, work.lastModified),
-  );
 }
 
 function loadBuildWorks(): BuildWork[] {
@@ -236,6 +230,10 @@ function renderRouteHtml(baseHtml: string, metadata: RouteMetadata) {
     .replace(
       /<script[^>]*id="acedent-faq-jsonld"[^>]*>[\s\S]*?<\/script>/i,
       '',
+    )
+    .replace(
+      /<script[^>]*id="acedent-website-jsonld"[^>]*>[\s\S]*?<\/script>/i,
+      '',
     );
 
   if (metadata.jsonLd) {
@@ -357,19 +355,23 @@ const seoAssetsPlugin = (): Plugin => ({
         children: serializeJsonLd(organizationJsonLd),
         injectTo: 'head',
       },
+      {
+        tag: 'script',
+        attrs: { id: 'acedent-website-jsonld', type: 'application/ld+json' },
+        children: serializeJsonLd(websiteJsonLd),
+        injectTo: 'head',
+      },
     ],
   },
   generateBundle() {
     const works = loadBuildWorks();
-    const sharedPageSources = [
-      'vite.static.config.ts',
-      'lib/static-html.ts',
-      'lib/work-seo.ts',
-      'lib/seo.ts',
-    ];
-    const homeLastModified = latestDate(getGitLastModified([
-      ...sharedPageSources,
+    const featuredWorks = works
+      .filter((work) => work.featured)
+      .sort((a, b) => (a.featuredOrder ?? 999) - (b.featuredOrder ?? 999))
+      .slice(0, 8);
+    const homeSources = [
       'app/page.tsx',
+      'lib/seo.ts',
       'content/site.json',
       'content/trust.json',
       'content/faq.json',
@@ -377,12 +379,36 @@ const seoAssetsPlugin = (): Plugin => ({
       'content/reviews.json',
       'content/insurance.json',
       'content/process.json',
-    ]), ...works.map((work) => work.lastModified));
-    const worksLastModified = latestDate(getGitLastModified([
-      ...sharedPageSources,
+    ];
+    const listingSources = [
+      'lib/static-html.ts',
+      'lib/work-seo.ts',
+      'lib/work-images.ts',
+      'lib/work-categories.ts',
+      'lib/work-parts.ts',
       'components/WorksGalleryPage.tsx',
       'components/WorkCard.tsx',
-    ]), ...works.map((work) => work.lastModified));
+    ];
+    const detailSources = [
+      'lib/static-html.ts',
+      'lib/work-seo.ts',
+      'lib/work-images.ts',
+      'lib/work-categories.ts',
+      'lib/work-related.ts',
+      'components/WorkDetailPage.tsx',
+      'components/BeforeAfterSlider.tsx',
+      'components/PhotoLightbox.tsx',
+    ];
+    const homeLastModified = latestDate(
+      getGitLastModified(homeSources),
+      ...featuredWorks.map((work) => work.lastModified),
+    );
+    const listingTemplateLastModified = getGitLastModified(listingSources);
+    const detailTemplateLastModified = getGitLastModified(detailSources);
+    const worksLastModified = latestDate(
+      listingTemplateLastModified,
+      ...works.map((work) => work.lastModified),
+    );
     const sitemapEntries = [
       {
         loc: siteUrl,
@@ -398,11 +424,7 @@ const seoAssetsPlugin = (): Plugin => ({
       },
       ...WORK_CATEGORIES.map((category) => ({
         loc: `${siteUrl}/works/${category.id}`,
-        lastmod: latestDate(getGitLastModified([
-          ...sharedPageSources,
-          'components/WorksGalleryPage.tsx',
-          'components/WorkCard.tsx',
-        ]), ...works
+        lastmod: latestDate(listingTemplateLastModified, ...works
           .filter((work) => workMatchesCategory(work, category.id))
           .map((work) => work.lastModified)),
         changefreq: 'weekly',
@@ -410,11 +432,7 @@ const seoAssetsPlugin = (): Plugin => ({
       })),
       ...works.map((work) => ({
         loc: `${siteUrl}/works/detail/${work.slug}`,
-        lastmod: getWorkLastModified(work, [
-          ...sharedPageSources,
-          'components/WorkDetailPage.tsx',
-          'components/BeforeAfterSlider.tsx',
-        ]),
+        lastmod: latestDate(work.lastModified, detailTemplateLastModified),
         changefreq: 'monthly',
         priority: '0.7',
       })),
@@ -459,7 +477,7 @@ const seoAssetsPlugin = (): Plugin => ({
         image: `${siteUrl}/og-image.jpg`,
         bodyHtml: '<main class="admin-page"><p class="admin-static-loading">관리자 화면을 불러오는 중입니다.</p></main>',
       }).replace(
-        '<meta name="robots" content="index, follow" />',
+        '<meta name="robots" content="index, follow, max-image-preview:large" />',
         '<meta name="robots" content="noindex, nofollow" />',
       ),
     );

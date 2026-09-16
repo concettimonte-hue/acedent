@@ -51,6 +51,14 @@ export const organizationJsonLd = {
   sameAs: naverSameAs,
 };
 
+export const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: business.name,
+  alternateName: 'ACE DENT',
+  url: siteUrl,
+};
+
 export const autoBodyShopJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'AutoBodyShop',
