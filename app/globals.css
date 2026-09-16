@@ -2882,6 +2882,19 @@ footer > a:last-child svg {
   font-size: 0.68rem;
   font-weight: 900;
 }
+.work-card-image-state {
+  position: absolute;
+  bottom: 0.7rem;
+  left: 0.7rem;
+  padding: 0.38rem 0.55rem;
+  border: 1px solid rgb(255 255 255 / 24%);
+  background: rgb(3 4 3 / 84%);
+  color: #f2f3ef;
+  font-size: 0.62rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
 .work-card-reasons {
   position: absolute;
   top: 0.65rem;

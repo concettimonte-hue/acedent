@@ -32,6 +32,28 @@ export function getWorkDisplayCategories(work: WorkItem): WorkCategory[] {
   return getWorkFilterCategories(work);
 }
 
+/**
+ * 선택한 카테고리와 실제로 연결된 PART 부위만 반환합니다.
+ *
+ * PART 작업 방식이 명시된 신규 데이터는 그 값을 우선하고, 작업 방식이 없는
+ * 기존 PART만 사례 대표 작업으로 폴백합니다. subCategories는 사례 전체의 추가
+ * 작업이므로 PART 작업 방식이 따로 저장되지 않은 상태에서 특정 부위와 결합하지
+ * 않습니다.
+ */
+export function getWorkPartsForCategory(
+  work: WorkItem,
+  category?: WorkCategory,
+): WorkPartValue[] {
+  const parts = category
+    ? work.parts.filter((part) =>
+      part.category === category ||
+      (!part.category && work.category === category),
+    )
+    : work.parts;
+
+  return [...new Set(parts.flatMap((part) => part.part ?? []).filter(Boolean))];
+}
+
 /** 현재 카테고리와 명시적으로 일치하는 PART가 있을 때만 해당 사진을 대표로 선택합니다. */
 export function getWorkRepresentativePart(
   work: WorkItem,
@@ -44,8 +66,16 @@ export function getWorkRepresentativePart(
         candidate.category === category && candidate.part?.includes(part),
     );
     if (matched) return matched;
+
+    if (work.category === category) {
+      const legacyMatched = work.parts.find(
+        (candidate) =>
+          !candidate.category && candidate.part?.includes(part),
+      );
+      if (legacyMatched) return legacyMatched;
+    }
   }
-  if (part) {
+  if (part && !category) {
     const matched = work.parts.find((candidate) =>
       candidate.part?.includes(part),
     );
@@ -54,6 +84,11 @@ export function getWorkRepresentativePart(
   if (category) {
     const matched = work.parts.find((part) => part.category === category);
     if (matched) return matched;
+
+    if (work.category === category) {
+      const legacyMatched = work.parts.find((part) => !part.category);
+      if (legacyMatched) return legacyMatched;
+    }
   }
   return work.parts[0];
 }

@@ -97,6 +97,21 @@ export function getWorkThumbnailSrcForCategory(
   return resolveWorkImageSrc(thumbnail === after ? after : thumbnail);
 }
 
+export function getWorkCardImageSrcForCategory(
+  work: WorkItem,
+  category?: WorkCategory,
+  part?: WorkPartValue,
+  state: 'before' | 'after' = 'after',
+) {
+  if (state === 'after') {
+    return getWorkThumbnailSrcForCategory(work, category, part);
+  }
+
+  return resolveWorkImageSrc(
+    getWorkRepresentativePart(work, category, part).before,
+  );
+}
+
 export function getAbsoluteWorkImageUrl(path: string, origin: string) {
   const resolved = resolveWorkImageSrc(path);
   return /^https?:\/\//i.test(resolved)

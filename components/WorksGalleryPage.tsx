@@ -11,7 +11,7 @@ import {
 } from '@/content/works/types';
 import { getWorks, getWorksByCategory } from '@/lib/works';
 import { applyClientMetadata, getWorksMetadata } from '@/lib/work-metadata';
-import { getWorkFilterParts } from '@/lib/work-parts';
+import { getWorkPartsForCategory } from '@/lib/work-categories';
 import WorkCard from '@/components/WorkCard';
 import WorksHeader from '@/components/WorksHeader';
 import WorksQuickActions from '@/components/WorksQuickActions';
@@ -114,16 +114,20 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
   );
   const availableFilterParts = useMemo(
     () => WORK_PART_FILTER_ORDER.filter((part) =>
-      categoryWorks.some((work) => getWorkFilterParts(work).includes(part)),
+      categoryWorks.some((work) =>
+        getWorkPartsForCategory(work, selectedCategory).includes(part),
+      ),
     ),
-    [categoryWorks],
+    [categoryWorks, selectedCategory],
   );
   const visibleWorks = useMemo(
     () =>
       selectedPart
-        ? categoryWorks.filter((work) => getWorkFilterParts(work).includes(selectedPart))
+        ? categoryWorks.filter((work) =>
+          getWorkPartsForCategory(work, selectedCategory).includes(selectedPart),
+        )
         : categoryWorks,
-    [categoryWorks, selectedPart],
+    [categoryWorks, selectedCategory, selectedPart],
   );
 
   const selectFilters = (next: WorkFilters) => {
@@ -304,6 +308,7 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
                 work={work}
                 contextCategory={selectedCategory}
                 contextPart={selectedPart}
+                imageState="before"
                 key={work.slug}
               />
             ))}

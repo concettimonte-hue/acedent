@@ -26,9 +26,9 @@ import {
   type WorkPartValue,
 } from '../content/works/types';
 import {
+  getWorkCardImageSrcForCategory,
   getWorkImageAlt,
   getWorkGalleryImageAlt,
-  getWorkThumbnailSrcForCategory,
 } from './work-images';
 import {
   getWorkDisplayCategories,
@@ -73,6 +73,7 @@ function workCard(
   contextCategory?: WorkCategory,
   reasonLabels: readonly string[] = [],
   contextPart?: WorkPartValue,
+  imageState: 'before' | 'after' = 'after',
 ) {
   const representativePart = getWorkRepresentativePart(
     work,
@@ -84,8 +85,9 @@ function workCard(
     : work.category;
   return `<article class="seo-work-card">
     <a href="/works/detail/${text(work.slug)}">
-      ${image(getWorkThumbnailSrcForCategory(work, contextCategory, contextPart), getWorkImageAlt(work, representativePart, '후'), { width: 800, height: 600 })}
+      ${image(getWorkCardImageSrcForCategory(work, contextCategory, contextPart, imageState), getWorkImageAlt(work, representativePart, imageState === 'before' ? '전' : '후'), { width: 800, height: 600 })}
       <p>${text(getWorkCategoryLabel(displayedCategory))}</p>
+      ${imageState === 'before' ? '<p>BEFORE · 손상 상태</p>' : ''}
       ${reasonLabels.length ? `<p>${reasonLabels.map(text).join(' · ')}</p>` : ''}
       <h3>${text(car(work))} ${text(work.title)}</h3>
       <p>${text(work.summary)}</p>
@@ -164,7 +166,7 @@ export function getWorksStaticHtml(works: WorkItem[], category?: WorkCategory) {
     <header class="seo-static-header"><a href="/">ACE DENT</a><a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
     <section><p>ACE DENT · REPAIR ARCHIVE</p><h1>${category ? `동대문 ${text(heading)} 전후 수리사례` : '동대문 판금도색·덴트·외형복원 수리사례'}</h1><p>실제 차량의 작업 전후를 확인하고 내 차와 비슷한 손상을 찾아보세요.</p></section>
     <nav aria-label="작업방식"><a href="/works">전체</a>${WORK_CATEGORIES.map((item) => `<a href="/works/${item.id}">${text(item.label)}</a>`).join('')}</nav>
-    <section aria-label="수리사례 목록"><p>${visible.length}건</p><div class="seo-works-grid">${visible.map((work) => workCard(work, category)).join('')}</div></section>
+    <section aria-label="수리사례 목록"><p>${visible.length}건</p><div class="seo-works-grid">${visible.map((work) => workCard(work, category, [], undefined, 'before')).join('')}</div></section>
   </main>`;
 }
 
@@ -213,7 +215,7 @@ export function getWorkDetailStaticHtml(
       ${work.gallery?.length ? gallerySection(work.gallery, '작업 전체 추가 사진') : ''}
       <section><p>RESULT SUMMARY</p><h2>이번 작업 한눈에 보기</h2><dl><div><dt>차량</dt><dd>${text(car(work))}</dd></div><div><dt>작업 부위</dt><dd>${text(formatWorkCardParts(work))}</dd></div><div><dt>작업 분류</dt><dd>${workCategories.map((category) => text(getWorkCategoryLabel(category))).join(' · ')}</dd></div><div><dt>소요 기간</dt><dd>${text(work.days)}</dd></div></dl></section>
     </article>
-    ${relatedSuggestions.length ? `<section><p>RELATED WORKS</p><h2>비슷한 수리사례</h2><p>같은 부위 또는 작업방식의 실제 전후 결과를 더 확인해보세요.</p><div class="seo-works-grid">${relatedSuggestions.map(({ work: relatedWork, reasons, matchedCategory, matchedPart }) => workCard(relatedWork, matchedCategory, reasons.map(getRelatedWorkReasonLabel), matchedPart)).join('')}</div><a href="/works/${text(work.category)}">${text(categoryLabel)} 수리사례 ${categoryWorkCount}건 전체 보기</a></section>` : ''}
+    ${relatedSuggestions.length ? `<section><p>RELATED WORKS</p><h2>비슷한 수리사례</h2><p>같은 부위 또는 작업방식의 실제 전후 결과를 더 확인해보세요.</p><div class="seo-works-grid">${relatedSuggestions.map(({ work: relatedWork, reasons, matchedCategory, matchedPart }) => workCard(relatedWork, matchedCategory, reasons.map(getRelatedWorkReasonLabel), matchedPart, 'before')).join('')}</div><a href="/works/${text(work.category)}">${text(categoryLabel)} 수리사례 ${categoryWorkCount}건 전체 보기</a></section>` : ''}
     <section><p>PHOTO CONSULTATION</p><h2>내 차도 비슷하게 손상됐나요?</h2><p>손상 부위가 잘 보이는 사진을 보내주시면 수리 가능 여부와 예상 작업 범위를 먼저 안내드립니다.</p><a href="${text(site.contact.smsHref)}">사진 상담 시작</a><a href="${text(site.contact.phoneHref)}">전화 문의</a><a href="${text(naver.talk)}" target="_blank" rel="noopener noreferrer">네이버 톡톡</a><p><strong>수리가 필요한지, 교환이 나은지부터 확인해드립니다.</strong> 불필요한 작업은 권하지 않습니다.</p></section>
   </main>`;
 }

@@ -9,8 +9,8 @@ import {
   type WorkPartValue,
 } from '@/content/works/types';
 import {
+  getWorkCardImageSrcForCategory,
   getWorkImageAlt,
-  getWorkThumbnailSrcForCategory,
 } from '@/lib/work-images';
 import { getWorkRepresentativePart } from '@/lib/work-categories';
 import { formatWorkCar } from '@/lib/works';
@@ -22,6 +22,7 @@ interface WorkCardProps {
   contextCategory?: WorkCategory;
   contextPart?: WorkPartValue;
   reasonLabels?: readonly string[];
+  imageState?: 'before' | 'after';
 }
 
 export default function WorkCard({
@@ -29,6 +30,7 @@ export default function WorkCard({
   contextCategory,
   contextPart,
   reasonLabels = [],
+  imageState = 'after',
 }: WorkCardProps) {
   const representativePart = getWorkRepresentativePart(
     work,
@@ -48,8 +50,13 @@ export default function WorkCard({
     >
       <span className="work-card-media">
         <img
-          src={getWorkThumbnailSrcForCategory(work, contextCategory, contextPart)}
-          alt={getWorkImageAlt(work, representativePart, '후')}
+          src={getWorkCardImageSrcForCategory(
+            work,
+            contextCategory,
+            contextPart,
+            imageState,
+          )}
+          alt={getWorkImageAlt(work, representativePart, imageState === 'before' ? '전' : '후')}
           width="800"
           height="600"
           loading="lazy"
@@ -58,6 +65,9 @@ export default function WorkCard({
         <span className="work-card-category">
           {getWorkCategoryLabel(displayedCategory)}
         </span>
+        {imageState === 'before' && (
+          <span className="work-card-image-state">BEFORE · 손상 상태</span>
+        )}
         {reasonLabels.length > 0 && (
           <span className="work-card-reasons">{reasonLabels.join(' · ')}</span>
         )}

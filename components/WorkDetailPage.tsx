@@ -180,6 +180,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
                 contextCategory={matchedCategory}
                 contextPart={matchedPart}
                 reasonLabels={reasons.map(getRelatedWorkReasonLabel)}
+                imageState="before"
                 key={related.slug}
               />
             ))}
