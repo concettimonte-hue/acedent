@@ -44,6 +44,20 @@ function readAccessJwtPayload(assertion: string): AccessJwtPayload | null {
 }
 
 export function requireAccess(request: Request): AccessResult {
+  const hostname = new URL(request.url).hostname.toLowerCase();
+  const allowedHost = hostname === 'www.acedentshop.co.kr' ||
+    hostname === 'acedentshop.co.kr' ||
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1';
+  if (!allowedHost) {
+    return {
+      ok: false,
+      response: json({
+        error: '관리자 API는 Cloudflare Access가 적용된 공식 도메인에서만 사용할 수 있습니다.',
+      }, 403),
+    };
+  }
+
   const assertion = request.headers.get('Cf-Access-Jwt-Assertion');
   const headerEmail = request.headers.get('Cf-Access-Authenticated-User-Email')?.trim();
   if (!assertion) {
