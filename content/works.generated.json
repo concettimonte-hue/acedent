@@ -644,7 +644,7 @@
     },
     {
       "sourceFile": "d1:jeep-renegade-door-dent",
-      "lastModified": "2026-09-07",
+      "lastModified": "2026-09-16",
       "work": {
         "slug": "jeep-renegade-door-dent",
         "date": "2026-09-07",
@@ -657,11 +657,41 @@
         "carModel": "레니게이드",
         "parts": [
           {
+            "part": [
+              "도어"
+            ],
+            "category": "dent",
             "label": "뒤도어",
             "before": "https://images.acedentshop.co.kr/works/jeep-renegade-door-dent-before.jpg",
             "after": "https://images.acedentshop.co.kr/works/jeep-renegade-door-dent-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/jeep-renegade-door-dent-after.jpg",
             "note": "구멍 없이 기존 도장면을 유지해 눌림을 복원",
-            "thumbnail": "https://images.acedentshop.co.kr/works/jeep-renegade-door-dent-after.jpg"
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/01-gallery-1-78cf4934-01a2-4862-99df-d92440d1c873-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/01-gallery-1-78cf4934-01a2-4862-99df-d92440d1c873-gallery-thumbnail.jpg",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/01-gallery-2-451fecfe-ceea-402c-bb5b-9de079b030ca-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/01-gallery-2-451fecfe-ceea-402c-bb5b-9de079b030ca-gallery-thumbnail.jpg",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/01-gallery-3-47817de4-5ca9-4504-af39-f5e837de3748-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/01-gallery-3-47817de4-5ca9-4504-af39-f5e837de3748-gallery-thumbnail.jpg",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/01-gallery-4-b89d28c7-d332-4580-91e7-bc4f95a9cbe2-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/01-gallery-4-b89d28c7-d332-4580-91e7-bc4f95a9cbe2-gallery-thumbnail.jpg",
+                "width": 1600,
+                "height": 1200
+              }
+            ]
           }
         ],
         "summary": "구멍을 뚫지 않고 기존 도장면을 유지해 도어 눌림을 복원한 사례입니다.",
@@ -672,7 +702,33 @@
         "days": "당일",
         "sliderType": "drag",
         "subCategories": [],
-        "subParts": []
+        "subParts": [],
+        "gallery": [
+          {
+            "src": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/21-gallery-1-89950f92-0b80-4474-9d59-d9e50a521d0d-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/21-gallery-1-89950f92-0b80-4474-9d59-d9e50a521d0d-gallery-thumbnail.jpg",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/21-gallery-2-dc22b625-37bd-4962-9823-338783f285bb-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/21-gallery-2-dc22b625-37bd-4962-9823-338783f285bb-gallery-thumbnail.jpg",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/21-gallery-3-6c84da8e-0115-4c3d-ad3c-9cdc1545d3e5-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/21-gallery-3-6c84da8e-0115-4c3d-ad3c-9cdc1545d3e5-gallery-thumbnail.jpg",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/21-gallery-4-16067738-7caa-4567-9964-c649f654d54b-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/537d29c3-76a9-426b-bf9f-75f40b109221/21-gallery-4-16067738-7caa-4567-9964-c649f654d54b-gallery-thumbnail.jpg",
+            "width": 1600,
+            "height": 1200
+          }
+        ]
       }
     },
     {

@@ -7,14 +7,17 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      if (!window.location.pathname.startsWith('/admin')) {
+      window.__acedentAnalyticsExcluded = document.cookie
+        .split(';')
+        .some(function(item) { return item.trim() === 'acedent_owner_excluded=1'; });
+      if (!window.location.pathname.startsWith('/admin') && !window.__acedentAnalyticsExcluded) {
         gtag('config', 'G-YVFKY99Q0Y', { send_page_view: false });
       }
     </script>
 
     <!-- Microsoft Clarity -->
     <script type="text/javascript">
-      if (!window.location.pathname.startsWith('/admin')) {
+      if (!window.location.pathname.startsWith('/admin') && !window.__acedentAnalyticsExcluded) {
         (function(c,l,a,r,i,t,y){
             c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
             t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;

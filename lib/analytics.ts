@@ -14,9 +14,28 @@ function isAdminPath(pathname = window.location.pathname) {
   return pathname === '/admin' || pathname.startsWith('/admin/');
 }
 
+function isOwnerExcluded() {
+  return document.cookie
+    .split(';')
+    .some((item) => item.trim() === 'acedent_owner_excluded=1');
+}
+
 function sendEvent(name: string, params: Record<string, unknown>) {
-  if (isAdminPath()) return;
+  if (isAdminPath() || isOwnerExcluded()) return;
   getAnalyticsWindow().gtag?.('event', name, params);
+}
+
+function recordPrivateVisit(pathname = window.location.pathname) {
+  if (isAdminPath(pathname) || isOwnerExcluded()) return;
+  void fetch('/api/visit', {
+    method: 'POST',
+    credentials: 'same-origin',
+    keepalive: true,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path: pathname }),
+  }).catch(() => {
+    // 방문 통계 실패가 공개 페이지 이용을 방해하지 않도록 조용히 건너뜁니다.
+  });
 }
 
 export function initializeSpaPageViews() {
@@ -25,12 +44,14 @@ export function initializeSpaPageViews() {
   analyticsWindow.__acedentSpaTrackingInitialized = true;
 
   let lastPageKey = `${window.location.pathname}${window.location.search}`;
+  let lastPrivatePath = window.location.pathname;
   let pendingPageView = 0;
 
   sendEvent('page_view', {
     page_location: window.location.href,
     page_title: document.title,
   });
+  recordPrivateVisit();
 
   const schedulePageView = () => {
     const pageKey = `${window.location.pathname}${window.location.search}`;
@@ -45,6 +66,10 @@ export function initializeSpaPageViews() {
         page_location: window.location.href,
         page_title: document.title,
       });
+      if (window.location.pathname !== lastPrivatePath) {
+        lastPrivatePath = window.location.pathname;
+        recordPrivateVisit();
+      }
     }, 0);
   };
 
@@ -68,14 +93,14 @@ export function trackTelClick(location: TelClickLocation) {
     transport_type: 'beacon',
     location,
   });
-  if (!isAdminPath()) {
+  if (!isAdminPath() && !isOwnerExcluded()) {
     getAnalyticsWindow().clarity?.('set', 'conversion', 'tel');
   }
 }
 
 export function trackSmsClick() {
   sendEvent('sms_click', { transport_type: 'beacon' });
-  if (!isAdminPath()) {
+  if (!isAdminPath() && !isOwnerExcluded()) {
     getAnalyticsWindow().clarity?.('set', 'conversion', 'sms');
   }
 }
