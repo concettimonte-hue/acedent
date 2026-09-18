@@ -20,6 +20,8 @@ import {
   organizationJsonLd,
   serializeJsonLd,
   siteUrl,
+  worksOgImageAlt,
+  worksOgImageUrl,
   websiteJsonLd,
 } from './lib/seo';
 import {
@@ -490,7 +492,8 @@ const seoAssetsPlugin = (): Plugin => ({
         title: allWorksSeo.title,
         description: allWorksSeo.description,
         canonical: `${siteUrl}/works`,
-        image: `${siteUrl}/og-image.jpg`,
+        image: worksOgImageUrl,
+        imageAlt: worksOgImageAlt,
         bodyHtml: getWorksStaticHtml(works),
       }),
     );

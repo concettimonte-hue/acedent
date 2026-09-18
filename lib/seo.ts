@@ -13,6 +13,8 @@ export const defaultTitle = '동대문 판금도색·외형복원·덴트·광�
 export const siteDescription =
   '서울 동대문 에이스덴트는 자동차 판금도색, 외형복원, 무도색 덴트와 광택을 차량 상태에 맞춰 진행합니다. 실제 작업 전후 사진과 수리 과정, 가능한 방법과 한계를 투명하게 안내합니다.';
 export const ogImageUrl = `${siteUrl}/og-image.jpg`;
+export const worksOgImageUrl = `${siteUrl}/og-works.jpg`;
+export const worksOgImageAlt = '렉서스 UX250h 후도어 판금도장 전후 비교';
 export const logoImageUrl = `${siteUrl}/images/ace-dent-logo.png`;
 export const naverSameAs = Array.from(
   new Set([naver.blog, naver.place, ...naver.sameAs]),

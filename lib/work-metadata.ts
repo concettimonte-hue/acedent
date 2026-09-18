@@ -7,7 +7,12 @@ import {
   getWorkPrimaryAfterSrc,
   resolveWorkImageSrc,
 } from '@/lib/work-images';
-import { siteUrl } from '@/lib/seo';
+import {
+  ogImageUrl,
+  siteUrl,
+  worksOgImageAlt,
+  worksOgImageUrl,
+} from '@/lib/seo';
 import { getWorkSeoCopy, getWorksSeoCopy } from '@/lib/work-seo';
 import { getWorksCanonicalPath } from '@/lib/work-routes';
 
@@ -16,6 +21,7 @@ export interface WorkMetadata {
   description: string;
   canonical: string;
   image: string;
+  imageAlt?: string;
 }
 
 export function getWorkSeoTitle(work: WorkItem) {
@@ -26,7 +32,13 @@ export function getWorksMetadata(category?: WorkCategory): WorkMetadata {
   const { title, description } = getWorksSeoCopy(category);
   const canonical = `${siteUrl}${getWorksCanonicalPath(category)}`;
 
-  return { title, description, canonical, image: `${siteUrl}/og-image.jpg` };
+  return {
+    title,
+    description,
+    canonical,
+    image: category ? ogImageUrl : worksOgImageUrl,
+    imageAlt: category ? '에이스덴트 로고' : worksOgImageAlt,
+  };
 }
 
 export function getWorkMetadata(work: WorkItem): WorkMetadata {
@@ -135,6 +147,9 @@ export function applyClientMetadata(metadata: WorkMetadata) {
   setMeta('meta[property="og:description"]', 'content', metadata.description);
   setMeta('meta[property="og:url"]', 'content', metadata.canonical);
   setMeta('meta[property="og:image"]', 'content', metadata.image);
+  if (metadata.imageAlt) {
+    setMeta('meta[property="og:image:alt"]', 'content', metadata.imageAlt);
+  }
   setMeta('meta[name="twitter:title"]', 'content', metadata.title);
   setMeta('meta[name="twitter:description"]', 'content', metadata.description);
   setMeta('meta[name="twitter:image"]', 'content', metadata.image);
