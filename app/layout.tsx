@@ -78,7 +78,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }}
         />
       </head>
-      <body className={`${geistSans.variable} antialiased pb-20 md:pb-0`}>{children}</body>
+      <body className={`${geistSans.variable} antialiased`}>{children}</body>
     </html>
   );
 }

@@ -2255,8 +2255,8 @@ section[id] {
 }
 
 @media (max-width: 700px) {
-  body {
-    padding-bottom: calc(68px + env(safe-area-inset-bottom));
+  .site-shell > .site-footer {
+    padding-bottom: calc(1rem + 68px + env(safe-area-inset-bottom));
   }
   .before-after-zoom-trigger {
     right: 0.6rem;
