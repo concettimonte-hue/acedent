@@ -253,7 +253,7 @@ export function getWorkDetailStaticHtml(
       ${work.parts.map(partSection).join('')}
       <p><strong>${text(work.summary)}</strong></p>
       ${work.body.split('\n\n').map((paragraph) => `<p>${text(paragraph)}</p>`).join('')}
-      ${work.blogUrl ? `<a href="${text(work.blogUrl)}" target="_blank" rel="noopener noreferrer">블로그에서 더 보기</a>` : ''}
+      ${work.blogUrl ? `<a href="${text(work.blogUrl)}" target="_blank" rel="noopener noreferrer">이 사례의 전체 작업 과정 보기</a>` : ''}
       ${work.gallery?.length ? gallerySection(work.gallery, '작업 전체 추가 사진') : ''}
       <section><p>RESULT SUMMARY</p><h2>이번 작업 한눈에 보기</h2><dl><div><dt>차량</dt><dd>${text(car(work))}</dd></div><div><dt>작업 부위</dt><dd>${partLinks}</dd></div><div><dt>작업 분류</dt><dd>${categoryLinks}</dd></div><div><dt>소요 기간</dt><dd>${text(work.days)}</dd></div></dl></section>
     </article>

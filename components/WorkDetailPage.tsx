@@ -137,7 +137,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              블로그에서 더 보기 <ArrowUpRight aria-hidden="true" />
+              이 사례의 전체 작업 과정 보기 <ArrowUpRight aria-hidden="true" />
             </a>
           )}
         </div>
