@@ -1,8 +1,9 @@
-import type {
-  WorkCategory,
-  WorkItem,
-  WorkPartValue,
-  WorkPartMedia,
+import {
+  WORK_CATEGORIES,
+  type WorkCategory,
+  type WorkItem,
+  type WorkPartValue,
+  type WorkPartMedia,
 } from '../content/works/types';
 
 function uniqueCategories(categories: readonly (WorkCategory | undefined)[]) {
@@ -25,6 +26,13 @@ export function getWorkFilterCategories(work: WorkItem): WorkCategory[] {
 
 export function workMatchesCategory(work: WorkItem, category: WorkCategory) {
   return getWorkFilterCategories(work).includes(category);
+}
+
+/** 사례가 한 건 이상 있는 카테고리만 공개 목록과 검색 페이지에 노출합니다. */
+export function getAvailableWorkCategories(works: readonly WorkItem[]) {
+  return WORK_CATEGORIES.filter(({ id }) =>
+    works.some((work) => workMatchesCategory(work, id)),
+  );
 }
 
 /** 상세 상단 분류 표시 순서: 대표 작업 → PART 실제 작업 → 별도 추가 작업. */

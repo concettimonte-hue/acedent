@@ -98,6 +98,8 @@ export const SLUG_PART_TERMS: Record<string, string> = {
   로커패널: 'side-step',
   휠: 'wheel',
   휠하우스: 'wheel',
+  차량전체: 'full-body',
+  전체차량: 'full-body',
 };
 
 export const SLUG_WORK_TERMS: Record<string, string> = {
@@ -139,6 +141,10 @@ export const SLUG_WORK_TERMS: Record<string, string> = {
   교환도색: 'replace-paint',
   polish: 'polish',
   광택복원: 'polish',
+  'full-polish': 'full-polish',
+  차량전체광택: 'full-polish',
+  전체광택: 'full-polish',
+  coating: 'coating',
   dent: 'dent',
 };
 

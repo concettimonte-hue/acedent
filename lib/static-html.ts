@@ -18,7 +18,6 @@ import type {
   TrustItem,
 } from '../content/types';
 import {
-  WORK_CATEGORIES,
   getWorkCategoryLabel,
   isWorkPart,
   type WorkCategory,
@@ -33,6 +32,7 @@ import {
   getWorkGalleryImageAlt,
 } from './work-images';
 import {
+  getAvailableWorkCategories,
   getWorkDisplayCategories,
   getWorkRepresentativePart,
   getWorkPartsForCategory,
@@ -190,7 +190,7 @@ export function getWorksStaticHtml(
   return `<main class="seo-static seo-works">
     <header class="seo-static-header"><a href="/">ACE DENT</a><a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
     <section><p>ACE DENT · REPAIR ARCHIVE</p><h1>${text(heading)}</h1><p>실제 차량의 작업 전후를 확인하고 내 차와 비슷한 손상을 찾아보세요.</p></section>
-    <nav aria-label="작업방식"><a href="/works">전체</a>${WORK_CATEGORIES.map((item) => `<a href="/works/${item.id}">${text(item.label)}</a>`).join('')}</nav>
+    <nav aria-label="작업방식"><a href="/works">전체</a>${getAvailableWorkCategories(works).map((item) => `<a href="/works/${item.id}">${text(item.label)}</a>`).join('')}</nav>
     ${partLandings.length ? `<nav aria-label="수리 부위">${partLandings.map((landing) => `<a href="${text(landing.path)}">${text(landing.part)}</a>`).join('')}</nav>` : ''}
     <section aria-label="수리사례 목록"><p>${visible.length}건</p><div class="seo-works-grid">${visible.map((work) => workCard(work, category, [], part, 'before')).join('')}</div></section>
   </main>`;

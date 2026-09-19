@@ -8,7 +8,15 @@ const outputPath = resolve(projectDirectory, 'content', 'works.generated.json');
 const legacyR2PublicBases = [
   'https://pub-e6a8f147577c403f93d85e03a6361345.r2.dev',
 ];
-const workCategories = new Set(['dent', 'panel-paint', 'partial-paint', 'replace-paint', 'polish']);
+const workCategories = new Set([
+  'dent',
+  'panel-paint',
+  'partial-paint',
+  'replace-paint',
+  'polish',
+  'full-polish',
+  'coating',
+]);
 const galleryMaxPerScope = 6;
 const galleryMaxTotal = 12;
 

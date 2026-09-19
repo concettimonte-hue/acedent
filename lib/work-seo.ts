@@ -17,7 +17,9 @@ export const categorySeoTerms: Record<WorkCategory, string> = {
   'panel-paint': '자동차 판금도색',
   'partial-paint': '범퍼 부분도색',
   'replace-paint': '자동차 교환도색',
-  polish: '자동차 광택·외형복원',
+  polish: '자동차 흠집·오염 제거',
+  'full-polish': '자동차 전체 광택',
+  coating: '자동차 유리막 코팅',
 };
 
 const categoryTitleTerms: Record<WorkCategory, readonly string[]> = {
@@ -25,7 +27,9 @@ const categoryTitleTerms: Record<WorkCategory, readonly string[]> = {
   'panel-paint': ['판금', '도색', '도장', '페인트'],
   'partial-paint': ['부분도색', '부분도장', '보카시'],
   'replace-paint': ['교환도색', '교환', '교체'],
-  polish: ['광택', '폴리싱', '폴리쉬', '흠집제거', '오염제거', '외형복원'],
+  polish: ['흠집제거', '기스제거', '스크래치제거', '오염제거', '이염제거', '폴리싱', '폴리쉬'],
+  'full-polish': ['차량전체광택', '전체광택', '광택', '전체폴리싱'],
+  coating: ['유리막', '유리막코팅', '발수코팅', '코팅'],
 };
 
 const categoryTitleFallback: Record<WorkCategory, string> = {
@@ -33,7 +37,9 @@ const categoryTitleFallback: Record<WorkCategory, string> = {
   'panel-paint': '판금도색',
   'partial-paint': '부분도색',
   'replace-paint': '교환도색',
-  polish: '광택·복원',
+  polish: '흠집·오염제거',
+  'full-polish': '차량 전체 광택',
+  coating: '유리막 코팅',
 };
 
 const titleSoftLimit = 65;

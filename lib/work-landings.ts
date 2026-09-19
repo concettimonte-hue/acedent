@@ -20,6 +20,7 @@ export const WORK_PART_ROUTE_SLUGS: Record<WorkPart, string> = {
   루프: 'roof',
   휠: 'wheel',
   사이드스텝: 'side-step',
+  '차량 전체': 'full-body',
 };
 
 export interface WorkPartLanding {

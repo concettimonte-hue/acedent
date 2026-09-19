@@ -998,7 +998,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
               <label>작업 완료일<input type="date" required value={form.date} onChange={(e) => updateForm('date', e.target.value)} /></label>
             </div>
             <fieldset className="admin-part-picker admin-secondary-picker">
-              <legend>보조 작업 <small>선택 · 최대 2개</small></legend>
+              <legend>보조 작업 <small>사진 PART가 없는 추가 작업만 · 최대 2개</small></legend>
               <div className="admin-part-toggles">
                 {WORK_CATEGORIES.filter((item) => item.id !== form.category).map((item) => (
                   <button
@@ -1024,7 +1024,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
 
           <section className="admin-panel">
             <div className="admin-panel-heading"><span>02</span><h2>부위별 전후 사진</h2></div>
-            <p className="admin-help">사진 방향을 바로잡고 4:3으로 맞춘 뒤 1600×1200, 200KB 이하로 자동 처리합니다.</p>
+            <p className="admin-help">사진 방향을 바로잡고 4:3으로 맞춘 뒤 1600×1200, 200KB 이하로 자동 처리합니다. 전체 광택은 부위에서 ‘차량 전체’를 선택하고 PART 작업 방식을 함께 지정하세요.</p>
             <div className="admin-parts">
               {parts.map((part, index) => (
                 <fieldset className="admin-part" key={part.id}>

@@ -5,7 +5,9 @@ export const WORK_CATEGORIES = [
   { id: 'panel-paint', label: '판금도색' },
   { id: 'partial-paint', label: '부분도색' },
   { id: 'replace-paint', label: '교환도색' },
-  { id: 'polish', label: '광택·복원' },
+  { id: 'polish', label: '흠집·오염제거' },
+  { id: 'full-polish', label: '차량 전체 광택' },
+  { id: 'coating', label: '유리막 코팅' },
 ] as const;
 
 export type WorkCategory = (typeof WORK_CATEGORIES)[number]['id'];
@@ -21,6 +23,7 @@ export const WORK_PARTS = [
   '루프',
   '휠',
   '사이드스텝',
+  '차량 전체',
 ] as const;
 
 export type WorkPart = (typeof WORK_PARTS)[number];
@@ -36,6 +39,7 @@ export const WORK_PART_FILTER_ORDER = [
   '필러',
   '사이드미러',
   '휠',
+  '차량 전체',
 ] as const satisfies readonly WorkPart[];
 
 export type WorkPartValue = WorkPart | (string & {});

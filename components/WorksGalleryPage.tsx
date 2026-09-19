@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
-  WORK_CATEGORIES,
   WORK_PART_FILTER_ORDER,
   getWorkCategoryLabel,
   type WorkCategory,
@@ -11,7 +10,10 @@ import {
 } from '@/content/works/types';
 import { getWorks, getWorksByCategory } from '@/lib/works';
 import { applyClientMetadata, getWorksMetadata } from '@/lib/work-metadata';
-import { getWorkPartsForCategory } from '@/lib/work-categories';
+import {
+  getAvailableWorkCategories,
+  getWorkPartsForCategory,
+} from '@/lib/work-categories';
 import WorkCard from '@/components/WorkCard';
 import SiteFooter from '@/components/SiteFooter';
 import WorksHeader from '@/components/WorksHeader';
@@ -116,6 +118,11 @@ function FilterRailEdges({ left, right }: { left: boolean; right: boolean }) {
 }
 
 export default function WorksGalleryPage({ category, part }: WorksGalleryPageProps) {
+  const allWorks = useMemo(() => getWorks(), []);
+  const availableCategories = useMemo(
+    () => getAvailableWorkCategories(allWorks),
+    [allWorks],
+  );
   const [filters, setFilters] = useState<WorkFilters>(() => readFilters(category, part));
   const [showSwipeHint, setShowSwipeHint] = useState(true);
   const selectedCategory = filters.category;
@@ -240,7 +247,7 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
               >
                 전체
               </a>
-              {WORK_CATEGORIES.map((item) => (
+              {availableCategories.map((item) => (
                 <a
                   href={getFilterUrl(item.id, selectedPart)}
                   className={selectedCategory === item.id ? 'is-active' : ''}

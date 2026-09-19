@@ -1,6 +1,187 @@
 {
   "records": [
     {
+      "sourceFile": "d1:bmw-320d-side-bumper-panel-paint",
+      "lastModified": "2026-09-19",
+      "work": {
+        "slug": "bmw-320d-side-bumper-panel-paint",
+        "date": "2026-09-19",
+        "title": "앞범퍼 측면 파손 탈거 전체도장 및 워셔 노즐 커버 개별 복원",
+        "category": "panel-paint",
+        "subCategories": [],
+        "part": [
+          "범퍼"
+        ],
+        "subParts": [],
+        "carMaker": "BMW",
+        "carModel": "320D",
+        "color": "알파인 화이트",
+        "parts": [
+          {
+            "part": [
+              "범퍼"
+            ],
+            "category": "panel-paint",
+            "label": "범퍼 측면",
+            "before": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/01-image-thumbnail.jpg",
+            "note": "도장면 박리로 플라스틱 기재가 드러난 심각한 측면 손상. 마스킹 방식의 부분 도장을 배제하고 범퍼를 완전히 탈거하여 전체 도장 부스 공정을 거침. 데미지가 연장된 워셔액 커버 역시 개별 분리하여 도장함으로써, 부품 간 틈새에 도료가 뭉치거나 작동 시 깨지는 하자를 완벽하게 차단하고 깔끔한 핏(Fit)으로 마감함.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/01-gallery-1-c748f724-cf73-4b41-aaa2-9b9c3501021b-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/01-gallery-1-c748f724-cf73-4b41-aaa2-9b9c3501021b-gallery-thumbnail.jpg",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/01-gallery-2-e792aa07-1b95-4c3b-9f75-ed167721ea77-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/01-gallery-2-e792aa07-1b95-4c3b-9f75-ed167721ea77-gallery-thumbnail.jpg",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/01-gallery-3-7add3989-a8fc-482a-9a9b-9ed574c7169a-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/01-gallery-3-7add3989-a8fc-482a-9a9b-9ed574c7169a-gallery-thumbnail.jpg",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/01-gallery-4-0d71ee84-5121-446b-8cf3-a8ac9a66759e-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/01-gallery-4-0d71ee84-5121-446b-8cf3-a8ac9a66759e-gallery-thumbnail.jpg",
+                "width": 1600,
+                "height": 1200
+              }
+            ]
+          }
+        ],
+        "ogImage": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/21-share-card-og-image.jpg",
+        "gallery": [
+          {
+            "src": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/21-gallery-1-78c2db45-36b6-438b-99c4-d37e02a9fecd-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/21-gallery-1-78c2db45-36b6-438b-99c4-d37e02a9fecd-gallery-thumbnail.jpg",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/21-gallery-2-c76127a8-8d28-41d9-b091-0ca25994122e-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/1ae5f092-2df7-4b29-b7c3-e44db37dd940/21-gallery-2-c76127a8-8d28-41d9-b091-0ca25994122e-gallery-thumbnail.jpg",
+            "width": 1200,
+            "height": 1600
+          }
+        ],
+        "summary": "앞범퍼 측면의 심한 마찰 데미지를 복원하기 위해 범퍼를 차체에서 완전히 탈거하는 정석 공정을 적용했으며, 손상이 이어진 워셔 노즐 커버를 개별 분해 도장하여 조립 퀄리티를 극대화했습니다.",
+        "body": "조수석 방향 앞범퍼 측면에 발생한 강한 마찰 타격으로 인해 도장면이 완전히 박리되고 내부 블랙 플라스틱 베이스가 깊게 드러난 상태로 입고되었습니다. 다행히 전방 주차 보조 센서 등 주요 전자 장비의 직접적인 파손은 발생하지 않았으나, 헤드라이트 하단에 위치한 '워셔 노즐 커버'까지 찰과상이 연장된 복합 손상입니다.\n\n수리 후 도막의 박리(벗겨짐) 하자를 원천 차단하고 패널 끝단까지 페인트를 완벽하게 감싸기 위해, 앞범퍼를 차체에서 분리하는 '전체 탈거' 공정을 원칙으로 작업했습니다. 특히 타격을 입은 워셔 노즐 커버를 범퍼에 부착한 채로 도색할 경우, 작동 시 틈새 페인트가 깨지는 현상이 발생하므로 반드시 커버를 분해하여 각각 독립된 공간에서 도장 부스 열처리를 진행했습니다. 깊게 패인 플라스틱 베이스는 수입차 전용 퍼티와 서페이서로 단낮추기 작업을 마친 뒤 알파인 화이트 정밀 조색 도료를 분사하여, 이색이나 단차 없는 신차 수준의 조립 핏(Fit)으로 복원 완료했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224389787471",
+        "featured": false,
+        "days": "1일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "d1:lincoln-mkx-fender-panel-paint",
+      "lastModified": "2026-09-19",
+      "work": {
+        "slug": "lincoln-mkx-fender-panel-paint",
+        "date": "2026-09-19",
+        "title": "앞휀더 찌그러짐 판금도색 및 도어 부식(녹) 제거 복원",
+        "category": "panel-paint",
+        "subCategories": [],
+        "part": [
+          "휀더"
+        ],
+        "subParts": [],
+        "carMaker": "링컨 (Lincoln)",
+        "carModel": "MKX",
+        "color": "다크 그레이 계열",
+        "parts": [
+          {
+            "part": [
+              "휀더"
+            ],
+            "category": "panel-paint",
+            "label": "휀더 철판 함몰 및 가니쉬 경계선",
+            "before": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/01-image-thumbnail.jpg",
+            "note": "가니쉬 바로 위쪽 철판의 둔탁한 찌그러짐. 부품 파손 리스크를 줄이기 위해 가니쉬 미탈거 상태에서 텐션 조절과 정밀 마스킹을 적용하여 판금도장을 진행함. 틈새의 이물감이나 페인트 뭉침 현상 없이 깔끔한 도막 평활도를 회복 완료.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/01-gallery-1-43136af5-b3e0-4cbf-a35d-3c3692f70430-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/01-gallery-1-43136af5-b3e0-4cbf-a35d-3c3692f70430-gallery-thumbnail.jpg",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/01-gallery-2-a543d842-f761-4573-91a0-b5ac5e8dc646-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/01-gallery-2-a543d842-f761-4573-91a0-b5ac5e8dc646-gallery-thumbnail.jpg",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/01-gallery-3-51d432c6-d05d-42c7-86ae-dc849ff5f5e0-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/01-gallery-3-51d432c6-d05d-42c7-86ae-dc849ff5f5e0-gallery-thumbnail.jpg",
+                "width": 1600,
+                "height": 1200
+              }
+            ]
+          },
+          {
+            "part": [
+              "도어"
+            ],
+            "category": "panel-paint",
+            "label": "도어 조수석",
+            "before": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/02-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/02-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/02-image-thumbnail.jpg",
+            "note": "지속적인 개폐 충격으로 균열이 생긴 내부 퍼티 층에 수분이 스며들어 발생한 금속 산화 및 칠 탈락 현상. 오염된 철판 표면을 깊이 연마한 뒤 강력한 방청 코팅을 도포하여 산화 진행을 지연시킴. 이후 내구성 높은 전용 퍼티 마감과 조색 열처리 도장을 거쳐 표면 복원 완료.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/02-gallery-1-f4663d39-4ee9-43c7-ab58-57c2aa229bbd-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/02-gallery-1-f4663d39-4ee9-43c7-ab58-57c2aa229bbd-gallery-thumbnail.jpg",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/02-gallery-2-e7bc7b11-3221-4eb3-98cc-7ccf0ccf7b77-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/02-gallery-2-e7bc7b11-3221-4eb3-98cc-7ccf0ccf7b77-gallery-thumbnail.jpg",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/02-gallery-3-8ef5d727-28ad-4b7c-82de-ff44cd7a46be-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/02-gallery-3-8ef5d727-28ad-4b7c-82de-ff44cd7a46be-gallery-thumbnail.jpg",
+                "width": 1600,
+                "height": 1200
+              }
+            ]
+          }
+        ],
+        "ogImage": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/21-share-card-og-image.jpg",
+        "gallery": [
+          {
+            "src": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/21-gallery-1-e6ae25cd-7a28-4b87-8e67-70ba0cb3d56f-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/21-gallery-1-e6ae25cd-7a28-4b87-8e67-70ba0cb3d56f-gallery-thumbnail.jpg",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/21-gallery-2-43ff852f-2a8e-4340-aece-201c15fbd356-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/e2afcfeb-58ac-432c-821e-d0914b65ee4a/21-gallery-2-43ff852f-2a8e-4340-aece-201c15fbd356-gallery-thumbnail.jpg",
+            "width": 1600,
+            "height": 1200
+          }
+        ],
+        "summary": "부품 교환 비용이 발생하는 가니쉬 탈거를 생략하고 틈새 마스킹 공정으로 휀더를 복원했으며, 도어 하단부의 누적된 부식(녹)은 그라인딩과 방청 코팅 후 판금도장을 진행했습니다.",
+        "body": "앞휀더 휠 하우스를 덮고 있는 무광 플라스틱 가니쉬 바로 위쪽 철판의 함몰 손상으로 입고된 차량입니다. 원칙적으로는 가니쉬를 차체에서 분리한 후 휀더 판금 공정을 진행해야 하나, 해당 부품의 특성상 탈거 시 내부 고정 핀이 파손되어 부품 교환 비용이 발생하는 문제가 있었습니다. 이를 방지하기 위해 고객과의 협의를 거쳐 가니쉬를 탈거하지 않은 채 미세한 틈새를 확보하고, 정밀 마스킹을 통해 페인트 뭉침을 차단하는 방식으로 휀더 판금 및 도장 공정을 마무리했습니다.\n\n동시에 조수석 도어 하단에는 과거 타 업체 수리 이력으로 인해 기존 퍼티 층이 갈라지고 수분이 유입되어 붉은 부식(녹)이 발생하여 칠이 탈락한 상태였습니다. 금속 산화 현상의 특성상 표면을 연마하더라도 패널 내부에서부터 부식이 재발할 수 있다는 구조적 한계를 사전에 명확히 고지했습니다. 이후 부식된 철판과 경화된 기존 퍼티 층을 그라인더로 깊게 샌딩하여 제거하고, 금속 표면의 수분 접촉을 차단하는 방청 코팅을 적용했습니다. 여닫는 충격에 대비하여 유연성을 갖춘 수입차 전용 아연 퍼티로 도어의 평활도를 다듬은 뒤 열처리 도장을 거쳐 신차 수준의 컨디션으로 마감했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224395894739",
+        "featured": false,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    },
+    {
       "sourceFile": "d1:audi-a6-side-bumper-panel-paint",
       "lastModified": "2026-09-18",
       "work": {

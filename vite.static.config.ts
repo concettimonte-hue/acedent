@@ -385,6 +385,9 @@ const seoAssetsPlugin = (): Plugin => ({
   },
   generateBundle() {
     const works = loadBuildWorks();
+    const activeCategories = WORK_CATEGORIES.filter(({ id }) =>
+      works.some((work) => workMatchesCategory(work, id)),
+    );
     const partLandings = getWorkPartLandings(works);
     const featuredWorks = works
       .filter((work) => work.featured)
@@ -443,7 +446,7 @@ const seoAssetsPlugin = (): Plugin => ({
         changefreq: 'weekly',
         priority: '0.9',
       },
-      ...WORK_CATEGORIES.map((category) => ({
+      ...activeCategories.map((category) => ({
         loc: `${siteUrl}/works/${category.id}`,
         lastmod: latestDate(listingTemplateLastModified, ...works
           .filter((work) => workMatchesCategory(work, category.id))
@@ -529,6 +532,9 @@ const seoAssetsPlugin = (): Plugin => ({
   },
   writeBundle(options) {
     const works = loadBuildWorks();
+    const activeCategories = WORK_CATEGORIES.filter(({ id }) =>
+      works.some((work) => workMatchesCategory(work, id)),
+    );
     const partLandings = getWorkPartLandings(works);
     const outputDirectory = resolve(options.dir ?? 'dist');
     const baseHtml = readFileSync(resolve(outputDirectory, 'index.html'), 'utf8');
@@ -575,7 +581,7 @@ const seoAssetsPlugin = (): Plugin => ({
       }),
     );
 
-    for (const category of WORK_CATEGORIES) {
+    for (const category of activeCategories) {
       const categorySeo = getWorksSeoCopy(category.id);
       writeRoute(
         `works/${category.id}.html`,
