@@ -1,13 +1,17 @@
 import {
+  formatWorkPartLabel,
   isWorkCategory,
   isWorkPart,
+  isWorkPartPosition,
   isWorkPartValue,
+  isPositionableWorkPart,
   WORK_GALLERY_MAX_PER_SCOPE,
   WORK_GALLERY_MAX_TOTAL,
   type WorkAssetKind,
   type WorkCategory,
   type WorkItem,
   type WorkPart,
+  type WorkPartPosition,
   type WorkPartValue,
 } from '../../content/works/types';
 import { getWorkSeoCopy } from '../../lib/work-seo';
@@ -30,6 +34,7 @@ interface AssetReference {
 
 interface PartInput {
   part?: unknown;
+  position?: unknown;
   category?: unknown;
   detail?: unknown;
   label?: unknown;
@@ -109,6 +114,21 @@ function normalizePartCategory(value: unknown, index: number): WorkCategory | un
   if (value === undefined || value === null || value === '') return undefined;
   if (typeof value !== 'string' || !isWorkCategory(value)) {
     throw new Error(`${index + 1}번 PART 작업 방식이 올바르지 않습니다.`);
+  }
+  return value;
+}
+
+function normalizePartPosition(
+  value: unknown,
+  parts: readonly WorkPartValue[],
+  index: number,
+): WorkPartPosition | undefined {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (typeof value !== 'string' || !isWorkPartPosition(value)) {
+    throw new Error(`${index + 1}번 PART 앞·뒤 위치가 올바르지 않습니다.`);
+  }
+  if (!parts.some(isPositionableWorkPart)) {
+    throw new Error(`${index + 1}번 PART의 앞·뒤 위치는 범퍼·도어·휀더에만 사용할 수 있습니다.`);
   }
   return value;
 }
@@ -249,12 +269,16 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
     const parts = (input.parts as PartInput[]).map((part, index) => {
       const workParts = normalizePartValues(part.part, index);
       const detail = typeof part.detail === 'string' ? part.detail.trim() : '';
+      const position = normalizePartPosition(part.position, workParts, index);
       return {
         part: workParts,
+        position,
         category: normalizePartCategory(part.category, index),
-        label: typeof part.label === 'string' && part.label.trim()
-          ? part.label.trim()
-          : [workParts.join(' · '), detail].filter(Boolean).join(' '),
+        label: position
+          ? formatWorkPartLabel(workParts, position, detail)
+          : typeof part.label === 'string' && part.label.trim()
+            ? part.label.trim()
+            : formatWorkPartLabel(workParts, undefined, detail),
         note: required(part.note, `${index + 1}번 부위 설명`, 300),
         before: part.before,
         after: part.after,
@@ -312,6 +336,7 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
       }
       mediaParts.push({
         part: part.part,
+        position: part.position,
         category: part.category,
         label: part.label,
         before: assetUrl(publicBase, before.object_key),

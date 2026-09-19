@@ -44,6 +44,15 @@ export const WORK_PART_FILTER_ORDER = [
 
 export type WorkPartValue = WorkPart | (string & {});
 
+export const WORK_PART_POSITIONS = [
+  { id: 'front', label: '앞' },
+  { id: 'rear', label: '뒤' },
+] as const;
+
+export type WorkPartPosition = (typeof WORK_PART_POSITIONS)[number]['id'];
+
+const POSITIONABLE_WORK_PARTS = new Set<WorkPart>(['범퍼', '도어', '휀더']);
+
 export const WORK_GALLERY_MAX_PER_SCOPE = 6;
 export const WORK_GALLERY_MAX_TOTAL = 12;
 
@@ -66,6 +75,8 @@ export interface WorkGalleryImage {
 export interface WorkPartMedia {
   /** 이 사진 묶음에서 실제로 작업한 부위. 1~3개이며 /works 필터에 사용합니다. */
   part?: WorkPartValue[];
+  /** 앞·뒤가 명확한 PART에만 운영자가 선택하는 구조화 위치입니다. */
+  position?: WorkPartPosition;
   /** 이 사진 묶음에 실제로 적용한 작업 방식. 기존 데이터는 값이 없을 수 있습니다. */
   category?: WorkCategory;
   label: string;
@@ -115,6 +126,40 @@ export function isWorkPart(value: string): value is WorkPart {
 export function isWorkPartValue(value: string): value is WorkPartValue {
   const normalized = value.trim();
   return Boolean(normalized) && normalized.length <= 30 && !/[<>\u0000-\u001f]/u.test(normalized);
+}
+
+export function isWorkPartPosition(value: string): value is WorkPartPosition {
+  return WORK_PART_POSITIONS.some((position) => position.id === value);
+}
+
+export function isPositionableWorkPart(value: WorkPartValue): value is WorkPart {
+  return isWorkPart(value) && POSITIONABLE_WORK_PARTS.has(value);
+}
+
+export function getWorkPartPositionLabel(position?: WorkPartPosition) {
+  return WORK_PART_POSITIONS.find((item) => item.id === position)?.label ?? '';
+}
+
+export function formatWorkPartNames(
+  parts: readonly WorkPartValue[],
+  position?: WorkPartPosition,
+) {
+  const positionLabel = getWorkPartPositionLabel(position);
+  return parts.map((part) => (
+    positionLabel && isPositionableWorkPart(part)
+      ? `${positionLabel}${part}`
+      : part
+  ));
+}
+
+export function formatWorkPartLabel(
+  parts: readonly WorkPartValue[],
+  position?: WorkPartPosition,
+  detail = '',
+) {
+  return [formatWorkPartNames(parts, position).join(' · '), detail.trim()]
+    .filter(Boolean)
+    .join(' ');
 }
 
 export function getWorkCategoryLabel(category: WorkCategory) {

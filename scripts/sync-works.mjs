@@ -19,6 +19,7 @@ const workCategories = new Set([
 ]);
 const galleryMaxPerScope = 6;
 const galleryMaxTotal = 12;
+const workPartPositions = new Set(['front', 'rear']);
 
 if (existsSync(resolve(projectDirectory, '.env.local'))) {
   process.loadEnvFile(resolve(projectDirectory, '.env.local'));
@@ -90,6 +91,9 @@ function validateWork(work, sourceFile) {
   for (const [index, part] of work.parts.entries()) {
     if (part.category !== undefined && !workCategories.has(part.category)) {
       throw new Error(`${sourceFile}: parts[${index}].category 값이 올바르지 않습니다.`);
+    }
+    if (part.position !== undefined && !workPartPositions.has(part.position)) {
+      throw new Error(`${sourceFile}: parts[${index}].position 값이 올바르지 않습니다.`);
     }
     if (part.part !== undefined) {
       if (!Array.isArray(part.part) || part.part.length === 0 || part.part.length > 3) {

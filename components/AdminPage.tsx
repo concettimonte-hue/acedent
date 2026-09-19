@@ -20,14 +20,19 @@ import {
   WORK_GALLERY_MAX_PER_SCOPE,
   WORK_GALLERY_MAX_TOTAL,
   WORK_CATEGORIES,
+  WORK_PART_POSITIONS,
   WORK_PARTS,
+  formatWorkPartLabel,
+  formatWorkPartNames,
   getWorkCategoryLabel,
+  isPositionableWorkPart,
   isWorkPart,
   type WorkAssetKind,
   type WorkCategory,
   type WorkGalleryImage,
   type WorkItem,
   type WorkPart,
+  type WorkPartPosition,
   type WorkPartValue,
 } from '@/content/works/types';
 import { getWorkImageAlt } from '@/lib/work-images';
@@ -65,6 +70,7 @@ interface GalleryDraft {
 interface PartDraft {
   id: string;
   parts: WorkPart[];
+  position: WorkPartPosition | '';
   category: WorkCategory | '';
   customPartEnabled: boolean;
   customPart: string;
@@ -103,6 +109,7 @@ function newPart(): PartDraft {
   return {
     id: crypto.randomUUID(),
     parts: ['범퍼'],
+    position: '',
     category: '',
     customPartEnabled: false,
     customPart: '',
@@ -127,22 +134,25 @@ function partSelectionCount(part: PartDraft) {
   return part.parts.length + (part.customPartEnabled ? 1 : 0);
 }
 
-function composePartLabel(part: Pick<PartDraft, 'parts' | 'customPartEnabled' | 'customPart' | 'detail'>) {
+function composePartLabel(part: Pick<PartDraft, 'parts' | 'position' | 'customPartEnabled' | 'customPart' | 'detail'>) {
   const names: string[] = [...part.parts];
   if (part.customPartEnabled && part.customPart.trim()) names.push(part.customPart.trim());
-  return [names.join(' · '), part.detail.trim()].filter(Boolean).join(' ');
+  return formatWorkPartLabel(names, part.position || undefined, part.detail);
 }
 
-function splitPartLabel(label: string, fallback: WorkPartValue[]) {
+function splitPartLabel(
+  label: string,
+  fallback: WorkPartValue[],
+  position?: WorkPartPosition,
+) {
   const matched = WORK_PARTS.filter((part) => label.includes(part));
   const fallbackFixed = fallback.filter(isWorkPart);
   const customPart = fallback.find((part) => !isWorkPart(part)) || '';
   const parts = [...new Set(fallbackFixed.length || customPart ? fallbackFixed : matched)].slice(0, 3);
   if (parts.length === 0 && !customPart) parts.push('범퍼');
-  const detail = [
-    ...parts,
-    customPart,
-  ].filter(Boolean).reduce((value, part) => value.replace(part, ''), label)
+  const names = [...parts, customPart].filter(Boolean) as WorkPartValue[];
+  const displayNames = formatWorkPartNames(names, position);
+  const detail = displayNames.reduce((value, part) => value.replace(part, ''), label)
     .replace(/^[\s·_-]+|[\s·_-]+$/g, '')
     .trim();
   return {
@@ -414,7 +424,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
             : work.parts.length === 1
               ? work.part
               : [work.part[index] || work.part[0] || '범퍼'];
-          const parsed = splitPartLabel(media.label, fallbackParts);
+          const parsed = splitPartLabel(media.label, fallbackParts, media.position);
           const beforeAsset = assetByUrl.get(media.before);
           const afterAsset = assetByUrl.get(media.after);
           const thumbnailAsset = media.thumbnail ? assetByUrl.get(media.thumbnail) : afterAsset;
@@ -422,6 +432,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           return {
             id: crypto.randomUUID(),
             parts: parsed.parts,
+            position: media.position ?? '',
             category: media.category ?? '',
             customPartEnabled: parsed.customPartEnabled,
             customPart: parsed.customPart,
@@ -477,6 +488,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     color: form.color || '색상',
     parts: parts.map((part) => ({
       part: selectedPartValues(part),
+      position: part.position || undefined,
       category: part.category || undefined,
       label: part.label || composePartLabel(part),
       before: part.before?.preview || '',
@@ -540,7 +552,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
 
   const updatePartName = (
     id: string,
-    patch: Partial<Pick<PartDraft, 'parts' | 'customPartEnabled' | 'customPart' | 'detail'>>,
+    patch: Partial<Pick<PartDraft, 'parts' | 'position' | 'customPartEnabled' | 'customPart' | 'detail'>>,
   ) => {
     setParts((current) => current.map((item) => {
       if (item.id !== id) return item;
@@ -560,6 +572,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           ? item.parts.filter((part) => part !== value)
           : [...item.parts, value],
       };
+      if (!next.parts.some(isPositionableWorkPart)) next.position = '';
       return { ...next, label: composePartLabel(next) };
     }));
   };
@@ -867,6 +880,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
         }
         uploadedParts.push({
           part: selectedPartValues(part),
+          position: part.position || undefined,
           category: part.category || undefined,
           detail: part.detail,
           label: part.label,
@@ -1046,7 +1060,17 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
                           {WORK_CATEGORIES.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}
                         </select>
                       </label>
-                      <label>세부 위치<input value={part.detail} onChange={(e) => updatePartName(part.id, { detail: e.target.value })} placeholder="예: 후면, 옆면" /></label>
+                      <label>앞·뒤 위치 <small>선택</small>
+                        <select
+                          value={part.position}
+                          disabled={!part.parts.some(isPositionableWorkPart)}
+                          onChange={(e) => updatePartName(part.id, { position: e.target.value as WorkPartPosition | '' })}
+                        >
+                          <option value="">해당 없음</option>
+                          {WORK_PART_POSITIONS.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}
+                        </select>
+                      </label>
+                      <label>세부 위치<input value={part.detail} onChange={(e) => updatePartName(part.id, { detail: e.target.value })} placeholder="예: 조수석 측면, 모서리" /></label>
                     </div>
                   </div>
                   {index === 0 && (

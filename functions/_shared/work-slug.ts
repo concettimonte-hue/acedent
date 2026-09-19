@@ -9,6 +9,7 @@ import {
 interface WorkSlugPartInput {
   part: unknown;
   detail?: string;
+  position?: unknown;
 }
 
 interface WorkSlugInput {
@@ -123,7 +124,13 @@ export function createWorkSlugAnalysis(input: WorkSlugInput): WorkSlugAnalysis {
   const first = input.parts[0];
   const firstParts = Array.isArray(first?.part) ? first.part : [first?.part];
   const primaryPart = typeof firstParts[0] === 'string' ? firstParts[0] : undefined;
+  const structuredPosition = first?.position === 'front'
+    ? '앞'
+    : first?.position === 'rear'
+      ? '뒤'
+      : undefined;
   const locationSources = [
+    structuredPosition,
     first?.detail,
     primaryPart,
   ].filter((part): part is string => typeof part === 'string');

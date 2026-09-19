@@ -4,6 +4,7 @@ import {
   WORK_GALLERY_MAX_TOTAL,
   getWorkCategoryLabel,
   isWorkCategory,
+  isWorkPartPosition,
   isWorkPartValue,
   type WorkCategory,
   type WorkItem,
@@ -135,6 +136,14 @@ function parseWork(value: unknown, fileName: string): WorkItem {
     )) {
       throw new Error(`${fileName}: parts[${index}].category 값이 올바르지 않습니다.`);
     }
+    const partPosition = part.position === undefined || part.position === ''
+      ? undefined
+      : part.position;
+    if (partPosition !== undefined && (
+      typeof partPosition !== 'string' || !isWorkPartPosition(partPosition)
+    )) {
+      throw new Error(`${fileName}: parts[${index}].position 값이 올바르지 않습니다.`);
+    }
     const mediaParts = Array.isArray(part.part)
       ? [...new Set(part.part.map((partValue) => {
           if (typeof partValue !== 'string' || !isWorkPartValue(partValue)) {
@@ -148,6 +157,7 @@ function parseWork(value: unknown, fileName: string): WorkItem {
     }
     return {
       part: mediaParts,
+      position: partPosition,
       category: partCategory,
       label: requireString(part.label, `parts[${index}].label`, fileName),
       before: requireString(part.before, `parts[${index}].before`, fileName),
