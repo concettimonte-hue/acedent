@@ -14,6 +14,7 @@ const sizes = {
   after: { width: 1600, height: 1200 },
   thumbnail: { width: 800, height: 600 },
   'gallery-thumbnail': { width: 800, height: 600 },
+  'og-image': { width: 1200, height: 630 },
 } as const;
 
 export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) => {
@@ -32,7 +33,7 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
     if (!(file instanceof File) || file.type !== 'image/jpeg') {
       return json({ error: 'JPEG 이미지만 업로드할 수 있습니다.' }, 400);
     }
-    if (kind !== 'before' && kind !== 'after' && kind !== 'thumbnail' && kind !== 'gallery' && kind !== 'gallery-thumbnail') {
+    if (kind !== 'before' && kind !== 'after' && kind !== 'thumbnail' && kind !== 'gallery' && kind !== 'gallery-thumbnail' && kind !== 'og-image') {
       return json({ error: '이미지 종류가 올바르지 않습니다.' }, 400);
     }
     if (!/^[a-zA-Z0-9-]{8,64}$/.test(uploadId) || !Number.isInteger(partIndex) || partIndex < 0 || partIndex > 20) {

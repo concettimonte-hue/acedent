@@ -56,6 +56,7 @@ interface WorkInput {
   blogUrl?: string;
   parts: PartInput[];
   gallery?: unknown;
+  ogImage?: AssetReference;
 }
 
 function required(value: unknown, label: string, maxLength = 5000) {
@@ -162,6 +163,8 @@ async function verifyAsset(
   const bytes = Number(object.customMetadata.bytes);
   const validDimensions = expectedKind === 'gallery'
     ? width > 0 && height > 0 && width <= 1600 && height <= 1600
+    : expectedKind === 'og-image'
+      ? width === 1200 && height === 630
     : expectedKind === 'thumbnail' || expectedKind === 'gallery-thumbnail'
       ? width === 800 && height === 600
       : width === 1600 && height === 1200;
@@ -362,6 +365,9 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
       });
     }
 
+    const ogImage = await verifyAsset(env, input.ogImage as AssetReference, 'og-image', uploadId);
+    assets.push({ ...ogImage, kind: 'og-image' as const, partIndex: 20 });
+
     const work: WorkItem = {
       slug,
       date,
@@ -374,6 +380,7 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
       carModel: optional(input.carModel, '차종', 60),
       color: required(input.color, '색상', 40),
       parts: mediaParts,
+      ogImage: assetUrl(publicBase, ogImage.key),
       gallery,
       summary: required(input.summary, '요약', 300),
       body: required(input.body, '상세 설명', 5000),
@@ -433,7 +440,7 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
       return json({ error: '보조 태그 저장에는 D1 마이그레이션(0005)이 필요합니다.' }, 503);
     }
     if (/CHECK constraint failed.*work_assets|work_assets.*CHECK constraint failed/i.test(message)) {
-      return json({ error: '추가 사진 저장에는 D1 마이그레이션(0006)이 필요합니다.' }, 503);
+      return json({ error: '공유 이미지 저장에는 D1 마이그레이션(0007)이 필요합니다.' }, 503);
     }
     return json({ error: message }, 400);
   }

@@ -20,8 +20,10 @@ import type {
 import {
   WORK_CATEGORIES,
   getWorkCategoryLabel,
+  isWorkPart,
   type WorkCategory,
   type WorkItem,
+  type WorkPart,
   type WorkPartMedia,
   type WorkPartValue,
 } from '../content/works/types';
@@ -33,9 +35,15 @@ import {
 import {
   getWorkDisplayCategories,
   getWorkRepresentativePart,
+  getWorkPartsForCategory,
   workMatchesCategory,
 } from './work-categories';
-import { formatWorkCardParts } from './work-parts';
+import { formatWorkCardParts, getWorkFilterParts } from './work-parts';
+import {
+  getWorkPartLandings,
+  getWorkPartLandingPath,
+  hasWorkPartLanding,
+} from './work-landings';
 import {
   getRelatedWorkReasonLabel,
   type RelatedWorkSuggestion,
@@ -162,14 +170,29 @@ export function getHomeStaticHtml(works: WorkItem[]) {
   </main>`;
 }
 
-export function getWorksStaticHtml(works: WorkItem[], category?: WorkCategory) {
-  const visible = category ? works.filter((work) => workMatchesCategory(work, category)) : works;
-  const heading = category ? getWorkCategoryLabel(category) : '수리사례';
+export function getWorksStaticHtml(
+  works: WorkItem[],
+  category?: WorkCategory,
+  part?: WorkPart,
+) {
+  const categoryWorks = category
+    ? works.filter((work) => workMatchesCategory(work, category))
+    : works;
+  const visible = part
+    ? categoryWorks.filter((work) =>
+      getWorkPartsForCategory(work, category).includes(part),
+    )
+    : categoryWorks;
+  const heading = `${part ? `${part} ` : ''}${category ? getWorkCategoryLabel(category) : '수리사례'}`;
+  const partLandings = category
+    ? getWorkPartLandings(works).filter((landing) => landing.category === category)
+    : [];
   return `<main class="seo-static seo-works">
     <header class="seo-static-header"><a href="/">ACE DENT</a><a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
     <section><p>ACE DENT · REPAIR ARCHIVE</p><h1>${text(heading)}</h1><p>실제 차량의 작업 전후를 확인하고 내 차와 비슷한 손상을 찾아보세요.</p></section>
     <nav aria-label="작업방식"><a href="/works">전체</a>${WORK_CATEGORIES.map((item) => `<a href="/works/${item.id}">${text(item.label)}</a>`).join('')}</nav>
-    <section aria-label="수리사례 목록"><p>${visible.length}건</p><div class="seo-works-grid">${visible.map((work) => workCard(work, category, [], undefined, 'before')).join('')}</div></section>
+    ${partLandings.length ? `<nav aria-label="수리 부위">${partLandings.map((landing) => `<a href="${text(landing.path)}">${text(landing.part)}</a>`).join('')}</nav>` : ''}
+    <section aria-label="수리사례 목록"><p>${visible.length}건</p><div class="seo-works-grid">${visible.map((work) => workCard(work, category, [], part, 'before')).join('')}</div></section>
   </main>`;
 }
 
@@ -177,14 +200,30 @@ export function getWorkDetailStaticHtml(
   work: WorkItem,
   relatedSuggestions: RelatedWorkSuggestion[],
   categoryWorkCount: number,
+  allWorks: WorkItem[],
 ) {
   const categoryLabel = getWorkCategoryLabel(work.category);
   const workCategories = getWorkDisplayCategories(work);
+  const workParts = getWorkFilterParts(work);
   const [, ...secondaryCategories] = workCategories;
   const classification = `<div class="work-detail-classification">
         <span class="work-detail-classification-primary">${text(categoryLabel)}</span>
         ${secondaryCategories.map((category) => `<span class="work-detail-classification-secondary-group"><span class="work-detail-classification-separator" aria-hidden="true">·</span><span class="work-detail-classification-secondary">${text(getWorkCategoryLabel(category))}</span></span>`).join('')}
       </div>`;
+  const categoryLinks = workCategories
+    .map((category) => `<a href="/works/${text(category)}">${text(getWorkCategoryLabel(category))}</a>`)
+    .join(' · ');
+  const partLinks = workParts
+    .map((part) => {
+      if (!isWorkPart(part)) return text(part);
+      const matchedPart = work.parts.find((candidate) => candidate.part?.includes(part));
+      const matchedCategory = matchedPart?.category ?? work.category;
+      const href = hasWorkPartLanding(allWorks, matchedCategory, part)
+        ? getWorkPartLandingPath(matchedCategory, part)
+        : `/works/${matchedCategory}?part=${encodeURIComponent(part)}`;
+      return `<a href="${text(href)}">${text(part)}</a>`;
+    })
+    .join(' · ');
   const gallerySection = (
     images: NonNullable<WorkItem['gallery']>,
     title: string,
@@ -216,7 +255,7 @@ export function getWorkDetailStaticHtml(
       ${work.body.split('\n\n').map((paragraph) => `<p>${text(paragraph)}</p>`).join('')}
       ${work.blogUrl ? `<a href="${text(work.blogUrl)}" target="_blank" rel="noopener noreferrer">블로그에서 더 보기</a>` : ''}
       ${work.gallery?.length ? gallerySection(work.gallery, '작업 전체 추가 사진') : ''}
-      <section><p>RESULT SUMMARY</p><h2>이번 작업 한눈에 보기</h2><dl><div><dt>차량</dt><dd>${text(car(work))}</dd></div><div><dt>작업 부위</dt><dd>${text(formatWorkCardParts(work))}</dd></div><div><dt>작업 분류</dt><dd>${workCategories.map((category) => text(getWorkCategoryLabel(category))).join(' · ')}</dd></div><div><dt>소요 기간</dt><dd>${text(work.days)}</dd></div></dl></section>
+      <section><p>RESULT SUMMARY</p><h2>이번 작업 한눈에 보기</h2><dl><div><dt>차량</dt><dd>${text(car(work))}</dd></div><div><dt>작업 부위</dt><dd>${partLinks}</dd></div><div><dt>작업 분류</dt><dd>${categoryLinks}</dd></div><div><dt>소요 기간</dt><dd>${text(work.days)}</dd></div></dl></section>
     </article>
     ${relatedSuggestions.length ? `<section><p>RELATED WORKS</p><h2>비슷한 수리사례</h2><p>같은 부위 또는 작업방식의 실제 전후 결과를 더 확인해보세요.</p><div class="seo-works-grid">${relatedSuggestions.map(({ work: relatedWork, reasons, matchedCategory, matchedPart }) => workCard(relatedWork, matchedCategory, reasons.map(getRelatedWorkReasonLabel), matchedPart, 'before')).join('')}</div><a href="/works/${text(work.category)}">${text(categoryLabel)} 수리사례 ${categoryWorkCount}건 전체 보기</a></section>` : ''}
     <section><p>PHOTO CONSULTATION</p><h2>내 차도 비슷하게 손상됐나요?</h2><p>손상 부위가 잘 보이는 사진을 보내주시면 수리 가능 여부와 예상 작업 범위를 먼저 안내드립니다.</p><a href="${text(site.contact.smsHref)}">사진 상담 시작</a><a href="${text(site.contact.phoneHref)}">전화 문의</a><a href="${text(naver.talk)}" target="_blank" rel="noopener noreferrer">네이버 톡톡</a><p><strong>수리가 필요한지, 교환이 나은지부터 확인해드립니다.</strong> 불필요한 작업은 권하지 않습니다.</p></section>

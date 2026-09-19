@@ -18,25 +18,38 @@ import WorksHeader from '@/components/WorksHeader';
 import WorksQuickActions from '@/components/WorksQuickActions';
 import { trackFilterUse } from '@/lib/analytics';
 import {
+  getWorkPartLandingFilters,
   getWorksFilterUrl,
   readWorkFilters,
   type WorkFilters,
 } from '@/lib/work-routes';
+import {
+  getWorkPartLandingPath,
+  hasWorkPartLanding,
+} from '@/lib/work-landings';
 
 interface WorksGalleryPageProps {
   category?: WorkCategory;
+  part?: WorkPart;
 }
 
-function readFilters(fallbackCategory?: WorkCategory): WorkFilters {
+function readFilters(fallbackCategory?: WorkCategory, fallbackPart?: WorkPart): WorkFilters {
   return readWorkFilters(
     window.location.pathname,
     window.location.search,
     fallbackCategory,
+    fallbackPart,
   );
 }
 
 function getFilterUrl(category?: WorkCategory, part?: WorkPart) {
-  return getWorksFilterUrl(category, part, window.location.search);
+  const fallbackUrl = getWorksFilterUrl(category, part, window.location.search);
+  if (!category || !part || !hasWorkPartLanding(getWorks(), category, part)) {
+    return fallbackUrl;
+  }
+  const queryIndex = fallbackUrl.indexOf('?');
+  const preservedSearch = queryIndex >= 0 ? fallbackUrl.slice(queryIndex) : '';
+  return `${getWorkPartLandingPath(category, part)}${preservedSearch}`;
 }
 
 function useFilterRail<T extends HTMLElement>(activeValue?: string) {
@@ -102,8 +115,8 @@ function FilterRailEdges({ left, right }: { left: boolean; right: boolean }) {
   );
 }
 
-export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
-  const [filters, setFilters] = useState<WorkFilters>(() => readFilters(category));
+export default function WorksGalleryPage({ category, part }: WorksGalleryPageProps) {
+  const [filters, setFilters] = useState<WorkFilters>(() => readFilters(category, part));
   const [showSwipeHint, setShowSwipeHint] = useState(true);
   const selectedCategory = filters.category;
   const selectedPart = filters.part;
@@ -137,14 +150,19 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
   };
 
   useEffect(() => {
-    const syncFiltersFromUrl = () => setFilters(readFilters(category));
+    const syncFiltersFromUrl = () => setFilters(readFilters(category, part));
     window.addEventListener('popstate', syncFiltersFromUrl);
     return () => window.removeEventListener('popstate', syncFiltersFromUrl);
-  }, [category]);
+  }, [category, part]);
 
   useEffect(() => {
-    applyClientMetadata(getWorksMetadata(selectedCategory));
-  }, [selectedCategory]);
+    const landingFilters = getWorkPartLandingFilters(window.location.pathname);
+    const canonicalPart = landingFilters?.category === selectedCategory &&
+      landingFilters?.part === selectedPart
+      ? selectedPart
+      : undefined;
+    applyClientMetadata(getWorksMetadata(selectedCategory, canonicalPart));
+  }, [selectedCategory, selectedPart]);
 
   useEffect(() => {
     try {
@@ -181,7 +199,7 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
         <WorksHeader />
         <section className="works-page-hero">
         <p>ACE DENT · REPAIR ARCHIVE</p>
-        <h1>{selectedCategory ? getWorkCategoryLabel(selectedCategory) : '수리사례'}</h1>
+        <h1>{selectedPart ? `${selectedPart} ` : ''}{selectedCategory ? getWorkCategoryLabel(selectedCategory) : '수리사례'}</h1>
         <span>
           실제 차량의 작업 전후를 확인하고 내 차와 비슷한 손상을 찾아보세요.
         </span>
@@ -265,23 +283,25 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
               }}
             >
               <span>부위</span>
-              <button
-                type="button"
+              <a
+                href={getFilterUrl(selectedCategory)}
                 className={!selectedPart ? 'is-active' : ''}
-                aria-pressed={!selectedPart}
-                onClick={() => {
+                aria-current={!selectedPart ? 'page' : undefined}
+                onClick={(event) => {
+                  event.preventDefault();
                   trackFilterUse(analyticsCategory, '전체');
                   selectFilters({ category: selectedCategory });
                 }}
               >
                 전체
-              </button>
+              </a>
               {availableFilterParts.map((part) => (
-                <button
-                  type="button"
+                <a
+                  href={getFilterUrl(selectedCategory, selectedPart === part ? undefined : part)}
                   className={selectedPart === part ? 'is-active' : ''}
-                  aria-pressed={selectedPart === part}
-                  onClick={() => {
+                  aria-current={selectedPart === part ? 'page' : undefined}
+                  onClick={(event) => {
+                    event.preventDefault();
                     const nextPart = selectedPart === part ? undefined : part;
                     trackFilterUse(analyticsCategory, nextPart ?? '전체');
                     selectFilters({ category: selectedCategory, part: nextPart });
@@ -289,7 +309,7 @@ export default function WorksGalleryPage({ category }: WorksGalleryPageProps) {
                   key={part}
                 >
                   {part}
-                </button>
+                </a>
               ))}
             </div>
             <FilterRailEdges

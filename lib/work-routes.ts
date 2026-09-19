@@ -5,6 +5,7 @@ import {
   type WorkCategory,
   type WorkPart,
 } from '../content/works/types';
+import { getWorkPartFromRouteSlug } from './work-landings';
 
 export interface WorkFilters {
   category?: WorkCategory;
@@ -23,17 +24,27 @@ export function getWorkCategoryFromPath(pathname: string) {
   return match && isWorkCategory(match[1]) ? match[1] : undefined;
 }
 
+export function getWorkPartLandingFilters(pathname: string): WorkFilters | undefined {
+  const normalizedPath = decodeURIComponent(pathname).replace(/\/+$/, '') || '/';
+  const match = normalizedPath.match(/^\/works\/([^/]+)\/([^/]+)$/);
+  if (!match || !isWorkCategory(match[1])) return undefined;
+  const part = getWorkPartFromRouteSlug(match[2]);
+  return part ? { category: match[1], part } : undefined;
+}
+
 export function readWorkFilters(
   pathname: string,
   searchValue: string,
   fallbackCategory?: WorkCategory,
+  fallbackPart?: WorkPart,
 ): WorkFilters {
   const search = new URLSearchParams(searchValue);
   const part = search.get('part');
+  const landingFilters = getWorkPartLandingFilters(pathname);
 
   return {
-    category: getWorkCategoryFromPath(pathname) ?? fallbackCategory,
-    part: part && isWorkPart(part) ? part : undefined,
+    category: landingFilters?.category ?? getWorkCategoryFromPath(pathname) ?? fallbackCategory,
+    part: landingFilters?.part ?? (part && isWorkPart(part) ? part : fallbackPart),
   };
 }
 

@@ -1,10 +1,10 @@
-import type { WorkCategory, WorkItem } from '@/content/works/types';
+import type { WorkCategory, WorkItem, WorkPart } from '@/content/works/types';
 import { getWorkCategoryLabel } from '@/content/works/types';
 import {
   getWorkImageAlt,
   getWorkGalleryImageAlt,
   getAbsoluteWorkImageUrl,
-  getWorkPrimaryAfterSrc,
+  getWorkOgImageSrc,
   resolveWorkImageSrc,
 } from '@/lib/work-images';
 import {
@@ -13,8 +13,13 @@ import {
   worksOgImageAlt,
   worksOgImageUrl,
 } from '@/lib/seo';
-import { getWorkSeoCopy, getWorksSeoCopy } from '@/lib/work-seo';
+import {
+  getWorkPartLandingSeoCopy,
+  getWorkSeoCopy,
+  getWorksSeoCopy,
+} from '@/lib/work-seo';
 import { getWorksCanonicalPath } from '@/lib/work-routes';
+import { getWorkPartLandingPath } from '@/lib/work-landings';
 
 export interface WorkMetadata {
   title: string;
@@ -28,9 +33,13 @@ export function getWorkSeoTitle(work: WorkItem) {
   return getWorkSeoCopy(work).title;
 }
 
-export function getWorksMetadata(category?: WorkCategory): WorkMetadata {
-  const { title, description } = getWorksSeoCopy(category);
-  const canonical = `${siteUrl}${getWorksCanonicalPath(category)}`;
+export function getWorksMetadata(category?: WorkCategory, part?: WorkPart): WorkMetadata {
+  const { title, description } = category && part
+    ? getWorkPartLandingSeoCopy(category, part)
+    : getWorksSeoCopy(category);
+  const canonical = `${siteUrl}${category && part
+    ? getWorkPartLandingPath(category, part)
+    : getWorksCanonicalPath(category)}`;
 
   return {
     title,
@@ -47,11 +56,24 @@ export function getWorkMetadata(work: WorkItem): WorkMetadata {
     title,
     description,
     canonical: `${siteUrl}/works/detail/${work.slug}`,
-    image: getAbsoluteWorkImageUrl(getWorkPrimaryAfterSrc(work), siteUrl),
+    image: getAbsoluteWorkImageUrl(getWorkOgImageSrc(work), siteUrl),
+    imageAlt: work.ogImage
+      ? `${work.carMaker} ${work.carModel} ${work.title} 수리 전후 비교`.replace(/\s+/g, ' ').trim()
+      : getWorkImageAlt(work, work.parts[0], '후'),
   };
 }
 
 export function getWorkImageJsonLd(work: WorkItem) {
+  const ogImage = work.ogImage ? [{
+    '@type': 'ImageObject',
+    contentUrl: getAbsoluteWorkImageUrl(resolveWorkImageSrc(work.ogImage), siteUrl),
+    thumbnailUrl: getAbsoluteWorkImageUrl(resolveWorkImageSrc(work.ogImage), siteUrl),
+    name: `${work.carMaker} ${work.carModel} ${work.title} 수리 전후 비교`.replace(/\s+/g, ' ').trim(),
+    caption: `${work.title} BEFORE AFTER 비교 이미지`,
+    width: 1200,
+    height: 630,
+    representativeOfPage: true,
+  }] : [];
   const partImages = work.parts.flatMap((part, partIndex) => [
     ...(['전', '후'] as const).map((state) => {
       const source = state === '전' ? part.before : part.after;
@@ -64,7 +86,7 @@ export function getWorkImageJsonLd(work: WorkItem) {
         caption: `${part.label}: ${part.note}`,
         width: 1600,
         height: 1200,
-        representativeOfPage: partIndex === 0 && state === '후',
+        representativeOfPage: !work.ogImage && partIndex === 0 && state === '후',
       };
     }),
     ...(part.gallery ?? []).map((galleryImage, imageIndex) => ({
@@ -97,7 +119,7 @@ export function getWorkImageJsonLd(work: WorkItem) {
 
   return {
     '@context': 'https://schema.org',
-    '@graph': [...partImages, ...workGalleryImages],
+    '@graph': [...ogImage, ...partImages, ...workGalleryImages],
   };
 }
 

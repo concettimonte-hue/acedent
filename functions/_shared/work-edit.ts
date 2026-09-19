@@ -62,6 +62,7 @@ interface UpdateInput {
   blogUrl?: unknown;
   parts?: unknown;
   gallery?: unknown;
+  ogImage?: AssetReference | null;
 }
 
 function required(value: unknown, label: string, maxLength = 5000) {
@@ -180,6 +181,8 @@ async function verifyAsset(
   const bytes = Number(object.customMetadata.bytes);
   const validDimensions = expectedKind === 'gallery'
     ? width > 0 && height > 0 && width <= 1600 && height <= 1600
+    : expectedKind === 'og-image'
+      ? width === 1200 && height === 630
     : expectedKind === 'thumbnail' || expectedKind === 'gallery-thumbnail'
       ? width === 800 && height === 600
       : width === 1600 && height === 1200;
@@ -338,6 +341,20 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
       });
     }
 
+    const previousOgAsset = previous.ogImage
+      ? currentRows.results.find((asset) => asset.public_url === previous.ogImage)
+      : undefined;
+    const ogReference = input.ogImage === undefined
+      ? (previousOgAsset ? { key: previousOgAsset.object_key } : undefined)
+      : input.ogImage ?? undefined;
+    let ogImage: string | undefined;
+    if (ogReference) {
+      const ogAsset = await verifyAsset(env, currentAssets, ogReference, 'og-image', uploadId);
+      usedKeys.add(ogAsset.object_key);
+      records.set(ogAsset.object_key, { ...ogAsset, part_index: 20 });
+      ogImage = assetUrl(publicBase, ogAsset.object_key);
+    }
+
     const blogUrl = typeof input.blogUrl === 'string' ? input.blogUrl.trim() : '';
     if (blogUrl && !/^https:\/\//i.test(blogUrl)) throw new Error('블로그 링크는 https:// 주소로 입력하세요.');
     const color = typeof input.color === 'string' ? input.color.trim() : '';
@@ -355,6 +372,7 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
       carModel: optional(input.carModel, '차종', 60),
       color: color || previous.color,
       parts: mediaParts,
+      ogImage,
       gallery,
       summary: required(input.summary, '요약', 300),
       body: required(input.body, '상세 설명', 5000),
@@ -426,7 +444,7 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
       return json({ error: '이미지 수정에는 삭제 대기열 마이그레이션(0003)이 필요합니다.' }, 503);
     }
     if (/CHECK constraint failed.*work_assets|work_assets.*CHECK constraint failed/i.test(message)) {
-      return json({ error: '추가 사진 저장에는 D1 마이그레이션(0006)이 필요합니다.' }, 503);
+      return json({ error: '공유 이미지 저장에는 D1 마이그레이션(0007)이 필요합니다.' }, 503);
     }
     return json({ error: message }, 400);
   }

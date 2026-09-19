@@ -11,18 +11,23 @@ import WorksHeader from '@/components/WorksHeader';
 import WorksQuickActions from '@/components/WorksQuickActions';
 import WorkVehicleTag from '@/components/WorkVehicleTag';
 import type { WorkItem } from '@/content/works/types';
-import { getWorkCategoryLabel } from '@/content/works/types';
+import { getWorkCategoryLabel, isWorkPart } from '@/content/works/types';
 import { getWorkDisplayCategories } from '@/lib/work-categories';
 import { getWorkImageAlt, resolveWorkImageSrc } from '@/lib/work-images';
 import {
   applyClientMetadata,
   getWorkMetadata,
 } from '@/lib/work-metadata';
-import { formatWorkCardParts } from '@/lib/work-parts';
+import { getWorkFilterParts } from '@/lib/work-parts';
+import {
+  getWorkPartLandingPath,
+  hasWorkPartLanding,
+} from '@/lib/work-landings';
 import { getRelatedWorkReasonLabel } from '@/lib/work-related';
 import {
   formatWorkCar,
   getRelatedWorkSuggestions,
+  getWorks,
   getWorksByCategory,
 } from '@/lib/works';
 import { withLandingUtm } from '@/lib/tracking';
@@ -35,9 +40,18 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
   const relatedSuggestions = getRelatedWorkSuggestions(work, 3);
   const categoryLabel = getWorkCategoryLabel(work.category);
   const categoryWorkCount = getWorksByCategory(work.category).length;
-  const workCategorySummary = getWorkDisplayCategories(work)
-    .map(getWorkCategoryLabel)
-    .join(' · ');
+  const allWorks = getWorks();
+  const displayCategories = getWorkDisplayCategories(work);
+  const displayParts = getWorkFilterParts(work);
+
+  const getPartHref = (part: string) => {
+    if (!isWorkPart(part)) return undefined;
+    const matchedPart = work.parts.find((candidate) => candidate.part?.includes(part));
+    const matchedCategory = matchedPart?.category ?? work.category;
+    return hasWorkPartLanding(allWorks, matchedCategory, part)
+      ? getWorkPartLandingPath(matchedCategory, part)
+      : `/works/${matchedCategory}?part=${encodeURIComponent(part)}`;
+  };
 
   useEffect(() => {
     applyClientMetadata(getWorkMetadata(work));
@@ -149,11 +163,28 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
             </div>
             <div>
               <dt>작업 부위</dt>
-              <dd>{formatWorkCardParts(work)}</dd>
+              <dd>
+                {displayParts.map((part, index) => {
+                  const href = getPartHref(part);
+                  return (
+                    <span key={part}>
+                      {index > 0 && ' · '}
+                      {href ? <a href={href}>{part}</a> : part}
+                    </span>
+                  );
+                })}
+              </dd>
             </div>
             <div>
               <dt>작업 분류</dt>
-              <dd>{workCategorySummary}</dd>
+              <dd>
+                {displayCategories.map((category, index) => (
+                  <span key={category}>
+                    {index > 0 && ' · '}
+                    <a href={`/works/${category}`}>{getWorkCategoryLabel(category)}</a>
+                  </span>
+                ))}
+              </dd>
             </div>
             <div>
               <dt>소요 기간</dt>

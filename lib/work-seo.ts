@@ -135,6 +135,14 @@ export function getWorksSeoCopy(category?: WorkCategory) {
   };
 }
 
+export function getWorkPartLandingSeoCopy(category: WorkCategory, part: string) {
+  const categoryLabel = getWorkCategoryLabel(category);
+  return {
+    title: `동대문 ${part} ${categoryTitleFallback[category]} 실제 수리사례 | 에이스덴트`,
+    description: `서울 동대문 에이스덴트가 직접 작업한 ${part} ${categoryLabel} 전후 사례입니다. 차종별 손상 상태와 작업 과정, 복원 결과를 비교하고 내 차량과 비슷한 사례를 확인하세요.`,
+  };
+}
+
 export function getWorkSeoCopy(work: WorkItem) {
   const workTitle = cleanInlineText(work.title);
   const titleParts: string[] = [];

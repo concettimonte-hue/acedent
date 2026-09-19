@@ -48,7 +48,8 @@ export type WorkAssetKind =
   | 'after'
   | 'thumbnail'
   | 'gallery'
-  | 'gallery-thumbnail';
+  | 'gallery-thumbnail'
+  | 'og-image';
 
 export interface WorkGalleryImage {
   src: string;
@@ -86,6 +87,8 @@ export interface WorkItem {
   carModel: string;
   color?: string;
   parts: WorkPartMedia[];
+  /** 공유 카드용 1200×630 BEFORE/AFTER 합성 이미지. 기존 사례는 첫 AFTER로 폴백합니다. */
+  ogImage?: string;
   /** 특정 PART에 속하지 않는 차량 전경·출고 등 사례 전체 추가 사진입니다. */
   gallery?: WorkGalleryImage[];
   summary: string;

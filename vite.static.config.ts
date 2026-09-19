@@ -29,16 +29,24 @@ import {
   getWorkDetailStaticHtml,
   getWorksStaticHtml,
 } from './lib/static-html';
-import { getWorkSeoCopy, getWorksSeoCopy } from './lib/work-seo';
+import {
+  getWorkPartLandingSeoCopy,
+  getWorkSeoCopy,
+  getWorksSeoCopy,
+} from './lib/work-seo';
 import {
   getAbsoluteWorkImageUrl,
   getWorkImageAlt,
   getWorkGalleryImageAlt,
-  getWorkPrimaryAfterSrc,
+  getWorkOgImageSrc,
   getWorkPrimaryPart,
 } from './lib/work-images';
 import { workMatchesCategory } from './lib/work-categories';
 import { selectRelatedWorkSuggestions } from './lib/work-related';
+import {
+  getWorkPartLandings,
+  getWorkPartLandingPath,
+} from './lib/work-landings';
 
 const projectDirectory = fileURLToPath(new URL('.', import.meta.url));
 const sitemapFallbackDate = '2026-09-08';
@@ -283,6 +291,16 @@ function getBreadcrumbJsonLd(work: WorkItem) {
 }
 
 function getWorkImageJsonLd(work: WorkItem) {
+  const ogImage = work.ogImage ? [{
+    '@type': 'ImageObject',
+    contentUrl: getAbsoluteWorkImageUrl(work.ogImage, siteUrl),
+    thumbnailUrl: getAbsoluteWorkImageUrl(work.ogImage, siteUrl),
+    name: `${work.carMaker} ${work.carModel} ${work.title} 수리 전후 비교`.replace(/\s+/g, ' ').trim(),
+    caption: `${work.title} BEFORE AFTER 비교 이미지`,
+    width: 1200,
+    height: 630,
+    representativeOfPage: true,
+  }] : [];
   const partImages = work.parts.flatMap((part, partIndex) => [
     ...(['전', '후'] as const).map((state) => {
       const image = getAbsoluteWorkImageUrl(
@@ -297,7 +315,7 @@ function getWorkImageJsonLd(work: WorkItem) {
         caption: `${part.label}: ${part.note}`,
         width: 1600,
         height: 1200,
-        representativeOfPage: partIndex === 0 && state === '후',
+        representativeOfPage: !work.ogImage && partIndex === 0 && state === '후',
       };
     }),
     ...(part.gallery ?? []).map((galleryImage, imageIndex) => ({
@@ -330,7 +348,7 @@ function getWorkImageJsonLd(work: WorkItem) {
 
   return {
     '@context': 'https://schema.org',
-    '@graph': [...partImages, ...workGalleryImages],
+    '@graph': [...ogImage, ...partImages, ...workGalleryImages],
   };
 }
 
@@ -367,6 +385,7 @@ const seoAssetsPlugin = (): Plugin => ({
   },
   generateBundle() {
     const works = loadBuildWorks();
+    const partLandings = getWorkPartLandings(works);
     const featuredWorks = works
       .filter((work) => work.featured)
       .sort((a, b) => (a.featuredOrder ?? 999) - (b.featuredOrder ?? 999))
@@ -432,6 +451,17 @@ const seoAssetsPlugin = (): Plugin => ({
         changefreq: 'weekly',
         priority: '0.8',
       })),
+      ...partLandings.map((landing) => ({
+        loc: `${siteUrl}${landing.path}`,
+        lastmod: latestDate(
+          listingTemplateLastModified,
+          ...landing.works.map((work) =>
+            works.find((candidate) => candidate.slug === work.slug)?.lastModified ?? work.date,
+          ),
+        ),
+        changefreq: 'weekly',
+        priority: '0.7',
+      })),
       ...works.map((work) => ({
         loc: `${siteUrl}/works/detail/${work.slug}`,
         lastmod: latestDate(work.lastModified, detailTemplateLastModified),
@@ -446,13 +476,60 @@ const seoAssetsPlugin = (): Plugin => ({
       )
       .join('\n');
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapBody}\n</urlset>\n`;
-    const robots = `User-agent: *\nAllow: /\n\nHost: ${siteUrl}\nSitemap: ${siteUrl}/sitemap.xml\n`;
+    const imageSitemapBody = works.map((work) => {
+      const images = [
+        ...(work.ogImage ? [{
+          src: work.ogImage,
+          title: `${work.carMaker} ${work.carModel} ${work.title} 수리 전후 비교`.replace(/\s+/g, ' ').trim(),
+          caption: `${work.title} BEFORE AFTER 비교 이미지`,
+        }] : []),
+        ...work.parts.flatMap((part) => [
+          {
+            src: part.before,
+            title: getWorkImageAlt(work, part, '전'),
+            caption: `${part.label} 수리 전${part.note ? ` · ${part.note}` : ''}`,
+          },
+          {
+            src: part.after,
+            title: getWorkImageAlt(work, part, '후'),
+            caption: `${part.label} 수리 후${part.note ? ` · ${part.note}` : ''}`,
+          },
+          ...(part.gallery ?? []).map((galleryImage, imageIndex) => ({
+            src: galleryImage.src,
+            title: getWorkGalleryImageAlt(work, galleryImage, imageIndex, part),
+            caption: galleryImage.caption || `${part.label} 추가 작업 사진 ${imageIndex + 1}`,
+          })),
+        ]),
+        ...(work.gallery ?? []).map((galleryImage, imageIndex) => ({
+          src: galleryImage.src,
+          title: getWorkGalleryImageAlt(work, galleryImage, imageIndex),
+          caption: galleryImage.caption || `${work.title} 사례 사진 ${imageIndex + 1}`,
+        })),
+      ];
+      const uniqueImages = [...new Map(images.map((image) => [image.src, image])).values()];
+      return `  <url>\n    <loc>${escapeXml(`${siteUrl}/works/detail/${work.slug}`)}</loc>\n${uniqueImages.map((image) => `    <image:image>\n      <image:loc>${escapeXml(getAbsoluteWorkImageUrl(image.src, siteUrl))}</image:loc>\n      <image:title>${escapeXml(image.title)}</image:title>\n      <image:caption>${escapeXml(image.caption)}</image:caption>\n    </image:image>`).join('\n')}\n  </url>`;
+    }).join('\n');
+    const imageSitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${imageSitemapBody}\n</urlset>\n`;
+    const rssItems = [...works]
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 50)
+      .map((work) => {
+        const canonical = `${siteUrl}/works/detail/${work.slug}`;
+        const seo = getWorkSeoCopy(work);
+        return `    <item>\n      <title>${escapeXml(work.title)}</title>\n      <link>${escapeXml(canonical)}</link>\n      <guid isPermaLink="true">${escapeXml(canonical)}</guid>\n      <description>${escapeXml(seo.description)}</description>\n      <pubDate>${new Date(`${work.date}T00:00:00+09:00`).toUTCString()}</pubDate>\n    </item>`;
+      })
+      .join('\n');
+    const rss = `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n  <channel>\n    <title>에이스덴트 수리사례</title>\n    <link>${siteUrl}/works</link>\n    <description>동대문 에이스덴트의 자동차 판금도색, 덴트, 부분도색, 광택 수리 전후 사례입니다.</description>\n    <language>ko-KR</language>\n    <lastBuildDate>${new Date(`${worksLastModified}T00:00:00+09:00`).toUTCString()}</lastBuildDate>\n    <atom:link href="${siteUrl}/rss.xml" rel="self" type="application/rss+xml" />\n${rssItems}\n  </channel>\n</rss>\n`;
+    const robots = `User-agent: *\nAllow: /\n\nHost: ${siteUrl}\nSitemap: ${siteUrl}/sitemap.xml\nSitemap: ${siteUrl}/image-sitemap.xml\n`;
 
     this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: sitemap });
+    this.emitFile({ type: 'asset', fileName: 'image-sitemap.xml', source: imageSitemap });
+    this.emitFile({ type: 'asset', fileName: 'rss.xml', source: rss });
     this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robots });
   },
   writeBundle(options) {
     const works = loadBuildWorks();
+    const partLandings = getWorkPartLandings(works);
     const outputDirectory = resolve(options.dir ?? 'dist');
     const baseHtml = readFileSync(resolve(outputDirectory, 'index.html'), 'utf8');
 
@@ -512,6 +589,21 @@ const seoAssetsPlugin = (): Plugin => ({
       );
     }
 
+    for (const landing of partLandings) {
+      const landingSeo = getWorkPartLandingSeoCopy(landing.category, landing.part);
+      writeRoute(
+        `${getWorkPartLandingPath(landing.category, landing.part).slice(1)}.html`,
+        renderRouteHtml(baseHtml, {
+          title: landingSeo.title,
+          description: landingSeo.description,
+          canonical: `${siteUrl}${landing.path}`,
+          image: worksOgImageUrl,
+          imageAlt: worksOgImageAlt,
+          bodyHtml: getWorksStaticHtml(works, landing.category, landing.part),
+        }),
+      );
+    }
+
     for (const work of works) {
       const canonical = `${siteUrl}/works/detail/${work.slug}`;
       const workSeo = getWorkSeoCopy(work);
@@ -524,10 +616,12 @@ const seoAssetsPlugin = (): Plugin => ({
           title: workSeo.title,
           description: workSeo.description,
           canonical,
-          image: getAbsoluteWorkImageUrl(getWorkPrimaryAfterSrc(work), siteUrl),
-          imageWidth: 1600,
-          imageHeight: 1200,
-          imageAlt: getWorkImageAlt(work, getWorkPrimaryPart(work), '후'),
+          image: getAbsoluteWorkImageUrl(getWorkOgImageSrc(work), siteUrl),
+          imageWidth: work.ogImage ? 1200 : 1600,
+          imageHeight: work.ogImage ? 630 : 1200,
+          imageAlt: work.ogImage
+            ? `${work.carMaker} ${work.carModel} ${work.title} 수리 전후 비교`.replace(/\s+/g, ' ').trim()
+            : getWorkImageAlt(work, getWorkPrimaryPart(work), '후'),
           type: 'article',
           jsonLd: [
             { id: 'work-breadcrumb-jsonld', data: getBreadcrumbJsonLd(work) },
@@ -537,6 +631,7 @@ const seoAssetsPlugin = (): Plugin => ({
             work,
             relatedSuggestions,
             categoryWorks.length,
+            works,
           ),
         }),
       );

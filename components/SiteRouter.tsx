@@ -7,6 +7,9 @@ import WorkDetailPage from '@/components/WorkDetailPage';
 import WorksGalleryPage from '@/components/WorksGalleryPage';
 import { isWorkCategory } from '@/content/works/types';
 import { getWorkBySlug } from '@/lib/works';
+import { getWorks } from '@/lib/works';
+import { getWorkPartLandingFilters } from '@/lib/work-routes';
+import { hasWorkPartLanding } from '@/lib/work-landings';
 
 const AdminPage = lazy(() => import('@/components/AdminPage'));
 const AdminWorksList = lazy(() => import('@/components/AdminWorksList'));
@@ -68,6 +71,15 @@ export default function SiteRouter() {
   const categoryMatch = path.match(/^\/works\/([^/]+)$/);
   if (categoryMatch && isWorkCategory(categoryMatch[1])) {
     return <WorksGalleryPage category={categoryMatch[1]} />;
+  }
+
+  const partLanding = getWorkPartLandingFilters(path);
+  if (
+    partLanding?.category &&
+    partLanding.part &&
+    hasWorkPartLanding(getWorks(), partLanding.category, partLanding.part)
+  ) {
+    return <WorksGalleryPage category={partLanding.category} part={partLanding.part} />;
   }
 
   return <WorksNotFound />;

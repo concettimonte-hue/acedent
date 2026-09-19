@@ -219,6 +219,60 @@ async function processGalleryImage(file: File) {
   return { blob, preview: URL.createObjectURL(blob), bytes: blob.size, width, height };
 }
 
+async function createOgImage(before: ProcessedImage, after: ProcessedImage) {
+  const [beforeBitmap, afterBitmap] = await Promise.all([
+    createImageBitmap(before.blob),
+    createImageBitmap(after.blob),
+  ]);
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 630;
+    const context = canvas.getContext('2d', { alpha: false });
+    if (!context) throw new Error('이 브라우저에서 공유 이미지를 만들 수 없습니다.');
+
+    const drawCover = (bitmap: ImageBitmap, x: number) => {
+      const targetWidth = 600;
+      const targetHeight = 630;
+      const sourceRatio = bitmap.width / bitmap.height;
+      const targetRatio = targetWidth / targetHeight;
+      let sourceWidth = bitmap.width;
+      let sourceHeight = bitmap.height;
+      let sourceX = 0;
+      let sourceY = 0;
+      if (sourceRatio > targetRatio) {
+        sourceWidth = bitmap.height * targetRatio;
+        sourceX = (bitmap.width - sourceWidth) / 2;
+      } else {
+        sourceHeight = bitmap.width / targetRatio;
+        sourceY = (bitmap.height - sourceHeight) / 2;
+      }
+      context.drawImage(bitmap, sourceX, sourceY, sourceWidth, sourceHeight, x, 0, targetWidth, targetHeight);
+    };
+
+    drawCover(beforeBitmap, 0);
+    drawCover(afterBitmap, 600);
+    context.fillStyle = '#f8db00';
+    context.fillRect(596, 0, 8, 630);
+    context.font = '700 22px Arial, sans-serif';
+    context.textBaseline = 'middle';
+    context.fillStyle = '#050605';
+    context.fillRect(22, 22, 116, 44);
+    context.fillStyle = '#ffffff';
+    context.fillText('BEFORE', 37, 44);
+    context.fillStyle = '#f8db00';
+    context.fillRect(1047, 22, 131, 44);
+    context.fillStyle = '#050605';
+    context.fillText('AFTER', 1067, 44);
+
+    const blob = await canvasBlob(canvas, 200_000);
+    return { blob, preview: URL.createObjectURL(blob), bytes: blob.size, width: 1200, height: 630 };
+  } finally {
+    beforeBitmap.close();
+    afterBitmap.close();
+  }
+}
+
 function uploadImage(
   image: ProcessedImage,
   kind: WorkAssetKind,
@@ -271,6 +325,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
   });
   const [parts, setParts] = useState<PartDraft[]>([newPart()]);
   const [workGallery, setWorkGallery] = useState<GalleryDraft[]>([]);
+  const [ogImage, setOgImage] = useState<ImageDraft>();
   const [subCategories, setSubCategories] = useState<WorkCategory[]>([]);
   const [subParts, setSubParts] = useState<WorkPart[]>([]);
   const [progress, setProgress] = useState(0);
@@ -386,6 +441,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           } satisfies PartDraft;
         }));
         setWorkGallery(galleryDrafts(work.gallery, '사례 전체 추가 사진'));
+        setOgImage(work.ogImage ? existingImage(work.ogImage, '공유 이미지') : undefined);
         setWorkLoaded(true);
         setStatus('수정 중');
       } catch (loadError) {
@@ -429,6 +485,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
       note: part.note || '부위 설명 미리보기',
       gallery: galleryPreview(part.gallery),
     })),
+    ogImage: ogImage?.preview,
     gallery: galleryPreview(workGallery),
     summary: form.summary || '카드와 상세 페이지에 함께 표시될 요약입니다.',
     body: form.body || '상세 작업 설명이 여기에 표시됩니다.',
@@ -436,7 +493,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     featured: false,
     days: form.days || '작업기간',
     sliderType: 'drag',
-  }), [editSlug, form, parts, subCategories, subParts, workGallery]);
+  }), [editSlug, form, ogImage, parts, subCategories, subParts, workGallery]);
   const previewSeo = getWorkSeoCopy(previewWork);
   const previewSeoWarnings = form.title.trim()
     ? getWorkSeoWarnings(previewWork, getWorks())
@@ -760,6 +817,18 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
       if (allGalleries.some((item) => !item.image || !item.thumbnail || item.processing)) {
         throw new Error('추가 사진 처리가 끝날 때까지 잠시 기다려 주세요.');
       }
+      const firstPart = parts[0];
+      const hasNewBefore = isProcessedImage(firstPart.before!);
+      const hasNewAfter = isProcessedImage(firstPart.after!);
+      if (!editing && (!hasNewBefore || !hasNewAfter)) {
+        throw new Error('신규 사례 공유 이미지를 만들려면 첫 PART의 전·후 사진이 모두 필요합니다.');
+      }
+      const replaceOgImage = hasNewBefore || hasNewAfter;
+      const nextOgImage = hasNewBefore && hasNewAfter
+        ? await createOgImage(firstPart.before as ProcessedImage, firstPart.after as ProcessedImage)
+        : replaceOgImage
+          ? undefined
+          : ogImage;
       const uploadId = crypto.randomUUID();
       const total = parts.reduce((count, part) => count + [part.before, part.after, part.thumbnail]
         .filter((image): image is ImageDraft => Boolean(image))
@@ -771,7 +840,8 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
         + workGallery.reduce((count, item) => count
           + [item.image, item.thumbnail]
             .filter((image): image is ImageDraft => Boolean(image))
-            .filter(isProcessedImage).length, 0);
+            .filter(isProcessedImage).length, 0)
+        + (nextOgImage && isProcessedImage(nextOgImage) ? 1 : 0);
       let completed = 0;
       setStatus(total > 0 ? '사진 업로드 중' : '사례 저장 중');
       if (total === 0) setProgress(100);
@@ -826,13 +896,34 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
         });
       }
 
+      let uploadedOgImage: UploadedAsset | undefined;
+      if (nextOgImage) {
+        if (isProcessedImage(nextOgImage)) {
+          uploadedOgImage = await uploadImage(nextOgImage, 'og-image', uploadId, 20, (fraction) => {
+            setProgress(total > 0 ? Math.round(((completed + fraction) / total) * 100) : 100);
+          }, 'share-card');
+          completed += 1;
+          setProgress(total > 0 ? Math.round((completed / total) * 100) : 100);
+        } else {
+          uploadedOgImage = { key: nextOgImage.key, url: nextOgImage.preview };
+        }
+      }
+
       setStatus('사례 저장 중');
       const savePath = editing ? `/admin/api/works/${encodeURIComponent(editSlug!)}` : '/admin/api/works';
       const saveResponse = await fetch(savePath, {
         method: editing ? 'PUT' : 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, subCategories, subParts, uploadId, parts: uploadedParts, gallery: uploadedWorkGallery }),
+        body: JSON.stringify({
+          ...form,
+          subCategories,
+          subParts,
+          uploadId,
+          parts: uploadedParts,
+          gallery: uploadedWorkGallery,
+          ogImage: replaceOgImage ? uploadedOgImage ?? null : uploadedOgImage,
+        }),
       });
       const saved = await saveResponse.json() as { work?: WorkItem; cleanupPending?: number; slugWarnings?: string[]; error?: string };
       if (!saveResponse.ok || !saved.work) throw new Error(saved.error || `사례 ${editing ? '수정' : '저장'}에 실패했습니다.`);

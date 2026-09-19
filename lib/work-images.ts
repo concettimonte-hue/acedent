@@ -78,6 +78,10 @@ export function getWorkPrimaryAfterSrc(work: WorkItem) {
   return resolveWorkImageSrc(getWorkPrimaryPart(work).after);
 }
 
+export function getWorkOgImageSrc(work: WorkItem) {
+  return resolveWorkImageSrc(work.ogImage || getWorkPrimaryAfterSrc(work));
+}
+
 export function getWorkThumbnailSrc(work: WorkItem) {
   return getWorkThumbnailSrcForCategory(work);
 }

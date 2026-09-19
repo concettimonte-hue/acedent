@@ -193,6 +193,7 @@ function parseWork(value: unknown, fileName: string): WorkItem {
         ? item.color
         : undefined,
     parts,
+    ogImage: optionalString(item.ogImage, 'ogImage', fileName) || undefined,
     gallery,
     summary: requireString(item.summary, 'summary', fileName),
     body: requireString(item.body, 'body', fileName),

@@ -160,6 +160,7 @@ function normalizeWorkImageUrls(work) {
 
   return {
     ...work,
+    ogImage: normalizeR2Url(work.ogImage, publicBase),
     parts: work.parts.map((part) => ({
       ...part,
       before: normalizeR2Url(part.before, publicBase),
