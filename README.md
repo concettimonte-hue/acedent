@@ -43,6 +43,7 @@ npx tsc --noEmit
 - `sitemap.xml`, `image-sitemap.xml`, `rss.xml`, `robots.txt`도 같은 빌드에서 자동 생성됩니다. 사례 등록·수정·삭제 후 재배포되면 URL, 수정일, 전후·추가 사진, RSS 항목이 함께 갱신됩니다.
 - 신규 사례와 첫 PART 사진을 교체한 사례는 어드민이 1200×630 BEFORE/AFTER 공유 이미지를 자동 생성합니다. 기존 사례는 별도 수정 전까지 첫 AFTER 이미지를 계속 사용합니다. 배포 전에 D1 `0007_work_og_image_asset.sql` 마이그레이션이 적용되어 있어야 합니다.
 - 검색 포털 등록·색인 확인 절차는 `docs/SEARCH_OPERATIONS.md`를 따릅니다.
+- 보류한 아이디어와 재검토 조건은 `docs/FOLLOW_UP_BACKLOG.md`에서 관리합니다. 후속 작업은 이 문서를 먼저 읽고 한 번에 한 항목만 진행합니다.
 
 ## 관리자 등록 화면
 
