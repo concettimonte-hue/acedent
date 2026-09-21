@@ -20,6 +20,9 @@ import {
 } from '@/lib/work-seo';
 import { getWorksCanonicalPath } from '@/lib/work-routes';
 import { getWorkPartLandingPath } from '@/lib/work-landings';
+import { getImageRightsMetadata } from '@/lib/image-rights';
+
+const imageRightsMetadata = getImageRightsMetadata(siteUrl);
 
 export interface WorkMetadata {
   title: string;
@@ -73,6 +76,7 @@ export function getWorkImageJsonLd(work: WorkItem) {
     width: 1200,
     height: 630,
     representativeOfPage: true,
+    ...imageRightsMetadata,
   }] : [];
   const partImages = work.parts.flatMap((part, partIndex) => [
     ...(['전', '후'] as const).map((state) => {
@@ -87,6 +91,7 @@ export function getWorkImageJsonLd(work: WorkItem) {
         width: 1600,
         height: 1200,
         representativeOfPage: !work.ogImage && partIndex === 0 && state === '후',
+        ...imageRightsMetadata,
       };
     }),
     ...(part.gallery ?? []).map((galleryImage, imageIndex) => ({
@@ -101,6 +106,7 @@ export function getWorkImageJsonLd(work: WorkItem) {
       width: galleryImage.width,
       height: galleryImage.height,
       representativeOfPage: false,
+      ...imageRightsMetadata,
     })),
   ]);
   const workGalleryImages = (work.gallery ?? []).map((galleryImage, imageIndex) => ({
@@ -115,6 +121,7 @@ export function getWorkImageJsonLd(work: WorkItem) {
     width: galleryImage.width,
     height: galleryImage.height,
     representativeOfPage: false,
+    ...imageRightsMetadata,
   }));
 
   return {

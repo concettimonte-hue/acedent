@@ -268,6 +268,7 @@ export default function CaseGallery() {
                 afterSrc={selectedPart.after}
                 beforeAlt={getWorkImageAlt(selectedCase, selectedPart, '전')}
                 afterAlt={getWorkImageAlt(selectedCase, selectedPart, '후')}
+                beforeAnnotations={selectedPart.beforeAnnotations}
                 mode={selectedCase.sliderType}
                 enableZoom
               />

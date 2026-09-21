@@ -4,12 +4,15 @@ import { useCallback, useRef, useState, type KeyboardEvent, type PointerEvent } 
 import { ZoomIn } from 'lucide-react';
 import ImageZoomViewer from '@/components/ImageZoomViewer';
 import type { BeforeAfterMode } from '@/content/types';
+import ImageAnnotations from '@/components/ImageAnnotations';
+import type { WorkImageAnnotation } from '@/content/works/types';
 
 interface BeforeAfterSliderProps {
   beforeSrc: string;
   afterSrc: string;
   beforeAlt: string;
   afterAlt: string;
+  beforeAnnotations?: readonly WorkImageAnnotation[];
   mode: BeforeAfterMode;
   priority?: boolean;
   showHint?: boolean;
@@ -24,6 +27,7 @@ export default function BeforeAfterSlider({
   afterSrc,
   beforeAlt,
   afterAlt,
+  beforeAnnotations = [],
   mode,
   priority = false,
   showHint = false,
@@ -84,6 +88,7 @@ export default function BeforeAfterSlider({
             loading="lazy"
             decoding="async"
           />
+          <ImageAnnotations annotations={beforeAnnotations} />
           <span className="comparison-label comparison-label-before">
             BEFORE
           </span>
@@ -128,6 +133,7 @@ export default function BeforeAfterSlider({
         decoding={priority ? undefined : 'async'}
         fetchPriority={priority ? 'high' : undefined}
       />
+      <ImageAnnotations annotations={beforeAnnotations} />
       <div
         className="comparison-after-layer"
         style={{ clipPath: `inset(0 0 0 ${position}%)` }}
@@ -175,6 +181,7 @@ export default function BeforeAfterSlider({
         afterSrc={afterSrc}
         beforeAlt={beforeAlt}
         afterAlt={afterAlt}
+        beforeAnnotations={beforeAnnotations}
         onClose={closeZoom}
       />
     </div>

@@ -42,6 +42,7 @@ import {
   getWorkPrimaryPart,
 } from './lib/work-images';
 import { workMatchesCategory } from './lib/work-categories';
+import { getImageRightsMetadata } from './lib/image-rights';
 import { selectRelatedWorkSuggestions } from './lib/work-related';
 import {
   getWorkPartLandings,
@@ -50,6 +51,7 @@ import {
 
 const projectDirectory = fileURLToPath(new URL('.', import.meta.url));
 const sitemapFallbackDate = '2026-09-08';
+const imageRightsMetadata = getImageRightsMetadata(siteUrl);
 
 interface BuildWork extends WorkItem {
   sourceFile: string;
@@ -300,6 +302,7 @@ function getWorkImageJsonLd(work: WorkItem) {
     width: 1200,
     height: 630,
     representativeOfPage: true,
+    ...imageRightsMetadata,
   }] : [];
   const partImages = work.parts.flatMap((part, partIndex) => [
     ...(['전', '후'] as const).map((state) => {
@@ -316,6 +319,7 @@ function getWorkImageJsonLd(work: WorkItem) {
         width: 1600,
         height: 1200,
         representativeOfPage: !work.ogImage && partIndex === 0 && state === '후',
+        ...imageRightsMetadata,
       };
     }),
     ...(part.gallery ?? []).map((galleryImage, imageIndex) => ({
@@ -330,6 +334,7 @@ function getWorkImageJsonLd(work: WorkItem) {
       width: galleryImage.width,
       height: galleryImage.height,
       representativeOfPage: false,
+      ...imageRightsMetadata,
     })),
   ]);
   const workGalleryImages = (work.gallery ?? []).map((galleryImage, imageIndex) => ({
@@ -344,6 +349,7 @@ function getWorkImageJsonLd(work: WorkItem) {
     width: galleryImage.width,
     height: galleryImage.height,
     representativeOfPage: false,
+    ...imageRightsMetadata,
   }));
 
   return {

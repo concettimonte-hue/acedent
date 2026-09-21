@@ -72,6 +72,22 @@ export interface WorkGalleryImage {
   height: number;
 }
 
+export type WorkImageAnnotation =
+  | {
+      type: 'circle';
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }
+  | {
+      type: 'arrow';
+      startX: number;
+      startY: number;
+      endX: number;
+      endY: number;
+    };
+
 export interface WorkPartMedia {
   /** 이 사진 묶음에서 실제로 작업한 부위. 1~3개이며 /works 필터에 사용합니다. */
   part?: WorkPartValue[];
@@ -81,6 +97,8 @@ export interface WorkPartMedia {
   category?: WorkCategory;
   label: string;
   before: string;
+  /** BEFORE 사진 위에 표시하는 비파괴 손상 위치 좌표입니다. */
+  beforeAnnotations?: WorkImageAnnotation[];
   after: string;
   thumbnail?: string;
   /** 이 PART의 다른 각도·작업 과정·마감 사진입니다. 전후 비교와 필터에는 관여하지 않습니다. */

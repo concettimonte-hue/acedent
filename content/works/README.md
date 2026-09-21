@@ -10,6 +10,7 @@
 4. 첫 번째 `parts` 항목의 `after` 사진이 목록 대표 이미지가 됩니다. 800×600px 썸네일은 같은 이름에서 `-after`를 뺀 뒤 `public/works/thumbnails`에 저장합니다. 예: `bmw-door-after.jpg` → `thumbnails/bmw-door.jpg`.
 5. 아래 템플릿을 복사해 이 폴더에 `YYYY-MM-DD-slug.json` 형식으로 저장합니다.
 6. 최상위 `part[0]`은 slug와 카드 배지에 쓰이는 주 부위입니다. 각 사진 묶음의 `parts[].part`에는 실제 작업 부위를 최대 3개까지 넣으며 `/works` 부위 필터는 이 값을 합산합니다. 범퍼·도어·휀더의 앞·뒤가 명확하면 `parts[].position`에 `front` 또는 `rear`를 선택적으로 넣습니다. 공개 필터는 계속 넓은 부위명만 사용하고, 구조화 위치는 신규 slug·PART 제목·이미지 ALT에만 반영됩니다. `parts[].category`에는 해당 사진 묶음에 실제로 적용한 작업 방식만 선택합니다. 기존 사례처럼 값이 없으면 대표 작업으로 추정하지 않습니다. `subParts`는 상세 표시와 검색에만 쓰이고 부위 필터에는 포함되지 않습니다. 보조 작업 `subCategories`와 보조 부위 `subParts`는 각각 최대 2개입니다.
+   관리자에서 BEFORE 사진의 `손상 위치 표시`를 사용하면 원·화살표 좌표가 `parts[].beforeAnnotations`에 저장됩니다. 사진 원본은 바뀌지 않으며 BEFORE 사진을 교체하면 기존 표시는 자동으로 초기화됩니다.
 7. `featured`를 `true`로 하면 메인 대표 사례 후보가 됩니다. 메인에는 `featuredOrder` 순서로 최대 8건만 표시됩니다.
 8. `npm run build`와 `npx tsc --noEmit`이 통과하면 `main`에 반영합니다.
 
@@ -57,6 +58,9 @@
       "category": "panel-paint",
       "label": "앞도어 · 앞휀더 조수석 측면",
       "before": "/works/bmw-door-before.jpg",
+      "beforeAnnotations": [
+        { "type": "circle", "x": 0.55, "y": 0.38, "width": 0.2, "height": 0.18 }
+      ],
       "after": "/works/bmw-door-after.jpg",
       "note": "문콕 눌림과 도장 손상"
     }

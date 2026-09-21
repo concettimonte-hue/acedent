@@ -15,6 +15,7 @@ import generatedWorksData from '@/content/works.generated.json';
 import { workMatchesCategory } from '@/lib/work-categories';
 import { formatWorkCardParts } from '@/lib/work-parts';
 import { selectRelatedWorkSuggestions } from '@/lib/work-related';
+import { parseWorkImageAnnotations } from '@/lib/work-annotations';
 
 interface GeneratedWorkRecord {
   sourceFile: string;
@@ -161,6 +162,10 @@ function parseWork(value: unknown, fileName: string): WorkItem {
       category: partCategory,
       label: requireString(part.label, `parts[${index}].label`, fileName),
       before: requireString(part.before, `parts[${index}].before`, fileName),
+      beforeAnnotations: parseWorkImageAnnotations(
+        part.beforeAnnotations,
+        `${fileName}: parts[${index}].beforeAnnotations`,
+      ),
       after: requireString(part.after, `parts[${index}].after`, fileName),
       thumbnail:
         typeof part.thumbnail === 'string' && part.thumbnail.trim()

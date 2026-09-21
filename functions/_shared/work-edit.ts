@@ -15,6 +15,7 @@ import {
   type WorkPartValue,
 } from '../../content/works/types';
 import { getWorkSeoCopy } from '../../lib/work-seo';
+import { parseWorkImageAnnotations } from '../../lib/work-annotations';
 import { cleanPublicBase, json, type AdminEnv } from './admin';
 
 interface AssetRow {
@@ -34,6 +35,7 @@ interface AssetReference {
 
 interface PartInput {
   part?: unknown;
+  beforeAnnotations?: unknown;
   position?: unknown;
   category?: unknown;
   detail?: unknown;
@@ -233,7 +235,11 @@ export async function getWorkForEdit(env: AdminEnv, slug: string) {
       ...storedWork,
       subCategories: storedWork.subCategories ?? [],
       subParts: storedWork.subParts ?? [],
-      parts: storedWork.parts.map((part) => ({ ...part, gallery: part.gallery ?? [] })),
+      parts: storedWork.parts.map((part) => ({
+        ...part,
+        beforeAnnotations: part.beforeAnnotations ?? [],
+        gallery: part.gallery ?? [],
+      })),
       gallery: storedWork.gallery ?? [],
     };
     const assets = await env.ACEDENT_DB.prepare(
@@ -280,6 +286,7 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
             ? part.label.trim()
             : formatWorkPartLabel(workParts, undefined, detail),
         note: required(part.note, `${index + 1}번 부위 설명`, 300),
+        beforeAnnotations: parseWorkImageAnnotations(part.beforeAnnotations, `${index + 1}번 PART 손상 위치 표시`),
         before: part.before,
         after: part.after,
         thumbnail: part.thumbnail,
@@ -340,6 +347,7 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
         category: part.category,
         label: part.label,
         before: assetUrl(publicBase, before.object_key),
+        beforeAnnotations: part.beforeAnnotations.length > 0 ? part.beforeAnnotations : undefined,
         after: assetUrl(publicBase, after.object_key),
         thumbnail: assetUrl(publicBase, thumbnail.object_key),
         note: part.note,

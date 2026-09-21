@@ -10,7 +10,9 @@ import {
   type SyntheticEvent,
 } from 'react';
 import { ArrowLeft, ArrowUpRight, ImagePlus, Plus, Trash2, UploadCloud, X } from 'lucide-react';
+import AdminDamageAnnotationEditor from '@/components/AdminDamageAnnotationEditor';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
+import ImageAnnotations from '@/components/ImageAnnotations';
 import AdminGalleryEditor, { type AdminGalleryItemView } from '@/components/AdminGalleryEditor';
 import WorkCard from '@/components/WorkCard';
 import WorkClassification from '@/components/WorkClassification';
@@ -31,17 +33,20 @@ import {
   type WorkCategory,
   type WorkGalleryImage,
   type WorkItem,
+  type WorkImageAnnotation,
   type WorkPart,
   type WorkPartPosition,
   type WorkPartValue,
 } from '@/content/works/types';
 import { getWorkImageAlt } from '@/lib/work-images';
+import { imageWatermarkIconPath, imageWatermarkText } from '@/lib/image-rights';
 import { getWorkSeoCopy, getWorkSeoWarnings } from '@/lib/work-seo';
 import { getWorks } from '@/lib/works';
 import { siteUrl } from '@/lib/seo';
 
 interface ProcessedImage {
   blob: Blob;
+  sourceBlob?: Blob;
   preview: string;
   bytes: number;
   width: number;
@@ -78,6 +83,7 @@ interface PartDraft {
   label: string;
   note: string;
   before?: ImageDraft;
+  beforeAnnotations: WorkImageAnnotation[];
   after?: ImageDraft;
   thumbnail?: ImageDraft;
   gallery: GalleryDraft[];
@@ -116,6 +122,7 @@ function newPart(): PartDraft {
     detail: '',
     label: '범퍼',
     note: '',
+    beforeAnnotations: [],
     gallery: [],
   };
 }
@@ -183,7 +190,84 @@ function canvasBlob(canvas: HTMLCanvasElement, maxBytes: number) {
   });
 }
 
-async function processImage(file: File, width: number, height: number, maxBytes: number) {
+let watermarkIconPromise: Promise<HTMLImageElement | null> | undefined;
+
+function loadWatermarkIcon() {
+  watermarkIconPromise ??= new Promise((resolve) => {
+    const image = new window.Image();
+    image.decoding = 'async';
+    image.onload = () => resolve(image);
+    image.onerror = () => resolve(null);
+    image.src = imageWatermarkIconPath;
+  });
+  return watermarkIconPromise;
+}
+
+function roundedRectPath(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
+  const corner = Math.min(radius, width / 2, height / 2);
+  context.beginPath();
+  context.moveTo(x + corner, y);
+  context.arcTo(x + width, y, x + width, y + height, corner);
+  context.arcTo(x + width, y + height, x, y + height, corner);
+  context.arcTo(x, y + height, x, y, corner);
+  context.arcTo(x, y, x + width, y, corner);
+  context.closePath();
+}
+
+async function drawImageWatermark(
+  canvas: HTMLCanvasElement,
+  context: CanvasRenderingContext2D,
+) {
+  const shortSide = Math.min(canvas.width, canvas.height);
+  const margin = Math.round(Math.min(28, Math.max(10, shortSide * 0.02)));
+  const badgeHeight = Math.round(Math.min(62, Math.max(34, shortSide * 0.05)));
+  const fontSize = Math.round(Math.min(22, Math.max(12, shortSide * 0.018)));
+  const padding = Math.round(badgeHeight * 0.22);
+  const iconSize = badgeHeight - padding * 2;
+  const gap = Math.round(badgeHeight * 0.16);
+  const icon = await loadWatermarkIcon();
+
+  context.save();
+  context.font = `700 ${fontSize}px Arial, sans-serif`;
+  context.textBaseline = 'middle';
+  const textWidth = context.measureText(imageWatermarkText).width;
+  const badgeWidth = Math.ceil(padding * 2 + textWidth + (icon ? iconSize + gap : 0));
+  const x = canvas.width - margin - badgeWidth;
+  const y = canvas.height - margin - badgeHeight;
+
+  roundedRectPath(context, x, y, badgeWidth, badgeHeight, badgeHeight / 2);
+  context.fillStyle = 'rgba(5, 6, 5, 0.66)';
+  context.fill();
+  context.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+  context.lineWidth = Math.max(1, Math.round(shortSide / 900));
+  context.stroke();
+
+  let textX = x + padding;
+  if (icon) {
+    context.globalAlpha = 0.94;
+    context.drawImage(icon, textX, y + padding, iconSize, iconSize);
+    context.globalAlpha = 1;
+    textX += iconSize + gap;
+  }
+  context.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  context.fillText(imageWatermarkText, textX, y + badgeHeight / 2 + 0.5);
+  context.restore();
+}
+
+async function processImage(
+  file: File,
+  width: number,
+  height: number,
+  maxBytes: number,
+  options: { keepCleanSource?: boolean } = {},
+): Promise<ProcessedImage> {
   const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
   const canvas = document.createElement('canvas');
   canvas.width = width;
@@ -206,11 +290,13 @@ async function processImage(file: File, width: number, height: number, maxBytes:
   }
   context.drawImage(bitmap, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, width, height);
   bitmap.close();
+  const sourceBlob = options.keepCleanSource ? await canvasBlob(canvas, maxBytes) : undefined;
+  await drawImageWatermark(canvas, context);
   const blob = await canvasBlob(canvas, maxBytes);
-  return { blob, preview: URL.createObjectURL(blob), bytes: blob.size, width, height };
+  return { blob, sourceBlob, preview: URL.createObjectURL(blob), bytes: blob.size, width, height };
 }
 
-async function processGalleryImage(file: File) {
+async function processGalleryImage(file: File): Promise<ProcessedImage> {
   const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
   const scale = Math.min(1, 1600 / bitmap.width, 1600 / bitmap.height);
   const width = Math.max(1, Math.round(bitmap.width * scale));
@@ -225,14 +311,92 @@ async function processGalleryImage(file: File) {
   }
   context.drawImage(bitmap, 0, 0, width, height);
   bitmap.close();
+  await drawImageWatermark(canvas, context);
   const blob = await canvasBlob(canvas, 200_000);
   return { blob, preview: URL.createObjectURL(blob), bytes: blob.size, width, height };
 }
 
-async function createOgImage(before: ProcessedImage, after: ProcessedImage) {
+interface CoverMapping {
+  sourceWidth: number;
+  sourceHeight: number;
+  sourceX: number;
+  sourceY: number;
+  targetX: number;
+  targetY: number;
+  targetWidth: number;
+  targetHeight: number;
+  bitmapWidth: number;
+  bitmapHeight: number;
+}
+
+function drawCanvasAnnotations(
+  context: CanvasRenderingContext2D,
+  annotations: readonly WorkImageAnnotation[],
+  mapping: CoverMapping,
+) {
+  const mapX = (value: number) => mapping.targetX
+    + ((value * mapping.bitmapWidth - mapping.sourceX) / mapping.sourceWidth) * mapping.targetWidth;
+  const mapY = (value: number) => mapping.targetY
+    + ((value * mapping.bitmapHeight - mapping.sourceY) / mapping.sourceHeight) * mapping.targetHeight;
+
+  context.save();
+  context.beginPath();
+  context.rect(mapping.targetX, mapping.targetY, mapping.targetWidth, mapping.targetHeight);
+  context.clip();
+  context.lineCap = 'round';
+  context.lineJoin = 'round';
+
+  for (const annotation of annotations) {
+    if (annotation.type === 'circle') {
+      const left = mapX(annotation.x);
+      const top = mapY(annotation.y);
+      const right = mapX(annotation.x + annotation.width);
+      const bottom = mapY(annotation.y + annotation.height);
+      context.beginPath();
+      context.ellipse((left + right) / 2, (top + bottom) / 2, Math.abs(right - left) / 2, Math.abs(bottom - top) / 2, 0, 0, Math.PI * 2);
+      context.strokeStyle = 'rgba(3, 4, 3, 0.9)';
+      context.lineWidth = 10;
+      context.stroke();
+      context.strokeStyle = '#f8db00';
+      context.lineWidth = 5;
+      context.stroke();
+      continue;
+    }
+
+    const startX = mapX(annotation.startX);
+    const startY = mapY(annotation.startY);
+    const endX = mapX(annotation.endX);
+    const endY = mapY(annotation.endY);
+    const angle = Math.atan2(endY - startY, endX - startX);
+    const drawArrow = (color: string, lineWidth: number, headSize: number) => {
+      context.beginPath();
+      context.moveTo(startX, startY);
+      context.lineTo(endX, endY);
+      context.strokeStyle = color;
+      context.lineWidth = lineWidth;
+      context.stroke();
+      context.beginPath();
+      context.moveTo(endX, endY);
+      context.lineTo(endX + Math.cos(angle + Math.PI * 0.82) * headSize, endY + Math.sin(angle + Math.PI * 0.82) * headSize);
+      context.lineTo(endX + Math.cos(angle - Math.PI * 0.82) * headSize, endY + Math.sin(angle - Math.PI * 0.82) * headSize);
+      context.closePath();
+      context.fillStyle = color;
+      context.fill();
+    };
+    drawArrow('rgba(3, 4, 3, 0.9)', 12, 38);
+    drawArrow('#f8db00', 6, 28);
+  }
+  context.restore();
+}
+
+async function createOgImage(
+  before: ProcessedImage,
+  after: ProcessedImage,
+  beforeAnnotations: readonly WorkImageAnnotation[] = [],
+): Promise<ProcessedImage> {
   const [beforeBitmap, afterBitmap] = await Promise.all([
-    createImageBitmap(before.blob),
-    createImageBitmap(after.blob),
+    createImageBitmap(before.sourceBlob ?? before.blob),
+    createImageBitmap(after.sourceBlob ?? after.blob),
   ]);
   try {
     const canvas = document.createElement('canvas');
@@ -241,7 +405,7 @@ async function createOgImage(before: ProcessedImage, after: ProcessedImage) {
     const context = canvas.getContext('2d', { alpha: false });
     if (!context) throw new Error('이 브라우저에서 공유 이미지를 만들 수 없습니다.');
 
-    const drawCover = (bitmap: ImageBitmap, x: number) => {
+    const drawCover = (bitmap: ImageBitmap, x: number): CoverMapping => {
       const targetWidth = 600;
       const targetHeight = 630;
       const sourceRatio = bitmap.width / bitmap.height;
@@ -258,10 +422,23 @@ async function createOgImage(before: ProcessedImage, after: ProcessedImage) {
         sourceY = (bitmap.height - sourceHeight) / 2;
       }
       context.drawImage(bitmap, sourceX, sourceY, sourceWidth, sourceHeight, x, 0, targetWidth, targetHeight);
+      return {
+        sourceWidth,
+        sourceHeight,
+        sourceX,
+        sourceY,
+        targetX: x,
+        targetY: 0,
+        targetWidth,
+        targetHeight,
+        bitmapWidth: bitmap.width,
+        bitmapHeight: bitmap.height,
+      };
     };
 
-    drawCover(beforeBitmap, 0);
+    const beforeMapping = drawCover(beforeBitmap, 0);
     drawCover(afterBitmap, 600);
+    drawCanvasAnnotations(context, beforeAnnotations, beforeMapping);
     context.fillStyle = '#f8db00';
     context.fillRect(596, 0, 8, 630);
     context.font = '700 22px Arial, sans-serif';
@@ -275,6 +452,7 @@ async function createOgImage(before: ProcessedImage, after: ProcessedImage) {
     context.fillStyle = '#050605';
     context.fillText('AFTER', 1067, 44);
 
+    await drawImageWatermark(canvas, context);
     const blob = await canvasBlob(canvas, 200_000);
     return { blob, preview: URL.createObjectURL(blob), bytes: blob.size, width: 1200, height: 630 };
   } finally {
@@ -349,6 +527,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
   const [dragTarget, setDragTarget] = useState('');
   const [loadingWork, setLoadingWork] = useState(editing);
   const [workLoaded, setWorkLoaded] = useState(!editing);
+  const [annotationEditorPartId, setAnnotationEditorPartId] = useState('');
 
   useEffect(() => {
     setSubCategories((current) =>
@@ -439,6 +618,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
             detail: parsed.detail,
             label: media.label,
             note: media.note,
+            beforeAnnotations: media.beforeAnnotations ?? [],
             before: { key: beforeAsset.object_key, preview: media.before, bytes: beforeAsset.bytes || 0, width: beforeAsset.width, height: beforeAsset.height },
             after: { key: afterAsset.object_key, preview: media.after, bytes: afterAsset.bytes || 0, width: afterAsset.width, height: afterAsset.height },
             thumbnail: {
@@ -495,6 +675,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
       after: part.after?.preview || '',
       thumbnail: part.thumbnail?.preview,
       note: part.note || '부위 설명 미리보기',
+      beforeAnnotations: part.beforeAnnotations,
       gallery: galleryPreview(part.gallery),
     })),
     ogImage: ogImage?.preview,
@@ -595,8 +776,9 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
       if (part.id !== id) return part;
       return kind === 'after'
         ? { ...part, after: undefined, thumbnail: undefined }
-        : { ...part, before: undefined };
+        : { ...part, before: undefined, beforeAnnotations: [] };
     }));
+    if (kind === 'before') setAnnotationEditorPartId((current) => (current === id ? '' : current));
   };
 
   const chooseImage = async (id: string, kind: 'before' | 'after', file?: File) => {
@@ -604,9 +786,10 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     setError('');
     updatePart(id, { processing: kind });
     try {
-      const main = await processImage(file, 1600, 1200, 200_000);
+      const main = await processImage(file, 1600, 1200, 200_000, { keepCleanSource: true });
       if (kind === 'before') {
-        updatePart(id, { before: main, processing: undefined });
+        updatePart(id, { before: main, beforeAnnotations: [], processing: undefined });
+        setAnnotationEditorPartId(id);
       } else {
         const thumbnail = await processImage(file, 800, 600, 120_000);
         updatePart(id, { after: main, thumbnail, processing: undefined });
@@ -838,7 +1021,11 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
       }
       const replaceOgImage = hasNewBefore || hasNewAfter;
       const nextOgImage = hasNewBefore && hasNewAfter
-        ? await createOgImage(firstPart.before as ProcessedImage, firstPart.after as ProcessedImage)
+        ? await createOgImage(
+            firstPart.before as ProcessedImage,
+            firstPart.after as ProcessedImage,
+            firstPart.beforeAnnotations,
+          )
         : replaceOgImage
           ? undefined
           : ogImage;
@@ -885,6 +1072,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           detail: part.detail,
           label: part.label,
           note: part.note,
+          beforeAnnotations: part.beforeAnnotations,
           before: await upload(part.before!, 'before'),
           after: await upload(part.after!, 'after'),
           thumbnail: await upload(part.thumbnail!, 'thumbnail'),
@@ -1038,7 +1226,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
 
           <section className="admin-panel">
             <div className="admin-panel-heading"><span>02</span><h2>부위별 전후 사진</h2></div>
-            <p className="admin-help">사진 방향을 바로잡고 4:3으로 맞춘 뒤 1600×1200, 200KB 이하로 자동 처리합니다. 전체 광택은 부위에서 ‘차량 전체’를 선택하고 PART 작업 방식을 함께 지정하세요.</p>
+            <p className="admin-help">사진 방향을 바로잡고 4:3으로 맞춘 뒤 1600×1200, 200KB 이하로 자동 처리하며 작은 출처 표시를 넣습니다. 전체 광택은 부위에서 ‘차량 전체’를 선택하고 PART 작업 방식을 함께 지정하세요.</p>
             <div className="admin-parts">
               {parts.map((part, index) => (
                 <fieldset className="admin-part" key={part.id}>
@@ -1110,7 +1298,12 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
                             void chooseImage(part.id, kind, event.currentTarget.files?.[0]);
                             event.currentTarget.value = '';
                           }} />
-                          {selected ? <img src={selected.preview} alt={`${part.label || '작업 부위'} ${kind === 'before' ? '작업 전' : '작업 후'} 미리보기`} width="1600" height="1200" /> : <ImagePlus aria-hidden="true" />}
+                          {selected ? (
+                            <>
+                              <img src={selected.preview} alt={`${part.label || '작업 부위'} ${kind === 'before' ? '작업 전' : '작업 후'} 미리보기`} width="1600" height="1200" />
+                              {kind === 'before' && <ImageAnnotations annotations={part.beforeAnnotations} />}
+                            </>
+                          ) : <ImagePlus aria-hidden="true" />}
                           <strong>{kind === 'before' ? 'BEFORE' : 'AFTER'}</strong>
                           <span>{dragging ? '여기에 놓으세요' : part.processing === kind ? '사진 처리 중…' : selected ? `${selected.bytes ? `${Math.ceil(selected.bytes / 1024)}KB` : '현재 이미지'} · 다시 선택하거나 끌어놓기` : '촬영·갤러리 선택 / PC는 끌어놓기'}</span>
                         </label>
@@ -1118,6 +1311,27 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
                       </div>;
                     })}
                   </div>
+                  {part.before && (
+                    <div className="admin-annotation-block">
+                      <button
+                        type="button"
+                        className="admin-annotation-toggle"
+                        aria-expanded={annotationEditorPartId === part.id}
+                        onClick={() => setAnnotationEditorPartId((current) => current === part.id ? '' : part.id)}
+                      >
+                        <span>손상 위치 표시 <small>선택</small></span>
+                        <strong>{part.beforeAnnotations.length > 0 ? `${part.beforeAnnotations.length}개 표시됨` : '원·화살표 추가'}</strong>
+                      </button>
+                      {annotationEditorPartId === part.id && (
+                        <AdminDamageAnnotationEditor
+                          imageSrc={part.before.preview}
+                          imageAlt={`${part.label || '작업 부위'} 작업 전 손상 표시 편집`}
+                          annotations={part.beforeAnnotations}
+                          onChange={(beforeAnnotations) => updatePart(part.id, { beforeAnnotations })}
+                        />
+                      )}
+                    </div>
+                  )}
                   <AdminGalleryEditor
                     title="PART 추가 사진"
                     description="전·후 비교 외에 가까운 손상, 작업 과정, 마감 상태를 보충합니다. 원본 비율은 유지됩니다."
@@ -1214,7 +1428,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
             <div className="work-detail-parts">
               {previewWork.parts.map((part, index) => <section className="work-detail-part" key={`${part.label}-${index}`}>
                 <header className="work-detail-part-heading"><span>PART {String(index + 1).padStart(2, '0')}{part.category && ` · ${getWorkCategoryLabel(part.category)}`}</span><h2>{part.label}</h2><p>{part.note}</p></header>
-                {part.before && part.after ? <div className="work-detail-slider"><BeforeAfterSlider beforeSrc={part.before} afterSrc={part.after} beforeAlt={getWorkImageAlt(previewWork, part, '전')} afterAlt={getWorkImageAlt(previewWork, part, '후')} mode="drag" /></div> : <div className="admin-preview-empty">전·후 사진을 선택하면 비교 슬라이더가 표시됩니다.</div>}
+                {part.before && part.after ? <div className="work-detail-slider"><BeforeAfterSlider beforeSrc={part.before} afterSrc={part.after} beforeAlt={getWorkImageAlt(previewWork, part, '전')} afterAlt={getWorkImageAlt(previewWork, part, '후')} beforeAnnotations={part.beforeAnnotations} mode="drag" /></div> : <div className="admin-preview-empty">전·후 사진을 선택하면 비교 슬라이더가 표시됩니다.</div>}
                 {part.gallery && part.gallery.length > 0 && <WorkPhotoGallery images={part.gallery} work={previewWork} part={part} title="해당 부위 사진 더 보기" compact />}
               </section>)}
             </div>

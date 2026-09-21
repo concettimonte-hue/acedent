@@ -1,6 +1,105 @@
 {
   "records": [
     {
+      "sourceFile": "d1:hyundai-santafe-mx5-trunk-panel-paint-2",
+      "lastModified": "2026-09-21",
+      "work": {
+        "slug": "hyundai-santafe-mx5-trunk-panel-paint-2",
+        "date": "2026-09-21",
+        "title": "트렁크 중앙부 및 뒤휀더 찌그러짐 판금도색 복원",
+        "category": "panel-paint",
+        "subCategories": [],
+        "part": [
+          "트렁크"
+        ],
+        "subParts": [],
+        "carMaker": "현대",
+        "carModel": "디 올 뉴 싼타페 (MX5)",
+        "color": "화이트펄",
+        "parts": [
+          {
+            "part": [
+              "트렁크"
+            ],
+            "category": "panel-paint",
+            "label": "트렁크 중앙 및 하단",
+            "before": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/01-image-thumbnail.jpg",
+            "note": "레터링(SANTA FE) 사이와 트렁크 하단 철판이 충격으로 깊게 찌그러진 상태. 부품 교환 대신 판금 공정으로 넒은 면의 철판 장력을 서서히 회복하여 디 올 뉴 싼타페 고유의 직선 형태를 다듬어냄.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/01-gallery-1-420cd8c1-f3e4-44e4-bdf7-09555944d699-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/01-gallery-1-420cd8c1-f3e4-44e4-bdf7-09555944d699-gallery-thumbnail.jpg",
+                "width": 1400,
+                "height": 1050
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/01-gallery-2-ceb6f014-4627-47bc-ba2b-b65ffe5bb4a9-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/01-gallery-2-ceb6f014-4627-47bc-ba2b-b65ffe5bb4a9-gallery-thumbnail.jpg",
+                "width": 1400,
+                "height": 1050
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/01-gallery-3-389ad562-fa91-462d-b65a-ad278806ace2-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/01-gallery-3-389ad562-fa91-462d-b65a-ad278806ace2-gallery-thumbnail.jpg",
+                "width": 1400,
+                "height": 1050
+              }
+            ]
+          },
+          {
+            "part": [
+              "휀더"
+            ],
+            "position": "rear",
+            "category": "panel-paint",
+            "label": "뒤휀더 측면 찌그러짐 및 조립 단차",
+            "before": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/02-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/02-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/02-image-thumbnail.jpg",
+            "note": "트렁크와 맞닿는 뒤휀더 끝단 모서리 철판이 둔탁하게 밀려 들어간 손상. 주변 패널과의 틈새(유격)를 교정하는 정밀 판금을 진행한 뒤, 조색 열처리 도장을 적용하여 이색 현상이나 이질감 없는 매끄러운 측면 라인으로 복원 완료함.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/02-gallery-1-95da56b5-d78f-4569-957c-ea23893d1af7-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/02-gallery-1-95da56b5-d78f-4569-957c-ea23893d1af7-gallery-thumbnail.jpg",
+                "width": 1400,
+                "height": 1050
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/02-gallery-2-0ee3de62-0b37-4a1b-8144-0b8bc9546e08-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/02-gallery-2-0ee3de62-0b37-4a1b-8144-0b8bc9546e08-gallery-thumbnail.jpg",
+                "width": 1400,
+                "height": 1050
+              }
+            ]
+          }
+        ],
+        "ogImage": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/21-share-card-og-image.jpg",
+        "gallery": [
+          {
+            "src": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/21-gallery-1-02bf10ec-aa29-4e4b-ba33-6a34268f435c-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/21-gallery-1-02bf10ec-aa29-4e4b-ba33-6a34268f435c-gallery-thumbnail.jpg",
+            "caption": "판금작업",
+            "width": 1400,
+            "height": 1050
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/21-gallery-2-3e25cfeb-fc58-4324-8050-4eff0a2cc262-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/87d48967-3ae4-48f1-8b9d-f621524b6032/21-gallery-2-3e25cfeb-fc58-4324-8050-4eff0a2cc262-gallery-thumbnail.jpg",
+            "caption": "도장작업",
+            "width": 1400,
+            "height": 1050
+          }
+        ],
+        "summary": "후면부 충격으로 인해 굴곡이 무너진 신형 싼타페(MX5)의 트렁크 중앙부와 뒤휀더 측면 모서리를 부품 교환 없이 정밀 판금도장 공정으로 복원하여 자연스러운 패널 라인을 회복했습니다.",
+        "body": "후방 충돌로 인하여 트렁크(테일게이트) 중앙의 레터링 주변 철판이 깊게 함몰되었으며, 충격이 이어지는 조수석 측 뒤휀더(쿼터패널) 모서리 끝단에도 찌그러짐이 발생한 상태로 입고되었습니다. 특히 디 올 뉴 싼타페 트렁크 중앙부는 넓은 평면과 고유의 캐릭터 라인이 자리 잡고 있어, 공식 센터에서는 어셈블리 전체 통교환을 권장하기 쉬운 복합 손상입니다.   불필요한 부품 교환 비용과 사고차 감가 이력을 방지하고자 기존 패널을 살려내는 판금도장으로 수리 방향을 설정했습니다. 스폿 장비와 수작업 펀칭을 교차 적용하여 트렁크 중앙부의 찌그러진 면을 원래의 굴곡에 가깝게 당겨내고, 뒤휀더와 트렁크가 맞물리는 틈새 단차를 정교하게 교정했습니다. 이후 얇은 아연 퍼티 도포로 겉면의 평활도를 다듬고, 기존 화이트 도막과의 이색 현상을 최소화하기 위한 정밀 조색 및 고온 특수 열처리 건조를 거쳐 이질감 없는 매끄러운 후면부 핏(Fit)으로 마감했습니다.",
+        "featured": false,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    },
+    {
       "sourceFile": "d1:mini-cooper-side-hood-dent",
       "lastModified": "2026-09-21",
       "work": {
@@ -84,6 +183,76 @@
         ],
         "summary": "본넷 측면에 발생한 함몰과 표면 스크래치를 도색 작업(판금도장) 없이 PDR(무판금 덴트) 공법과 폴리싱으로 시공하여, 차량의 순정 도장면을 100% 보존하며 복원했습니다.",
         "body": "조수석 방향 본넷(후드) 측면, 헤드라이트와 휠 아치가 이어지는 라인에 물리적 타격으로 인한 찌그러짐과 도장면 표면 스크래치가 발생하여 입고된 차량입니다. 철판의 굴곡이 무너진 상태이나 페인트 층의 깊은 파손(박리)은 없는 것으로 진단되어, 패널의 오리지널 팩토리 도장을 유지하면서 수리 비용을 절감할 수 있는 PDR(Paintless Dent Repair) 공법으로 작업 방향을 설정했습니다.   덴트 전용 장비를 활용하여 뭉친 철판의 응력을 미세하게 풀어주며 함몰된 부위의 장력을 본래의 곡면으로 정밀하게 교정했습니다. 찌그러짐을 펴낸 후 클리어 코트(투명층) 표면에 남아있는 마찰 흠집(스크래치)은 컴파운드와 듀얼 폴리싱 기기를 이용해 매끄럽게 연마하여 제거했습니다. 재도장 과정을 거치지 않았으므로 인접 패널과의 이색 현상이 전혀 발생하지 않으며, 본연의 맑은 딥그린 색상과 광도를 완벽하게 회복했습니다.",
+        "featured": false,
+        "days": "1일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "d1:tesla-y-model-front-door-panel-paint",
+      "lastModified": "2026-09-21",
+      "work": {
+        "slug": "tesla-y-model-front-door-panel-paint",
+        "date": "2026-09-21",
+        "title": "앞도어 깊은 스크래치 한 판 전체 판금도색",
+        "category": "panel-paint",
+        "subCategories": [],
+        "part": [
+          "도어"
+        ],
+        "subParts": [],
+        "carMaker": "테슬라 (Tesla)",
+        "carModel": "모델 Y (Model Y)",
+        "color": "화이트 펄 계열",
+        "parts": [
+          {
+            "part": [
+              "도어"
+            ],
+            "position": "front",
+            "category": "panel-paint",
+            "label": "앞도어 중앙부",
+            "before": "https://images.acedentshop.co.kr/works/cd003f9f-ea69-46dd-b354-ec95950247c9/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/cd003f9f-ea69-46dd-b354-ec95950247c9/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/cd003f9f-ea69-46dd-b354-ec95950247c9/01-image-thumbnail.jpg",
+            "note": "클리어 코트와 베이스 코트를 관통하여 깊게 파인 날카로운 스크래치 손상. 도막 박리 및 경계선 변색을 방지하기 위해 부분 도장을 배제하고 정밀 판금 후 도어 전체 도장을 시공함. 고온 열처리 공정을 통해 인접 패널과 색상 차이(이색) 없는 매끄럽고 깨끗한 측면 라인을 복원 완료함.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/cd003f9f-ea69-46dd-b354-ec95950247c9/01-gallery-1-19f1300c-2926-460f-a059-518ad40f9551-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/cd003f9f-ea69-46dd-b354-ec95950247c9/01-gallery-1-19f1300c-2926-460f-a059-518ad40f9551-gallery-thumbnail.jpg",
+                "caption": "딥 스크래치",
+                "width": 1400,
+                "height": 1050
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/cd003f9f-ea69-46dd-b354-ec95950247c9/01-gallery-2-87e4469f-50cc-438e-81d0-86139dc33169-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/cd003f9f-ea69-46dd-b354-ec95950247c9/01-gallery-2-87e4469f-50cc-438e-81d0-86139dc33169-gallery-thumbnail.jpg",
+                "caption": "딥 스크래치",
+                "width": 1400,
+                "height": 1050
+              }
+            ]
+          }
+        ],
+        "ogImage": "https://images.acedentshop.co.kr/works/cd003f9f-ea69-46dd-b354-ec95950247c9/21-share-card-og-image.jpg",
+        "gallery": [
+          {
+            "src": "https://images.acedentshop.co.kr/works/cd003f9f-ea69-46dd-b354-ec95950247c9/21-gallery-1-3e5d5046-e983-4335-b1d8-1b36d50acbc8-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/cd003f9f-ea69-46dd-b354-ec95950247c9/21-gallery-1-3e5d5046-e983-4335-b1d8-1b36d50acbc8-gallery-thumbnail.jpg",
+            "caption": "판금작업",
+            "width": 1400,
+            "height": 1050
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/cd003f9f-ea69-46dd-b354-ec95950247c9/21-gallery-2-2196d86a-93b3-4d1a-b923-f16617309642-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/cd003f9f-ea69-46dd-b354-ec95950247c9/21-gallery-2-2196d86a-93b3-4d1a-b923-f16617309642-gallery-thumbnail.jpg",
+            "caption": "도장작업",
+            "width": 1400,
+            "height": 1050
+          }
+        ],
+        "summary": "앞도어 중앙에 발생한 날카롭고 깊은 스크래치 손상을 부분 도장이 아닌 도어 한 판 전체 도장 공정으로 수리하여, 경계선 하자나 이색 없는 균일한 도막을 완성했습니다.",
+        "body": "앞도어 중앙부에 날카로운 물체에 긁혀 도장면이 깊게 파이고 미세한 함몰이 동반된 스크래치 손상으로 입고된 차량입니다. 흠집의 크기 자체는 국소적이지만, 도어처럼 넓고 평평한 패널에 상처 부위만 칠을 끊어치는 '부분 도색'을 시공할 경우 시간이 지나며 구도막과 신도막의 경계선이 하얗게 뜨거나 변색되는 하자가 발생하게 됩니다.   장기적인 내구성을 확보하기 위해 손상 부위의 칠을 벗겨내고 미세 판금과 퍼티 작업으로 면의 평활도를 다듬은 뒤, 앞도어 패널 전체를 도장하는 정석 공정을 채택했습니다. \n\n테슬라 화이트 색상의 미세한 펄 입자와 톤을 맞춘 정밀 조색 도료를 도어 한 판 전체에 고르게 분사하고, 최고급 클리어 코트 도포 후 고온 특수 열처리 건조를 진행했습니다. 그 결과, 인접한 휀더나 뒤도어와 비교해도 이질감이 전혀 없는 맑고 견고한 오리지널 도장면을 회복했습니다.",
         "featured": false,
         "days": "1일",
         "sliderType": "drag"

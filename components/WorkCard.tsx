@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowUpRight } from 'lucide-react';
+import ImageAnnotations from '@/components/ImageAnnotations';
 import WorkVehicleTag from '@/components/WorkVehicleTag';
 import {
   getWorkCategoryLabel,
@@ -65,6 +66,9 @@ export default function WorkCard({
           loading="lazy"
           decoding="async"
         />
+        {imageState === 'before' && (
+          <ImageAnnotations annotations={representativePart.beforeAnnotations} />
+        )}
         <span className="work-card-category">
           {getWorkCategoryLabel(displayedCategory)}
         </span>

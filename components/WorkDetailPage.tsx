@@ -106,6 +106,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
                   afterSrc={resolveWorkImageSrc(part.after)}
                   beforeAlt={getWorkImageAlt(work, part, '전')}
                   afterAlt={getWorkImageAlt(work, part, '후')}
+                  beforeAnnotations={part.beforeAnnotations}
                   mode={work.sliderType}
                   priority={index === 0}
                   showHint={work.sliderType === 'drag'}

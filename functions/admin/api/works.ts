@@ -15,6 +15,7 @@ import {
   type WorkPartValue,
 } from '../../../content/works/types';
 import { getWorkSeoCopy } from '../../../lib/work-seo';
+import { parseWorkImageAnnotations } from '../../../lib/work-annotations';
 import {
   cleanPublicBase,
   json,
@@ -35,6 +36,7 @@ interface GalleryInput {
 
 interface PartInput {
   part: unknown;
+  beforeAnnotations?: unknown;
   position?: unknown;
   category?: unknown;
   detail: string;
@@ -308,6 +310,7 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
         category: normalizePartCategory(part.category, index),
         detail: typeof part.detail === 'string' ? part.detail.trim() : '',
         note: required(part.note, `${index + 1}번 부위 설명`, 300),
+        beforeAnnotations: parseWorkImageAnnotations(part.beforeAnnotations, `${index + 1}번 PART 손상 위치 표시`),
         gallery: normalizeGallery(part.gallery, `${index + 1}번 PART 추가 사진`),
       };
     });
@@ -362,6 +365,7 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
         category: part.category,
         label: formatWorkPartLabel(part.part, part.position, part.detail),
         before: assetUrl(publicBase, before.key),
+        beforeAnnotations: part.beforeAnnotations.length > 0 ? part.beforeAnnotations : undefined,
         after: assetUrl(publicBase, after.key),
         thumbnail: assetUrl(publicBase, thumbnail.key),
         note: part.note,

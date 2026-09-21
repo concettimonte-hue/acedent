@@ -12,6 +12,8 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { Minus, Plus, RotateCcw, X } from 'lucide-react';
+import ImageAnnotations from '@/components/ImageAnnotations';
+import type { WorkImageAnnotation } from '@/content/works/types';
 
 interface ImageZoomViewerProps {
   open: boolean;
@@ -19,6 +21,7 @@ interface ImageZoomViewerProps {
   afterSrc: string;
   beforeAlt: string;
   afterAlt: string;
+  beforeAnnotations?: readonly WorkImageAnnotation[];
   onClose: () => void;
 }
 
@@ -44,6 +47,7 @@ export default function ImageZoomViewer({
   afterSrc,
   beforeAlt,
   afterAlt,
+  beforeAnnotations = [],
   onClose,
 }: ImageZoomViewerProps) {
   const titleId = useId();
@@ -308,6 +312,15 @@ export default function ImageZoomViewer({
               transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${scale})`,
             }}
           />
+          {activeImage === 'before' && (
+            <ImageAnnotations
+              annotations={beforeAnnotations}
+              fit="contain"
+              style={{
+                transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${scale})`,
+              }}
+            />
+          )}
         </div>
 
         <footer className="image-zoom-toolbar">
