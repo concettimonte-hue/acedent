@@ -303,6 +303,12 @@ export default function CaseGallery() {
               <p>{selectedCase.summary}</p>
               <div className="case-modal-actions">
                 <a
+                  className="case-modal-detail"
+                  href={`/works/detail/${selectedCase.slug}`}
+                >
+                  이 사례 자세히 보기 <ArrowRight aria-hidden="true" />
+                </a>
+                <a
                   className="case-modal-phone"
                   href={site.contact.phoneHref}
                   onClick={() => trackTelClick('하단')}

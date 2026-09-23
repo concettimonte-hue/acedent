@@ -3,7 +3,7 @@
 /* oxlint-disable next/no-html-link-for-pages, next/no-img-element -- Vite SPA routes and pre-compressed R2 images are intentional. */
 
 import { useCallback, useEffect, useState } from 'react';
-import { AlertTriangle, ArrowRight, BarChart3, HardDrive, Pencil, Plus, RefreshCw, Trash2 } from 'lucide-react';
+import { AlertTriangle, ArrowRight, HardDrive, Pencil, Plus, RefreshCw, Trash2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -70,24 +70,6 @@ interface OrphanResult {
   error?: string;
 }
 
-interface AnalyticsResult {
-  excluded: boolean;
-  trackingSince: string | null;
-  stats: {
-    todayVisitors: number;
-    todayViews: number;
-    weekVisitors: number;
-    weekViews: number;
-    monthVisitors: number;
-    monthViews: number;
-    allVisitors: number;
-    allViews: number;
-  };
-  daily: Array<{ date: string; visitors: number; views: number }>;
-  topPages: Array<{ path: string; visitors: number; views: number }>;
-  error?: string;
-}
-
 const delay = (milliseconds: number) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
 
 function displayDate(value: string) {
@@ -112,9 +94,6 @@ export default function AdminWorksList() {
   const [orphanLoading, setOrphanLoading] = useState(true);
   const [selectedOrphans, setSelectedOrphans] = useState<string[]>([]);
   const [confirmOrphanDelete, setConfirmOrphanDelete] = useState(false);
-  const [analytics, setAnalytics] = useState<AnalyticsResult | null>(null);
-  const [analyticsLoading, setAnalyticsLoading] = useState(true);
-  const [analyticsError, setAnalyticsError] = useState('');
 
   const loadWorks = useCallback(async () => {
     setLoading(true);
@@ -157,38 +136,14 @@ export default function AdminWorksList() {
     }
   }, []);
 
-  const loadAnalytics = useCallback(async () => {
-    setAnalyticsLoading(true);
-    setAnalyticsError('');
-    try {
-      const exclusionResponse = await fetch('/admin/api/analytics', {
-        method: 'POST',
-        credentials: 'same-origin',
-      });
-      if (!exclusionResponse.ok) {
-        const exclusionPayload = await exclusionResponse.json() as { error?: string };
-        throw new Error(exclusionPayload.error || '관리자 방문 제외 설정에 실패했습니다.');
-      }
-
-      const response = await fetch('/admin/api/analytics', {
-        cache: 'no-store',
-        credentials: 'same-origin',
-      });
-      const payload = await response.json() as AnalyticsResult;
-      if (!response.ok || !payload.stats) throw new Error(payload.error || '방문 통계를 불러오지 못했습니다.');
-      setAnalytics(payload);
-    } catch (loadError) {
-      setAnalyticsError(loadError instanceof Error ? loadError.message : '방문 통계를 불러오지 못했습니다.');
-    } finally {
-      setAnalyticsLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     void loadWorks();
     void loadOrphans();
-    void loadAnalytics();
-  }, [loadAnalytics, loadOrphans, loadWorks]);
+    void fetch('/admin/api/analytics', {
+      method: 'POST',
+      credentials: 'same-origin',
+    }).catch(() => undefined);
+  }, [loadOrphans, loadWorks]);
 
   const deleteSelectedOrphans = async () => {
     if (selectedOrphans.length === 0) return;
@@ -314,6 +269,11 @@ export default function AdminWorksList() {
       </header>
 
       <section className="admin-list-shell">
+        <nav className="admin-section-nav" aria-label="관리자 메뉴">
+          <a className="is-active" href="/admin">사례 관리</a>
+          <a href="/admin?view=analytics">방문 통계</a>
+        </nav>
+
         <div className="admin-list-heading">
           <div>
             <span>WORKS</span>
@@ -327,7 +287,7 @@ export default function AdminWorksList() {
           <div><strong>{works.length}</strong><span>전체 사례</span></div>
           <div><strong>{pendingCount}</strong><span>삭제 대기열</span></div>
           <div className={failedCount ? 'has-error' : ''}><strong>{failedCount}</strong><span>대기열 실패</span></div>
-          <button type="button" onClick={() => { void loadWorks(); void loadOrphans(); void loadAnalytics(); }} disabled={loading || orphanLoading || analyticsLoading}><RefreshCw aria-hidden="true" /> 새로고침</button>
+          <button type="button" onClick={() => { void loadWorks(); void loadOrphans(); }} disabled={loading || orphanLoading}><RefreshCw aria-hidden="true" /> 새로고침</button>
         </div>
 
         {(notice || error) && (
@@ -336,46 +296,6 @@ export default function AdminWorksList() {
             <span>{error || notice}</span>
           </div>
         )}
-
-        <section className="admin-analytics-panel" aria-labelledby="analytics-heading">
-          <div className="admin-analytics-heading">
-            <div>
-              <span><BarChart3 aria-hidden="true" /> PRIVATE ANALYTICS</span>
-              <h2 id="analytics-heading">방문자 현황</h2>
-              <p>Cloudflare Access로 보호된 관리자 전용 통계입니다. 이 브라우저의 방문은 자동으로 제외됩니다.</p>
-            </div>
-            <button type="button" onClick={() => void loadAnalytics()} disabled={analyticsLoading}><RefreshCw aria-hidden="true" /> 새로고침</button>
-          </div>
-          {analyticsError ? (
-            <div className="admin-analytics-empty is-error" role="alert">{analyticsError}</div>
-          ) : analyticsLoading || !analytics ? (
-            <div className="admin-analytics-empty">방문 통계를 불러오는 중입니다.</div>
-          ) : (
-            <>
-              <div className="admin-analytics-grid">
-                <div><span>오늘</span><strong>{analytics.stats.todayVisitors.toLocaleString()}</strong><small>방문자 · 조회 {analytics.stats.todayViews.toLocaleString()}</small></div>
-                <div><span>최근 7일</span><strong>{analytics.stats.weekVisitors.toLocaleString()}</strong><small>방문자 · 조회 {analytics.stats.weekViews.toLocaleString()}</small></div>
-                <div><span>최근 30일</span><strong>{analytics.stats.monthVisitors.toLocaleString()}</strong><small>방문자 · 조회 {analytics.stats.monthViews.toLocaleString()}</small></div>
-                <div><span>집계 시작 후</span><strong>{analytics.stats.allVisitors.toLocaleString()}</strong><small>방문자 · 조회 {analytics.stats.allViews.toLocaleString()}</small></div>
-              </div>
-              <div className="admin-analytics-details">
-                <div>
-                  <strong>최근 30일 많이 본 페이지</strong>
-                  {analytics.topPages.length === 0 ? (
-                    <p>아직 집계된 방문이 없습니다.</p>
-                  ) : (
-                    <ol>
-                      {analytics.topPages.map((page) => (
-                        <li key={page.path}><code>{page.path}</code><span>{page.visitors.toLocaleString()}명 · {page.views.toLocaleString()}회</span></li>
-                      ))}
-                    </ol>
-                  )}
-                </div>
-                <p>{analytics.trackingSince ? `${analytics.trackingSince}부터 집계` : '배포 후부터 집계 시작'} · 쿠키를 지운 브라우저는 새 방문자로 집계될 수 있습니다.</p>
-              </div>
-            </>
-          )}
-        </section>
 
         <section className="admin-orphan-panel" aria-labelledby="orphan-heading">
           <div className="admin-orphan-heading">
