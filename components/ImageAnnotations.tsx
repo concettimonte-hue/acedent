@@ -63,9 +63,8 @@ export default function ImageAnnotations({
         return (
           <g key={`arrow-${index}`}>
             <line x1={startX} y1={startY} x2={endX} y2={endY} className="work-image-annotation-outline" />
-            <polygon points={arrowHead(annotation, 72)} className="work-image-annotation-head-outline" />
             <line x1={startX} y1={startY} x2={endX} y2={endY} className="work-image-annotation-mark" />
-            <polygon points={arrowHead(annotation, 54)} className="work-image-annotation-head" />
+            <polygon points={arrowHead(annotation, 58)} className="work-image-annotation-head" />
           </g>
         );
       })}

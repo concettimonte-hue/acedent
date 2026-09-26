@@ -368,23 +368,28 @@ function drawCanvasAnnotations(
     const endX = mapX(annotation.endX);
     const endY = mapY(annotation.endY);
     const angle = Math.atan2(endY - startY, endX - startX);
-    const drawArrow = (color: string, lineWidth: number, headSize: number) => {
+    const drawArrowShaft = (color: string, lineWidth: number) => {
       context.beginPath();
       context.moveTo(startX, startY);
       context.lineTo(endX, endY);
       context.strokeStyle = color;
       context.lineWidth = lineWidth;
       context.stroke();
-      context.beginPath();
-      context.moveTo(endX, endY);
-      context.lineTo(endX + Math.cos(angle + Math.PI * 0.82) * headSize, endY + Math.sin(angle + Math.PI * 0.82) * headSize);
-      context.lineTo(endX + Math.cos(angle - Math.PI * 0.82) * headSize, endY + Math.sin(angle - Math.PI * 0.82) * headSize);
-      context.closePath();
-      context.fillStyle = color;
-      context.fill();
     };
-    drawArrow('rgba(3, 4, 3, 0.9)', 12, 38);
-    drawArrow('#f8db00', 6, 28);
+    drawArrowShaft('rgba(3, 4, 3, 0.9)', 12);
+    drawArrowShaft('#f8db00', 6);
+
+    const headSize = 30;
+    context.beginPath();
+    context.moveTo(endX, endY);
+    context.lineTo(endX + Math.cos(angle + Math.PI * 0.82) * headSize, endY + Math.sin(angle + Math.PI * 0.82) * headSize);
+    context.lineTo(endX + Math.cos(angle - Math.PI * 0.82) * headSize, endY + Math.sin(angle - Math.PI * 0.82) * headSize);
+    context.closePath();
+    context.strokeStyle = 'rgba(3, 4, 3, 0.9)';
+    context.lineWidth = 8;
+    context.stroke();
+    context.fillStyle = '#f8db00';
+    context.fill();
   }
   context.restore();
 }

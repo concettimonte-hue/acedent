@@ -399,11 +399,12 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.work-image-annotation-head-outline {
-  fill: rgb(3 4 3 / 92%);
-}
 .work-image-annotation-head {
   fill: #f8db00;
+  stroke: rgb(3 4 3 / 92%);
+  stroke-width: 18;
+  stroke-linejoin: round;
+  paint-order: stroke fill;
 }
 .comparison-after-layer {
   position: absolute;
