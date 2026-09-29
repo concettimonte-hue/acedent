@@ -9,6 +9,7 @@
     "dev": "node scripts/sync-works.mjs && vinext dev",
     "build": "node scripts/sync-works.mjs && vinext build",
     "build:static": "node scripts/sync-works.mjs && vite build --config vite.static.config.ts",
+    "test:analytics": "node scripts/test-analytics.mjs",
     "content:sync": "node scripts/sync-works.mjs",
     "content:migrate:d1": "node scripts/migrate-works-to-d1.mjs",
     "start": "wrangler dev --config dist/server/wrangler.json",

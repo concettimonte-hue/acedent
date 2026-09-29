@@ -30,6 +30,7 @@ import {
   getWorks,
   getWorksByCategory,
 } from '@/lib/works';
+import { trackBlogClick } from '@/lib/analytics';
 import { withLandingUtm } from '@/lib/tracking';
 
 interface WorkDetailPageProps {
@@ -137,6 +138,11 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
               href={withLandingUtm(work.blogUrl, 'work_detail')}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackBlogClick(
+                'work_detail_body',
+                work.blogUrl!,
+                work.slug,
+              )}
             >
               이 사례의 전체 작업 과정 보기 <ArrowUpRight aria-hidden="true" />
             </a>
@@ -234,7 +240,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
           <p className="work-detail-contact-copy">
             손상 부위가 잘 보이는 사진을 보내주시면 수리 가능 여부와 예상 작업 범위를 먼저 안내드립니다.
           </p>
-          <WorksQuickActions photoPrimary />
+          <WorksQuickActions photoPrimary workSlug={work.slug} />
           <div className="work-detail-trust">
             <strong>수리가 필요한지, 교환이 나은지부터 확인해드립니다.</strong>
             <span>불필요한 작업은 권하지 않습니다.</span>

@@ -5,7 +5,7 @@ import SectionNumber from '@/components/SectionNumber';
 import naverData from '@/content/naver.json';
 import siteData from '@/content/site.json';
 import type { NaverContent, SiteContent } from '@/content/types';
-import { trackTelClick } from '@/lib/analytics';
+import { trackPlaceClick, trackTelClick } from '@/lib/analytics';
 import { withLandingUtm } from '@/lib/tracking';
 
 const naver = naverData as NaverContent;
@@ -52,7 +52,7 @@ export default function LocationSection() {
               전화
               <a
                 href={contact.phoneHref}
-                onClick={() => trackTelClick('하단')}
+                onClick={() => trackTelClick('home_location')}
               >
                 {contact.phoneDisplay}
               </a>
@@ -63,6 +63,7 @@ export default function LocationSection() {
             href={placeUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackPlaceClick('home_location', naver.place)}
           >
             {contact.directionsLabel} <ArrowUpRight aria-hidden="true" />
           </a>

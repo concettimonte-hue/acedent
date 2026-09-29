@@ -52,7 +52,7 @@ export default function PaintCareSection() {
           <a
             className="primary-action"
             href={site.contact.smsHref}
-            onClick={trackSmsClick}
+            onClick={() => trackSmsClick('home_paint_care')}
           >
             <Smartphone aria-hidden="true" />
             {content.cta.label}

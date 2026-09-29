@@ -32,7 +32,7 @@ export default function WorksHeader() {
       <a
         className="header-call"
         href={site.contact.phoneHref}
-        onClick={() => trackTelClick('상단')}
+        onClick={() => trackTelClick('works_header')}
       >
         <Phone aria-hidden="true" />
         <span>{site.contact.headerPhoneLabel}</span>

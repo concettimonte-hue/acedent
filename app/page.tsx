@@ -41,6 +41,7 @@ import {
 } from '@/content/section-order';
 import { withLandingUtm } from '@/lib/tracking';
 import {
+  trackTalkClick,
   trackSmsClick,
   trackTelClick,
   trackWorksNavigation,
@@ -168,7 +169,7 @@ export default function Home() {
           <a
             href={contact.phoneHref}
             className="contact-call"
-            onClick={() => trackTelClick('하단')}
+            onClick={() => trackTelClick('home_contact')}
           >
             <div>
               <Phone aria-hidden="true" />
@@ -178,7 +179,10 @@ export default function Home() {
             <ChevronRight aria-hidden="true" />
           </a>
           <div className="contact-secondary">
-            <a href={contact.smsHref} onClick={trackSmsClick}>
+            <a
+              href={contact.smsHref}
+              onClick={() => trackSmsClick('home_contact')}
+            >
               <Smartphone aria-hidden="true" />
               <span>
                 {contact.smsEyebrow}
@@ -186,7 +190,12 @@ export default function Home() {
               </span>
               <ArrowUpRight aria-hidden="true" />
             </a>
-            <a href={talkUrl} target="_blank" rel="noopener noreferrer">
+            <a
+              href={talkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackTalkClick('home_contact', naver.talk)}
+            >
               <MessageCircle aria-hidden="true" />
               <span>
                 {contact.talkEyebrow}
@@ -241,7 +250,7 @@ export default function Home() {
         <a
           className="header-call"
           href={contact.phoneHref}
-          onClick={() => trackTelClick('상단')}
+          onClick={() => trackTelClick('home_header')}
         >
           <Phone aria-hidden="true" />
           <span>{contact.headerPhoneLabel}</span>
@@ -285,7 +294,7 @@ export default function Home() {
             <a
               className="primary-action"
               href={contact.phoneHref}
-              onClick={() => trackTelClick('상단')}
+              onClick={() => trackTelClick('home_hero')}
             >
               <Phone aria-hidden="true" />
               {hero.phoneActionLabel}
@@ -294,7 +303,7 @@ export default function Home() {
             <a
               className="secondary-action"
               href={contact.smsHref}
-              onClick={trackSmsClick}
+              onClick={() => trackSmsClick('home_hero')}
             >
               <Smartphone aria-hidden="true" />
               {hero.smsActionLabel}
@@ -359,7 +368,7 @@ export default function Home() {
         <a
           href={contact.phoneHref}
           aria-label={contact.phoneLabel}
-          onClick={() => trackTelClick('플로팅')}
+          onClick={() => trackTelClick('mobile_sticky')}
         >
           <Phone aria-hidden="true" />
           {contact.mobilePhoneLabel}
@@ -367,7 +376,7 @@ export default function Home() {
         <a
           href={contact.smsHref}
           aria-label={contact.smsLabel}
-          onClick={trackSmsClick}
+          onClick={() => trackSmsClick('mobile_sticky')}
         >
           <Smartphone aria-hidden="true" />
           {contact.mobileSmsLabel}
@@ -377,6 +386,7 @@ export default function Home() {
           aria-label={contact.talkLabel}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => trackTalkClick('mobile_sticky', naver.talk)}
         >
           <MessageCircle aria-hidden="true" />
           {contact.mobileNaverLabel}

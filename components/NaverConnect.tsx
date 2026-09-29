@@ -8,7 +8,17 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import naverData from '@/content/naver.json';
-import type { NaverContent, NaverIconName } from '@/content/types';
+import type {
+  NaverContent,
+  NaverIconName,
+  NaverUrlKey,
+} from '@/content/types';
+import {
+  trackBlogClick,
+  trackBookingClick,
+  trackPlaceClick,
+  trackTalkClick,
+} from '@/lib/analytics';
 import { withLandingUtm } from '@/lib/tracking';
 
 const naver = naverData as NaverContent;
@@ -24,6 +34,24 @@ function NaverLinkIcon({ name }: { name: NaverIconName }) {
     return <span className="naver-icon">{naver.section.naverSymbol}</span>;
   const Icon = iconMap[name];
   return <Icon aria-hidden="true" className="card-main-icon" />;
+}
+
+function trackNaverConnectClick(key: Exclude<NaverUrlKey, 'review'>) {
+  const destination = naver[key];
+  switch (key) {
+    case 'blog':
+      trackBlogClick('home_naver_connect', destination);
+      break;
+    case 'place':
+      trackPlaceClick('home_naver_connect', destination);
+      break;
+    case 'booking':
+      trackBookingClick('home_naver_connect', destination);
+      break;
+    case 'talk':
+      trackTalkClick('home_naver_connect', destination);
+      break;
+  }
 }
 
 export default function NaverConnect() {
@@ -42,6 +70,7 @@ export default function NaverConnect() {
             href={withLandingUtm(naver[item.key], item.key)}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackNaverConnectClick(item.key)}
             key={item.key}
           >
             <NaverLinkIcon name={item.icon} />

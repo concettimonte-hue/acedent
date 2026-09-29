@@ -9,7 +9,11 @@ import type {
   NaverContent,
   SiteContent,
 } from '@/content/types';
-import { trackTelClick } from '@/lib/analytics';
+import {
+  trackBlogClick,
+  trackPlaceClick,
+  trackTelClick,
+} from '@/lib/analytics';
 import { withLandingUtm } from '@/lib/tracking';
 
 const business = businessData as BusinessContent;
@@ -57,11 +61,15 @@ export default function SiteFooter() {
             href={placeUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackPlaceClick('site_footer_address', naver.place)}
           >
             <address>{address}</address>
             <ArrowUpRight aria-hidden="true" />
           </a>
-          <a href={contact.phoneHref} onClick={() => trackTelClick('하단')}>
+          <a
+            href={contact.phoneHref}
+            onClick={() => trackTelClick('site_footer_phone')}
+          >
             <span>{contact.footerPhonePrefix}</span>
             <strong>{contact.phoneDisplay}</strong>
           </a>
@@ -70,7 +78,12 @@ export default function SiteFooter() {
         <nav className="site-footer-links" aria-label="하단 주요 메뉴">
           <a href="/works">수리사례</a>
           <a href="/#location">오시는 길</a>
-          <a href={blogUrl} target="_blank" rel="noopener noreferrer">
+          <a
+            href={blogUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackBlogClick('site_footer_blog', naver.blog)}
+          >
             네이버 블로그 <ArrowUpRight aria-hidden="true" />
           </a>
         </nav>

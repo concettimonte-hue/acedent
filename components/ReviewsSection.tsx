@@ -5,6 +5,7 @@ import SectionNumber from '@/components/SectionNumber';
 import naverData from '@/content/naver.json';
 import reviewsData from '@/content/reviews.json';
 import type { NaverContent, ReviewsContent } from '@/content/types';
+import { trackReviewClick } from '@/lib/analytics';
 import { withLandingUtm } from '@/lib/tracking';
 
 const content = reviewsData as ReviewsContent;
@@ -60,6 +61,7 @@ export default function ReviewsSection() {
           href={withLandingUtm(naver.review, 'review')}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => trackReviewClick('home_reviews', naver.review)}
         >
           {content.moreLinkLabel} <ArrowUpRight aria-hidden="true" />
         </a>

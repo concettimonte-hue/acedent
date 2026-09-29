@@ -4,6 +4,7 @@ import { ArrowUpRight, Check } from 'lucide-react';
 import SectionNumber from '@/components/SectionNumber';
 import insuranceData from '@/content/insurance.json';
 import type { InsuranceContent } from '@/content/types';
+import { trackBlogClick } from '@/lib/analytics';
 import { withLandingUtm } from '@/lib/tracking';
 
 const content = insuranceData as InsuranceContent;
@@ -76,6 +77,7 @@ export default function InsuranceSection() {
           href={withLandingUtm(content.moreLink.url, 'blog')}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => trackBlogClick('home_insurance', content.moreLink.url)}
         >
           {content.moreLink.label} <ArrowUpRight aria-hidden="true" />
         </a>

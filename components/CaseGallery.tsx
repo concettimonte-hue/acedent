@@ -9,7 +9,11 @@ import naverData from '@/content/naver.json';
 import siteData from '@/content/site.json';
 import type { CasesContent, SiteContent } from '@/content/types';
 import { withLandingUtm } from '@/lib/tracking';
-import { trackCaseView, trackTelClick } from '@/lib/analytics';
+import {
+  trackBlogClick,
+  trackCaseView,
+  trackTelClick,
+} from '@/lib/analytics';
 import {
   getWorkImageAlt,
   getWorkPrimaryPart,
@@ -234,6 +238,7 @@ export default function CaseGallery() {
           href={withLandingUtm(naverData.blog, 'cases_bottom')}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => trackBlogClick('home_cases_footer', naverData.blog)}
         >
           {content.bottomLinkLabel}
         </a>
@@ -311,7 +316,7 @@ export default function CaseGallery() {
                 <a
                   className="case-modal-phone"
                   href={site.contact.phoneHref}
-                  onClick={() => trackTelClick('하단')}
+                  onClick={() => trackTelClick('home_case_modal', selectedCase.slug)}
                 >
                   이런 손상이면 문의하기
                 </a>
@@ -321,6 +326,11 @@ export default function CaseGallery() {
                     href={withLandingUtm(selectedCase.blogUrl, 'case')}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => trackBlogClick(
+                      'home_case_modal',
+                      selectedCase.blogUrl!,
+                      selectedCase.slug,
+                    )}
                   >
                     {content.modalLinkLabel} <ArrowUpRight aria-hidden="true" />
                   </a>

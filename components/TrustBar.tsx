@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import naverData from '@/content/naver.json';
 import trustData from '@/content/trust.json';
 import type { NaverContent, TrustItem } from '@/content/types';
+import { trackBlogClick } from '@/lib/analytics';
 import { withLandingUtm } from '@/lib/tracking';
 
 const trustItems = trustData as TrustItem[];
@@ -131,6 +132,7 @@ export default function TrustBar() {
             href={linkUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackBlogClick('home_trust_bar', naver.blog)}
             key={item.id}
           >
             {content}
