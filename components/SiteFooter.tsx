@@ -43,8 +43,8 @@ export default function SiteFooter() {
             <img
               src={brand.logoSrc}
               alt=""
-              width="1600"
-              height="1200"
+              width="510"
+              height="340"
               loading="lazy"
               decoding="async"
             />

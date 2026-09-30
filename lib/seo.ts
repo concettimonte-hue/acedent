@@ -47,8 +47,8 @@ export const organizationJsonLd = {
     '@type': 'ImageObject',
     url: logoImageUrl,
     contentUrl: logoImageUrl,
-    width: 1536,
-    height: 1024,
+    width: 510,
+    height: 340,
   },
   sameAs: naverSameAs,
 };

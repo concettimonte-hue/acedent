@@ -222,8 +222,8 @@ export default function Home() {
             <img
               src={brand.logoSrc}
               alt={brand.logoAlt}
-              width="1600"
-              height="1200"
+              width="510"
+              height="340"
               loading="lazy"
               decoding="async"
             />

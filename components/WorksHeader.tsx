@@ -19,8 +19,8 @@ export default function WorksHeader() {
           <img
             src={site.brand.logoSrc}
             alt={site.brand.logoAlt}
-            width="1600"
-            height="1200"
+            width="510"
+            height="340"
             loading="eager"
           />
         </span>

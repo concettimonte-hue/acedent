@@ -128,7 +128,7 @@ export function getHomeStaticHtml(works: WorkItem[]) {
 
   return `<main class="seo-static seo-home" aria-label="에이스덴트 정적 페이지">
     <header class="seo-static-header">
-      <a href="/">${image(site.brand.logoSrc, '에이스덴트 로고', { width: 1536, height: 1024, eager: true })}<strong>ACE DENT</strong></a>
+      <a href="/">${image(site.brand.logoSrc, '에이스덴트 로고', { width: 510, height: 340, eager: true })}<strong>ACE DENT</strong></a>
       <nav aria-label="주요 메뉴">${site.navigation.items.map((item) => `<a href="${text(item.href)}">${text(item.label)}</a>`).join('')}</nav>
     </header>
     <section class="seo-static-hero">
