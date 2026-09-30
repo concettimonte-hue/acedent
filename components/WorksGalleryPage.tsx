@@ -29,6 +29,7 @@ import {
   getWorkPartLandingPath,
   hasWorkPartLanding,
 } from '@/lib/work-landings';
+import { getWorkCategoryGuide } from '@/lib/work-seo';
 
 interface WorksGalleryPageProps {
   category?: WorkCategory;
@@ -127,6 +128,7 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
   const [showSwipeHint, setShowSwipeHint] = useState(true);
   const selectedCategory = filters.category;
   const selectedPart = filters.part;
+  const categoryGuide = getWorkCategoryGuide(selectedCategory);
   const categoryRail = useFilterRail<HTMLElement>(selectedCategory ?? 'all');
   const partRail = useFilterRail<HTMLDivElement>(selectedPart ?? 'all');
   const categoryWorks = useMemo(
@@ -211,6 +213,21 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
           실제 차량의 작업 전후를 확인하고 내 차와 비슷한 손상을 찾아보세요.
         </span>
         </section>
+
+        {categoryGuide && (
+          <section
+            className="works-category-guide"
+            aria-labelledby={`works-category-guide-${selectedCategory}`}
+          >
+            <p>{categoryGuide.eyebrow}</p>
+            <h2 id={`works-category-guide-${selectedCategory}`}>{categoryGuide.title}</h2>
+            <div>
+              {categoryGuide.paragraphs.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="works-browser" aria-label="수리사례 목록">
         <div className="work-filter-group">

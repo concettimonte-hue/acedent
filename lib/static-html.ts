@@ -48,6 +48,7 @@ import {
   getRelatedWorkReasonLabel,
   type RelatedWorkSuggestion,
 } from './work-related';
+import { getWorkCategoryGuide } from './work-seo';
 
 const site = siteData as SiteContent;
 const faq = faqData as FaqContent;
@@ -184,12 +185,14 @@ export function getWorksStaticHtml(
     )
     : categoryWorks;
   const heading = `${part ? `${part} ` : ''}${category ? getWorkCategoryLabel(category) : '수리사례'}`;
+  const categoryGuide = getWorkCategoryGuide(category);
   const partLandings = category
     ? getWorkPartLandings(works).filter((landing) => landing.category === category)
     : [];
   return `<main class="seo-static seo-works">
     <header class="seo-static-header"><a href="/">ACE DENT</a><a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
     <section><p>ACE DENT · REPAIR ARCHIVE</p><h1>${text(heading)}</h1><p>실제 차량의 작업 전후를 확인하고 내 차와 비슷한 손상을 찾아보세요.</p></section>
+    ${categoryGuide ? `<section class="works-category-guide" aria-labelledby="works-category-guide-${text(category ?? '')}"><p>${text(categoryGuide.eyebrow)}</p><h2 id="works-category-guide-${text(category ?? '')}">${text(categoryGuide.title)}</h2><div>${categoryGuide.paragraphs.map((paragraph) => `<p>${text(paragraph)}</p>`).join('')}</div></section>` : ''}
     <nav aria-label="작업방식"><a href="/works">전체</a>${getAvailableWorkCategories(works).map((item) => `<a href="/works/${item.id}">${text(item.label)}</a>`).join('')}</nav>
     ${partLandings.length ? `<nav aria-label="수리 부위">${partLandings.map((landing) => `<a href="${text(landing.path)}">${text(landing.part)}</a>`).join('')}</nav>` : ''}
     <section aria-label="수리사례 목록"><p>${visible.length}건</p><div class="seo-works-grid">${visible.map((work) => workCard(work, category, [], part, 'before')).join('')}</div></section>

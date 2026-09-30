@@ -3,6 +3,8 @@ import {
   type WorkCategory,
   type WorkItem,
 } from '../content/works/types';
+import polishData from '../content/polish.json';
+import type { PolishContent } from '../content/types';
 import {
   SLUG_CAR_MAKER_TERMS,
   SLUG_CAR_MODEL_TERMS,
@@ -44,6 +46,37 @@ const categoryTitleFallback: Record<WorkCategory, string> = {
 
 const titleSoftLimit = 65;
 const descriptionSoftLimit = 180;
+const polish = polishData as PolishContent;
+const fullPolishService = polish.items.find((item) => item.id === 'fullpolish');
+
+export interface WorkCategoryGuide {
+  eyebrow: string;
+  title: string;
+  paragraphs: readonly string[];
+}
+
+const workCategoryGuides: Partial<Record<WorkCategory, WorkCategoryGuide>> = {
+  'partial-paint': {
+    eyebrow: 'PARTIAL PAINT GUIDE',
+    title: '부분도색 사례에서 확인할 점',
+    paragraphs: [
+      '부분도색은 손상 범위가 국소적인 경우 패널 전체를 넓게 작업하지 않고 손상된 범위를 중심으로 진행하는 방식입니다. 사례 카드에서 작업 전 손상 위치와 작업 후 마감 상태를 차종과 부위별로 비교할 수 있습니다.',
+      '적용 가능 여부는 손상 범위와 위치, 기존 도장 상태에 따라 달라집니다. 손상 부위가 잘 보이는 사진을 보내주시면 부분도색으로 가능한지 먼저 확인해 안내합니다.',
+    ],
+  },
+  'full-polish': {
+    eyebrow: 'FULL POLISH GUIDE',
+    title: '차량 전체 광택 사례에서 확인할 점',
+    paragraphs: [
+      [fullPolishService?.desc, fullPolishService?.notWhen].filter(Boolean).join(' '),
+      `사례의 작업 전후 사진에서 도장면의 선명도와 광도 변화를 확인하세요. ${polish.closing}`,
+    ],
+  },
+};
+
+export function getWorkCategoryGuide(category?: WorkCategory) {
+  return category ? workCategoryGuides[category] : undefined;
+}
 
 function compactSeoText(value: string) {
   return value
