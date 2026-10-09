@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { WorkImageAnnotation } from '@/content/works/types';
+import { annotationArrowGeometry } from '@/lib/work-annotations';
 
 interface ImageAnnotationsProps {
   annotations?: readonly WorkImageAnnotation[];
@@ -10,21 +11,6 @@ interface ImageAnnotationsProps {
 
 const VIEWBOX_WIDTH = 1600;
 const VIEWBOX_HEIGHT = 1200;
-
-function arrowHead(annotation: Extract<WorkImageAnnotation, { type: 'arrow' }>, size: number) {
-  const startX = annotation.startX * VIEWBOX_WIDTH;
-  const startY = annotation.startY * VIEWBOX_HEIGHT;
-  const endX = annotation.endX * VIEWBOX_WIDTH;
-  const endY = annotation.endY * VIEWBOX_HEIGHT;
-  const angle = Math.atan2(endY - startY, endX - startX);
-  const left = angle + Math.PI * 0.82;
-  const right = angle - Math.PI * 0.82;
-  return [
-    `${endX},${endY}`,
-    `${endX + Math.cos(left) * size},${endY + Math.sin(left) * size}`,
-    `${endX + Math.cos(right) * size},${endY + Math.sin(right) * size}`,
-  ].join(' ');
-}
 
 export default function ImageAnnotations({
   annotations = [],
@@ -60,11 +46,11 @@ export default function ImageAnnotations({
         const startY = annotation.startY * VIEWBOX_HEIGHT;
         const endX = annotation.endX * VIEWBOX_WIDTH;
         const endY = annotation.endY * VIEWBOX_HEIGHT;
+        const arrow = annotationArrowGeometry(startX, startY, endX, endY);
         return (
           <g key={`arrow-${index}`}>
-            <line x1={startX} y1={startY} x2={endX} y2={endY} className="work-image-annotation-outline" />
-            <line x1={startX} y1={startY} x2={endX} y2={endY} className="work-image-annotation-mark" />
-            <polygon points={arrowHead(annotation, 58)} className="work-image-annotation-head" />
+            <path d={arrow.path} className="work-image-annotation-outline" style={{ strokeWidth: arrow.outlineWidth }} />
+            <path d={arrow.path} className="work-image-annotation-mark" style={{ strokeWidth: arrow.markWidth }} />
           </g>
         );
       })}

@@ -214,11 +214,14 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
               reasons,
               matchedCategory,
               matchedPart,
+              matchedPartIndex,
             }) => (
               <WorkCard
                 work={related}
                 contextCategory={matchedCategory}
                 contextPart={matchedPart}
+                matchedPartIndex={matchedPartIndex}
+                sourceWorkSlug={work.slug}
                 reasonLabels={reasons.map(getRelatedWorkReasonLabel)}
                 imageState="before"
                 key={related.slug}

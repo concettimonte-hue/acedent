@@ -1,6 +1,906 @@
 {
   "records": [
     {
+      "sourceFile": "d1:hyundai-avante-rear-fender-polish",
+      "lastModified": "2026-10-09",
+      "work": {
+        "slug": "hyundai-avante-rear-fender-polish",
+        "date": "2026-10-09",
+        "title": "긁힘 흠집 제거 및 원칠 보존 폴리싱 복원",
+        "category": "polish",
+        "subCategories": [],
+        "part": [
+          "휀더"
+        ],
+        "subParts": [],
+        "carMaker": "현대 (Hyundai)",
+        "carModel": "아반떼 (AVANTE)",
+        "color": "그레이 계열",
+        "parts": [
+          {
+            "part": [
+              "휀더"
+            ],
+            "position": "rear",
+            "category": "polish",
+            "label": "뒤휀더",
+            "before": "https://images.acedentshop.co.kr/works/0fe2ba92-cf74-454c-8bac-1c581a35105c/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/0fe2ba92-cf74-454c-8bac-1c581a35105c/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/0fe2ba92-cf74-454c-8bac-1c581a35105c/01-image-thumbnail.jpg",
+            "note": "타이어 상단 휀더 굴곡 라인을 따라 검은색 마찰 흔적과 다발성 스크래치가 뚜렷하게 발생한 상태로 입고됨. 정밀 진단 결과 철판 찌그러짐이나 페인트 베이스층 파손이 없는 표면 손상으로 판명되어 무조건적인 과잉 수리(도색)를 배제함. 별도의 도장 공정 없이 고성능 광택기를 이용한 정밀 폴리싱(버핑) 작업만으로 이염과 긁힘 흔적을 완벽하게 걷어냄. 새로 칠을 올리지 않았으므로 인접 패널과의 이색(색상 차이) 현상이 발생할 확률을 원천 차단했으며, 오리지널 도장 특유의 맑은 광도와 내구성을 고스란히 살려내어 합리적이고 완벽한 퀄리티를 구현",
+            "gallery": []
+          }
+        ],
+        "ogImage": "https://images.acedentshop.co.kr/works/0fe2ba92-cf74-454c-8bac-1c581a35105c/21-share-card-og-image.jpg",
+        "gallery": [],
+        "summary": "후휀더 휠 아치 라인에 마찰로 인한 검은색 이염과 스크래치가 발생한 차량입니다. 정밀 진단 결과 베이스(색상) 층 파손이 없는 표면 손상으로 확인되어, 불필요한 전체 도색(과잉 수리)을 배제하고 정밀 폴리싱(광택) 공정만으로 오리지널 원칠을 100% 보존하며 상처를 완벽하게 지워냈습니다.",
+        "body": "주차 중 구조물과의 가벼운 접촉으로 인해 후휀더 타이어 윗부분(휠 아치)을 따라 검은색 마찰 흔적과 긁힘이 넓게 발생하여 입고된 아반떼 차량입니다.   일반적으로 이 정도 범위의 긁힘이 발생하면 패널 전체 판금도색을 권유받기 쉽습니다. 하지만 에이스덴트의 정밀 도막 검수 결과, 다행히 철판의 찌그러짐이나 도장면 내부 베이스 코트층까지 파고든 깊은 패임은 없었으며 손상이 최상단 투명층(클리어 코트) 표면에만 머물러 있는 것을 확인했습니다.   당사는 차주님의 수리 비용 부담을 최소화하고 신차 출고 당시의 견고한 '오리지널 원칠'을 지켜드리기 위해 도색 공정 없이 다단계 정밀 폴리싱(흠집 제거) 작업만을 진행했습니다. 투명층의 두께를 안전하게 유지하는 선에서 이염 물질과 미세 스크래치를 말끔하게 걷어내어, 수리 흔적이나 맑은 광도의 저하 없이 본연의 깨끗한 도장면을 회복했습니다.",
+        "featured": false,
+        "days": "당일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "d1:kia-sportage-nq5-rear-door-panel-paint-2",
+      "lastModified": "2026-10-09",
+      "work": {
+        "slug": "kia-sportage-nq5-rear-door-panel-paint-2",
+        "date": "2026-10-09",
+        "title": "후도어·후휀더 판금도장 및 측면 가니쉬 맞춤 복원",
+        "category": "panel-paint",
+        "subCategories": [],
+        "part": [
+          "도어"
+        ],
+        "subParts": [],
+        "carMaker": "기아 (KIA)",
+        "carModel": "스포티지 (NQ5)",
+        "color": "딥 블루 메탈릭 계열",
+        "parts": [
+          {
+            "part": [
+              "도어",
+              "휀더"
+            ],
+            "position": "rear",
+            "category": "panel-paint",
+            "label": "뒤도어 · 뒤휀더",
+            "before": "https://images.acedentshop.co.kr/works/5c4a6091-62be-4f7c-8b54-645a19c4b225/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/5c4a6091-62be-4f7c-8b54-645a19c4b225/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/5c4a6091-62be-4f7c-8b54-645a19c4b225/01-image-thumbnail.jpg",
+            "note": "노란색 구조물과의 마찰로 인해 후도어 중앙부에 페인트 이염과 찌그러짐이 발생함. 완벽한 도장 퀄리티를 위해 하단 가니쉬를 덮어두지 않고, 내부 고정 핀 파손 없이 안전하게 탈거하여 부품 교체 비용을 방어함. 찌그러진 철판 면을 평탄화하는 하도 공정 후 딥 블루 컬러를 정밀 조색하여 도장하고, 기존 가니쉬를 그대로 재장착하여 이질감이나 칠 뭉침 없는 깔끔한 마감을 도출함.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/5c4a6091-62be-4f7c-8b54-645a19c4b225/01-gallery-1-00c59847-99d8-4e7e-bc83-106abd2c2f13-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/5c4a6091-62be-4f7c-8b54-645a19c4b225/01-gallery-1-00c59847-99d8-4e7e-bc83-106abd2c2f13-gallery-thumbnail.jpg",
+                "caption": "도어 휀더 손상부위",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/5c4a6091-62be-4f7c-8b54-645a19c4b225/01-gallery-2-d2eccdd1-394f-417e-a177-a1f417251669-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/5c4a6091-62be-4f7c-8b54-645a19c4b225/01-gallery-2-d2eccdd1-394f-417e-a177-a1f417251669-gallery-thumbnail.jpg",
+                "caption": "도어 휀더 손상부위",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/5c4a6091-62be-4f7c-8b54-645a19c4b225/01-gallery-3-383e15e4-7154-4832-82be-e559a37c0d06-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/5c4a6091-62be-4f7c-8b54-645a19c4b225/01-gallery-3-383e15e4-7154-4832-82be-e559a37c0d06-gallery-thumbnail.jpg",
+                "caption": "도장 열처리 작업",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/5c4a6091-62be-4f7c-8b54-645a19c4b225/01-gallery-4-723e022d-8622-4782-a0ac-02260be79e3c-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/5c4a6091-62be-4f7c-8b54-645a19c4b225/01-gallery-4-723e022d-8622-4782-a0ac-02260be79e3c-gallery-thumbnail.jpg",
+                "caption": "도장 열처리 작업",
+                "width": 1600,
+                "height": 1200
+              }
+            ]
+          }
+        ],
+        "ogImage": "https://images.acedentshop.co.kr/works/5c4a6091-62be-4f7c-8b54-645a19c4b225/21-share-card-og-image.jpg",
+        "gallery": [],
+        "summary": "측면 구조물 접촉으로 노란색 페인트 이염과 철판 찌그러짐이 발생한 차량입니다. 도장 마감 퀄리티를 높이기 위해 하단 가니쉬를 모두 분리하여 판금도색을 진행했으며, 파손이 심한 후휀더 가니쉬는 새 부품으로 교체하고 후도어 가니쉬는 그대로 재사용하여 수리 비용을 합리적으로 절감했습니다.",
+        "body": "운전석 측 후도어 중앙부터 후휀더 휠 아치 라인까지 노란색 페인트 이염과 철판 함몰 변형이 길게 이어진 상태였습니다.   SUV 차량 특유의 하단 플라스틱 가니쉬를 부착한 채 억지로 마스킹만 하고 도장을 올리면, 철판과 가니쉬 경계면에 페인트가 뭉치거나 추후 고압 세차 시 칠이 떨어지는 치명적인 하자가 발생합니다. 당사는 정석적인 프리미엄 마감을 위해 두 가니쉬를 모두 차체에서 완전히 분리한 후 판금도장 공정을 진행했습니다.이 과정에서 부품별 손상도를 냉정하게 판단하여 맞춤형 솔루션을 적용했습니다. \n\n긁힘이 깊어 재사용이 불가한 '후휀더 가니쉬'는 1:1 정품 새 부품으로 과감히 교체했습니다. 반면, 손상이 미미했던 '후도어 가니쉬'는 차주님의 불필요한 부품값 부담을 덜어드리기 위해 전용 공구를 사용하여 핀 파손 없이 안전하게 탈거한 뒤 원래 자리에 다시 장착했습니다. 스포트 장비를 이용한 정밀 굴곡 판금과 현장 미세 조색, 고온 특수 열처리를 거쳐 이색 현상이나 단차 없이 맑고 매끄러운 측면 핏(Fit)을 완성했습니다.",
+        "featured": false,
+        "days": "1일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "d1:mercedes-benz-g-g450d-side-wheel-panel-paint",
+      "lastModified": "2026-10-09",
+      "work": {
+        "slug": "mercedes-benz-g-g450d-side-wheel-panel-paint",
+        "date": "2026-10-09",
+        "title": "휠커버 찌그러짐 원칠 보존 덴트 복원",
+        "category": "panel-paint",
+        "subCategories": [],
+        "part": [
+          "휠"
+        ],
+        "subParts": [],
+        "carMaker": "메르세데스-벤츠 (Mercedes-Benz)",
+        "carModel": "G클래스 (G450D / 지바겐)",
+        "color": "실버 메탈릭 계열",
+        "parts": [
+          {
+            "part": [
+              "휠"
+            ],
+            "category": "dent",
+            "label": "휠 커버 측면",
+            "before": "https://images.acedentshop.co.kr/works/aaab2a17-6ef1-4284-95dd-90bd48af8d85/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/aaab2a17-6ef1-4284-95dd-90bd48af8d85/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/aaab2a17-6ef1-4284-95dd-90bd48af8d85/01-image-thumbnail.jpg",
+            "note": "육안으로 확인되는 휠커버 표면의 찌그러짐 손상. 복원 작업 전 덴트 전용 음영 스코프 조명을 투사하여, 줄무늬의 왜곡을 통해 철판이 함몰된 깊이와 주변부로 강하게 뭉쳐 있는 텐션(응력)의 범위를 정확하게 수치화함. 페인트 손상이 없음을 최종 확인하고 100% 수작업 무도색 복원을 준비하는 단계.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/aaab2a17-6ef1-4284-95dd-90bd48af8d85/01-gallery-1-6bdeec62-ede6-4bda-adad-73efa3b6e66c-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/aaab2a17-6ef1-4284-95dd-90bd48af8d85/01-gallery-1-6bdeec62-ede6-4bda-adad-73efa3b6e66c-gallery-thumbnail.jpg",
+                "caption": "스코프 진단",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/aaab2a17-6ef1-4284-95dd-90bd48af8d85/01-gallery-2-0569312f-94f9-410b-8ed7-6894ac308174-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/aaab2a17-6ef1-4284-95dd-90bd48af8d85/01-gallery-2-0569312f-94f9-410b-8ed7-6894ac308174-gallery-thumbnail.jpg",
+                "caption": "텐션덴트",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/aaab2a17-6ef1-4284-95dd-90bd48af8d85/01-gallery-3-39467537-b693-4a82-9eae-ccb3897c4fd0-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/aaab2a17-6ef1-4284-95dd-90bd48af8d85/01-gallery-3-39467537-b693-4a82-9eae-ccb3897c4fd0-gallery-thumbnail.jpg",
+                "caption": "글루덴트",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/aaab2a17-6ef1-4284-95dd-90bd48af8d85/01-gallery-4-f1724392-52b2-4417-b97d-fe8f8f5638f2-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/aaab2a17-6ef1-4284-95dd-90bd48af8d85/01-gallery-4-f1724392-52b2-4417-b97d-fe8f8f5638f2-gallery-thumbnail.jpg",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/aaab2a17-6ef1-4284-95dd-90bd48af8d85/01-gallery-5-72959a00-822c-4d1e-8113-d0377688f8d0-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/aaab2a17-6ef1-4284-95dd-90bd48af8d85/01-gallery-5-72959a00-822c-4d1e-8113-d0377688f8d0-gallery-thumbnail.jpg",
+                "caption": "수리완료",
+                "width": 1600,
+                "height": 1200
+              }
+            ]
+          }
+        ],
+        "ogImage": "https://images.acedentshop.co.kr/works/aaab2a17-6ef1-4284-95dd-90bd48af8d85/21-share-card-og-image.jpg",
+        "gallery": [],
+        "summary": "출고한지 얼마 안되어 발생한 스페어타이어 휠커버의 찌그러짐 손상에 대해, 신차 고유의 원칠을 100% 보존하기 위해 판금도색을 배제하고 글루덴트와 텐션덴트 공법을 병행하여 완벽하게 오리지널 곡면을 복원한 사례입니다.",
+        "body": "후면 스페어타이어 휠커버 엠블럼 주변에 외부 충격으로 인한 함몰 변형이 발생하여 입고된 신형 G450D 차량입니다. 정밀 도막 검수 결과, 다행히 투명 클리어 코트나 베이스 층의 박리(칠 까짐)가 없는 순수 철판 찌그러짐으로 판명되었습니다. 신차의 오리지널 도장면을 훼손하여 차량 가치를 하락시키는 재도장 공정 대신, 본연의 제칠을 온전히 보존할 수 있는 PDR(Paintless Dent Repair) 시공을 결정했습니다.\n\n휠커버의 구조적 특성상 쇠꼬챙이 형태의 공구를 진입시켜 안에서 밖으로 밀어내는 로드덴트(Rod Dent) 적용이 까다롭습니다. 따라서 외부 표면에 특수 탭을 부착하여 철판을 당겨 올리는 '글루덴트' 공법과, 함몰부 주변에 강하게 뭉친 응력(텐션)을 타격으로 풀어주는 '텐션덴트' 공법을 복합적으로 적용했습니다. 덴트 전용 스코프 조명 아래에서 미세한 굴곡까지 확인하며 수십 차례의 미세 견인과 펀칭을 반복한 끝에, 이색 현상이나 맑은 광택의 저하 없이 공장 출고 상태의 매끄러운 곡면 핏(Fit)을 완벽히 재구현했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224436235649",
+        "featured": false,
+        "days": "당일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "d1:bmw-3-320i-front-side-bumper-panel-paint",
+      "lastModified": "2026-10-09",
+      "work": {
+        "slug": "bmw-3-320i-front-side-bumper-panel-paint",
+        "date": "2026-10-07",
+        "title": "앞범퍼 양측 긁힘 탈거 전체도색 및 유광 하이그로시 교체",
+        "category": "panel-paint",
+        "subCategories": [],
+        "part": [
+          "범퍼"
+        ],
+        "subParts": [],
+        "carMaker": "BMW",
+        "carModel": "3시리즈 (320i)",
+        "color": "알파인 화이트 계열",
+        "parts": [
+          {
+            "part": [
+              "범퍼"
+            ],
+            "position": "front",
+            "category": "panel-paint",
+            "label": "앞범퍼 하단, 측면",
+            "before": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/01-image-before.jpg",
+            "beforeAnnotations": [
+              {
+                "type": "arrow",
+                "startX": 0.088,
+                "startY": 0.5526,
+                "endX": 0.1752,
+                "endY": 0.5479
+              }
+            ],
+            "after": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/01-image-thumbnail.jpg",
+            "note": "강한 마찰로 인해 범퍼 하단의 굴곡진 도장면이 패이고, 전체 유광 블랙 하이그로시 몰딩 표면이 거칠게 찢겨나간 복합 손상 부위. 시각적 이질감을 없애기 위해 복원이 까다로운 고광택 하이그로시 파츠는 새 부품으로 교체함. 깊게 파인 범퍼 철판은 최소한의 퍼티 성형과 하도 공정, 정밀 조색을 통해 오리지널 알파인 화이트 색상과 일치하는 매끄러운 곡면으로 완벽히 재구현함.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/01-gallery-1-f477f289-c54a-4446-8a89-85753cd58d51-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/01-gallery-1-f477f289-c54a-4446-8a89-85753cd58d51-gallery-thumbnail.jpg",
+                "caption": "앞범퍼 하단 스크레치",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/01-gallery-2-b077da21-6b30-4b1d-bd3b-4907f200a93f-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/01-gallery-2-b077da21-6b30-4b1d-bd3b-4907f200a93f-gallery-thumbnail.jpg",
+                "caption": "앞범퍼 하단 스크레치",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/01-gallery-3-30503357-2b13-4d89-ab77-7902bdca86d2-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/01-gallery-3-30503357-2b13-4d89-ab77-7902bdca86d2-gallery-thumbnail.jpg",
+                "caption": "측면 스크레치",
+                "width": 1600,
+                "height": 1200
+              }
+            ]
+          }
+        ],
+        "ogImage": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/21-share-card-og-image.jpg",
+        "gallery": [
+          {
+            "src": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/21-gallery-1-b2977f53-dc19-472a-8330-b9ef3761c5f9-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/21-gallery-1-b2977f53-dc19-472a-8330-b9ef3761c5f9-gallery-thumbnail.jpg",
+            "caption": "도장 열처리작업",
+            "width": 1200,
+            "height": 1600
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/21-gallery-2-71204fbb-b750-4b8b-95c8-797abb72ce8c-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/21-gallery-2-71204fbb-b750-4b8b-95c8-797abb72ce8c-gallery-thumbnail.jpg",
+            "caption": "하이그로시 부품교환",
+            "width": 1200,
+            "height": 1600
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/21-gallery-3-4be4dd77-4a7d-46d4-b3f3-58cdbbc04bd2-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/21-gallery-3-4be4dd77-4a7d-46d4-b3f3-58cdbbc04bd2-gallery-thumbnail.jpg",
+            "caption": "앞범퍼 탈거",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/21-gallery-4-57ca02aa-ad12-4ba0-82f1-5a6e0bd6ecea-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/21-gallery-4-57ca02aa-ad12-4ba0-82f1-5a6e0bd6ecea-gallery-thumbnail.jpg",
+            "caption": "수리완료",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/21-gallery-5-ef359a1d-0e0a-4798-8ffe-ffbcfd6c15d3-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/8d43d992-17e4-4687-8011-2a1e8258827f/21-gallery-5-ef359a1d-0e0a-4798-8ffe-ffbcfd6c15d3-gallery-thumbnail.jpg",
+            "caption": "수리완료",
+            "width": 1600,
+            "height": 1200
+          }
+        ],
+        "summary": "앞범퍼 조수석 하단과 운전석 측면에 각각 발생한 긁힘 손상을 한 번에 복원하기 위해 범퍼 완전 탈거 후 전체도장을 시공했으며, 칠 복원 시 광도가 저하되는 '전체 유광' 하이그로시 파츠는 정품으로 교체하여 조립 이질감을 차단했습니다.",
+        "body": "자전거 등 날카로운 구조물과의 마찰로 인해 조수석 앞범퍼 하단의 화이트 도장면이 깊게 패이고 블랙 하이그로시 몰딩이 긁힌 상태, 그리고 운전석 측면에 얕은 쓸림이 동시다발적으로 존재하는 차량입니다.   안개등을 감싸고 있는 몰딩의 경우, 무광 텍스처가 섞이지 않은 100% 전체 유광(Full Glossy) 하이그로시 재질입니다. 표면에 퍼티를 덧대고 임의로 칠을 올려 보수할 경우 공장 출고 시 특유의 거울 같은 반사광을 재현하기 어려우므로, 높은 완성도 유지를 위해 1:1 정품 부품 교환 공정으로 방향을 잡았습니다.   \n\n아울러, 양 끝단에 분산된 범퍼 바디의 손상을 각각 부분 도색으로 처리하면 클리어 코트가 끊어지는 경계선 하자가 두 곳에서 발생하게 됩니다. 이를 방지하고자 앞범퍼를 차체에서 안전하게 분리(탈거)하고 내부 부속품을 완전히 해체한 뒤, 하나의 면으로 덮어내는 '전체도장'을 진행했습니다. 파인 굴곡의 정밀 퍼티 성형과 화이트 현장 조색, 그리고 특수 열처리 부스에서의 고온 경화를 거쳐 인접 패널과의 이색 현상이나 틈새 칠 뭉침 없는 견고한 전면부 핏(Fit)을 완성했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224434236650",
+        "featured": false,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "d1:bmw-5-520i-rear-side-bumper-panel-paint",
+      "lastModified": "2026-10-09",
+      "work": {
+        "slug": "bmw-5-520i-rear-side-bumper-panel-paint",
+        "date": "2026-10-07",
+        "title": "뒤범퍼 탈거 정밀 판금도색 및 이색 방지 조색",
+        "category": "panel-paint",
+        "subCategories": [],
+        "part": [
+          "범퍼"
+        ],
+        "subParts": [],
+        "carMaker": "BMW",
+        "carModel": "5시리즈 (520i)",
+        "color": "블랙 사파이어 메탈릭 계열 (Black)",
+        "parts": [
+          {
+            "part": [
+              "범퍼"
+            ],
+            "position": "rear",
+            "category": "panel-paint",
+            "label": "뒤범퍼 측면 상/하단 코너 부위",
+            "before": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/01-image-thumbnail.jpg",
+            "note": "범퍼의 상단과 하단을 가로지르는 광범위한 마찰 손상으로 베이스 도장까지 훼손된 상태. 범퍼 완전 탈거 후 정밀 샌딩으로 요철을 다듬고 현장 미세 조색을 진행하여, 블랙 특유의 묵직한 광택감과 이질감 없는 오리지널 색상을 완벽하게 복원함.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/01-gallery-1-c4c93195-433d-4fde-a8d8-b7ecfe5717ca-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/01-gallery-1-c4c93195-433d-4fde-a8d8-b7ecfe5717ca-gallery-thumbnail.jpg",
+                "caption": "범퍼 측면손상",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/01-gallery-2-4651f500-51d7-4b7d-a581-e4d83bdd1856-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/01-gallery-2-4651f500-51d7-4b7d-a581-e4d83bdd1856-gallery-thumbnail.jpg",
+                "caption": "범퍼하단 손상",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/01-gallery-3-1d036825-9306-4346-be1f-69459da13aeb-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/01-gallery-3-1d036825-9306-4346-be1f-69459da13aeb-gallery-thumbnail.jpg",
+                "caption": "범퍼 단차",
+                "width": 1600,
+                "height": 1200
+              }
+            ]
+          }
+        ],
+        "ogImage": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/21-share-card-og-image.jpg",
+        "gallery": [
+          {
+            "src": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/21-gallery-1-99daaeeb-cbf9-47b1-a3a9-9d098e7d1c63-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/21-gallery-1-99daaeeb-cbf9-47b1-a3a9-9d098e7d1c63-gallery-thumbnail.jpg",
+            "caption": "도장 열처리 작업",
+            "width": 1200,
+            "height": 1600
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/21-gallery-2-f4ca1e35-0d52-483e-9776-c9866023d9eb-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/21-gallery-2-f4ca1e35-0d52-483e-9776-c9866023d9eb-gallery-thumbnail.jpg",
+            "caption": "도장 열처리 작업",
+            "width": 1200,
+            "height": 1600
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/21-gallery-3-732fabdb-5218-47e7-a8cb-d0648478b3b5-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/21-gallery-3-732fabdb-5218-47e7-a8cb-d0648478b3b5-gallery-thumbnail.jpg",
+            "caption": "수리완료",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/21-gallery-4-890d5814-413e-4c4d-83c0-3aa2c8eb980e-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/7c408357-7549-4a94-bdc8-64170ca7448c/21-gallery-4-890d5814-413e-4c4d-83c0-3aa2c8eb980e-gallery-thumbnail.jpg",
+            "caption": "출고대기",
+            "width": 1600,
+            "height": 1200
+          }
+        ],
+        "summary": "상·하단 컬러 분할 구조를 가진 BMW 520i 뒤범퍼의 광범위한 쓸림 손상을 복원한 사례입니다. 마스킹 공법 시 발생하는 경계면 이질감과 센서 오작동 리스크를 차단하기 위해, 범퍼를 완전히 탈거하여 개별 도장 및 특수 열처리를 시공함으로써 오리지널 내구성과 광택감을 완벽히 회복했습니다.",
+        "body": "뒤범퍼 측면 코너 부위를 중심으로 상단과 하단에 걸쳐 광범위하고 깊은 쓸림 스크래치가 발생하여 입고된 차량입니다. 블랙 계열 도장면의 특성상 손상 부위가 빛에 반사되어 더욱 도드라지며, 베이스 코트층까지 파고든 깊이로 인해 단순 폴리싱으로는 복원이 불가한 상태였습니다.   해당 BMW 520i 모델의 뒤범퍼는 상단 바디 컬러와 하단 컬러가 구분되는 투톤 분할 구조를 지니고 있습니다. 이러한 구조에서 부품을 장착한 채 마스킹 테이프로만 덮고 도장을 진행하면, 경계선(엣지 라인)에 도료가 뭉쳐 턱이 지거나 칠이 박리되는 마감 불량이 발생하기 쉽고, 후방 주차 센서 틈새로 도료가 유입될 위험이 큽니다.   \n\n완벽한 수리 품질을 위해 범퍼를 차체에서 안전하게 완전 탈거한 뒤 내부 브라켓의 손상 유무를 점검하고 개별 도장 공정을 진행했습니다. 손상된 도막을 정밀하게 연마하여 단차를 없애고(하지 작업), 세월에 따른 변색(Aging) 정도를 고려한 미세 조색 기술을 적용했습니다. 이후 특수 열처리 부스에서 엄격한 온도 기준에 맞춰 고온 건조를 진행함으로써, 기존 휀더 패널과 비교해도 이색 현상이나 광택 저하가 없는 공장 출고 수준의 프리미엄 마감 품질을 완성했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224277761451",
+        "featured": false,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "d1:bmw-5-530i-rear-side-fender-panel-paint",
+      "lastModified": "2026-10-09",
+      "work": {
+        "slug": "bmw-5-530i-rear-side-fender-panel-paint",
+        "date": "2026-10-07",
+        "title": "보험 할증 방어 뒤휀다 판금도색 및 흠집 폴리싱 복합 복원",
+        "category": "panel-paint",
+        "subCategories": [
+          "polish"
+        ],
+        "part": [
+          "휀더"
+        ],
+        "subParts": [],
+        "carMaker": "BMW",
+        "carModel": "5시리즈 (530i)",
+        "color": "그레이 (Grey) 계열",
+        "parts": [
+          {
+            "part": [
+              "휀더"
+            ],
+            "position": "rear",
+            "category": "panel-paint",
+            "label": "뒤휀더 측면 캐릭터 라인 및 휠 아치 굴곡",
+            "before": "https://images.acedentshop.co.kr/works/e4df92df-b93c-44ac-a904-2b35ab0ac02e/01-image-before.jpg",
+            "beforeAnnotations": [
+              {
+                "type": "arrow",
+                "startX": 0.467,
+                "startY": 0.5645,
+                "endX": 0.5934,
+                "endY": 0.5645
+              },
+              {
+                "type": "arrow",
+                "startX": 0.8603,
+                "startY": 0.2086,
+                "endX": 0.862,
+                "endY": 0.4008
+              }
+            ],
+            "after": "https://images.acedentshop.co.kr/works/e4df92df-b93c-44ac-a904-2b35ab0ac02e/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/e4df92df-b93c-44ac-a904-2b35ab0ac02e/01-image-thumbnail.jpg",
+            "note": "강한 충격으로 아치형 각이 찌그러지고 철판 라인이 이중으로 꺾인 심각한 손상. 단순 도장이 불가하여 정교한 수작업 판금으로 무너진 캐릭터 라인과 가짜 각을 오리지널 굴곡에 맞춰 평탄화함. 이후 순정 그레이 컬러 조색과 고온 특수 열처리를 통해 빛의 굴절이나 이질감 없이 똑바르게 뻗은 오리지널 측면 각 라인을 완벽하게 회복함.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/e4df92df-b93c-44ac-a904-2b35ab0ac02e/01-gallery-1-fb468316-1667-46f1-ba3e-a9ce90cf38ac-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/e4df92df-b93c-44ac-a904-2b35ab0ac02e/01-gallery-1-fb468316-1667-46f1-ba3e-a9ce90cf38ac-gallery-thumbnail.jpg",
+                "caption": "아치 캐릭터 라인 찌그러짐",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/e4df92df-b93c-44ac-a904-2b35ab0ac02e/01-gallery-2-e42ca175-a05d-49e9-939f-7763394c2e7c-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/e4df92df-b93c-44ac-a904-2b35ab0ac02e/01-gallery-2-e42ca175-a05d-49e9-939f-7763394c2e7c-gallery-thumbnail.jpg",
+                "caption": "아치 캐릭터 라인 찌그러짐",
+                "width": 1600,
+                "height": 1200
+              }
+            ]
+          },
+          {
+            "part": [
+              "범퍼"
+            ],
+            "position": "rear",
+            "category": "polish",
+            "label": "뒤범퍼 측면",
+            "before": "https://images.acedentshop.co.kr/works/e4df92df-b93c-44ac-a904-2b35ab0ac02e/02-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/e4df92df-b93c-44ac-a904-2b35ab0ac02e/02-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/e4df92df-b93c-44ac-a904-2b35ab0ac02e/02-image-thumbnail.jpg",
+            "note": "후도어 경계면과 뒤범퍼에 넓고 깊게 발생한 다발성 스크래치 손상. 보험 할증 방어 전략에 따라 도색을 올리지 않고 정밀 폴리싱(광택) 공정만을 선택함. 투명층의 손상만 안전하게 걷어내는 다단계 버핑 작업을 통해, 칠 파손 없이 매끄러운 광택을 되살려내어 수리 총액을 낮추고 오리지널 제칠을 완벽하게 보존함.",
+            "gallery": []
+          }
+        ],
+        "ogImage": "https://images.acedentshop.co.kr/works/e4df92df-b93c-44ac-a904-2b35ab0ac02e/21-share-card-og-image.jpg",
+        "gallery": [
+          {
+            "src": "https://images.acedentshop.co.kr/works/e4df92df-b93c-44ac-a904-2b35ab0ac02e/21-gallery-1-50990759-4f15-4151-9068-a96239021ca9-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/e4df92df-b93c-44ac-a904-2b35ab0ac02e/21-gallery-1-50990759-4f15-4151-9068-a96239021ca9-gallery-thumbnail.jpg",
+            "caption": "범퍼 폴리싱",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/e4df92df-b93c-44ac-a904-2b35ab0ac02e/21-gallery-2-2467e109-0e31-4c2a-aa3d-92603644f657-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/e4df92df-b93c-44ac-a904-2b35ab0ac02e/21-gallery-2-2467e109-0e31-4c2a-aa3d-92603644f657-gallery-thumbnail.jpg",
+            "caption": "도장 열처리 작업",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/7ec3ae0a-8b8d-49fd-9326-8c40e8d18341/21-gallery-3-91dbf62e-02a3-441f-bb15-ad4df5dd4d30-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/7ec3ae0a-8b8d-49fd-9326-8c40e8d18341/21-gallery-3-91dbf62e-02a3-441f-bb15-ad4df5dd4d30-gallery-thumbnail.jpg",
+            "caption": "수리완료",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/7ec3ae0a-8b8d-49fd-9326-8c40e8d18341/21-gallery-4-1d79d682-3033-4b3e-aff9-c326b26419a4-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/7ec3ae0a-8b8d-49fd-9326-8c40e8d18341/21-gallery-4-1d79d682-3033-4b3e-aff9-c326b26419a4-gallery-thumbnail.jpg",
+            "caption": "출고대기",
+            "width": 1600,
+            "height": 1200
+          }
+        ],
+        "summary": "물적사고 할증 기준 금액(200만 원) 한도를 방어하기 위해 손상 부위별로 맞춤 공법을 적용한 사례입니다. 굴곡이 심한 뒤휀다는 정밀 판금도색으로 캐릭터 라인을 살리고, 단순 긁힘이 발생한 도어와 범퍼는 비도색 폴리싱으로 원칠을 보존하여 퀄리티 유지와 수리비 절감을 동시에 실현했습니다.",
+        "body": "차대차 사고의 가해 차량으로 입고되어, 상대방 수리비를 제외한 한정된 가용 예산 내에서 보험 할증 리스크를 막아야 하는 특수한 상황이었습니다. 정밀 검수 결과, 뒤휀다는 상단 캐릭터 라인이 뭉개지고 하단이 이중으로 꺾인 심각한 함몰 변형이 확인되어 정석적인 판금도장 공정이 불가피했습니다. 스포트 장비를 이용해 무너진 면을 원래의 각으로 정교하게 당겨내고, 현장 미세 조색과 특수 부스 열처리를 거쳐 이색 없는 완벽한 라인을 재구현했습니다.\n\n반면, 후도어와 뒤범퍼에 넓게 퍼진 다발성 스크래치는 도장면 최상단의 투명층(클리어 코트) 손상에 머물러 있었습니다. 당사는 할증 한도를 지키기 위해 과잉 수리인 '전체 도장'을 배제하고, 고성능 광택기를 활용한 정밀 폴리싱(흠집 제거) 공정을 적용했습니다. 이를 통해 값비싼 출고 당시의 오리지널 원칠을 100% 보존하면서도 상처만 말끔히 걷어내어 신차 수준의 광택을 살려내고 수리 비용을 획기적으로 낮췄습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224250449389",
+        "featured": false,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "d1:bmw-m850i-front-bumper-panel-paint",
+      "lastModified": "2026-10-09",
+      "work": {
+        "slug": "bmw-m850i-front-bumper-panel-paint",
+        "date": "2026-10-07",
+        "title": "후휀더 판금도장 및 도어 흠집제거 부위별 맞춤 복원",
+        "category": "panel-paint",
+        "subCategories": [],
+        "part": [
+          "범퍼"
+        ],
+        "subParts": [],
+        "carMaker": "BMW",
+        "carModel": "M850i",
+        "color": "블랙 계열 (Black)",
+        "parts": [
+          {
+            "part": [
+              "범퍼"
+            ],
+            "position": "front",
+            "category": "partial-paint",
+            "label": "앞범퍼 코너 스크래치",
+            "before": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/01-image-thumbnail.jpg",
+            "note": "단순 광택으로는 해결이 불가한 깊은 패임과 도장 박리 손상. 부품 탈거나 전체도장이 아닌, 코너 부위 부분도색 및 정밀 블렌딩 기법을 적용하여 비용을 낮춤과 동시에 인접 패널과의 이색 없는 완벽한 매칭을 구현함. 고품질 클리어와 열처리를 통해 추후 경계면 박리 및 헤일로(뿌연 자국) 현상을 차단함.",
+            "gallery": []
+          },
+          {
+            "part": [
+              "휀더"
+            ],
+            "position": "rear",
+            "category": "panel-paint",
+            "label": "뒤휀더 수직 찍힘",
+            "before": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/02-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/02-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/02-image-thumbnail.jpg",
+            "note": "도어 엣지 바로 뒤쪽에 발생한 깊은 수직성 찍힘으로 인해 철판이 늘어나고 도어와의 단차가 발생한 상태. 단순 덴트로는 면을 완벽하게 잡을 수 없는 심한 굴곡 변형이므로, 스포트 판금 장비를 사용하여 무너진 원래의 곡선과 엣지 라인을 정교하게 되살려냄. 이후 휀더 패널 내 이색 현상을 차단하기 위해 후휀더 전체 도장 및 특수 열처리를 시공하여, 단차 없는 조립 핏(Fit)과 거울처럼 맑은 블랙 도장면을 완벽히 복원함.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/02-gallery-1-63c7973b-75bd-4da5-97a8-ddbd4b51b30c-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/02-gallery-1-63c7973b-75bd-4da5-97a8-ddbd4b51b30c-gallery-thumbnail.jpg",
+                "caption": "후휀더 찌그러짐",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/02-gallery-2-fc2906b2-6888-421e-9bb3-b2d50696f32a-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/02-gallery-2-fc2906b2-6888-421e-9bb3-b2d50696f32a-gallery-thumbnail.jpg",
+                "caption": "후휀더 찌그러짐",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/02-gallery-3-fe4f3d40-2647-407f-a67b-bfd7778fa470-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/02-gallery-3-fe4f3d40-2647-407f-a67b-bfd7778fa470-gallery-thumbnail.jpg",
+                "caption": "후휀더 찌그러짐",
+                "width": 1600,
+                "height": 1200
+              }
+            ]
+          },
+          {
+            "part": [
+              "도어"
+            ],
+            "position": "rear",
+            "category": "polish",
+            "label": "뒤도어 선형 스크레치",
+            "before": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/03-image-before.jpg",
+            "beforeAnnotations": [
+              {
+                "type": "circle",
+                "x": 0.3638,
+                "y": 0.1994,
+                "width": 0.6014,
+                "height": 0.7639
+              }
+            ],
+            "after": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/03-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/03-image-thumbnail.jpg",
+            "note": "후도어 패널에 길게 발생한 다발성 선형 스크래치 손상. 정밀 도막 검수 결과, 베이스(색상) 층 파손 없이 최상단 투명층(클리어 코트)에만 상처가 국한된 것을 확인함. 불필요한 전체 도색(과잉 수리)을 배제하고 차량 고유의 제칠(오리지널리티)을 보존하기 위해, 상처 깊이에 맞춘 다단계 정밀 사포 연마(샌딩)와 폴리싱 공정을 적용함. 투명층의 두께를 안전하게 유지하면서 상처만 완벽하게 걷어내어 기존 패널 본연의 깊고 맑은 광택을 그대로 살려냄.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/03-gallery-1-a42154f6-0116-4b4f-b061-e756945cf231-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/03-gallery-1-a42154f6-0116-4b4f-b061-e756945cf231-gallery-thumbnail.jpg",
+                "caption": "뒤도어 스크레치",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/03-gallery-2-823e0512-8df6-43c2-a6ea-332510cbe788-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/03-gallery-2-823e0512-8df6-43c2-a6ea-332510cbe788-gallery-thumbnail.jpg",
+                "caption": "뒤도어 스크레치",
+                "width": 1600,
+                "height": 1200
+              }
+            ]
+          }
+        ],
+        "ogImage": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/21-share-card-og-image.jpg",
+        "gallery": [
+          {
+            "src": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/21-gallery-1-8967e881-573a-44f5-b30f-c0c3d4878975-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/21-gallery-1-8967e881-573a-44f5-b30f-c0c3d4878975-gallery-thumbnail.jpg",
+            "caption": "도장 열처리 작업",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/21-gallery-2-bbbce863-7ebf-4a1a-a9f5-3165f2cfdf5b-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/21-gallery-2-bbbce863-7ebf-4a1a-a9f5-3165f2cfdf5b-gallery-thumbnail.jpg",
+            "caption": "도장 열처리 작업",
+            "width": 1200,
+            "height": 1600
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/21-gallery-3-68e8bdbf-79f8-4914-b6a7-a9a8102062e7-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/b03731da-72e7-4c0b-9d55-c3f520fc4af9/21-gallery-3-68e8bdbf-79f8-4914-b6a7-a9a8102062e7-gallery-thumbnail.jpg",
+            "caption": "출고대기",
+            "width": 1600,
+            "height": 1200
+          }
+        ],
+        "summary": "일반 수리로 입고된 차량의 비용 부담을 낮추고 고유 가치를 보존하기 위해, 손상 정도에 따라 3가지 맞춤 솔루션을 적용했습니다. 칠 손상이 없는 도어는 샌딩 복원, 코너가 손상된 앞범퍼는 부분도장, 철판이 손상된 후휀더는 정석 판금도장을 시공하여 오리지널리티와 경제성을 모두 잡은 사례입니다.",
+        "body": "측면 부위 다발성 손상으로 입고된 차량을 정밀 진단한 결과, 후휀더(도어 엣지 뒤편)는 깊은 수직형 찍힘과 단차 변형이 발생하여 '정밀 판금 및 도색'이 불가피한 상태였습니다. 반면 인접한 후도어에 발생한 긴 선형 스크래치들은 다행히 도장면 최상단의 투명층(클리어 코트) 손상에 머물러 있었습니다. 이에 당사는 불필요한 패널 전체 도장을 배제하고, 단계별 정밀 샌딩(사포 연마)과 폴리싱(광택) 공정만을 적용하여 본연의 '제칠'을 100% 보존했습니다.   또한, 앞범퍼 코너 부위의 깊은 패임과 칠 벗겨짐은 디자인상 분할 라인이 많은 앞범퍼의 특성을 활용하여 '부분도색(블렌딩)' 기법을 적용했습니다. 이를 통해 멀쩡한 도장면은 유지하면서 손상 부위만 완벽하게 매칭하여 전체도색 대비 수리 비용을 대폭 절감했습니다. 각기 다른 공법이 적용되었으나 벤츠 전용 부스에서의 정교한 현장 조색과 고온 특수 열처리를 통해, 패널 간 이색 현상이나 칠 끊김 없는 맑고 깊은 프리미엄 블랙 퀄리티를 완성했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224254549474",
+        "featured": false,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "d1:mercedes-e-e350-front-left-right-bumper-panel-paint",
+      "lastModified": "2026-10-09",
+      "work": {
+        "slug": "mercedes-e-e350-front-left-right-bumper-panel-paint",
+        "date": "2026-10-07",
+        "title": "앞범퍼 비탈거 전체 도장 및 정밀 리프팅 마스킹 복원",
+        "category": "panel-paint",
+        "subCategories": [],
+        "part": [
+          "범퍼"
+        ],
+        "subParts": [],
+        "carMaker": "메르세데스-벤츠",
+        "carModel": "E클래스 (E350)",
+        "color": "화이트 펄 계열 (White Pearl)",
+        "parts": [
+          {
+            "part": [
+              "범퍼"
+            ],
+            "position": "front",
+            "category": "panel-paint",
+            "label": "앞범퍼 좌/우측 하단 코너 스크래치",
+            "before": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/01-image-thumbnail.jpg",
+            "note": "지면과 맞닿는 범퍼 하단 코너부에 발생한 다발적인 쓸림 상처. 패널의 형태 변형이 없어 굳이 차체에서 범퍼를 분리하지 않고 면을 잡음. 빛의 각도에 따라 이색 현상이 두드러지는 화이트 펄(3코트)의 특성을 고려하여, 기존 차체 도장면의 에이징(Aging) 상태에 맞춘 정밀 조색을 진행함으로써 본넷 및 휀더 등 인접 패널과 이질감 없는 완벽한 색상 일치율을 구현함.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/01-gallery-1-dec8c01f-f034-455e-8a7c-9aecd6f33f61-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/01-gallery-1-dec8c01f-f034-455e-8a7c-9aecd6f33f61-gallery-thumbnail.jpg",
+                "caption": "앞범 운전석측 하단",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/01-gallery-2-a23d2096-424d-45d9-ae2c-7d0bfa9c67aa-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/01-gallery-2-a23d2096-424d-45d9-ae2c-7d0bfa9c67aa-gallery-thumbnail.jpg",
+                "caption": "앞범 조수석측 하단",
+                "width": 1600,
+                "height": 1200
+              }
+            ]
+          }
+        ],
+        "ogImage": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/21-share-card-og-image.jpg",
+        "gallery": [
+          {
+            "src": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/21-gallery-1-0f6c2d9c-7f8e-408b-812d-caa40cef77cd-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/21-gallery-1-0f6c2d9c-7f8e-408b-812d-caa40cef77cd-gallery-thumbnail.jpg",
+            "caption": "도장 열처리 작업",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/21-gallery-2-c631f6c8-9779-4ecc-93f4-633c3698b80f-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/21-gallery-2-c631f6c8-9779-4ecc-93f4-633c3698b80f-gallery-thumbnail.jpg",
+            "caption": "도장 열처리 작업",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/21-gallery-3-e3eb6459-2997-4c71-a995-e351ec2187db-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/21-gallery-3-e3eb6459-2997-4c71-a995-e351ec2187db-gallery-thumbnail.jpg",
+            "caption": "수리완료",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/21-gallery-4-4d3b0fe7-2314-4b7a-8eba-c52ecd1ea077-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/21-gallery-4-4d3b0fe7-2314-4b7a-8eba-c52ecd1ea077-gallery-thumbnail.jpg",
+            "caption": "수리완료",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/21-gallery-5-744fe7a7-c9d2-467b-ae90-980c1b963b56-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/d1bf95eb-0848-414f-bf0d-bd1c5c31a6e6/21-gallery-5-744fe7a7-c9d2-467b-ae90-980c1b963b56-gallery-thumbnail.jpg",
+            "caption": "출고대기",
+            "width": 1600,
+            "height": 1200
+          }
+        ],
+        "summary": "형태 변형이나 내부 부속 파손이 없는 앞범퍼 하단의 긁힘 손상에 대해, 순정 조립 체결력을 보존하고 비용을 절감할 수 있는 '비탈거 전체 도장'을 시공했습니다. 비탈거 공법의 태생적 단점인 엣지 라인 칠 끊김 현상을 막기 위해 정밀 샌딩과 틈새 리프팅 마스킹을 적용하여 내구성을 극대화한 사례입니다.",
+        "body": "앞범퍼 하단부에 광범위한 쓸림과 도막 파임이 발생하여 입고된 벤츠 E350 차량입니다. 기술적 진단 결과, 다행히 범퍼 패널 자체의 찢어짐이나 내부 브라켓, 전방 센서 등의 구조적인 파손은 전혀 없는 상태였습니다.\n\n수입차의 경우 무리하게 범퍼를 자주 탈거하면 고정 핀 마모로 인한 조립 단차가 발생할 리스크가 있습니다. 당사는 차체에 가해지는 스트레스를 최소화하고 효율성을 높이기 위해, 범퍼를 차체에 부착한 상태로 수리하는 '비탈거 전체 도장' 솔루션을 채택했습니다.\n\n다만 비탈거 도장은 부품이 맞닿는 경계면(엣지)에서 페인트가 끊어지게 되어 물리적 충격이나 고압 세차 시 칠이 박리될 우려가 높습니다. 이러한 한계를 극복하기 위해 안개등 커버, 그릴, 라이트 몰딩 주변의 0.5mm 안쪽 틈새까지 수작업으로 미세 연마(샌딩)를 진행했습니다. 이후 틈새를 미세하게 벌려 도료를 안쪽 깊숙이 밀어 넣는 '리프팅 마스킹' 기법을 시공하고, 정밀 조색된 화이트 펄 도장 및 전용 부스 고온 열처리를 거쳐 칠 뭉침이나 단차 없는 프리미엄 마감 퀄리티를 완성했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224268219206",
+        "featured": false,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "d1:toyota-4-rav4-rear-door-panel-paint",
+      "lastModified": "2026-10-09",
+      "work": {
+        "slug": "toyota-4-rav4-rear-door-panel-paint",
+        "date": "2026-10-07",
+        "title": "후도어 판금도장 및 하단 가니쉬 무손상 탈거 복원",
+        "category": "panel-paint",
+        "subCategories": [],
+        "part": [
+          "도어"
+        ],
+        "subParts": [],
+        "carMaker": "토요타 (Toyota)",
+        "carModel": "라브4 (RAV4)",
+        "color": "화이트 펄 (3코트) 계열",
+        "parts": [
+          {
+            "part": [
+              "도어"
+            ],
+            "position": "rear",
+            "category": "panel-paint",
+            "label": "뒤도어 하단",
+            "before": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/01-image-before.jpg",
+            "after": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/01-image-thumbnail.jpg",
+            "note": "충격으로 인해 안쪽으로 밀려 들어간 후도어 하단의 철판 굴곡 변형. 마스킹 턱짐 하자를 원천 차단하기 위해 플라스틱 가니쉬를 안전하게 분리하여 재사용함(고객 부품값 세이브). 고난도 화이트 펄 컬러의 단점을 보완하는 미세 조색과 내부 엣지 마감 공정을 적용하여, 가니쉬 재조립 시 경계면 이질감이나 인접 패널(보닛, 앞도어 등)과의 색상 차이 없이 오리지널 도장면 특유의 맑은 반사광을 회복함.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/01-gallery-1-81aa2aad-7a7e-46a6-8231-726c8e616715-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/01-gallery-1-81aa2aad-7a7e-46a6-8231-726c8e616715-gallery-thumbnail.jpg",
+                "caption": "후도어 전체사진",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/01-gallery-2-55fd6fed-eed7-4794-9ad3-626dced026f9-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/01-gallery-2-55fd6fed-eed7-4794-9ad3-626dced026f9-gallery-thumbnail.jpg",
+                "caption": "중앙부 스크레치",
+                "width": 1600,
+                "height": 1200
+              },
+              {
+                "src": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/01-gallery-3-7e0e1718-b443-4778-b1c3-a3d32beb178a-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/01-gallery-3-7e0e1718-b443-4778-b1c3-a3d32beb178a-gallery-thumbnail.jpg",
+                "caption": "하단 찌그러짐",
+                "width": 1600,
+                "height": 1200
+              }
+            ]
+          }
+        ],
+        "ogImage": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/21-share-card-og-image.jpg",
+        "gallery": [
+          {
+            "src": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/21-gallery-1-3a387598-2e40-4d7d-ad51-78a9b3dc4bc0-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/21-gallery-1-3a387598-2e40-4d7d-ad51-78a9b3dc4bc0-gallery-thumbnail.jpg",
+            "caption": "도장 열처리 작업",
+            "width": 1200,
+            "height": 1600
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/21-gallery-2-b41ca7ee-d745-48e6-83d3-589243b5505f-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/21-gallery-2-b41ca7ee-d745-48e6-83d3-589243b5505f-gallery-thumbnail.jpg",
+            "caption": "작업완료",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/21-gallery-3-e9cf9dac-765f-4ee7-bcde-60687629fcc6-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/21-gallery-3-e9cf9dac-765f-4ee7-bcde-60687629fcc6-gallery-thumbnail.jpg",
+            "caption": "작업완료",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/21-gallery-4-d38883eb-b7e8-4997-a41e-ac985b4221a6-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/6c36437c-96f0-4d77-9669-53ec1c041a7c/21-gallery-4-d38883eb-b7e8-4997-a41e-ac985b4221a6-gallery-thumbnail.jpg",
+            "caption": "출고대기",
+            "width": 1600,
+            "height": 1200
+          }
+        ],
+        "summary": "주차장 하단 구조물 접촉으로 찌그러진 운전석 측 후도어를 복원한 사례입니다. 완벽한 도막 퀄리티를 위해 하단 플라스틱 가니쉬를 파손 없이 안전하게 분리한 뒤, 도어 안쪽 엣지 라인까지 화이트 펄 정밀 조색 도장을 시공하여 이색 현상이나 칠 박리(떨어짐) 현상 없이 오리지널 철판을 살려냈습니다.",
+        "body": "하단에서 대각선 위쪽으로 가해진 충격으로 인해 후도어 패널 하단이 내부로 말려 들어가고, 플라스틱 가니쉬와의 경계면에 유격 및 도장 손상이 동반된 상태의 차량입니다.\n\n일반적으로 SUV 하단 가니쉬를 부착한 채 마스킹 테이프만 두르고 도장을 진행할 경우, 철판과 플라스틱이 맞닿는 틈새에 도료가 온전히 안착하지 못해 추후 고압 세차 시 칠이 떨어지는 치명적인 하자가 발생합니다. 그러나 해당 가니쉬는 내부 고정 핀과 양면테이프 결합 구조가 약해, 탈거 과정에서 부품이 파손되어 통상적으로 '새 부품 교환'이 권장되는 부위입니다.\n\n당사는 불필요한 부품 추가 비용을 차단하고 팩토리 수준의 마감 품질을 구현하기 위해, 전용 특수 도구를 활용하여 기존 가니쉬를 파손 없이 100% 완전 탈거했습니다. 이후 스포트 장비로 찌그러진 철판 면을 평탄화하고, 이색이 발생하기 쉬운 화이트 펄(3코트) 도료를 현장 정밀 조색하여 가니쉬 결합부 안쪽 끝단까지 빈틈없이 분사했습니다. 매뉴얼에 따른 고온 특수 열처리 부스 건조를 거쳐, 부품 조립 후에도 칠 끊김이나 뭉침 없는 견고한 측면 핏(Fit)을 완성했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224297067284",
+        "featured": false,
+        "days": "2일",
+        "sliderType": "drag"
+      }
+    },
+    {
+      "sourceFile": "d1:mercedes-benz-glb-rear-door-panel-paint",
+      "lastModified": "2026-10-09",
+      "work": {
+        "slug": "mercedes-benz-glb-rear-door-panel-paint",
+        "date": "2026-09-29",
+        "title": "뒤도어 하단 찍힘 도장 파임 판금도색 및 정밀 마스킹",
+        "category": "panel-paint",
+        "subCategories": [],
+        "part": [
+          "도어"
+        ],
+        "subParts": [],
+        "carMaker": "메르세데스-벤츠 (Mercedes-Benz)",
+        "carModel": "GLB",
+        "color": "화이트 계열",
+        "parts": [
+          {
+            "part": [
+              "도어"
+            ],
+            "position": "rear",
+            "category": "panel-paint",
+            "label": "뒤도어 하단 캐릭터 라인",
+            "before": "https://images.acedentshop.co.kr/works/4bcd6d35-f689-42bd-9f05-20323fa77b07/01-image-before.jpg",
+            "beforeAnnotations": [
+              {
+                "type": "arrow",
+                "startX": 0.3727,
+                "startY": 0.5052,
+                "endX": 0.4635,
+                "endY": 0.5052
+              }
+            ],
+            "after": "https://images.acedentshop.co.kr/works/4bcd6d35-f689-42bd-9f05-20323fa77b07/01-image-after.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/4bcd6d35-f689-42bd-9f05-20323fa77b07/01-image-thumbnail.jpg",
+            "note": "캐릭터 라인 정중앙의 도장이 철판 인근까지 깊게 파여나간 손상 상태. 붓터치 도포 시 발생하는 턱짐이나 칠 뭉침 하자를 배제하기 위해 정밀 퍼티 성형 후 도어 한 판 전체 도장을 진행함. 파손 우려가 높은 하단 크롬 몰딩은 틈새 마스킹을 적용하여 부품 교환 비용을 방어했으며, 고온 열처리를 통해 이색 현상이나 굴절 없이 매끄러운 오리지널 캐릭터 라인 굴곡을 회복함.",
+            "gallery": [
+              {
+                "src": "https://images.acedentshop.co.kr/works/4bcd6d35-f689-42bd-9f05-20323fa77b07/01-gallery-1-230e7f11-a7c9-4a17-ac69-e81afcba31b1-gallery.jpg",
+                "thumbnail": "https://images.acedentshop.co.kr/works/4bcd6d35-f689-42bd-9f05-20323fa77b07/01-gallery-1-230e7f11-a7c9-4a17-ac69-e81afcba31b1-gallery-thumbnail.jpg",
+                "caption": "손상부위 확대",
+                "width": 1600,
+                "height": 1200
+              }
+            ]
+          }
+        ],
+        "ogImage": "https://images.acedentshop.co.kr/works/4bcd6d35-f689-42bd-9f05-20323fa77b07/21-share-card-og-image.jpg",
+        "gallery": [
+          {
+            "src": "https://images.acedentshop.co.kr/works/4bcd6d35-f689-42bd-9f05-20323fa77b07/21-gallery-1-5708a2a6-7f32-490d-a466-9d8b59189b57-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/4bcd6d35-f689-42bd-9f05-20323fa77b07/21-gallery-1-5708a2a6-7f32-490d-a466-9d8b59189b57-gallery-thumbnail.jpg",
+            "caption": "도장 작업 사진",
+            "width": 1200,
+            "height": 1600
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/4bcd6d35-f689-42bd-9f05-20323fa77b07/21-gallery-2-001257d4-0d0b-4a61-925d-7e6865a4aaea-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/4bcd6d35-f689-42bd-9f05-20323fa77b07/21-gallery-2-001257d4-0d0b-4a61-925d-7e6865a4aaea-gallery-thumbnail.jpg",
+            "caption": "수리완료",
+            "width": 1600,
+            "height": 1200
+          },
+          {
+            "src": "https://images.acedentshop.co.kr/works/4bcd6d35-f689-42bd-9f05-20323fa77b07/21-gallery-3-d900e5e3-a03d-4692-98d4-242097e823f6-gallery.jpg",
+            "thumbnail": "https://images.acedentshop.co.kr/works/4bcd6d35-f689-42bd-9f05-20323fa77b07/21-gallery-3-d900e5e3-a03d-4692-98d4-242097e823f6-gallery-thumbnail.jpg",
+            "caption": "수리완료",
+            "width": 1600,
+            "height": 1200
+          }
+        ],
+        "summary": "뒤도어 하단 캐릭터 라인에 발생한 깊은 찍힘과 도장 파임을 부분 붓터치가 아닌 도어 전체 판금도장으로 복원했으며, 파손 위험이 높은 하단 크롬 몰딩은 정밀 틈새 마스킹으로 보호하여 부품 교환 없이 깔끔하게 마감했습니다.",
+        "body": "조수석 측 뒤도어 하단의 굵은 캐릭터 라인 정중앙에 날카로운 물체에 의한 둔탁한 찍힘(문콕) 및 페인트 파임 손상이 발생하여 입고된 벤츠 GLB 차량입니다. 국소 부위 손상이지만 붓터치(터치업) 시공 시 남게 되는 시각적 이질감을 방지하고 완벽한 내구성을 확보하기 위해, 도어 패널 전체를 칠하는 정석 판금도장 공정을 채택했습니다.   \n\n작업 시 휠 아치 무광 몰딩은 안전하게 분리했으나, 하단 크롬 몰딩은 억지로 탈거할 경우 내부 고정 핀 파손으로 인한 부품 통교환 리스크가 커 미탈거 상태로 작업을 진행했습니다. 철판과 몰딩 사이의 미세한 유격을 활용한 초정밀 틈새 마스킹 기법을 적용하여 하단부로의 칠 날림을 원천 차단했습니다. 이후 수입차 전용 아연 퍼티로 파인 단차를 매끄럽게 성형한 뒤, 화이트 정밀 조색 도장 및 전용 부스 고온 특수 열처리 건조를 거쳐 하단 몰딩 오염이나 도막 이색 없는 완벽한 측면 핏(Fit)을 완성했습니다.",
+        "blogUrl": "https://blog.naver.com/ace_dent_shop/224426274442",
+        "featured": false,
+        "days": "1일",
+        "sliderType": "drag"
+      }
+    },
+    {
       "sourceFile": "d1:bmw-5-520i-front-right-bumper-panel-paint",
       "lastModified": "2026-09-26",
       "work": {

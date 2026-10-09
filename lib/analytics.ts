@@ -252,8 +252,12 @@ export function trackReviewClick(
   trackExternalClick('review_click', { placement, destination });
 }
 
-export function trackCaseView(caseId: string, part: string) {
-  sendEvent('case_view', { case_id: caseId, part });
+export function trackCaseView(caseId: string, part: string, related?: { sourceWorkSlug: string; reason: string }) {
+  sendEvent('case_view', { case_id: caseId, part, ...(related ? {
+    placement: 'related_works',
+    source_work_slug: related.sourceWorkSlug,
+    recommendation_reason: related.reason,
+  } : {}) });
 }
 
 export function trackFilterUse(category: string, part: string) {

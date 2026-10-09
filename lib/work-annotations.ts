@@ -2,6 +2,24 @@ import type { WorkImageAnnotation } from '../content/works/types';
 
 export const WORK_IMAGE_ANNOTATION_MAX = 3;
 
+/** SVG 표시와 OG 캔버스가 함께 사용하는, 둥근 선 끝의 열린 화살촉입니다. */
+export function annotationArrowGeometry(startX: number, startY: number, endX: number, endY: number, scale = 1) {
+  const length = Math.hypot(endX - startX, endY - startY);
+  const angle = Math.atan2(endY - startY, endX - startX);
+  const head = Math.min(44 * scale, length * 0.32);
+  const wing = head * 0.55;
+  const baseX = endX - Math.cos(angle) * head;
+  const baseY = endY - Math.sin(angle) * head;
+  const left = { x: baseX - Math.sin(angle) * wing, y: baseY + Math.cos(angle) * wing };
+  const right = { x: baseX + Math.sin(angle) * wing, y: baseY - Math.cos(angle) * wing };
+  return {
+    left, right,
+    path: `M ${startX} ${startY} L ${endX} ${endY} M ${left.x} ${left.y} L ${endX} ${endY} L ${right.x} ${right.y}`,
+    outlineWidth: 18 * scale,
+    markWidth: 10 * scale,
+  };
+}
+
 function coordinate(value: unknown, label: string) {
   const number = Number(value);
   if (!Number.isFinite(number) || number < 0 || number > 1) {

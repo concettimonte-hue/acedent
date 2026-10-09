@@ -1,5 +1,7 @@
 'use client';
 
+import { annotationArrowGeometry } from '@/lib/work-annotations';
+
 /* oxlint-disable next/no-html-link-for-pages, next/no-img-element -- Vite SPA: internal anchors and pre-compressed img assets are intentional. */
 
 import {
@@ -367,29 +369,21 @@ function drawCanvasAnnotations(
     const startY = mapY(annotation.startY);
     const endX = mapX(annotation.endX);
     const endY = mapY(annotation.endY);
-    const angle = Math.atan2(endY - startY, endX - startX);
-    const drawArrowShaft = (color: string, lineWidth: number) => {
+    const scale = mapping.targetWidth * mapping.bitmapWidth / mapping.sourceWidth / 1600;
+    const arrow = annotationArrowGeometry(startX, startY, endX, endY, scale);
+    const drawArrow = (color: string, lineWidth: number) => {
       context.beginPath();
       context.moveTo(startX, startY);
       context.lineTo(endX, endY);
+      context.moveTo(arrow.left.x, arrow.left.y);
+      context.lineTo(endX, endY);
+      context.lineTo(arrow.right.x, arrow.right.y);
       context.strokeStyle = color;
       context.lineWidth = lineWidth;
       context.stroke();
     };
-    drawArrowShaft('rgba(3, 4, 3, 0.9)', 12);
-    drawArrowShaft('#f8db00', 6);
-
-    const headSize = 30;
-    context.beginPath();
-    context.moveTo(endX, endY);
-    context.lineTo(endX + Math.cos(angle + Math.PI * 0.82) * headSize, endY + Math.sin(angle + Math.PI * 0.82) * headSize);
-    context.lineTo(endX + Math.cos(angle - Math.PI * 0.82) * headSize, endY + Math.sin(angle - Math.PI * 0.82) * headSize);
-    context.closePath();
-    context.strokeStyle = 'rgba(3, 4, 3, 0.9)';
-    context.lineWidth = 8;
-    context.stroke();
-    context.fillStyle = '#f8db00';
-    context.fill();
+    drawArrow('rgba(3, 4, 3, 0.9)', arrow.outlineWidth);
+    drawArrow('#f8db00', arrow.markWidth);
   }
   context.restore();
 }

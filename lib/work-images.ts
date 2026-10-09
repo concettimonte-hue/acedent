@@ -90,8 +90,9 @@ export function getWorkThumbnailSrcForCategory(
   work: WorkItem,
   category?: WorkCategory,
   part?: WorkPartValue,
+  partIndex?: number,
 ) {
-  const representativePart = getWorkRepresentativePart(work, category, part);
+  const representativePart = (partIndex === undefined ? undefined : work.parts[partIndex]) || getWorkRepresentativePart(work, category, part);
   if (representativePart.thumbnail) return resolveWorkImageSrc(representativePart.thumbnail);
   const after = representativePart.after;
   const thumbnail = after.replace(
@@ -106,13 +107,14 @@ export function getWorkCardImageSrcForCategory(
   category?: WorkCategory,
   part?: WorkPartValue,
   state: 'before' | 'after' = 'after',
+  partIndex?: number,
 ) {
   if (state === 'after') {
-    return getWorkThumbnailSrcForCategory(work, category, part);
+    return getWorkThumbnailSrcForCategory(work, category, part, partIndex);
   }
 
   return resolveWorkImageSrc(
-    getWorkRepresentativePart(work, category, part).before,
+    ((partIndex === undefined ? undefined : work.parts[partIndex]) || getWorkRepresentativePart(work, category, part)).before,
   );
 }
 

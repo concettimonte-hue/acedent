@@ -13,6 +13,7 @@ export interface RelatedWorkSuggestion {
   reasons: RelatedWorkReason[];
   matchedCategory?: WorkCategory;
   matchedPart?: WorkPartValue;
+  matchedPartIndex?: number;
 }
 
 const reasonLabels: Record<RelatedWorkReason, string> = {
@@ -26,10 +27,11 @@ export function getRelatedWorkReasonLabel(reason: RelatedWorkReason) {
 
 interface RelatedWorkMatch extends Omit<RelatedWorkSuggestion, 'work'> {
   score: number;
+  positionMatch?: boolean;
 }
 
 function getRelatedPartPairs(work: WorkItem) {
-  return work.parts.flatMap((mediaPart) => {
+  return work.parts.flatMap((mediaPart, index) => {
     const isSingleLegacyPart = work.parts.length === 1;
     const category = mediaPart.category ?? (
       isSingleLegacyPart ? work.category : undefined
@@ -41,7 +43,7 @@ function getRelatedPartPairs(work: WorkItem) {
         : [];
 
     if (!category) return [];
-    return parts.map((part) => ({ part, category }));
+    return parts.map((part) => ({ part, category, position: mediaPart.position, index }));
   });
 }
 
@@ -62,18 +64,18 @@ function getRelatedWorkReasons(
   // "같은 부위 · 같은 작업"으로 취급하지 않습니다. 다만 PART가 하나뿐인
   // 기존 사례는 사례 대표 부위·작업 외에 연결할 대상이 없으므로 호환합니다.
   const candidatePartPairs = getRelatedPartPairs(candidate);
-  const exactPartMatch = getRelatedPartPairs(source).find(
-    ({ part, category }) => candidatePartPairs.some(
-      (candidatePair) =>
-        candidatePair.part === part && candidatePair.category === category,
-    ),
-  );
+  const exactPartMatch = getRelatedPartPairs(source).flatMap((sourcePair) =>
+    candidatePartPairs.filter((candidatePair) => candidatePair.part === sourcePair.part && candidatePair.category === sourcePair.category)
+      .map((candidatePair) => ({ ...candidatePair, positionMatch: Boolean(sourcePair.position && sourcePair.position === candidatePair.position) })),
+  ).sort((a, b) => Number(b.positionMatch) - Number(a.positionMatch))[0];
 
   if (exactPartMatch) {
     return {
       reasons: ['part', 'category'],
       matchedCategory: exactPartMatch.category,
       matchedPart: exactPartMatch.part,
+      matchedPartIndex: exactPartMatch.index,
+      positionMatch: exactPartMatch.positionMatch,
       score: 8,
     };
   }
@@ -82,10 +84,15 @@ function getRelatedWorkReasons(
   // 부위 일치를 작업 일치보다 우선해 하나의 기준만 사용합니다.
   if (samePart) {
     const primaryPart = source.part[0] ?? sourceParts[0];
+    const sourcePositions = new Set(source.parts.filter((part) => part.part?.includes(samePart) && part.position).map((part) => part.position));
+    const positionIndex = candidate.parts.findIndex((part) => part.part?.includes(samePart) && part.position && sourcePositions.has(part.position));
+    const partIndex = positionIndex >= 0 ? positionIndex : candidate.parts.findIndex((part) => part.part?.includes(samePart));
 
     return {
       reasons: ['part'],
       matchedPart: samePart,
+      matchedPartIndex: partIndex >= 0 ? partIndex : undefined,
+      positionMatch: positionIndex >= 0,
       score: samePart === primaryPart ? 4 : 2,
     };
   }
@@ -112,13 +119,14 @@ export function selectRelatedWorkSuggestions(
       candidate.slug !== source.slug && reasons.length > 0
     ))
     .sort((a, b) => (
-      b.score - a.score || a.index - b.index
+      b.score - a.score || Number(Boolean(b.positionMatch)) - Number(Boolean(a.positionMatch)) || a.index - b.index
     ))
     .slice(0, limit)
-    .map(({ candidate, reasons, matchedCategory, matchedPart }) => ({
+    .map(({ candidate, reasons, matchedCategory, matchedPart, matchedPartIndex }) => ({
       work: candidate,
       reasons,
       matchedCategory,
       matchedPart,
+      matchedPartIndex,
     }));
 }

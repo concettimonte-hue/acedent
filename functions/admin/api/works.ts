@@ -16,6 +16,8 @@ import {
 } from '../../../content/works/types';
 import { getWorkSeoCopy } from '../../../lib/work-seo';
 import { parseWorkImageAnnotations } from '../../../lib/work-annotations';
+import { getWorkFilterCategories } from '../../../lib/work-categories';
+import { getWorkFilterParts } from '../../../lib/work-parts';
 import {
   cleanPublicBase,
   json,
@@ -263,6 +265,8 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
         carMaker: work.carMaker,
         carModel: work.carModel,
         thumbnail: firstPart?.thumbnail || firstPart?.after || '',
+        categories: getWorkFilterCategories(work),
+        parts: getWorkFilterParts(work),
         cleanup: cleanupBySlug.get(String(row.slug)) || null,
       };
     } catch {

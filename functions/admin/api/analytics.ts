@@ -1,6 +1,7 @@
 import { type AdminEnv, json, requireAccess } from '../../_shared/admin';
 import { WORK_CATEGORIES } from '../../../content/works/types';
 import { getWorkPartFromRouteSlug } from '../../../lib/work-landings';
+import { analyticsDate, analyticsPeriod } from '../../../lib/admin-analytics';
 
 const OWNER_COOKIE = 'acedent_owner_excluded';
 
@@ -41,25 +42,13 @@ interface PageGroupRow {
 interface WorkLabelRow {
   slug: string;
   payload_json: string;
+  created_at: string;
 }
 
 function hasOwnerCookie(request: Request) {
   return (request.headers.get('Cookie') || '')
     .split(';')
     .some((item) => item.trim() === `${OWNER_COOKIE}=1`);
-}
-
-function koreanDate(date = new Date()) {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Seoul',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(date);
-}
-
-function daysAgo(days: number) {
-  return koreanDate(new Date(Date.now() - days * 86_400_000));
 }
 
 function numeric(value: number | string | null | undefined) {
@@ -130,33 +119,31 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
   const access = requireAccess(request);
   if (!access.ok) return access.response;
 
+  if (!env.ACEDENT_DB) return json({ error: 'D1 바인딩이 설정되지 않았습니다.' }, 503);
   const periodDays = selectedDays(request);
-  const today = koreanDate();
-  const weekStart = daysAgo(6);
-  const monthStart = daysAgo(29);
-  const periodStart = daysAgo(periodDays - 1);
-  const previousStart = daysAgo(periodDays * 2 - 1);
-  const previousEnd = daysAgo(periodDays);
+  const { today, start: periodStart, end: periodEnd, previousStart, previousEnd } = analyticsPeriod(periodDays);
+  const weekStart = analyticsPeriod(7).start;
+  const monthStart = analyticsPeriod(30).start;
 
-  const [summary, period, previousPeriod, daily, pageGroups, topPages, firstVisit, workRows] = await Promise.all([
+  const [summary, period, previousPeriod, daily, pageGroups, topPages, previousPages, firstVisit, workRows] = await Promise.all([
     env.ACEDENT_DB.prepare(`
       SELECT
         COUNT(DISTINCT CASE WHEN visit_date = ? THEN visitor_hash END) AS today_visitors,
         COALESCE(SUM(CASE WHEN visit_date = ? THEN page_views ELSE 0 END), 0) AS today_views,
-        COUNT(DISTINCT CASE WHEN visit_date >= ? THEN visitor_hash END) AS week_visitors,
-        COALESCE(SUM(CASE WHEN visit_date >= ? THEN page_views ELSE 0 END), 0) AS week_views,
-        COUNT(DISTINCT CASE WHEN visit_date >= ? THEN visitor_hash END) AS month_visitors,
-        COALESCE(SUM(CASE WHEN visit_date >= ? THEN page_views ELSE 0 END), 0) AS month_views,
+        COUNT(DISTINCT CASE WHEN visit_date BETWEEN ? AND ? THEN visitor_hash END) AS week_visitors,
+        COALESCE(SUM(CASE WHEN visit_date BETWEEN ? AND ? THEN page_views ELSE 0 END), 0) AS week_views,
+        COUNT(DISTINCT CASE WHEN visit_date BETWEEN ? AND ? THEN visitor_hash END) AS month_visitors,
+        COALESCE(SUM(CASE WHEN visit_date BETWEEN ? AND ? THEN page_views ELSE 0 END), 0) AS month_views,
         COUNT(DISTINCT visitor_hash) AS all_visitors,
         COALESCE(SUM(page_views), 0) AS all_views
       FROM site_visit_daily
-    `).bind(today, today, weekStart, weekStart, monthStart, monthStart).first<SummaryRow>(),
+    `).bind(today, today, weekStart, periodEnd, weekStart, periodEnd, monthStart, periodEnd, monthStart, periodEnd).first<SummaryRow>(),
     env.ACEDENT_DB.prepare(`
       SELECT COUNT(DISTINCT visitor_hash) AS visitors,
         COALESCE(SUM(page_views), 0) AS views
       FROM site_visit_daily
-      WHERE visit_date >= ?
-    `).bind(periodStart).first<PeriodRow>(),
+      WHERE visit_date BETWEEN ? AND ?
+    `).bind(periodStart, periodEnd).first<PeriodRow>(),
     env.ACEDENT_DB.prepare(`
       SELECT COUNT(DISTINCT visitor_hash) AS visitors,
         COALESCE(SUM(page_views), 0) AS views
@@ -168,10 +155,10 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
         COUNT(DISTINCT visitor_hash) AS visitors,
         SUM(page_views) AS views
       FROM site_visit_daily
-      WHERE visit_date >= ?
+      WHERE visit_date BETWEEN ? AND ?
       GROUP BY visit_date
       ORDER BY visit_date ASC
-    `).bind(periodStart).all<DailyRow>(),
+    `).bind(periodStart, periodEnd).all<DailyRow>(),
     env.ACEDENT_DB.prepare(`
       SELECT CASE
           WHEN path = '/' THEN 'home'
@@ -183,31 +170,37 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
         COUNT(DISTINCT visitor_hash) AS visitors,
         COALESCE(SUM(page_views), 0) AS views
       FROM site_visit_daily
-      WHERE visit_date >= ?
+      WHERE visit_date BETWEEN ? AND ?
       GROUP BY page_group
       ORDER BY views DESC
-    `).bind(periodStart).all<PageGroupRow>(),
+    `).bind(periodStart, periodEnd).all<PageGroupRow>(),
     env.ACEDENT_DB.prepare(`
       SELECT path,
         COUNT(DISTINCT visitor_hash) AS visitors,
         SUM(page_views) AS views
       FROM site_visit_daily
-      WHERE visit_date >= ?
+      WHERE visit_date BETWEEN ? AND ?
       GROUP BY path
       ORDER BY visitors DESC, views DESC
-      LIMIT 20
-    `).bind(periodStart).all<TopPageRow>(),
+    `).bind(periodStart, periodEnd).all<TopPageRow>(),
+    env.ACEDENT_DB.prepare(`
+      SELECT path, COUNT(DISTINCT visitor_hash) AS visitors, SUM(page_views) AS views
+      FROM site_visit_daily WHERE visit_date BETWEEN ? AND ? GROUP BY path
+    `).bind(previousStart, previousEnd).all<TopPageRow>(),
     env.ACEDENT_DB.prepare('SELECT MIN(visit_date) AS first_date FROM site_visit_daily')
       .first<{ first_date: string | null }>(),
     env.ACEDENT_DB.prepare(`
-      SELECT slug, payload_json
+      SELECT slug, payload_json, created_at
       FROM works
       WHERE status = 'published'
     `).all<WorkLabelRow>(),
   ]);
 
   const workLabels = new Map<string, string>();
+  const registrationDates = new Map<string, string>();
   for (const row of workRows.results) {
+    const created = new Date(row.created_at);
+    if (!Number.isNaN(created.getTime())) registrationDates.set(`/works/detail/${row.slug}`, analyticsDate(created));
     try {
       const work = JSON.parse(row.payload_json) as {
         title?: string;
@@ -222,13 +215,31 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
     }
   }
 
+  const currentByPath = new Map(topPages.results.map((row) => [row.path, row]));
+  const previousByPath = new Map(previousPages.results.map((row) => [row.path, row]));
+  const publishedPaths = new Set(workRows.results.map((row) => `/works/detail/${row.slug}`));
+  const paths = new Set([...currentByPath.keys(), ...previousByPath.keys(), ...publishedPaths]);
+  const pages = [...paths].map((path) => ({
+    path,
+    ...pageDetails(path, workLabels),
+    visitors: numeric(currentByPath.get(path)?.visitors),
+    views: numeric(currentByPath.get(path)?.views),
+    previousVisitors: numeric(previousByPath.get(path)?.visitors),
+    previousViews: numeric(previousByPath.get(path)?.views),
+    registeredOn: registrationDates.get(path) || null,
+    isPublished: !path.startsWith('/works/detail/') || publishedPaths.has(path),
+  })).sort((a, b) => b.visitors - a.visitors || b.views - a.views || a.path.localeCompare(b.path));
+
   return json({
     excluded: hasOwnerCookie(request),
     trackingSince: firstVisit?.first_date || null,
     period: {
       days: periodDays,
       start: periodStart,
-      end: today,
+      end: periodEnd,
+      previousStart,
+      previousEnd,
+      comparable: Boolean(firstVisit?.first_date && firstVisit.first_date <= previousStart),
       visitors: numeric(period?.visitors),
       views: numeric(period?.views),
       previousVisitors: numeric(previousPeriod?.visitors),
@@ -254,11 +265,6 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
       visitors: numeric(row.visitors),
       views: numeric(row.views),
     })),
-    topPages: topPages.results.map((row) => ({
-      path: row.path,
-      ...pageDetails(row.path, workLabels),
-      visitors: numeric(row.visitors),
-      views: numeric(row.views),
-    })),
+    topPages: pages,
   });
 };

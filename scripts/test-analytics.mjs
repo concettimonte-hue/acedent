@@ -124,3 +124,12 @@ test('admin paths and owner exclusion suppress all analytics and Clarity', () =>
   assert.equal(owner.gtagCalls.length, 0);
   assert.equal(owner.clarityCalls.length, 0);
 });
+
+test('related-card click adds source/reason once without an extra contact conversion', () => {
+  const browser = installBrowser();
+  analytics.trackCaseView('target', '범퍼', { sourceWorkSlug: 'source', reason: '같은 부위 · 같은 작업' });
+  assert.deepEqual(eventCalls(browser.gtagCalls), [{ name: 'case_view', params: { case_id: 'target', part: '범퍼', placement: 'related_works', source_work_slug: 'source', recommendation_reason: '같은 부위 · 같은 작업' } }]);
+  const owner = installBrowser('/', 'acedent_owner_excluded=1');
+  analytics.trackCaseView('target', '범퍼', { sourceWorkSlug: 'source', reason: '같은 부위' });
+  assert.equal(owner.gtagCalls.length, 0);
+});

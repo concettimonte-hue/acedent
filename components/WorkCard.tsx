@@ -24,6 +24,8 @@ interface WorkCardProps {
   contextPart?: WorkPartValue;
   reasonLabels?: readonly string[];
   imageState?: 'before' | 'after';
+  matchedPartIndex?: number;
+  sourceWorkSlug?: string;
 }
 
 export default function WorkCard({
@@ -32,8 +34,10 @@ export default function WorkCard({
   contextPart,
   reasonLabels = [],
   imageState = 'after',
+  matchedPartIndex,
+  sourceWorkSlug,
 }: WorkCardProps) {
-  const representativePart = getWorkRepresentativePart(
+  const representativePart = (matchedPartIndex === undefined ? undefined : work.parts[matchedPartIndex]) || getWorkRepresentativePart(
     work,
     contextCategory,
     contextPart,
@@ -49,7 +53,7 @@ export default function WorkCard({
     <a
       className="work-card"
       href={`/works/detail/${work.slug}`}
-      onClick={() => trackCaseView(work.slug, work.part[0])}
+      onClick={() => trackCaseView(work.slug, contextPart || work.part[0], sourceWorkSlug ? { sourceWorkSlug, reason: reasonLabels.join(' · ') } : undefined)}
       aria-label={`${formatWorkCar(work)} ${work.title} 상세 보기`}
     >
       <span className="work-card-media">
@@ -59,6 +63,7 @@ export default function WorkCard({
             contextCategory,
             contextPart,
             imageState,
+            matchedPartIndex,
           )}
           alt={getWorkImageAlt(work, representativePart, imageState === 'before' ? '전' : '후')}
           width="800"

@@ -2,7 +2,10 @@
 
 /* oxlint-disable next/no-html-link-for-pages -- Vite SPA routes are intentional. */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import AdminPagination from '@/components/AdminPagination';
+import { matchesAdminSearch, paginateAdminRows } from '@/lib/admin-list';
+import { analyticsComparison as comparison } from '@/lib/admin-analytics';
 import {
   BarChart3,
   ExternalLink,
@@ -26,6 +29,9 @@ interface AnalyticsResult {
     views: number;
     previousVisitors: number;
     previousViews: number;
+    previousStart: string;
+    previousEnd: string;
+    comparable: boolean;
   };
   stats: {
     todayVisitors: number;
@@ -41,6 +47,10 @@ interface AnalyticsResult {
     type: PageType;
     visitors: number;
     views: number;
+    previousVisitors: number;
+    previousViews: number;
+    registeredOn: string | null;
+    isPublished: boolean;
   }>;
   error?: string;
 }
@@ -54,16 +64,6 @@ const GROUP_LABELS: Record<PageType, string> = {
   other: '기타 페이지',
 };
 
-function comparison(current: number, previous: number) {
-  if (previous === 0) return current === 0 ? { text: '변동 없음', direction: 'same' } : { text: '신규 집계', direction: 'up' };
-  const percent = Math.round(((current - previous) / previous) * 100);
-  if (percent === 0) return { text: '이전 기간과 동일', direction: 'same' };
-  return {
-    text: `${Math.abs(percent).toLocaleString()}% ${percent > 0 ? '증가' : '감소'}`,
-    direction: percent > 0 ? 'up' : 'down',
-  };
-}
-
 function shortDate(value: string) {
   const [, month, day] = value.split('-');
   return `${Number(month)}/${Number(day)}`;
@@ -74,8 +74,16 @@ export default function AdminAnalyticsDashboard() {
   const [analytics, setAnalytics] = useState<AnalyticsResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [query, setQuery] = useState('');
+  const [pageType, setPageType] = useState('detail');
+  const [sort, setSort] = useState('visitors');
+  const [pageNumber, setPageNumber] = useState(1);
+  const [selectedDay, setSelectedDay] = useState('');
+  const requestId = useRef(0);
+  const pagesHeading = useRef<HTMLElement>(null);
 
   const loadAnalytics = useCallback(async (period: PeriodDays) => {
+    const id = ++requestId.current;
     setLoading(true);
     setError('');
     try {
@@ -94,16 +102,17 @@ export default function AdminAnalyticsDashboard() {
       });
       const payload = await response.json() as AnalyticsResult;
       if (!response.ok || !payload.period) throw new Error(payload.error || '방문 통계를 불러오지 못했습니다.');
-      setAnalytics(payload);
+      if (id === requestId.current) setAnalytics(payload);
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : '방문 통계를 불러오지 못했습니다.');
+      if (id === requestId.current) setError(loadError instanceof Error ? loadError.message : '방문 통계를 불러오지 못했습니다.');
     } finally {
-      setLoading(false);
+      if (id === requestId.current) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
     void loadAnalytics(days);
+    return () => { requestId.current += 1; };
   }, [days, loadAnalytics]);
 
   const dailyRows = useMemo(() => {
@@ -127,6 +136,14 @@ export default function AdminAnalyticsDashboard() {
   const visitorTrend = analytics ? comparison(analytics.period.visitors, analytics.period.previousVisitors) : null;
   const viewTrend = analytics ? comparison(analytics.period.views, analytics.period.previousViews) : null;
   const groupMap = new Map(analytics?.pageGroups.map((row) => [row.type, row]) || []);
+  const filteredPages = useMemo(() => (analytics?.topPages || []).filter((page) => (
+    (!pageType || page.type === pageType) && matchesAdminSearch(query, page.label, page.path)
+  )).sort((a, b) => {
+    if (sort === 'quiet') return a.views - b.views || a.path.localeCompare(b.path);
+    if (sort === 'new') return (b.registeredOn || '').localeCompare(a.registeredOn || '') || a.path.localeCompare(b.path);
+    return sort === 'views' ? b.views - a.views : b.visitors - a.visitors || b.views - a.views;
+  }), [analytics, query, pageType, sort]);
+  const pagination = paginateAdminRows(filteredPages, pageNumber);
 
   return (
     <main className="admin-page">
@@ -144,7 +161,7 @@ export default function AdminAnalyticsDashboard() {
         <div className="admin-list-heading admin-analytics-title">
           <div>
             <span>PRIVATE ANALYTICS</span>
-            <h1>사이트 방문 흐름</h1>
+            <h1>사이트 방문 통계</h1>
             <p>나의 방문을 제외하고, 방문자가 어떤 공개 페이지를 확인했는지 집계합니다.</p>
           </div>
           <button type="button" onClick={() => void loadAnalytics(days)} disabled={loading}>
@@ -158,7 +175,8 @@ export default function AdminAnalyticsDashboard() {
               className={days === period ? 'is-active' : ''}
               key={period}
               type="button"
-              onClick={() => setDays(period)}
+              aria-pressed={days === period}
+              onClick={() => { setDays(period); setPageNumber(1); setSelectedDay(''); }}
             >
               {period}일
             </button>
@@ -171,6 +189,7 @@ export default function AdminAnalyticsDashboard() {
           <div className="admin-analytics-empty">방문 통계를 불러오는 중입니다.</div>
         ) : (
           <>
+            <p className="admin-browse-hint">한국시간 · {analytics.period.start} ~ {analytics.period.end} (어제까지) / 비교: {analytics.period.previousStart} ~ {analytics.period.previousEnd}{!analytics.period.comparable && ' · 이전 기간의 수집 기간이 충분하지 않아 증감은 참고용입니다.'}</p>
             <section className="admin-analytics-metrics" aria-label={`${days}일 핵심 지표`}>
               <article>
                 <span><Users aria-hidden="true" /> 방문자</span>
@@ -178,7 +197,7 @@ export default function AdminAnalyticsDashboard() {
                 <p className={`is-${visitorTrend?.direction}`}>
                   {visitorTrend?.direction === 'up' && <TrendingUp aria-hidden="true" />}
                   {visitorTrend?.direction === 'down' && <TrendingDown aria-hidden="true" />}
-                  {visitorTrend?.text}
+                  {analytics.period.comparable ? visitorTrend?.text : '비교 기간 수집 부족'}
                 </p>
               </article>
               <article>
@@ -187,7 +206,7 @@ export default function AdminAnalyticsDashboard() {
                 <p className={`is-${viewTrend?.direction}`}>
                   {viewTrend?.direction === 'up' && <TrendingUp aria-hidden="true" />}
                   {viewTrend?.direction === 'down' && <TrendingDown aria-hidden="true" />}
-                  {viewTrend?.text}
+                  {analytics.period.comparable ? viewTrend?.text : '비교 기간 수집 부족'}
                 </p>
               </article>
               <article>
@@ -198,14 +217,14 @@ export default function AdminAnalyticsDashboard() {
               <article>
                 <span>오늘</span>
                 <strong>{analytics.stats.todayVisitors.toLocaleString()}<small>명</small></strong>
-                <p>조회 {analytics.stats.todayViews.toLocaleString()}회</p>
+                <p>조회 {analytics.stats.todayViews.toLocaleString()}회 · 집계 중</p>
               </article>
             </section>
 
             <section className="admin-analytics-section" aria-labelledby="analytics-flow-heading">
               <header>
                 <div>
-                  <span>PAGE FLOW</span>
+                  <span>PAGE REACH</span>
                   <h2 id="analytics-flow-heading">페이지 유형별 도달</h2>
                 </div>
                 <p>한 방문자가 여러 유형을 볼 수 있어 합계는 전체 방문자 수와 다를 수 있습니다.</p>
@@ -240,46 +259,55 @@ export default function AdminAnalyticsDashboard() {
               </header>
               <div className="admin-analytics-chart" data-days={days}>
                 {dailyRows.map((row, index) => (
-                  <div className="admin-analytics-day" key={row.date} title={`${row.date} · ${row.visitors}명 · ${row.views}회`}>
+                  <button type="button" className="admin-analytics-day" key={row.date} onClick={() => setSelectedDay(`${row.date} · 집계 방문자 ${row.visitors}명 · 조회 ${row.views}회`)} title={`${row.date} · ${row.visitors}명 · ${row.views}회`} aria-label={`${row.date} · ${row.visitors}명 · ${row.views}회`}>
                     <span>{row.views || ''}</span>
                     <i style={{ height: `${Math.max(row.views ? 8 : 2, Math.round((row.views / maxDailyViews) * 100))}%` }} />
                     <small>{days === 7 || index % (days === 30 ? 5 : 15) === 0 || index === dailyRows.length - 1 ? shortDate(row.date) : ''}</small>
-                  </div>
+                  </button>
                 ))}
               </div>
+              <output className="admin-browse-hint">{selectedDay || '날짜 막대를 선택하면 상세 숫자를 보여드립니다.'}</output>
             </section>
 
-            <section className="admin-analytics-section" aria-labelledby="analytics-pages-heading">
+            <section className="admin-analytics-section" aria-labelledby="analytics-pages-heading" ref={pagesHeading}>
               <header>
                 <div>
-                  <span>TOP PAGES</span>
-                  <h2 id="analytics-pages-heading">많이 본 페이지</h2>
+                  <span>PAGE PERFORMANCE</span>
+                  <h2 id="analytics-pages-heading">페이지별 방문 비교</h2>
                 </div>
-                <p>공개 페이지 이름과 실제 경로를 함께 표시합니다.</p>
+                <p>상위 20건 밖의 사례도 확인합니다. 기록이 없는 것은 실제 방문 0명을 의미하지 않습니다.</p>
               </header>
-              {analytics.topPages.length === 0 ? (
-                <div className="admin-analytics-empty">아직 이 기간에 집계된 방문이 없습니다.</div>
+              <div className="admin-browse-controls">
+                <label className="admin-browse-search">페이지 검색<input type="search" placeholder="제목, 차종 또는 주소" value={query} onChange={(event) => { setQuery(event.target.value); setPageNumber(1); }} /></label>
+                <label>유형<select value={pageType} onChange={(event) => { setPageType(event.target.value); setPageNumber(1); }}><option value="">모든 페이지</option>{Object.entries(GROUP_LABELS).map(([type, label]) => <option value={type} key={type}>{label}</option>)}</select></label>
+                <label>정렬<select value={sort} onChange={(event) => { setSort(event.target.value); setPageNumber(1); }}><option value="visitors">방문자 많은 순</option><option value="views">조회 많은 순</option><option value="quiet">조회 적은 순</option><option value="new">최근 등록순</option></select></label>
+              </div>
+              {filteredPages.length === 0 ? (
+                <div className="admin-analytics-empty">이 조건에 맞는 페이지가 없습니다.</div>
               ) : (
                 <ol className="admin-analytics-pages">
-                  {analytics.topPages.map((page, index) => {
-                    const share = analytics.period.views ? Math.round((page.views / analytics.period.views) * 100) : 0;
+                  {pagination.rows.map((page, index) => {
+                    const newlyRegistered = page.registeredOn && page.registeredOn > analytics.period.start;
                     return (
                       <li key={page.path}>
-                        <span className="admin-analytics-rank">{String(index + 1).padStart(2, '0')}</span>
+                        <span className="admin-analytics-rank">{String(pagination.start + index + 1).padStart(2, '0')}</span>
                         <div>
                           <strong>{page.label}</strong>
                           <code>{page.path}</code>
+                          {page.registeredOn && <small>등록 {page.registeredOn}{newlyRegistered ? (page.registeredOn > analytics.period.end ? ' · 집계 기간 이후 등록' : ' · 기간 중 등록') : ''}</small>}
+                          {!page.isPublished && <small>현재 비공개 또는 삭제된 사례의 이전 기록</small>}
                         </div>
                         <span className="admin-analytics-type">{GROUP_LABELS[page.type]}</span>
-                        <p><strong>{page.visitors.toLocaleString()}</strong>명 <span>{page.views.toLocaleString()}회 · {share}%</span></p>
-                        <a href={page.path} target="_blank" rel="noopener noreferrer" aria-label={`${page.label} 새 탭에서 보기`}>
+                        <p>{page.views ? <><strong>{page.visitors.toLocaleString()}</strong>명 <span>{page.views.toLocaleString()}회</span></> : '집계 기록 없음'}<small>이전 {page.previousVisitors.toLocaleString()}명 · {page.previousViews.toLocaleString()}회</small><small>{!analytics.period.comparable ? '비교 기간 수집 부족' : newlyRegistered ? '등록 시점 차이 고려' : `방문자 ${comparison(page.visitors, page.previousVisitors).text}`}</small></p>
+                        {page.isPublished && <a href={page.path} target="_blank" rel="noopener noreferrer" aria-label={`${page.label} 새 탭에서 보기`}>
                           <ExternalLink aria-hidden="true" />
-                        </a>
+                        </a>}
                       </li>
                     );
                   })}
                 </ol>
               )}
+              <AdminPagination {...pagination} total={filteredPages.length} onChange={(page) => { setPageNumber(page); pagesHeading.current?.scrollIntoView({ block: 'start' }); }} />
             </section>
 
             <aside className="admin-analytics-note">
