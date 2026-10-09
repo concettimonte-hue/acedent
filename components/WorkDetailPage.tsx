@@ -5,6 +5,7 @@ import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import WorkCard from '@/components/WorkCard';
 import WorkClassification from '@/components/WorkClassification';
+import WorkDescription from '@/components/WorkDescription';
 import WorkPhotoGallery from '@/components/WorkPhotoGallery';
 import SiteFooter from '@/components/SiteFooter';
 import WorksHeader from '@/components/WorksHeader';
@@ -127,11 +128,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
           ))}
         </div>
 
-        <div className="work-detail-copy">
-          <p className="work-detail-summary">{work.summary}</p>
-          {work.body.split('\n\n').map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
+        <WorkDescription summary={work.summary} body={work.body}>
           {work.blogUrl && (
             <a
               className="work-blog-link"
@@ -147,7 +144,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
               이 사례의 전체 작업 과정 보기 <ArrowUpRight aria-hidden="true" />
             </a>
           )}
-        </div>
+        </WorkDescription>
 
         {work.gallery && work.gallery.length > 0 && (
           <WorkPhotoGallery

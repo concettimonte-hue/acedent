@@ -18,6 +18,7 @@ import ImageAnnotations from '@/components/ImageAnnotations';
 import AdminGalleryEditor, { type AdminGalleryItemView } from '@/components/AdminGalleryEditor';
 import WorkCard from '@/components/WorkCard';
 import WorkClassification from '@/components/WorkClassification';
+import WorkDescription from '@/components/WorkDescription';
 import WorkPhotoGallery from '@/components/WorkPhotoGallery';
 import WorkVehicleTag from '@/components/WorkVehicleTag';
 import {
@@ -1431,7 +1432,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
                 {part.gallery && part.gallery.length > 0 && <WorkPhotoGallery images={part.gallery} work={previewWork} part={part} title="해당 부위 사진 더 보기" compact />}
               </section>)}
             </div>
-            <div className="work-detail-copy"><p className="work-detail-summary">{previewWork.summary}</p><p>{previewWork.body}</p></div>
+            <WorkDescription summary={previewWork.summary} body={previewWork.body} />
             {previewWork.gallery && previewWork.gallery.length > 0 && <WorkPhotoGallery images={previewWork.gallery} work={previewWork} label="MORE PHOTOS" title="사례 사진 더 보기" />}
           </article>
           <dl className="admin-seo-preview">

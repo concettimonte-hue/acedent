@@ -255,6 +255,7 @@ export function getWorkDetailStaticHtml(
       <h1>${text(work.title)}</h1>
       <p>${text(work.part[0])}${work.subParts.length ? ` · 보조 부위: ${work.subParts.map(text).join(' · ')}` : ''} · ${work.color ? `${text(work.color)} · ` : ''}${text(work.days)}</p>
       ${work.parts.map(partSection).join('')}
+      <h2>작업 설명</h2>
       <p><strong>${text(work.summary)}</strong></p>
       ${work.body.split('\n\n').map((paragraph) => `<p>${text(paragraph)}</p>`).join('')}
       ${work.blogUrl ? `<a href="${text(work.blogUrl)}" target="_blank" rel="noopener noreferrer">이 사례의 전체 작업 과정 보기</a>` : ''}
