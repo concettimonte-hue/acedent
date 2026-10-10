@@ -133,3 +133,31 @@ test('related-card click adds source/reason once without an extra contact conver
   analytics.trackCaseView('target', '범퍼', { sourceWorkSlug: 'source', reason: '같은 부위' });
   assert.equal(owner.gtagCalls.length, 0);
 });
+
+test('floating contact reuses beacon events once with placement and optional work slug', () => {
+  for (const method of ['tel', 'sms', 'talk']) {
+    const { gtagCalls } = installBrowser();
+    if (method === 'tel') analytics.trackTelClick('works_floating', 'sample-work');
+    if (method === 'sms') analytics.trackSmsClick('works_floating', 'sample-work');
+    if (method === 'talk') analytics.trackTalkClick('works_floating', 'https://talk.naver.com/wc55qv', 'sample-work');
+    const events = eventCalls(gtagCalls);
+    assert.deepEqual(events.map(e => e.name), [`${method}_click`, 'contact_intent']);
+    for (const event of events) {
+      assert.equal(event.params.placement, 'works_floating');
+      assert.equal(event.params.work_slug, 'sample-work');
+      assert.equal(event.params.transport_type, 'beacon');
+    }
+    if (method === 'tel') assert.equal(events[0].params.location, '플로팅');
+  }
+  const list = installBrowser('/works/panel-paint/bumper');
+  analytics.trackSmsClick('works_floating');
+  assert.equal(eventCalls(list.gtagCalls)[0].params.work_slug, undefined);
+  for (const [path, cookie] of [['/admin', ''], ['/works', 'acedent_owner_excluded=1']]) {
+    const excluded = installBrowser(path, cookie);
+    analytics.trackTelClick('works_floating');
+    analytics.trackSmsClick('works_floating');
+    analytics.trackTalkClick('works_floating', 'https://talk.naver.com/wc55qv');
+    assert.equal(excluded.gtagCalls.length, 0);
+    assert.equal(excluded.clarityCalls.length, 0);
+  }
+});

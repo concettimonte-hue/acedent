@@ -3247,6 +3247,82 @@ section[id] {
   width: min(1280px, calc(100% - 8vw));
   margin: 2rem auto 0;
 }
+.works-floating-contact {
+  position: fixed;
+  z-index: 45;
+  right: max(1.5rem, env(safe-area-inset-right));
+  bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  color: #f5f5f2;
+}
+.works-floating-contact[data-hidden='true'] {
+  visibility: hidden;
+  pointer-events: none;
+}
+.works-contact-trigger {
+  display: flex;
+  width: 60px;
+  height: 60px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid #777145;
+  border-radius: 50%;
+  background: #171917;
+  color: #f8db00;
+  box-shadow: 0 3px 12px rgb(0 0 0 / 24%);
+  cursor: pointer;
+}
+.works-contact-trigger svg { width: 22px; height: 22px; }
+.works-contact-trigger span { color: #f5f5f2; font-size: 11px; font-weight: 750; line-height: 1.3; }
+.works-contact-trigger[aria-expanded='true'] { border-color: #f8db00; }
+.works-contact-trigger:focus-visible,
+.works-contact-panel a:focus-visible { outline: 2px solid #f8db00; outline-offset: 4px; }
+.works-contact-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  width: min(248px, calc(100vw - 32px));
+  max-height: calc(100dvh - 116px - env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px;
+  border: 1px solid #44483e;
+  border-radius: 12px;
+  background: #151715;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 32%);
+}
+.works-contact-panel[hidden] { display: none; }
+.works-contact-panel > p { margin: 4px 8px 8px; color: #b8bbb5; font-size: 12px; line-height: 1.6; }
+.works-contact-panel a {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  color: #f5f5f2;
+}
+.works-contact-panel a + a { border-top: 1px solid #30342e; }
+.works-contact-panel a > svg { width: 21px; height: 21px; flex: 0 0 auto; color: #b8bbb5; }
+.works-contact-panel a strong { display: block; font-size: 14px; line-height: 1.5; font-weight: 800; }
+.works-contact-panel a small { display: block; margin-top: 2px; font-size: 12px; line-height: 1.5; color: #b8bbb5; }
+.works-contact-panel a.is-primary { background: #23251b; }
+.works-contact-panel a.is-primary strong,
+.works-contact-panel a.is-primary > svg { color: #f8db00; }
+@media (hover: hover) {
+  .works-contact-trigger:hover { border-color: #f8db00; background: #242720; }
+  .works-contact-panel a:hover { background: #2a2e24; }
+}
+/* Keep the final footer links scrollable clear of the dock. No extra fixed bar. */
+.site-footer:has(+ .works-floating-contact) { padding-bottom: calc(5.5rem + env(safe-area-inset-bottom)); }
+@media (max-width: 680px) {
+  .works-floating-contact {
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+  .works-contact-trigger { width: 56px; height: 56px; }
+}
 .work-breadcrumb {
   display: flex;
   width: min(1200px, calc(100% - 8vw));

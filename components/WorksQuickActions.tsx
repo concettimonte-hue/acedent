@@ -47,6 +47,7 @@ export default function WorksQuickActions({
 
   return (
     <nav
+      data-work-contact-inline
       className={[
         'works-quick-actions',
         compact ? 'is-compact' : '',

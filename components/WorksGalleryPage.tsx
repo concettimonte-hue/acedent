@@ -18,6 +18,7 @@ import WorkCard from '@/components/WorkCard';
 import SiteFooter from '@/components/SiteFooter';
 import WorksHeader from '@/components/WorksHeader';
 import WorksQuickActions from '@/components/WorksQuickActions';
+import WorksFloatingContact from '@/components/WorksFloatingContact';
 import { trackFilterUse } from '@/lib/analytics';
 import {
   getWorkPartLandingFilters,
@@ -374,6 +375,7 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
         <WorksQuickActions compact />
       </main>
       <SiteFooter />
+      <WorksFloatingContact />
     </>
   );
 }

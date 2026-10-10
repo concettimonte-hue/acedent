@@ -10,6 +10,7 @@ import WorkPhotoGallery from '@/components/WorkPhotoGallery';
 import SiteFooter from '@/components/SiteFooter';
 import WorksHeader from '@/components/WorksHeader';
 import WorksQuickActions from '@/components/WorksQuickActions';
+import WorksFloatingContact from '@/components/WorksFloatingContact';
 import WorkVehicleTag from '@/components/WorkVehicleTag';
 import type { WorkItem } from '@/content/works/types';
 import { getWorkCategoryLabel, isWorkPart } from '@/content/works/types';
@@ -248,6 +249,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
         </section>
       </main>
       <SiteFooter />
+      <WorksFloatingContact workSlug={work.slug} />
     </>
   );
 }

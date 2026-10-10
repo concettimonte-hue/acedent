@@ -11,6 +11,7 @@ export type ContactPlacement =
   | 'mobile_sticky'
   | 'works_header'
   | 'works_sticky'
+  | 'works_floating'
   | 'work_detail_contact'
   | 'site_footer_phone';
 export type TalkClickPlacement =
@@ -18,6 +19,7 @@ export type TalkClickPlacement =
   | 'mobile_sticky'
   | 'home_naver_connect'
   | 'works_sticky'
+  | 'works_floating'
   | 'work_detail_contact';
 export type BookingClickPlacement = 'home_naver_connect';
 export type PlaceClickPlacement =
@@ -103,7 +105,7 @@ function trackExternalClick(
 }
 
 function getLegacyTelLocation(placement: ContactPlacement): TelClickLocation {
-  if (placement === 'mobile_sticky' || placement === 'works_sticky') {
+  if (placement === 'mobile_sticky' || placement === 'works_sticky' || placement === 'works_floating') {
     return '플로팅';
   }
   if (
