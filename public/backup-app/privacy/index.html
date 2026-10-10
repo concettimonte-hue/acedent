@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>AceDent Backup 개인정보처리방침 | 에이스덴트</title>
+  <meta name="description" content="AceDent Backup의 Google 계정 및 Drive 데이터 접근, 사용, 보관, 공유와 연결 해제 안내입니다.">
+  <link rel="canonical" href="https://www.acedentshop.co.kr/backup-app/privacy/">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/backup-app/info.css">
+</head>
+<body>
+  <main>
+    <p class="eyebrow">AceDent Backup</p>
+    <h1>개인정보처리방침</h1>
+    <p class="note">시행일: 2026년 10월 10일 · 운영자: 에이스덴트</p>
+    <p>이 방침은 에이스덴트 운영자 전용 백업 도구 AceDent Backup에 적용됩니다. 고객용 웹사이트 전체의 데이터 처리 방침을 대신하지 않습니다.</p>
+    <h2>접근하는 데이터와 목적</h2>
+    <ul>
+      <li>Google 계정 이메일과 저장 용량 정보: 올바른 백업 계정에 연결됐는지 확인하고 저장 공간 부족을 점검하는 데 사용합니다.</li>
+      <li>OAuth 인증 토큰: 운영자가 허용한 Google Drive 접근 및 인증 갱신에 사용합니다. Google 계정 비밀번호를 수집하지 않습니다.</li>
+      <li>앱이 생성하거나 운영자가 명시적으로 허용한 Drive 파일과 파일 식별자·크기·체크섬 등 메타데이터: 암호화 사본의 업로드, 중복 복사 방지, 조회·다운로드 및 무결성 검증에 사용합니다.</li>
+      <li>운영자가 백업 대상으로 지정한 웹사이트 DB·사진·소스: 복구를 위한 사본을 만들기 전에 암호화합니다. DB에는 사례 데이터와 사이트 운영·방문 통계 등이 포함될 수 있습니다.</li>
+    </ul>
+    <h2>접근 범위와 공유</h2>
+    <p>Google Drive 접근은 <code>drive.file</code>로 제한합니다. 기존 Drive 전체나 Gmail을 조회하지 않습니다. 백업 암호문은 운영자가 승인한 Google Drive 계정에 전송되며 공개 공유하지 않습니다. 승인된 실행 환경과 Google Drive는 백업 처리·보관을 위해 사용됩니다.</p>
+    <p>Google 사용자 데이터를 판매하거나 광고·프로파일링·AI 모델 학습에 사용하지 않습니다. 제3자에게 임의로 제공하지 않으며, 운영자가 명시적으로 요청한 복구·지원 또는 법령상 의무가 있는 경우를 제외한 다른 목적으로 사용하지 않습니다.</p>
+    <p>AceDent Backup의 Google API로부터 받은 정보 사용 및 다른 앱으로의 전송은 Limited Use 요건을 포함한 <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>를 준수합니다.</p>
+    <h2>보관과 보호</h2>
+    <p>인증정보와 백업 자료는 운영자가 지정한 접근 제한 실행 환경에서 처리합니다. DB·사진·사이트 소스 사본은 암호화하여 보관하고, 복호화 비밀 키는 백업 저장 폴더와 분리합니다. 인증 토큰·비밀 키·원본 DB를 공개 페이지나 코드 저장소, 일반 실행 로그에 게시하지 않습니다.</p>
+    <p>백업은 복구가 필요한 동안 보관하며 자동 삭제하지 않습니다. 운영자가 보관 필요성을 검토하고 직접 삭제할 수 있습니다. 암호화 사본만으로는 복호화 키를 잃어버린 데이터를 복구할 수 없습니다.</p>
+    <h2>연결 해제와 삭제</h2>
+    <p>운영자는 <a href="https://myaccount.google.com/connections">Google 계정의 서드 파티 연결 관리</a>에서 앱의 접근 권한을 취소할 수 있습니다. 취소하면 이후 Google Drive 백업 접근은 중단되지만, 기존 사본이나 실행 환경에 보관된 인증 파일이 자동 삭제되지는 않습니다. 필요 시 백업 파일은 Drive에서, 로컬 사본과 인증 파일은 해당 실행 환경에서 별도로 삭제해야 합니다.</p>
+    <h2>안내 페이지와 문의</h2>
+    <p>이 백업 안내 페이지에는 입력 폼이나 별도 분석·광고 스크립트가 없습니다. 페이지 제공 과정의 접속 정보는 호스팅 제공자의 운영·보안 처리 대상이 될 수 있습니다. 데이터 처리 문의·정정·삭제 요청은 <a href="https://www.acedentshop.co.kr/#contact">에이스덴트 공식 연락처</a>로 해주세요. 본인 확인이 필요할 수 있으며 비밀번호·인증 토큰·복구키를 보내지 마세요.</p>
+    <nav aria-label="백업 도구 안내">
+      <a href="/backup-app/">백업 도구 소개</a>
+      <a href="/backup-app/terms/">이용 안내 및 약관</a>
+    </nav>
+  </main>
+</body>
+</html>
