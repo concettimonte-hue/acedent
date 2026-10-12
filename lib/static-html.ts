@@ -1,3 +1,4 @@
+import businessData from '../content/business.json';
 import casesData from '../content/cases.json';
 import faqData from '../content/faq.json';
 import insuranceData from '../content/insurance.json';
@@ -8,6 +9,7 @@ import reviewsData from '../content/reviews.json';
 import siteData from '../content/site.json';
 import trustData from '../content/trust.json';
 import type {
+  BusinessContent,
   FaqContent,
   InsuranceContent,
   NaverContent,
@@ -49,7 +51,9 @@ import {
   type RelatedWorkSuggestion,
 } from './work-related';
 import { getWorkCategoryGuide } from './work-seo';
+import { withLandingUtm } from './tracking';
 
+const business = businessData as BusinessContent;
 const site = siteData as SiteContent;
 const faq = faqData as FaqContent;
 const insurance = insuranceData as InsuranceContent;
@@ -120,6 +124,27 @@ function faqList() {
     .join('')}</div>`;
 }
 
+function siteFooter() {
+  const { brand, contact } = site;
+  // Keep the static footer's content and destinations aligned with SiteFooter.
+  const address = [
+    business.address.addressRegion,
+    business.address.addressLocality,
+    business.address.streetAddress,
+  ].join(' ');
+  return `<footer class="site-footer">
+    <div class="site-footer-main">
+      <a href="/" class="brand footer-brand" aria-label="${text(brand.homeAriaLabel)}"><span class="brand-logo" aria-hidden="true">${image(brand.logoSrc, '', { width: 510, height: 340 })}</span><span><strong>${text(brand.name)}</strong><small>${text(brand.tagline)}</small></span></a>
+      <div class="site-footer-contact">
+        <a class="site-footer-address" href="${text(withLandingUtm(naver.place, 'place'))}" target="_blank" rel="noopener noreferrer"><address>${text(address)}</address></a>
+        <a href="${text(contact.phoneHref)}"><span>${text(contact.footerPhonePrefix)}</span><strong>${text(contact.phoneDisplay)}</strong></a>
+      </div>
+      <nav class="site-footer-links" aria-label="하단 주요 메뉴"><a href="/works">수리사례</a><a href="/#location">오시는 길</a><a href="${text(withLandingUtm(naver.blog, 'blog'))}" target="_blank" rel="noopener noreferrer">네이버 블로그</a></nav>
+    </div>
+    <div class="site-footer-bottom"><small>서울 동대문 자동차 외장관리 전문점 · © ACE DENT · 사진 무단 사용 금지</small></div>
+  </footer>`;
+}
+
 export function getHomeStaticHtml(works: WorkItem[]) {
   const featured = works
     .filter((work) => work.featured)
@@ -153,7 +178,7 @@ export function getHomeStaticHtml(works: WorkItem[]) {
         (item) => `<article><strong>${text(Number(item.value).toLocaleString('ko-KR'))}<small>${text(item.valueSuffix)}</small></strong><h2>${text(item.label)}</h2><p>${text(item.sub)}</p></article>`,
       )
       .join('')}</section>
-    <section id="services"><p>${text(services.kicker)}</p><h2>${services.titleLines.map(text).join(' ')}</h2><div class="seo-grid">${services.items
+    <section id="services"><p>${text(services.kicker)}</p><h2>${services.titleLines.map(text).join(' ')}</h2><p>${text(services.description)}</p><div class="seo-grid">${services.items
       .map((item) => `<article><small>${text(item.number)}</small><h3>${text(item.title)}</h3><p>${text(item.copy).replaceAll('\n', '<br />')}</p></article>`)
       .join('')}</div></section>
     <section id="cases"><p>${text(casesData.sectionLabel)}</p><h2>${casesData.headingLines.map(text).join(' ')}</h2><p>${text(casesData.instruction)}</p><div class="seo-works-grid">${featured.map((work) => workCard(work)).join('')}</div><a href="/works">${text(casesData.moreLinkLabel)}</a></section>
@@ -161,7 +186,7 @@ export function getHomeStaticHtml(works: WorkItem[]) {
       .map((item) => `<article><small>${text(item.no)} · ${text(item.days)}</small><h3>${text(item.title)}</h3><p>${text(item.keywords)}</p><p>${text(item.desc)}</p>${item.notWhen ? `<p><strong>이런 경우는</strong> ${text(item.notWhen)}</p>` : ''}</article>`)
       .join('')}</div></section>
     <section id="reasons"><p>${text(principles.reasonsKicker)}</p><h2>${text(principles.reasonsTitle)}</h2><div class="seo-grid">${principles.reasons.map((item) => `<article><h3>${text(item.title)}</h3><p>${text(item.copy)}</p></article>`).join('')}</div></section>
-    <section id="principle"><p>${text(principles.kicker)}</p><h2>${principles.titleLines.map(text).join(' ')}</h2>${principles.items.map((item) => `<article><h3>${text(item.title)}</h3>${item.copy ? `<p>${text(item.copy)}</p>` : ''}</article>`).join('')}</section>
+    <section id="principle"><p>${text(principles.kicker)}</p><h2>${principles.titleLines.map(text).join(' ')}</h2><p>${text(principles.description)}</p>${principles.items.map((item) => `<article><h3>${text(item.title)}</h3>${item.copy ? `<p>${text(item.copy)}</p>` : ''}</article>`).join('')}</section>
     <section id="reviews"><p>${text(reviews.sectionLabel)}</p><h2>${text(reviews.heading)}</h2>${highlightedReviews.map((item) => `<article><h3>${text(item.headline)}</h3><p>${text(item.text)}</p><small>${text(item.initial)} · ${text(item.car)} · ${text(item.area)} · ${text(item.part)}</small></article>`).join('')}</section>
     <section id="insurance"><p>${text(insurance.sectionLabel)}</p><h2>${text(insurance.heading)}</h2><p>${text(insurance.subCopy)}</p><table><thead><tr><th>예상 수리비</th><th>자기부담금</th><th>판단 기준</th></tr></thead><tbody>${insurance.table.map((row) => `<tr><th>${text(row.estimate)}</th><td>${text(row.own)}</td><td>${text(row.note)}</td></tr>`).join('')}</tbody></table></section>
     <section id="process"><p>${text(process.sectionLabel)}</p><h2>${text(process.heading)}</h2><div class="seo-grid">${process.items.map((item) => `<article><strong>${text(item.step)}</strong><h3>${text(item.title)}</h3><p>${text(item.desc)}</p></article>`).join('')}</div></section>
@@ -169,6 +194,7 @@ export function getHomeStaticHtml(works: WorkItem[]) {
     <section id="contact"><p>CONTACT</p><h2>${contact.titleLines.map(text).join(' ')}</h2><p>${text(contact.description)}</p><a href="${text(contact.phoneHref)}">${text(contact.phoneDisplay)}</a><a href="${text(contact.smsHref)}">${text(contact.smsLabel)}</a><a href="${text(naver.talk)}" target="_blank" rel="noopener noreferrer">${text(contact.talkLabel)}</a></section>
     <section id="location"><p>${text(contact.locationSectionLabel)}</p><h2>${text(contact.locationHeading)}</h2>${image('/storefront.jpg', '서울 동대문 판금도색 외형복원 전문 에이스덴트 매장 외관')}<address>${text(contact.footerAddress)} · ${text(contact.phoneDisplay)}</address><a href="${text(naver.place)}" target="_blank" rel="noopener noreferrer">${text(contact.directionsLabel)}</a><p>${text(contact.nearbyIntro)} ${text(contact.nearbyAreas)}</p></section>
     <section id="naver-connect"><h2>${text(naver.section.title)}</h2>${naver.section.items.map((item) => `<a href="${text(naver[item.key])}" target="_blank" rel="noopener noreferrer">${text(item.title)} ↗</a>`).join('')}</section>
+    ${siteFooter()}
   </main>`;
 }
 
@@ -197,6 +223,7 @@ export function getWorksStaticHtml(
     <nav aria-label="작업방식"><a href="/works">전체</a>${getAvailableWorkCategories(works).map((item) => `<a href="/works/${item.id}">${text(item.label)}</a>`).join('')}</nav>
     ${partLandings.length ? `<nav aria-label="수리 부위">${partLandings.map((landing) => `<a href="${text(landing.path)}">${text(landing.part)}</a>`).join('')}</nav>` : ''}
     <section aria-label="수리사례 목록"><p>${visible.length}건</p><div class="seo-works-grid">${visible.map((work) => workCard(work, category, [], part, 'before')).join('')}</div></section>
+    ${siteFooter()}
   </main>`;
 }
 
@@ -264,5 +291,6 @@ export function getWorkDetailStaticHtml(
     </article>
     ${relatedSuggestions.length ? `<section><p>RELATED WORKS</p><h2>비슷한 수리사례</h2><p>같은 부위 또는 작업방식의 실제 전후 결과를 더 확인해보세요.</p><div class="seo-works-grid">${relatedSuggestions.map(({ work: relatedWork, reasons, matchedCategory, matchedPart, matchedPartIndex }) => workCard(relatedWork, matchedCategory, reasons.map(getRelatedWorkReasonLabel), matchedPart, 'before', matchedPartIndex)).join('')}</div><a href="/works/${text(work.category)}">${text(categoryLabel)} 수리사례 ${categoryWorkCount}건 전체 보기</a></section>` : ''}
     <section><p>PHOTO CONSULTATION</p><h2>내 차도 비슷하게 손상됐나요?</h2><p>손상 부위가 잘 보이는 사진을 보내주시면 수리 가능 여부와 예상 작업 범위를 먼저 안내드립니다.</p><a href="${text(site.contact.smsHref)}">사진 상담 시작</a><a href="${text(site.contact.phoneHref)}">전화 문의</a><a href="${text(naver.talk)}" target="_blank" rel="noopener noreferrer">네이버 톡톡</a><p><strong>수리가 필요한지, 교환이 나은지부터 확인해드립니다.</strong> 불필요한 작업은 권하지 않습니다.</p></section>
+    ${siteFooter()}
   </main>`;
 }
