@@ -2,6 +2,7 @@ import {
   getWorkCategoryLabel,
   type WorkCategory,
   type WorkItem,
+  type WorkPart,
 } from '../content/works/types';
 import polishData from '../content/polish.json';
 import type { PolishContent } from '../content/types';
@@ -56,6 +57,14 @@ export interface WorkCategoryGuide {
 }
 
 const workCategoryGuides: Partial<Record<WorkCategory, WorkCategoryGuide>> = {
+  'panel-paint': {
+    eyebrow: 'PANEL PAINT GUIDE',
+    title: '판금도색과 교환은 어떻게 판단하나요?',
+    paragraphs: [
+      '판금도색은 찌그러진 철판을 펴고 그 부분만 색을 다시 칠하는 작업입니다. 비용은 손상 정도와 패널 수에 따라 달라지고 정확한 기간은 차량 상태 확인 후 안내하며, 사진만으로 단정하기 어려운 부분은 방문 확인을 안내합니다.',
+      '복원보다 부품 교환이 비용이 적으면 교환을 권하고, 서비스센터가 더 저렴한 경우도 숨기지 않습니다. 색상이 완전히 같을 수 없는 경우나 심한 찌그러짐으로 처음의 예리한 각을 그대로 만들기 어려운 경우처럼, 가능한 결과와 작업의 한계는 작업 전에 설명합니다.',
+    ],
+  },
   'partial-paint': {
     eyebrow: 'PARTIAL PAINT GUIDE',
     title: '부분도색 사례에서 확인할 점',
@@ -74,7 +83,9 @@ const workCategoryGuides: Partial<Record<WorkCategory, WorkCategoryGuide>> = {
   },
 };
 
-export function getWorkCategoryGuide(category?: WorkCategory) {
+export function getWorkCategoryGuide(category?: WorkCategory, part?: WorkPart) {
+  // 새 판금 안내만 최상위에 제한하고 기존 안내의 부위별 노출은 유지합니다.
+  if (category === 'panel-paint' && part) return undefined;
   return category ? workCategoryGuides[category] : undefined;
 }
 

@@ -2890,36 +2890,77 @@ section[id] {
 .works-category-guide {
   width: min(1400px, 100%);
   margin: 0 auto;
-  padding: clamp(2rem, 4vw, 3rem) 4vw;
+  padding: 0 4vw;
   border-bottom: 1px solid #2d302d;
   background: #101210;
 }
-.works-category-guide > p {
-  color: #f8db00;
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
+.works-category-guide > summary {
+  display: flex;
+  min-height: 60px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  list-style: none;
+  cursor: pointer;
 }
-.works-category-guide h2 {
-  margin-top: 0.65rem;
-  font-size: clamp(1.4rem, 2.5vw, 2.2rem);
-  font-weight: 900;
-  letter-spacing: -0.035em;
+.works-category-guide > summary::-webkit-details-marker {
+  display: none;
 }
-.works-category-guide > div {
+.works-category-guide > summary:focus-visible {
+  outline: 2px solid #f8db00;
+  outline-offset: 3px;
+}
+.works-category-guide > summary h2 {
+  min-width: 0;
+  margin: 0;
+  color: #e1e3df;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.6;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.works-category-guide-action {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.6rem;
+  color: #b5b8b4;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.works-category-guide-action::after {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  content: '';
+  transform: translateY(-2px) rotate(45deg);
+}
+.works-category-guide[open] .works-category-guide-action::after {
+  transform: translateY(2px) rotate(225deg);
+}
+.works-category-guide .when-open,
+.works-category-guide[open] .when-closed {
+  display: none;
+}
+.works-category-guide[open] .when-open {
+  display: inline;
+}
+.works-category-guide-body {
   display: grid;
   max-width: 820px;
   gap: 0.6rem;
-  margin-top: 1rem;
+  padding-bottom: 1rem;
 }
-.works-category-guide > div p {
+.works-category-guide-body p {
   color: #b5b8b4;
   font-size: 0.94rem;
   line-height: 1.75;
   word-break: keep-all;
-}
-.seo-static section.works-category-guide {
-  padding: clamp(2rem, 4vw, 3rem) 4vw;
+  overflow-wrap: anywhere;
 }
 .works-browser {
   width: min(1400px, 100%);

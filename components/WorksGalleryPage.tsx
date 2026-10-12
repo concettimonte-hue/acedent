@@ -129,7 +129,7 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
   const [showSwipeHint, setShowSwipeHint] = useState(true);
   const selectedCategory = filters.category;
   const selectedPart = filters.part;
-  const categoryGuide = getWorkCategoryGuide(selectedCategory);
+  const categoryGuide = getWorkCategoryGuide(selectedCategory, selectedPart);
   const categoryRail = useFilterRail<HTMLElement>(selectedCategory ?? 'all');
   const partRail = useFilterRail<HTMLDivElement>(selectedPart ?? 'all');
   const categoryWorks = useMemo(
@@ -216,18 +216,24 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
         </section>
 
         {categoryGuide && (
-          <section
+          <details
+            key={`${selectedCategory}-${selectedPart ?? 'all'}`}
             className="works-category-guide"
             aria-labelledby={`works-category-guide-${selectedCategory}`}
           >
-            <p>{categoryGuide.eyebrow}</p>
-            <h2 id={`works-category-guide-${selectedCategory}`}>{categoryGuide.title}</h2>
-            <div>
+            <summary>
+              <h2 id={`works-category-guide-${selectedCategory}`}>{categoryGuide.title}</h2>
+              <span className="works-category-guide-action">
+                <span className="when-closed">설명 보기</span>
+                <span className="when-open">접기</span>
+              </span>
+            </summary>
+            <div className="works-category-guide-body">
               {categoryGuide.paragraphs.map((paragraph) => (
                 <p key={paragraph}>{paragraph}</p>
               ))}
             </div>
-          </section>
+          </details>
         )}
 
         <section className="works-browser" aria-label="수리사례 목록">

@@ -7,8 +7,10 @@ import { loadTs } from './test-support.mjs';
 
 const WorkDescription = loadTs('components/WorkDescription.tsx').default;
 const SiteFooter = loadTs('components/SiteFooter.tsx').default;
+const WorksGalleryPage = loadTs('components/WorksGalleryPage.tsx').default;
 const { getHomeStaticHtml, getWorksStaticHtml, getWorkDetailStaticHtml } = loadTs('lib/static-html.ts');
-const { WORK_CATEGORIES } = loadTs('content/works/types.ts');
+const { WORK_CATEGORIES, WORK_PART_FILTER_ORDER } = loadTs('content/works/types.ts');
+const { getWorkCategoryGuide } = loadTs('lib/work-seo.ts');
 const { getWorkPartLandings } = loadTs('lib/work-landings.ts');
 const site = JSON.parse(readFileSync(new URL('../content/site.json', import.meta.url), 'utf8'));
 const business = JSON.parse(readFileSync(new URL('../content/business.json', import.meta.url), 'utf8'));
@@ -97,4 +99,67 @@ test('every static public template keeps exactly one footer with the same text a
     assert(html.trimEnd().endsWith(`${footer}\n  </main>`), path);
   }
   assert.equal(JSON.stringify(works), snapshot);
+});
+
+function renderGallery(category, part) {
+  const previousWindow = globalThis.window;
+  globalThis.window = { location: {
+    pathname: category ? `/works/${category}` : '/works',
+    search: part ? `?part=${encodeURIComponent(part)}` : '',
+  } };
+  try {
+    return renderToStaticMarkup(createElement(WorksGalleryPage, { category, part }));
+  } finally {
+    if (previousWindow === undefined) delete globalThis.window;
+    else globalThis.window = previousWindow;
+  }
+}
+
+test('category guides are closed native disclosures with identical initial React/static content', () => {
+  const snapshot = JSON.stringify(works);
+  for (const category of [undefined, ...WORK_CATEGORIES.map(({ id }) => id)]) {
+    for (const part of [undefined, ...WORK_PART_FILTER_ORDER]) {
+      const guide = getWorkCategoryGuide(category, part);
+      const expected = category === 'partial-paint' || category === 'full-polish' ||
+        (category === 'panel-paint' && !part);
+      assert.equal(Boolean(guide), expected, `${category}/${part}`);
+      const extract = (html) => [...html.matchAll(/<details class="works-category-guide"[^>]*>[\s\S]*?<\/details>/g)]
+        .map(([details]) => details);
+      const staticDetails = extract(getWorksStaticHtml(works, category, part));
+      const reactDetails = extract(renderGallery(category, part));
+      assert.equal(staticDetails.length, expected ? 1 : 0, `${category}/${part}`);
+      assert.deepEqual(reactDetails, staticDetails, `${category}/${part}`);
+      if (!guide) continue;
+      const [html] = staticDetails;
+      assert.doesNotMatch(html, /^<details[^>]*\bopen\b/);
+      assert.match(html, /<summary><h2 id="works-category-guide-/);
+      assert.match(html, /class="when-closed">설명 보기<\/span>/);
+      assert.match(html, /class="when-open">접기<\/span>/);
+      assert.doesNotMatch(html, /<(button|a)\b/);
+      assert.equal((html.match(/<h2\b/g) ?? []).length, 1);
+      assert.equal((html.match(/<p>/g) ?? []).length, guide.paragraphs.length);
+      for (const paragraph of guide.paragraphs) {
+        assert.equal(html.split(`<p>${escape(paragraph)}</p>`).length - 1, 1);
+      }
+    }
+  }
+  assert.equal(JSON.stringify(works), snapshot);
+});
+
+test('existing guide copy is preserved and only the reviewed panel-paint copy is added', () => {
+  assert.deepEqual(getWorkCategoryGuide('partial-paint').paragraphs, [
+    '부분도색은 손상 범위가 국소적인 경우 패널 전체를 넓게 작업하지 않고 손상된 범위를 중심으로 진행하는 방식입니다. 사례 카드에서 작업 전 손상 위치와 작업 후 마감 상태를 차종과 부위별로 비교할 수 있습니다.',
+    '적용 가능 여부는 손상 범위와 위치, 기존 도장 상태에 따라 달라집니다. 손상 부위가 잘 보이는 사진을 보내주시면 부분도색으로 가능한지 먼저 확인해 안내합니다.',
+  ]);
+  const polish = JSON.parse(readFileSync(new URL('../content/polish.json', import.meta.url), 'utf8'));
+  const fullPolishService = polish.items.find((item) => item.id === 'fullpolish');
+  assert.deepEqual(getWorkCategoryGuide('full-polish').paragraphs, [
+    [fullPolishService.desc, fullPolishService.notWhen].filter(Boolean).join(' '),
+    `사례의 작업 전후 사진에서 도장면의 선명도와 광도 변화를 확인하세요. ${polish.closing}`,
+  ]);
+  assert.equal(getWorkCategoryGuide('panel-paint').title, '판금도색과 교환은 어떻게 판단하나요?');
+  assert.deepEqual(getWorkCategoryGuide('panel-paint').paragraphs, [
+    '판금도색은 찌그러진 철판을 펴고 그 부분만 색을 다시 칠하는 작업입니다. 비용은 손상 정도와 패널 수에 따라 달라지고 정확한 기간은 차량 상태 확인 후 안내하며, 사진만으로 단정하기 어려운 부분은 방문 확인을 안내합니다.',
+    '복원보다 부품 교환이 비용이 적으면 교환을 권하고, 서비스센터가 더 저렴한 경우도 숨기지 않습니다. 색상이 완전히 같을 수 없는 경우나 심한 찌그러짐으로 처음의 예리한 각을 그대로 만들기 어려운 경우처럼, 가능한 결과와 작업의 한계는 작업 전에 설명합니다.',
+  ]);
 });
