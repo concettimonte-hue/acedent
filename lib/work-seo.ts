@@ -57,6 +57,14 @@ export interface WorkCategoryGuide {
 }
 
 const workCategoryGuides: Partial<Record<WorkCategory, WorkCategoryGuide>> = {
+  dent: {
+    eyebrow: 'DENT GUIDE',
+    title: '문콕·찌그러짐은 덴트로 가능할까요?',
+    paragraphs: [
+      '덴트는 문콕처럼 도장이 벗겨지지 않은 눌림을 새로 칠하지 않고 펴는 작업입니다. 도장 상태와 손상 위치·깊이, 도구 접근 가능 여부를 확인해 복원 방법을 정합니다.',
+      '접근 가능한 부위는 구멍을 뚫지 않는 무천공 방식으로 작업합니다. 다만 심한 찌그러짐이나 날카롭게 꺾인 부분은 흔적이 남을 수 있고, 도장이 손상된 경우에는 도색이 필요할 수 있습니다. 사진만으로 판단하기 어려운 부분은 방문 확인 후 가능한 결과와 작업 범위를 안내합니다.',
+    ],
+  },
   'panel-paint': {
     eyebrow: 'PANEL PAINT GUIDE',
     title: '판금도색과 교환은 어떻게 판단하나요?',
@@ -73,6 +81,14 @@ const workCategoryGuides: Partial<Record<WorkCategory, WorkCategoryGuide>> = {
       '적용 가능 여부는 손상 범위와 위치, 기존 도장 상태에 따라 달라집니다. 손상 부위가 잘 보이는 사진을 보내주시면 부분도색으로 가능한지 먼저 확인해 안내합니다.',
     ],
   },
+  polish: {
+    eyebrow: 'SCRATCH REMOVAL GUIDE',
+    title: '흠집·오염은 도색 없이 지울 수 있나요?',
+    paragraphs: [
+      '얕은 흠집과 페인트 이염은 도장 상태를 확인한 뒤 폴리싱으로 완화하거나 제거할 수 있습니다. 물자국·타르·석회물·본드 같은 오염은 종류와 도장 손상 정도에 맞춰 제거하고, 필요한 부위만 다듬어 기존 도장을 최대한 보존합니다.',
+      '깊게 패이거나 칠이 벗겨진 부분은 폴리싱만으로 복원하기 어렵습니다. 상태에 따라 붓터치나 도색을 안내하며, 붓터치 자국과 찌그러짐은 남을 수 있습니다. 오염이 도장면을 파고든 경우도 자국이 남거나 재도장이 필요할 수 있어, 가능한 결과와 한계를 먼저 설명합니다.',
+    ],
+  },
   'full-polish': {
     eyebrow: 'FULL POLISH GUIDE',
     title: '차량 전체 광택 사례에서 확인할 점',
@@ -84,8 +100,8 @@ const workCategoryGuides: Partial<Record<WorkCategory, WorkCategoryGuide>> = {
 };
 
 export function getWorkCategoryGuide(category?: WorkCategory, part?: WorkPart) {
-  // 새 판금 안내만 최상위에 제한하고 기존 안내의 부위별 노출은 유지합니다.
-  if (category === 'panel-paint' && part) return undefined;
+  // 덴트·판금·흠집 안내는 최상위에 한정하고 기존 부분도색·전체광택의 부위별 노출은 유지합니다.
+  if (part && (category === 'dent' || category === 'panel-paint' || category === 'polish')) return undefined;
   return category ? workCategoryGuides[category] : undefined;
 }
 
