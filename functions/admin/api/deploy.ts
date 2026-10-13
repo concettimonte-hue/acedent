@@ -49,7 +49,7 @@ async function verifyPublishedWork(deployment: CloudflareDeployment, slug: strin
 }
 
 export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) => {
-  const access = requireAccess(request);
+  const access = await requireAccess(request, env);
   if (!access.ok) return access.response;
   if (!env.DEPLOY_HOOK_URL || !/^https:\/\//i.test(env.DEPLOY_HOOK_URL)) {
     return json({ error: 'DEPLOY_HOOK_URL 설정이 필요합니다.' }, 503);
@@ -73,7 +73,7 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
 };
 
 export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) => {
-  const access = requireAccess(request);
+  const access = await requireAccess(request, env);
   if (!access.ok) return access.response;
 
   const project = env.CLOUDFLARE_PAGES_PROJECT || 'acedent-git';

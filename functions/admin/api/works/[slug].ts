@@ -13,7 +13,7 @@ function migrationError(error: unknown) {
 }
 
 export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env, params }) => {
-  const access = requireAccess(request);
+  const access = await requireAccess(request, env);
   if (!access.ok) return access.response;
   if (!env.ACEDENT_DB) return json({ error: 'D1 바인딩이 설정되지 않았습니다.' }, 503);
   const slug = readSlug(params.slug);
@@ -22,7 +22,7 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env, para
 };
 
 export const onRequestPut: PagesFunction<AdminEnv> = async ({ request, env, params }) => {
-  const access = requireAccess(request);
+  const access = await requireAccess(request, env);
   if (!access.ok) return access.response;
   if (!env.ACEDENT_DB || !env.ACEDENT_IMAGES) {
     return json({ error: 'D1/R2 바인딩이 설정되지 않았습니다.' }, 503);
@@ -37,7 +37,7 @@ export const onRequestPut: PagesFunction<AdminEnv> = async ({ request, env, para
 };
 
 export const onRequestDelete: PagesFunction<AdminEnv> = async ({ request, env, params }) => {
-  const access = requireAccess(request);
+  const access = await requireAccess(request, env);
   if (!access.ok) return access.response;
   if (!env.ACEDENT_DB || !env.ACEDENT_IMAGES) {
     return json({ error: 'D1/R2 바인딩이 설정되지 않았습니다.' }, 503);

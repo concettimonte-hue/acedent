@@ -26,6 +26,7 @@ interface WorkCardProps {
   imageState?: 'before' | 'after';
   matchedPartIndex?: number;
   sourceWorkSlug?: string;
+  canEdit?: boolean;
 }
 
 export default function WorkCard({
@@ -36,6 +37,7 @@ export default function WorkCard({
   imageState = 'after',
   matchedPartIndex,
   sourceWorkSlug,
+  canEdit = false,
 }: WorkCardProps) {
   const representativePart = (matchedPartIndex === undefined ? undefined : work.parts[matchedPartIndex]) || getWorkRepresentativePart(
     work,
@@ -49,7 +51,7 @@ export default function WorkCard({
         ? representativePart.category
         : work.category;
 
-  return (
+  const card = (
     <a
       className="work-card"
       href={`/works/detail/${work.slug}`}
@@ -96,5 +98,21 @@ export default function WorkCard({
         </span>
       </span>
     </a>
+  );
+
+  if (!canEdit) return card;
+  return (
+    <div className="work-card-editable">
+      {card}
+      <a
+        className="work-card-edit-link"
+        href={`/admin?view=edit&slug=${encodeURIComponent(work.slug)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`${formatWorkCar(work)} ${work.title} 수정 (새 탭)`}
+      >
+        수정 <ArrowUpRight aria-hidden="true" />
+      </a>
+    </div>
   );
 }

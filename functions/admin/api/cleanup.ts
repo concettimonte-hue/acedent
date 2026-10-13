@@ -17,7 +17,7 @@ function validSlug(value: unknown): value is string {
 }
 
 export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) => {
-  const access = requireAccess(request);
+  const access = await requireAccess(request, env);
   if (!access.ok) return access.response;
   if (!env.ACEDENT_DB || !env.ACEDENT_IMAGES) {
     return json({ error: 'D1/R2 바인딩이 설정되지 않았습니다.' }, 503);

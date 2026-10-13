@@ -3,7 +3,8 @@ import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createElement } from 'react';
-import { loadTs, fixtureDatabase, localRequest } from './test-support.mjs';
+import { loadTs, fixtureDatabase } from './test-support.mjs';
+import { accessFixture } from './access-test-fixture.mjs';
 
 const { matchesAdminSearch, paginateAdminRows } = loadTs('lib/admin-list.ts');
 const { analyticsPeriod } = loadTs('lib/admin-analytics.ts');
@@ -28,10 +29,12 @@ test('period is complete KST days, including month/year boundaries', () => {
   assert.deepEqual(analyticsPeriod(7, new Date('2026-01-01T15:30:00Z')), { today: '2026-01-02', start: '2025-12-26', end: '2026-01-01', previousStart: '2025-12-19', previousEnd: '2025-12-25' });
 });
 
-test('analytics SQL: no top-20 cutoff, zero-record cases included, distinct visitors, today excluded', async () => {
+test('analytics SQL: no top-20 cutoff, zero-record cases included, distinct visitors, today excluded', async (t) => {
   const { db, env, period } = fixtureDatabase();
+  const access = await accessFixture(t);
+  Object.assign(env, access.env);
   try {
-    const response = await loadTs('functions/admin/api/analytics.ts').onRequestGet({ request: localRequest(), env });
+    const response = await loadTs('functions/admin/api/analytics.ts').onRequestGet({ request: await access.request('/admin/api/analytics?days=30'), env });
     assert.equal(response.status, 200);
     const json = await response.json();
     assert.equal(json.topPages.filter((p) => p.type === 'detail').length, 50);
@@ -51,10 +54,12 @@ test('analytics SQL: no top-20 cutoff, zero-record cases included, distinct visi
   } finally { db.close(); }
 });
 
-test('admin listing adds real PART filters without modifying or hiding rows', async () => {
+test('admin listing adds real PART filters without modifying or hiding rows', async (t) => {
   const { db, env } = fixtureDatabase();
+  const access = await accessFixture(t);
+  Object.assign(env, access.env);
   try {
-    const result = await loadTs('functions/admin/api/works.ts').onRequestGet({ request: localRequest('/admin/api/works'), env });
+    const result = await loadTs('functions/admin/api/works.ts').onRequestGet({ request: await access.request('/admin/api/works'), env });
     const json = await result.json();
     assert.equal(json.works.length, 50);
     assert(json.works.every((w) => w.parts.length && w.categories.length));

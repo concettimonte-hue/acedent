@@ -1,4 +1,6 @@
-export interface AdminEnv {
+import { verifyAccessAssertion, type AccessEnv } from './access';
+
+export interface AdminEnv extends AccessEnv {
   ACEDENT_DB: D1Database;
   ACEDENT_IMAGES: R2Bucket;
   R2_PUBLIC_BASE_URL: string;
@@ -12,38 +14,17 @@ export function json(data: unknown, status = 200) {
   return Response.json(data, {
     status,
     headers: {
-      'Cache-Control': 'no-store',
+      'Cache-Control': 'private, no-store',
       'X-Content-Type-Options': 'nosniff',
     },
   });
 }
 
 type AccessResult =
-  | { ok: true; email: string }
+  | { ok: true; email: string; expiresAt: number }
   | { ok: false; response: Response };
 
-interface AccessJwtPayload {
-  email?: unknown;
-  sub?: unknown;
-}
-
-function readAccessJwtPayload(assertion: string): AccessJwtPayload | null {
-  try {
-    const encodedPayload = assertion.split('.')[1];
-    if (!encodedPayload) return null;
-    const base64 = encodedPayload
-      .replaceAll('-', '+')
-      .replaceAll('_', '/')
-      .padEnd(Math.ceil(encodedPayload.length / 4) * 4, '=');
-    const binary = atob(base64);
-    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
-    return JSON.parse(new TextDecoder().decode(bytes)) as AccessJwtPayload;
-  } catch {
-    return null;
-  }
-}
-
-export function requireAccess(request: Request): AccessResult {
+export async function requireAccess(request: Request, env: AccessEnv): Promise<AccessResult> {
   const hostname = new URL(request.url).hostname.toLowerCase();
   const allowedHost = hostname === 'www.acedentshop.co.kr' ||
     hostname === 'acedentshop.co.kr' ||
@@ -59,23 +40,24 @@ export function requireAccess(request: Request): AccessResult {
   }
 
   const assertion = request.headers.get('Cf-Access-Jwt-Assertion');
-  const headerEmail = request.headers.get('Cf-Access-Authenticated-User-Email')?.trim();
   if (!assertion) {
-    const missingHeaders = ['Cf-Access-Jwt-Assertion'];
-    if (!headerEmail) missingHeaders.push('Cf-Access-Authenticated-User-Email');
     return {
       ok: false,
       response: json({
-        error: `Cloudflare Access 인증이 필요합니다: ${missingHeaders.join(', ')} 헤더가 없습니다.`,
+        error: 'Cloudflare Access 인증이 필요합니다: Cf-Access-Jwt-Assertion 헤더가 없습니다.',
       }, 403),
     };
   }
 
-  const payload = readAccessJwtPayload(assertion);
-  const jwtEmail = typeof payload?.email === 'string' ? payload.email.trim() : '';
-  const jwtSubject = typeof payload?.sub === 'string' ? payload.sub.trim() : '';
-  const email = headerEmail || jwtEmail || jwtSubject || 'cloudflare-access-user';
-  return { ok: true, email };
+  if (!env.CLOUDFLARE_ACCESS_TEAM_DOMAIN || !env.CLOUDFLARE_ACCESS_AUD) {
+    return { ok: false, response: json({ error: 'Cloudflare Access 검증 설정이 필요합니다: CLOUDFLARE_ACCESS_TEAM_DOMAIN / CLOUDFLARE_ACCESS_AUD.' }, 503) };
+  }
+  try {
+    return { ok: true, ...await verifyAccessAssertion(assertion, env) };
+  } catch {
+    // Do not log tokens, claims, cookies or upstream error bodies. Fail closed.
+    return { ok: false, response: json({ error: 'Cloudflare Access 인증을 확인할 수 없습니다. 인증 만료 또는 검증 설정을 확인해 주세요.' }, 403) };
+  }
 }
 
 export function cleanPublicBase(value: string | undefined) {

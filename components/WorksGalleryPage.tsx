@@ -31,6 +31,7 @@ import {
   hasWorkPartLanding,
 } from '@/lib/work-landings';
 import { getWorkCategoryGuide } from '@/lib/work-seo';
+import { observeAdminSession } from '@/lib/admin-session';
 
 interface WorksGalleryPageProps {
   category?: WorkCategory;
@@ -120,6 +121,8 @@ function FilterRailEdges({ left, right }: { left: boolean; right: boolean }) {
 }
 
 export default function WorksGalleryPage({ category, part }: WorksGalleryPageProps) {
+  const [canEdit, setCanEdit] = useState(false);
+  useEffect(() => observeAdminSession(setCanEdit), []);
   const allWorks = useMemo(() => getWorks(), []);
   const availableCategories = useMemo(
     () => getAvailableWorkCategories(allWorks),
@@ -362,6 +365,7 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
                 contextCategory={selectedCategory}
                 contextPart={selectedPart}
                 imageState="before"
+                canEdit={canEdit}
                 key={work.slug}
               />
             ))}

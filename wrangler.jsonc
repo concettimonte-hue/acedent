@@ -6,7 +6,9 @@
   "vars": {
     "R2_PUBLIC_BASE_URL": "https://images.acedentshop.co.kr",
     "CLOUDFLARE_ACCOUNT_ID": "1da573d9f39f8d3a772f3074f7c20d0a",
-    "CLOUDFLARE_PAGES_PROJECT": "acedent-git"
+    "CLOUDFLARE_PAGES_PROJECT": "acedent-git",
+    "CLOUDFLARE_ACCESS_TEAM_DOMAIN": "https://acedent.cloudflareaccess.com",
+    "CLOUDFLARE_ACCESS_AUD": "20075e2b9d6a801f1764650314e64babad24bce3249fd3e30ef3dab144e2afe8"
   },
   "d1_databases": [
     {

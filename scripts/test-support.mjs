@@ -8,8 +8,9 @@ import ts from 'typescript';
 const root = resolve(import.meta.dirname, '..');
 const nativeRequire = createRequire(import.meta.url);
 const cache = new Map();
-export function loadTs(relative) {
+export function loadTs(relative, { fresh = false } = {}) {
   const path = resolve(root, relative);
+  if (fresh) cache.delete(path);
   if (cache.has(path)) return cache.get(path).exports;
   const loadedModule = { exports: {} };
   cache.set(path, loadedModule);

@@ -102,8 +102,8 @@ function pageDetails(pathValue: string, workLabels: Map<string, string>) {
   return { label: path, type: 'other' as const };
 }
 
-export const onRequestPost: PagesFunction<AdminEnv> = async ({ request }) => {
-  const access = requireAccess(request);
+export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) => {
+  const access = await requireAccess(request, env);
   if (!access.ok) return access.response;
 
   return Response.json({ excluded: true }, {
@@ -116,7 +116,7 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request }) => {
 };
 
 export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) => {
-  const access = requireAccess(request);
+  const access = await requireAccess(request, env);
   if (!access.ok) return access.response;
 
   if (!env.ACEDENT_DB) return json({ error: 'D1 바인딩이 설정되지 않았습니다.' }, 503);
