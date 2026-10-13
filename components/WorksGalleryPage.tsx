@@ -57,7 +57,7 @@ function getFilterUrl(category?: WorkCategory, part?: WorkPart) {
   return `${getWorkPartLandingPath(category, part)}${preservedSearch}`;
 }
 
-function useFilterRail<T extends HTMLElement>(activeValue?: string) {
+function useFilterRail<T extends HTMLElement>(activeValue?: string, contentKey?: string) {
   const railRef = useRef<T>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -86,6 +86,8 @@ function useFilterRail<T extends HTMLElement>(activeValue?: string) {
 
   useEffect(() => {
     const rail = railRef.current;
+    // The available part chips can change without resizing the rail itself.
+    measure();
     if (!rail || !window.matchMedia('(max-width: 680px)').matches) return;
     const activeItem = rail.querySelector<HTMLElement>('.is-active');
     if (!activeItem) return;
@@ -96,7 +98,7 @@ function useFilterRail<T extends HTMLElement>(activeValue?: string) {
     );
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     rail.scrollTo({ left: targetLeft, behavior: reduceMotion ? 'auto' : 'smooth' });
-  }, [activeValue]);
+  }, [activeValue, contentKey, measure]);
 
   return { railRef, canScrollLeft, canScrollRight, measure };
 }
@@ -129,12 +131,11 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
     [allWorks],
   );
   const [filters, setFilters] = useState<WorkFilters>(() => readFilters(category, part));
-  const [showSwipeHint, setShowSwipeHint] = useState(true);
   const selectedCategory = filters.category;
   const selectedPart = filters.part;
   const categoryGuide = getWorkCategoryGuide(selectedCategory, selectedPart);
   const categoryRail = useFilterRail<HTMLElement>(selectedCategory ?? 'all');
-  const partRail = useFilterRail<HTMLDivElement>(selectedPart ?? 'all');
+  const partRail = useFilterRail<HTMLDivElement>(selectedPart ?? 'all', selectedCategory);
   const categoryWorks = useMemo(
     () => (selectedCategory ? getWorksByCategory(selectedCategory) : getWorks()),
     [selectedCategory],
@@ -163,10 +164,11 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
   };
 
   useEffect(() => {
-    const syncFiltersFromUrl = () => setFilters(readFilters(category, part));
+    // Initial route props are fallback only on mount, never for history entries.
+    const syncFiltersFromUrl = () => setFilters(readFilters());
     window.addEventListener('popstate', syncFiltersFromUrl);
     return () => window.removeEventListener('popstate', syncFiltersFromUrl);
-  }, [category, part]);
+  }, []);
 
   useEffect(() => {
     const landingFilters = getWorkPartLandingFilters(window.location.pathname);
@@ -178,14 +180,6 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
   }, [selectedCategory, selectedPart]);
 
   useEffect(() => {
-    try {
-      setShowSwipeHint(sessionStorage.getItem('acedent:works-filter-hint') !== 'seen');
-    } catch {
-      setShowSwipeHint(true);
-    }
-  }, []);
-
-  useEffect(() => {
     if (!selectedPart || availableFilterParts.includes(selectedPart)) return;
     window.history.replaceState({}, '', getFilterUrl(selectedCategory));
     setFilters({ category: selectedCategory });
@@ -195,16 +189,10 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
     ? getWorkCategoryLabel(selectedCategory)
     : '전체';
 
-  const dismissSwipeHint = () => {
-    setShowSwipeHint(false);
-    try {
-      sessionStorage.setItem('acedent:works-filter-hint', 'seen');
-    } catch {
-      // 저장소를 사용할 수 없어도 안내만 숨기고 필터 동작은 유지합니다.
-    }
-  };
-
-  const hasOverflowingFilter = categoryRail.canScrollRight || partRail.canScrollRight;
+  const hasFilters = Boolean(selectedCategory || selectedPart);
+  const resultLabel = hasFilters
+    ? `${[selectedCategory ? getWorkCategoryLabel(selectedCategory) : '', selectedPart].filter(Boolean).join(' · ')} 사례`
+    : '전체 수리사례';
 
   return (
     <>
@@ -214,7 +202,7 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
         <p>ACE DENT · REPAIR ARCHIVE</p>
         <h1>{selectedPart ? `${selectedPart} ` : ''}{selectedCategory ? getWorkCategoryLabel(selectedCategory) : '수리사례'}</h1>
         <span>
-          실제 차량의 작업 전후를 확인하고 내 차와 비슷한 손상을 찾아보세요.
+          작업 방식이나 손상 부위로 비슷한 사례를 찾아보세요. 아는 항목만 골라도 됩니다.
         </span>
         </section>
 
@@ -242,9 +230,9 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
         <section className="works-browser" aria-label="수리사례 목록">
         <div className="work-filter-group">
           <div className="work-filter-heading">
-            <span>작업 방식</span>
-            {showSwipeHint && hasOverflowingFilter && (
-              <span className="work-filter-swipe-hint">좌우로 밀어 선택 →</span>
+            <span id="work-category-question">어떤 작업이 궁금하세요?</span>
+            {(categoryRail.canScrollLeft || categoryRail.canScrollRight) && (
+              <span className="work-filter-swipe-hint">좌우로 보기 ↔</span>
             )}
           </div>
           <div
@@ -254,13 +242,8 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
               ref={categoryRail.railRef}
               className="work-category-tabs"
               aria-label="작업방식"
-              onPointerDown={dismissSwipeHint}
-              onScroll={() => {
-                categoryRail.measure();
-                if ((categoryRail.railRef.current?.scrollLeft ?? 0) > 3) {
-                  dismissSwipeHint();
-                }
-              }}
+              aria-describedby="work-category-question"
+              onScroll={categoryRail.measure}
             >
               <a
                 href={getFilterUrl(undefined, selectedPart)}
@@ -299,7 +282,10 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
 
         <div className="work-filter-group">
           <div className="work-filter-heading">
-            <span>수리 부위</span>
+            <span id="work-part-question">어디가 손상됐나요?</span>
+            {(partRail.canScrollLeft || partRail.canScrollRight) && (
+              <span className="work-filter-swipe-hint">좌우로 보기 ↔</span>
+            )}
           </div>
           <div
             className={`work-filter-rail-shell${partRail.canScrollLeft ? ' can-scroll-left' : ''}${partRail.canScrollRight ? ' can-scroll-right' : ''}`}
@@ -307,16 +293,11 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
             <div
               ref={partRail.railRef}
               className="work-part-filter"
+              role="group"
               aria-label="작업 부위 필터"
-              onPointerDown={dismissSwipeHint}
-              onScroll={() => {
-                partRail.measure();
-                if ((partRail.railRef.current?.scrollLeft ?? 0) > 3) {
-                  dismissSwipeHint();
-                }
-              }}
+              aria-describedby="work-part-question"
+              onScroll={partRail.measure}
             >
-              <span>부위</span>
               <a
                 href={getFilterUrl(selectedCategory)}
                 className={!selectedPart ? 'is-active' : ''}
@@ -354,7 +335,22 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
         </div>
 
         <div className="works-count">
-          <span>{selectedPart ? `${selectedPart} · ` : ''}{visibleWorks.length}건</span>
+          <span role="status" aria-live="polite" aria-atomic="true">
+            {resultLabel} <strong>{visibleWorks.length}건</strong>
+          </span>
+          {hasFilters && (
+            <a
+              className="works-filter-reset"
+              href={getFilterUrl()}
+              onClick={(event) => {
+                event.preventDefault();
+                trackFilterUse('전체', '전체');
+                selectFilters({});
+              }}
+            >
+              선택 초기화
+            </a>
+          )}
         </div>
 
         {visibleWorks.length > 0 ? (
@@ -372,8 +368,8 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
           </div>
         ) : (
           <div className="works-empty">
-            <strong>등록된 사례가 없습니다.</strong>
-            <p>다른 작업 부위를 선택해 주세요.</p>
+            <strong>이 조건으로 등록된 사례가 없습니다.</strong>
+            <p>수리 가능 여부와는 다릅니다. 다른 항목을 고르거나 선택을 초기화해 보세요.</p>
           </div>
         )}
 

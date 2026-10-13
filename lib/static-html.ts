@@ -212,17 +212,21 @@ export function getWorksStaticHtml(
     )
     : categoryWorks;
   const heading = `${part ? `${part} ` : ''}${category ? getWorkCategoryLabel(category) : '수리사례'}`;
+  const resultLabel = category || part
+    ? `${[category ? getWorkCategoryLabel(category) : '', part].filter(Boolean).join(' · ')} 사례`
+    : '전체 수리사례';
   const categoryGuide = getWorkCategoryGuide(category, part);
   const partLandings = category
     ? getWorkPartLandings(works).filter((landing) => landing.category === category)
     : [];
   return `<main class="seo-static seo-works">
     <header class="seo-static-header"><a href="/">ACE DENT</a><a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
-    <section><p>ACE DENT · REPAIR ARCHIVE</p><h1>${text(heading)}</h1><p>실제 차량의 작업 전후를 확인하고 내 차와 비슷한 손상을 찾아보세요.</p></section>
+    <section><p>ACE DENT · REPAIR ARCHIVE</p><h1>${text(heading)}</h1><p>작업 방식이나 손상 부위로 비슷한 사례를 찾아보세요. 아는 항목만 골라도 됩니다.</p></section>
     ${categoryGuide ? `<details class="works-category-guide" aria-labelledby="works-category-guide-${text(category ?? '')}"><summary><h2 id="works-category-guide-${text(category ?? '')}">${text(categoryGuide.title)}</h2><span class="works-category-guide-action"><span class="when-closed">설명 보기</span><span class="when-open">접기</span></span></summary><div class="works-category-guide-body">${categoryGuide.paragraphs.map((paragraph) => `<p>${text(paragraph)}</p>`).join('')}</div></details>` : ''}
-    <nav aria-label="작업방식"><a href="/works">전체</a>${getAvailableWorkCategories(works).map((item) => `<a href="/works/${item.id}">${text(item.label)}</a>`).join('')}</nav>
-    ${partLandings.length ? `<nav aria-label="수리 부위">${partLandings.map((landing) => `<a href="${text(landing.path)}">${text(landing.part)}</a>`).join('')}</nav>` : ''}
-    <section aria-label="수리사례 목록"><p>${visible.length}건</p><div class="seo-works-grid">${visible.map((work) => workCard(work, category, [], part, 'before')).join('')}</div></section>
+    <p class="work-filter-heading" id="static-work-category-question">어떤 작업이 궁금하세요?</p>
+    <nav aria-label="작업방식" aria-describedby="static-work-category-question"><a href="/works">전체</a>${getAvailableWorkCategories(works).map((item) => `<a href="/works/${item.id}">${text(item.label)}</a>`).join('')}</nav>
+    ${partLandings.length ? `<p class="work-filter-heading" id="static-work-part-question">어디가 손상됐나요?</p><nav aria-label="수리 부위" aria-describedby="static-work-part-question">${partLandings.map((landing) => `<a href="${text(landing.path)}">${text(landing.part)}</a>`).join('')}</nav>` : ''}
+    <section aria-label="수리사례 목록"><div class="works-count"><span>${text(resultLabel)} <strong>${visible.length}건</strong></span>${category || part ? '<a class="works-filter-reset" href="/works">선택 초기화</a>' : ''}</div>${visible.length ? `<div class="seo-works-grid">${visible.map((work) => workCard(work, category, [], part, 'before')).join('')}</div>` : '<p>이 조건으로 등록된 사례가 없습니다. 수리 가능 여부와는 다릅니다. 다른 항목을 고르거나 선택을 초기화해 보세요.</p>'}</section>
     ${siteFooter()}
   </main>`;
 }
