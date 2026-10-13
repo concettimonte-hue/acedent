@@ -21,6 +21,9 @@ interface BeforeAfterSliderProps {
 }
 
 const clamp = (value: number) => Math.min(100, Math.max(0, value));
+const INITIAL_POSITION = 50;
+// Percentage points from the initial split, not accumulated pointer jitter.
+const HINT_DISMISS_DISTANCE = 2;
 
 export default function BeforeAfterSlider({
   beforeSrc,
@@ -36,22 +39,37 @@ export default function BeforeAfterSlider({
 }: BeforeAfterSliderProps) {
   const sliderRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
-  const [position, setPosition] = useState(50);
-  const [hasInteracted, setHasInteracted] = useState(false);
+  const [{ position, hasInteracted }, setComparison] = useState({
+    position: INITIAL_POSITION,
+    hasInteracted: false,
+  });
   const [zoomOpen, setZoomOpen] = useState(false);
   const loading = priority ? 'eager' : 'lazy';
   const closeZoom = useCallback(() => setZoomOpen(false), []);
 
+  const updatePosition = (next: (current: number) => number) => {
+    setComparison((current) => {
+      const value = next(current.position);
+      if (!Number.isFinite(value)) return current;
+      const position = clamp(value);
+      if (position === current.position) return current;
+      return {
+        position,
+        hasInteracted: current.hasInteracted ||
+          Math.abs(position - INITIAL_POSITION) >= HINT_DISMISS_DISTANCE,
+      };
+    });
+  };
+
   const updateFromPointer = (clientX: number) => {
     const bounds = sliderRef.current?.getBoundingClientRect();
-    if (!bounds) return;
-    setPosition(clamp(((clientX - bounds.left) / bounds.width) * 100));
+    if (!bounds || bounds.width <= 0) return;
+    updatePosition(() => ((clientX - bounds.left) / bounds.width) * 100);
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
     draggingRef.current = true;
-    setHasInteracted(true);
     updateFromPointer(event.clientX);
   };
 
@@ -70,9 +88,8 @@ export default function BeforeAfterSlider({
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
     event.preventDefault();
     event.stopPropagation();
-    setHasInteracted(true);
-    setPosition((current) =>
-      clamp(current + (event.key === 'ArrowRight' ? 5 : -5)),
+    updatePosition((current) =>
+      current + (event.key === 'ArrowRight' ? 5 : -5),
     );
   };
 
