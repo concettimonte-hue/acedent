@@ -6,6 +6,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
 import generatedWorksData from './content/works.generated.json';
+import { normalizeComparisons, comparisonImageUrl, validateComparisonTotal } from './lib/work-comparisons';
 import {
   WORK_CATEGORIES,
   WORK_GALLERY_MAX_PER_SCOPE,
@@ -38,6 +39,7 @@ import {
   getAbsoluteWorkImageUrl,
   getWorkImageAlt,
   getWorkGalleryImageAlt,
+  getWorkComparisonImages,
   getWorkOgImageSrc,
   getWorkPrimaryPart,
 } from './lib/work-images';
@@ -135,8 +137,10 @@ function loadBuildWorks(): BuildWork[] {
       const parts = work.parts.map((part, index) => ({
         ...part,
         gallery: normalizeGallery(part.gallery, `parts[${index}].gallery`, fileName),
+        comparisons: normalizeComparisons(part.comparisons, comparisonImageUrl, `${fileName}: parts[${index}].comparisons`),
       }));
       const gallery = normalizeGallery(work.gallery, 'gallery', fileName);
+      validateComparisonTotal(parts);
       const totalGalleryImages = gallery.length + parts.reduce((count, part) => count + (part.gallery?.length ?? 0), 0);
       if (totalGalleryImages > WORK_GALLERY_MAX_TOTAL) {
         throw new Error(`${fileName}: 추가 사진은 사례 전체 최대 ${WORK_GALLERY_MAX_TOTAL}장이어야 합니다.`);
@@ -322,6 +326,17 @@ function getWorkImageJsonLd(work: WorkItem) {
         ...imageRightsMetadata,
       };
     }),
+    ...getWorkComparisonImages(work, part).map((image) => ({
+      '@type': 'ImageObject',
+      contentUrl: getAbsoluteWorkImageUrl(image.src, siteUrl),
+      thumbnailUrl: getAbsoluteWorkImageUrl(image.src, siteUrl),
+      name: image.title,
+      caption: image.caption,
+      width: 1600,
+      height: 1200,
+      representativeOfPage: false,
+      ...imageRightsMetadata,
+    })),
     ...(part.gallery ?? []).map((galleryImage, imageIndex) => ({
       '@type': 'ImageObject',
       contentUrl: getAbsoluteWorkImageUrl(galleryImage.src, siteUrl),
@@ -503,6 +518,7 @@ const seoAssetsPlugin = (): Plugin => ({
             title: getWorkImageAlt(work, part, '후'),
             caption: `${part.label} 수리 후${part.note ? ` · ${part.note}` : ''}`,
           },
+          ...getWorkComparisonImages(work, part),
           ...(part.gallery ?? []).map((galleryImage, imageIndex) => ({
             src: galleryImage.src,
             title: getWorkGalleryImageAlt(work, galleryImage, imageIndex, part),

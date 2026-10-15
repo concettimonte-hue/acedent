@@ -19,6 +19,8 @@ const workCategories = new Set([
 ]);
 const galleryMaxPerScope = 6;
 const galleryMaxTotal = 12;
+const comparisonMaxPerPart = 3;
+const comparisonMaxTotal = 6;
 const workPartPositions = new Set(['front', 'rear']);
 
 if (existsSync(resolve(projectDirectory, '.env.local'))) {
@@ -64,6 +66,7 @@ function validateWork(work, sourceFile) {
   }
   if (!Array.isArray(work.parts) || work.parts.length === 0) throw new Error(`${sourceFile}: parts 배열이 비어 있습니다.`);
   let galleryCount = 0;
+  let comparisonCount = 0;
   const validateGallery = (gallery, field) => {
     if (gallery === undefined) return undefined;
     if (!Array.isArray(gallery) || gallery.length > galleryMaxPerScope) {
@@ -109,7 +112,22 @@ function validateWork(work, sourceFile) {
     }
     const partGallery = validateGallery(part.gallery, `parts[${index}].gallery`);
     if (partGallery) part.gallery = partGallery;
+    if (part.comparisons !== undefined) {
+      if (!Array.isArray(part.comparisons) || part.comparisons.length > comparisonMaxPerPart) {
+        throw new Error(`${sourceFile}: parts[${index}].comparisons는 최대 ${comparisonMaxPerPart}쌍이어야 합니다.`);
+      }
+      comparisonCount += part.comparisons.length;
+      part.comparisons = part.comparisons.map((pair) => {
+        if (!pair || typeof pair !== 'object' || ['before', 'after'].some((key) =>
+          typeof pair[key] !== 'string' || !/^(?:https?:\/\/|\/works\/)/i.test(pair[key])
+        ) || (pair.caption !== undefined && (typeof pair.caption !== 'string' || pair.caption.trim().length > 120))) {
+          throw new Error(`${sourceFile}: parts[${index}].comparisons 전·후 사진과 설명을 확인하세요.`);
+        }
+        return { before: pair.before.trim(), after: pair.after.trim(), ...(pair.caption?.trim() ? { caption: pair.caption.trim() } : {}) };
+      });
+    }
   }
+  if (comparisonCount > comparisonMaxTotal) throw new Error(`${sourceFile}: 추가 비교는 사례 전체 최대 ${comparisonMaxTotal}쌍이어야 합니다.`);
   const workGallery = validateGallery(work.gallery, 'gallery');
   if (workGallery) work.gallery = workGallery;
   if (galleryCount > galleryMaxTotal) throw new Error(`${sourceFile}: 추가 사진은 사례 전체 최대 ${galleryMaxTotal}장이어야 합니다.`);
@@ -178,6 +196,11 @@ function normalizeWorkImageUrls(work) {
       before: normalizeR2Url(part.before, publicBase),
       after: normalizeR2Url(part.after, publicBase),
       thumbnail: normalizeR2Url(part.thumbnail, publicBase),
+      ...(part.comparisons ? {
+        comparisons: part.comparisons.map((pair) => ({
+          ...pair, before: normalizeR2Url(pair.before, publicBase), after: normalizeR2Url(pair.after, publicBase),
+        })),
+      } : {}),
       ...(part.gallery ? {
         gallery: part.gallery.map((image) => ({
           ...image,

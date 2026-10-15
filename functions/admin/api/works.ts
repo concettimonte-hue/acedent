@@ -15,6 +15,7 @@ import {
   type WorkPartValue,
 } from '../../../content/works/types';
 import { getWorkSeoCopy } from '../../../lib/work-seo';
+import { normalizeComparisons, comparisonAssetReference, validateComparisonTotal } from '../../../lib/work-comparisons';
 import { parseWorkImageAnnotations } from '../../../lib/work-annotations';
 import { getWorkFilterCategories } from '../../../lib/work-categories';
 import { getWorkFilterParts } from '../../../lib/work-parts';
@@ -37,6 +38,7 @@ interface GalleryInput {
 }
 
 interface PartInput {
+  comparisons?: unknown;
   part: unknown;
   beforeAnnotations?: unknown;
   position?: unknown;
@@ -316,9 +318,11 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
         note: required(part.note, `${index + 1}번 부위 설명`, 300),
         beforeAnnotations: parseWorkImageAnnotations(part.beforeAnnotations, `${index + 1}번 PART 손상 위치 표시`),
         gallery: normalizeGallery(part.gallery, `${index + 1}번 PART 추가 사진`),
+        comparisons: normalizeComparisons(part.comparisons, comparisonAssetReference, `${index + 1}번 PART 추가 전후 비교`),
       };
     });
     input.parts = normalizedParts;
+    validateComparisonTotal(normalizedParts);
     const primaryPart = normalizedParts[0].part[0];
     const subCategories = normalizeSubCategories(input.subCategories, category);
     const subParts = normalizeSubParts(input.subParts, primaryPart);
@@ -363,6 +367,18 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
           height: image.height,
         });
       }
+      const comparisons = [];
+      for (const pair of part.comparisons) {
+        const [pairBefore, pairAfter] = await Promise.all([
+          verifyAsset(env, pair.before, 'before', uploadId),
+          verifyAsset(env, pair.after, 'after', uploadId),
+        ]);
+        assets.push(
+          { ...pairBefore, kind: 'before' as const, partIndex: index },
+          { ...pairAfter, kind: 'after' as const, partIndex: index },
+        );
+        comparisons.push({ before: assetUrl(publicBase, pairBefore.key), after: assetUrl(publicBase, pairAfter.key), caption: pair.caption });
+      }
       mediaParts.push({
         part: part.part,
         position: part.position,
@@ -374,6 +390,7 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
         thumbnail: assetUrl(publicBase, thumbnail.key),
         note: part.note,
         gallery,
+        ...(comparisons.length ? { comparisons } : {}),
       });
     }
 

@@ -7,6 +7,7 @@ import { annotationArrowGeometry } from '@/lib/work-annotations';
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
   type DragEvent,
   type SyntheticEvent,
@@ -16,6 +17,9 @@ import AdminDamageAnnotationEditor from '@/components/AdminDamageAnnotationEdito
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import ImageAnnotations from '@/components/ImageAnnotations';
 import AdminGalleryEditor, { type AdminGalleryItemView } from '@/components/AdminGalleryEditor';
+import AdminComparisonEditor from '@/components/AdminComparisonEditor';
+import WorkAdditionalComparisons from '@/components/WorkAdditionalComparisons';
+import { validateComparisonTotal } from '@/lib/work-comparisons';
 import WorkCard from '@/components/WorkCard';
 import WorkClassification from '@/components/WorkClassification';
 import WorkDescription from '@/components/WorkDescription';
@@ -24,6 +28,8 @@ import WorkVehicleTag from '@/components/WorkVehicleTag';
 import {
   WORK_GALLERY_MAX_PER_SCOPE,
   WORK_GALLERY_MAX_TOTAL,
+  WORK_COMPARISON_MAX_PER_PART,
+  WORK_COMPARISON_MAX_TOTAL,
   WORK_CATEGORIES,
   WORK_PART_POSITIONS,
   WORK_PARTS,
@@ -76,6 +82,7 @@ interface GalleryDraft {
 }
 
 interface PartDraft {
+  comparisons: ComparisonDraft[];
   id: string;
   parts: WorkPart[];
   position: WorkPartPosition | '';
@@ -90,6 +97,14 @@ interface PartDraft {
   after?: ImageDraft;
   thumbnail?: ImageDraft;
   gallery: GalleryDraft[];
+  processing?: 'before' | 'after';
+}
+
+interface ComparisonDraft {
+  id: string;
+  before?: ImageDraft;
+  after?: ImageDraft;
+  caption: string;
   processing?: 'before' | 'after';
 }
 
@@ -127,6 +142,7 @@ function newPart(): PartDraft {
     note: '',
     beforeAnnotations: [],
     gallery: [],
+    comparisons: [],
   };
 }
 
@@ -528,6 +544,17 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
   const [loadingWork, setLoadingWork] = useState(editing);
   const [workLoaded, setWorkLoaded] = useState(!editing);
   const [annotationEditorPartId, setAnnotationEditorPartId] = useState('');
+  const comparisonUrls = useRef(new Set<string>());
+  useEffect(() => {
+    const urls = comparisonUrls.current;
+    return () => { urls.forEach((url) => URL.revokeObjectURL(url)); urls.clear(); };
+  }, []);
+  useEffect(() => {
+    const active = new Set(parts.flatMap((part) => part.comparisons.flatMap((pair) => [pair.before?.preview, pair.after?.preview])));
+    for (const url of comparisonUrls.current) {
+      if (!active.has(url)) { URL.revokeObjectURL(url); comparisonUrls.current.delete(url); }
+    }
+  }, [parts]);
 
   useEffect(() => {
     setSubCategories((current) =>
@@ -629,6 +656,12 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
               height: (thumbnailAsset || afterAsset).height,
             },
             gallery: galleryDrafts(media.gallery, `${index + 1}번 PART 추가 사진`),
+            comparisons: (media.comparisons ?? []).map((pair, pairIndex) => ({
+              id: crypto.randomUUID(),
+              before: existingImage(pair.before, `${index + 1}번 PART 추가 비교 ${pairIndex + 1} BEFORE`),
+              after: existingImage(pair.after, `${index + 1}번 PART 추가 비교 ${pairIndex + 1} AFTER`),
+              caption: pair.caption || '',
+            })),
           } satisfies PartDraft;
         }));
         setWorkGallery(galleryDrafts(work.gallery, '사례 전체 추가 사진'));
@@ -677,6 +710,9 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
       note: part.note || '부위 설명 미리보기',
       beforeAnnotations: part.beforeAnnotations,
       gallery: galleryPreview(part.gallery),
+      comparisons: part.comparisons.filter((pair) => pair.before && pair.after).map((pair) => ({
+        before: pair.before!.preview, after: pair.after!.preview, caption: pair.caption.trim() || undefined,
+      })),
     })),
     ogImage: ogImage?.preview,
     gallery: galleryPreview(workGallery),
@@ -801,6 +837,39 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
   };
 
   const galleryTotal = workGallery.length + parts.reduce((count, part) => count + part.gallery.length, 0);
+  const comparisonTotal = parts.reduce((count, part) => count + part.comparisons.length, 0);
+  const updateComparison = (partId: string, pairId: string, patch: Partial<ComparisonDraft>) => {
+    setParts((current) => current.map((part) => part.id === partId
+      ? { ...part, comparisons: part.comparisons.map((pair) => pair.id === pairId ? { ...pair, ...patch } : pair) }
+      : part));
+  };
+  const chooseComparisonImage = async (partId: string, pairId: string, kind: 'before' | 'after', file: File) => {
+    setError('');
+    updateComparison(partId, pairId, { processing: kind });
+    try {
+      const image = await processImage(file, 1600, 1200, 200_000);
+      comparisonUrls.current.add(image.preview);
+      updateComparison(partId, pairId, { [kind]: image, processing: undefined });
+    } catch (imageError) {
+      updateComparison(partId, pairId, { processing: undefined });
+      setError(imageError instanceof Error ? imageError.message : '추가 비교 사진 처리에 실패했습니다.');
+    }
+  };
+  const addComparison = (partId: string) => setParts((current) => {
+    if (current.reduce((count, part) => count + part.comparisons.length, 0) >= WORK_COMPARISON_MAX_TOTAL) return current;
+    return current.map((part) => part.id !== partId || part.comparisons.length >= WORK_COMPARISON_MAX_PER_PART ? part : {
+      ...part, comparisons: [...part.comparisons, { id: crypto.randomUUID(), caption: '' }],
+    });
+  });
+  const moveComparison = (partId: string, pairId: string, direction: -1 | 1) => setParts((current) => current.map((part) => {
+    if (part.id !== partId) return part;
+    const comparisons = [...part.comparisons];
+    const index = comparisons.findIndex((pair) => pair.id === pairId);
+    const next = index + direction;
+    if (index < 0 || next < 0 || next >= comparisons.length) return part;
+    [comparisons[index], comparisons[next]] = [comparisons[next], comparisons[index]];
+    return { ...part, comparisons };
+  }));
 
   const processGalleryFile = async (file: File, id: string) => {
     const [image, thumbnail] = await Promise.all([
@@ -1003,6 +1072,11 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
       if (subCategories.length > 2 || subParts.length > 2) throw new Error('보조 작업과 보조 부위는 각각 최대 2개까지 선택할 수 있습니다.');
       if (parts.some((part) => part.customPartEnabled && !part.customPart.trim())) throw new Error('기타 부위명을 직접 입력하세요.');
       if (parts.some((part) => !part.before || !part.after || !part.thumbnail)) throw new Error('모든 부위의 전·후 사진을 선택하세요.');
+      validateComparisonTotal(parts);
+      if (parts.some((part) => part.comparisons.length > WORK_COMPARISON_MAX_PER_PART)) throw new Error(`추가 비교는 PART당 ${WORK_COMPARISON_MAX_PER_PART}쌍까지 등록할 수 있습니다.`);
+      if (parts.some((part) => part.processing || part.comparisons.some((pair) => pair.processing || !pair.before || !pair.after))) {
+        throw new Error('추가 비교의 전·후 사진을 모두 선택하고 사진 처리가 끝날 때까지 기다려 주세요.');
+      }
       const allGalleries = [...parts.flatMap((part) => part.gallery), ...workGallery];
       if (parts.some((part) => part.gallery.length > WORK_GALLERY_MAX_PER_SCOPE) || workGallery.length > WORK_GALLERY_MAX_PER_SCOPE) {
         throw new Error(`추가 사진은 각 영역에 최대 ${WORK_GALLERY_MAX_PER_SCOPE}장까지 등록할 수 있습니다.`);
@@ -1033,6 +1107,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
       const total = parts.reduce((count, part) => count + [part.before, part.after, part.thumbnail]
         .filter((image): image is ImageDraft => Boolean(image))
         .filter(isProcessedImage).length
+        + part.comparisons.reduce((sum, pair) => sum + [pair.before!, pair.after!].filter(isProcessedImage).length, 0)
         + part.gallery.reduce((galleryCount, item) => galleryCount
           + [item.image, item.thumbnail]
             .filter((image): image is ImageDraft => Boolean(image))
@@ -1065,6 +1140,14 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
             caption: item.caption.trim() || undefined,
           });
         }
+        const comparisons = [];
+        for (const pair of part.comparisons) {
+          comparisons.push({
+            before: await upload(pair.before!, 'before', `comparison-${pair.id}`),
+            after: await upload(pair.after!, 'after', `comparison-${pair.id}`),
+            caption: pair.caption.trim() || undefined,
+          });
+        }
         uploadedParts.push({
           part: selectedPartValues(part),
           position: part.position || undefined,
@@ -1077,6 +1160,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           after: await upload(part.after!, 'after'),
           thumbnail: await upload(part.thumbnail!, 'thumbnail'),
           gallery,
+          comparisons,
         });
       }
 
@@ -1332,6 +1416,17 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
                       )}
                     </div>
                   )}
+                  <AdminComparisonEditor
+                    items={part.comparisons}
+                    disabled={saving}
+                    availableSlots={WORK_COMPARISON_MAX_TOTAL - comparisonTotal}
+                    onAdd={() => addComparison(part.id)}
+                    onFile={(pairId, kind, file) => { void chooseComparisonImage(part.id, pairId, kind, file); }}
+                    onCaption={(pairId, caption) => updateComparison(part.id, pairId, { caption })}
+                    onMove={(pairId, direction) => moveComparison(part.id, pairId, direction)}
+                    onRemove={(pairId) => updatePart(part.id, { comparisons: part.comparisons.filter((pair) => pair.id !== pairId) })}
+                    onError={setError}
+                  />
                   <AdminGalleryEditor
                     title="PART 추가 사진"
                     description="전·후 비교 외에 가까운 손상, 작업 과정, 마감 상태를 보충합니다. 원본 비율은 유지됩니다."
@@ -1429,6 +1524,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
               {previewWork.parts.map((part, index) => <section className="work-detail-part" key={`${part.label}-${index}`}>
                 <header className="work-detail-part-heading"><span>PART {String(index + 1).padStart(2, '0')}{part.category && ` · ${getWorkCategoryLabel(part.category)}`}</span><h2>{part.label}</h2><p>{part.note}</p></header>
                 {part.before && part.after ? <div className="work-detail-slider"><BeforeAfterSlider beforeSrc={part.before} afterSrc={part.after} beforeAlt={getWorkImageAlt(previewWork, part, '전')} afterAlt={getWorkImageAlt(previewWork, part, '후')} beforeAnnotations={part.beforeAnnotations} mode="drag" /></div> : <div className="admin-preview-empty">전·후 사진을 선택하면 비교 슬라이더가 표시됩니다.</div>}
+                <WorkAdditionalComparisons work={previewWork} part={part} />
                 {part.gallery && part.gallery.length > 0 && <WorkPhotoGallery images={part.gallery} work={previewWork} part={part} title="해당 부위 사진 더 보기" compact />}
               </section>)}
             </div>

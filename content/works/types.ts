@@ -55,6 +55,15 @@ const POSITIONABLE_WORK_PARTS = new Set<WorkPart>(['범퍼', '도어', '휀더']
 
 export const WORK_GALLERY_MAX_PER_SCOPE = 6;
 export const WORK_GALLERY_MAX_TOTAL = 12;
+export const WORK_COMPARISON_MAX_PER_PART = 3;
+export const WORK_COMPARISON_MAX_TOTAL = 6;
+
+/** 기존 PART의 다른 각도 비교. 분류·대표 이미지·slug에는 사용하지 않습니다. */
+export interface WorkComparison {
+  before: string;
+  after: string;
+  caption?: string;
+}
 
 export type WorkAssetKind =
   | 'before'
@@ -103,6 +112,7 @@ export interface WorkPartMedia {
   thumbnail?: string;
   /** 이 PART의 다른 각도·작업 과정·마감 사진입니다. 전후 비교와 필터에는 관여하지 않습니다. */
   gallery?: WorkGalleryImage[];
+  comparisons?: WorkComparison[];
   note: string;
 }
 

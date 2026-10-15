@@ -1,6 +1,7 @@
 import {
   getWorkCategoryLabel,
   type WorkCategory,
+  type WorkComparison,
   type WorkItem,
   type WorkGalleryImage,
   type WorkPartValue,
@@ -139,6 +140,22 @@ export function getWorkImageAlt(
   return `서울 동대문 ${car} ${partDescription} ${explicitCategory} 수리 ${state}`
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+export function getWorkComparisonImageAlt(work: WorkItem, part: WorkPartMedia, pair: WorkComparison, state: '전' | '후') {
+  // Additional angles carry no separate repair classification. Do not infer one.
+  const label = getPartImageDescription(part);
+  const caption = pair.caption?.trim().replace(/\s+/g, ' ') || '';
+  const detail = caption && !compactImageText(label).includes(compactImageText(caption)) ? caption : '';
+  return [work.carMaker, work.carModel, label, detail, `추가 비교 수리 ${state}`].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+}
+
+export function getWorkComparisonImages(work: WorkItem, part: WorkPartMedia) {
+  return (part.comparisons ?? []).flatMap((pair) => (['전', '후'] as const).map((state) => ({
+    src: state === '전' ? pair.before : pair.after,
+    title: getWorkComparisonImageAlt(work, part, pair, state),
+    caption: pair.caption || `${part.label} 추가 전후 비교`,
+  })));
 }
 
 export function getWorkGalleryImageAlt(

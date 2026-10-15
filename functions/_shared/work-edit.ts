@@ -1,3 +1,4 @@
+import { normalizeComparisons, comparisonAssetReference, validateComparisonTotal } from '../../lib/work-comparisons';
 import {
   formatWorkPartLabel,
   isWorkCategory,
@@ -34,6 +35,7 @@ interface AssetReference {
 }
 
 interface PartInput {
+  comparisons?: unknown;
   part?: unknown;
   beforeAnnotations?: unknown;
   position?: unknown;
@@ -271,6 +273,13 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
     if (!Array.isArray(input.parts) || input.parts.length === 0 || input.parts.length > 20) {
       throw new Error('작업 부위를 1개 이상 20개 이하로 입력하세요.');
     }
+    // A pre-feature editor must not erase comparisons it never loaded. Current
+    // editors send [] explicitly when the operator removes all comparisons.
+    if (previous.parts.some((part) => part.comparisons?.length) && input.parts.some(
+      (part) => !part || typeof part !== 'object' || !('comparisons' in part),
+    )) {
+      return json({ error: '저장된 추가 전후 비교가 있어 이전 수정 화면으로는 저장할 수 없습니다. 새로고침한 뒤 다시 수정하세요.' }, 409);
+    }
 
     const parts = (input.parts as PartInput[]).map((part, index) => {
       const workParts = normalizePartValues(part.part, index);
@@ -291,9 +300,11 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
         after: part.after,
         thumbnail: part.thumbnail,
         gallery: normalizeGallery(part.gallery, `${index + 1}번 PART 추가 사진`),
+        comparisons: normalizeComparisons(part.comparisons, comparisonAssetReference, `${index + 1}번 PART 추가 전후 비교`),
       };
     });
     const primaryPart = parts[0].part[0];
+    validateComparisonTotal(parts);
     const subCategories = normalizeSubCategories(input.subCategories, category);
     const subParts = normalizeSubParts(input.subParts, primaryPart);
     const workGallery = normalizeGallery(input.gallery, '사례 전체 추가 사진');
@@ -341,6 +352,18 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
           height: image.height,
         });
       }
+      const comparisons = [];
+      for (const pair of part.comparisons) {
+        const [pairBefore, pairAfter] = await Promise.all([
+          verifyAsset(env, currentAssets, pair.before, 'before', uploadId),
+          verifyAsset(env, currentAssets, pair.after, 'after', uploadId),
+        ]);
+        for (const asset of [pairBefore, pairAfter]) {
+          usedKeys.add(asset.object_key);
+          records.set(asset.object_key, { ...asset, part_index: index });
+        }
+        comparisons.push({ before: assetUrl(publicBase, pairBefore.object_key), after: assetUrl(publicBase, pairAfter.object_key), caption: pair.caption });
+      }
       mediaParts.push({
         part: part.part,
         position: part.position,
@@ -352,6 +375,7 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
         thumbnail: assetUrl(publicBase, thumbnail.object_key),
         note: part.note,
         gallery,
+        ...(comparisons.length ? { comparisons } : {}),
       });
     }
 
@@ -454,8 +478,11 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
       ),
       ...[...records.keys()].map((key) =>
         env.ACEDENT_DB.prepare(
-          `DELETE FROM asset_cleanup_queue WHERE object_key = ? AND work_slug = ?`,
-        ).bind(key, `upload-${uploadId}`),
+          // A photo restored before deployment is in use again. Cancel its old
+          // replacement task as well as any unfinished-upload cleanup entry.
+          `DELETE FROM asset_cleanup_queue
+           WHERE object_key = ? AND operation = 'replace-asset' AND work_slug IN (?, ?)`,
+        ).bind(key, `upload-${uploadId}`, slug),
       ),
       ...replaced.map((asset) =>
         env.ACEDENT_DB.prepare(

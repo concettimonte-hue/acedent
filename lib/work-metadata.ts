@@ -3,6 +3,7 @@ import { getWorkCategoryLabel } from '@/content/works/types';
 import {
   getWorkImageAlt,
   getWorkGalleryImageAlt,
+  getWorkComparisonImages,
   getAbsoluteWorkImageUrl,
   getWorkOgImageSrc,
   resolveWorkImageSrc,
@@ -94,6 +95,17 @@ export function getWorkImageJsonLd(work: WorkItem) {
         ...imageRightsMetadata,
       };
     }),
+    ...getWorkComparisonImages(work, part).map((image) => ({
+      '@type': 'ImageObject',
+      contentUrl: getAbsoluteWorkImageUrl(image.src, siteUrl),
+      thumbnailUrl: getAbsoluteWorkImageUrl(image.src, siteUrl),
+      name: image.title,
+      caption: image.caption,
+      width: 1600,
+      height: 1200,
+      representativeOfPage: false,
+      ...imageRightsMetadata,
+    })),
     ...(part.gallery ?? []).map((galleryImage, imageIndex) => ({
       '@type': 'ImageObject',
       contentUrl: getAbsoluteWorkImageUrl(resolveWorkImageSrc(galleryImage.src), siteUrl),

@@ -16,6 +16,7 @@ import type { WorkItem } from '@/content/works/types';
 import { getWorkCategoryLabel, isWorkPart } from '@/content/works/types';
 import { getWorkDisplayCategories } from '@/lib/work-categories';
 import { getWorkImageAlt, resolveWorkImageSrc } from '@/lib/work-images';
+import WorkAdditionalComparisons from '@/components/WorkAdditionalComparisons';
 import {
   applyClientMetadata,
   getWorkMetadata,
@@ -116,6 +117,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
                   enableZoom
                 />
               </div>
+              <WorkAdditionalComparisons work={work} part={part} />
               {part.gallery && part.gallery.length > 0 && (
                 <WorkPhotoGallery
                   images={part.gallery}

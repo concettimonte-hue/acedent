@@ -4,6 +4,25 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Extra comparisons stay inside their PART; no new classification heading. */
+.work-additional-comparisons { display: grid; gap: 24px; margin-top: 24px; min-width: 0; }
+.work-additional-comparison { min-width: 0; margin: 0; }
+.work-additional-comparison figcaption { margin: 0 0 12px; color: #d4d4d4; font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
+.admin-comparison-editor { min-width: 0; padding-top: 22px; margin-top: 22px; border-top: 1px solid #343630; }
+.admin-comparison-editor h3 { font-size: 16px; margin: 0 0 8px; }
+.admin-comparison-editor header p { color: #aeb0aa; font-size: 13px; line-height: 1.7; }
+.admin-comparison-item { min-width: 0; margin: 18px 0; padding: 16px; border: 1px solid #343630; }
+.admin-comparison-item legend { color: #dadbd5; font-size: 13px; padding: 0 6px; }
+.admin-comparison-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.admin-comparison-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; min-width: 40px; padding: 8px; border: 1px solid #3c3d38; color: #d4d4d4; font-size: 12px; }
+.admin-comparison-actions svg { width: 16px; height: 16px; }
+.admin-comparison-actions button:disabled, .admin-comparison-editor .admin-add-part:disabled { opacity: .4; cursor: not-allowed; }
+.admin-comparison-item > label { display: grid; gap: 8px; margin-bottom: 14px; }
+.admin-comparison-item .admin-image-input { min-width: 0; flex-direction: column; gap: 6px; }
+.admin-comparison-item .admin-image-input:focus-within { outline: 2px solid #f8db00; outline-offset: 2px; }
+.admin-comparison-item small { color: #aeb0aa; font-size: 12px; font-weight: 400; }
+@media (max-width: 480px) { .admin-comparison-item { padding: 10px; } }
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

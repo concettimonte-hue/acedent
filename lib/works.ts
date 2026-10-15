@@ -1,3 +1,4 @@
+import { normalizeComparisons, comparisonImageUrl, validateComparisonTotal } from './work-comparisons';
 import {
   WORK_PARTS,
   WORK_GALLERY_MAX_PER_SCOPE,
@@ -173,10 +174,12 @@ function parseWork(value: unknown, fileName: string): WorkItem {
           : undefined,
       note: requireString(part.note, `parts[${index}].note`, fileName),
       gallery: parseGallery(part.gallery, `parts[${index}].gallery`, fileName),
+      comparisons: normalizeComparisons(part.comparisons, comparisonImageUrl, `${fileName}: parts[${index}].comparisons`),
     };
   });
 
   const gallery = parseGallery(item.gallery, 'gallery', fileName);
+  validateComparisonTotal(parts);
   const totalGalleryImages = gallery.length + parts.reduce((count, part) => count + (part.gallery?.length ?? 0), 0);
   if (totalGalleryImages > WORK_GALLERY_MAX_TOTAL) {
     throw new Error(`${fileName}: 추가 사진은 사례 전체 최대 ${WORK_GALLERY_MAX_TOTAL}장이어야 합니다.`);
