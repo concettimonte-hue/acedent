@@ -12,6 +12,7 @@ export default function WorkAdditionalComparisons({ work, part }: { work: WorkIt
           beforeSrc={resolveWorkImageSrc(pair.before)} afterSrc={resolveWorkImageSrc(pair.after)}
           beforeAlt={getWorkComparisonImageAlt(work, part, pair, '전')}
           afterAlt={getWorkComparisonImageAlt(work, part, pair, '후')}
+          beforeAnnotations={pair.beforeAnnotations}
           mode="drag" showHint enableZoom
         />
       </div>

@@ -2,13 +2,15 @@ import {
   WORK_COMPARISON_MAX_PER_PART,
   WORK_COMPARISON_MAX_TOTAL,
 } from '../content/works/types';
+import type { WorkImageAnnotation } from '../content/works/types';
+import { parseWorkImageAnnotations } from './work-annotations';
 
 // Shared by create/update APIs and both page render paths. No category fallback.
 export function normalizeComparisons<T>(
   value: unknown,
   readImage: (value: unknown, field: string) => T,
   field = '추가 전후 비교',
-): { before: T; after: T; caption?: string }[] {
+): { before: T; after: T; caption?: string; beforeAnnotations?: WorkImageAnnotation[] }[] {
   if (value === undefined) return [];
   if (!Array.isArray(value) || value.length > WORK_COMPARISON_MAX_PER_PART) {
     throw new Error(`${field}는 PART당 최대 ${WORK_COMPARISON_MAX_PER_PART}쌍까지 등록할 수 있습니다.`);
@@ -24,6 +26,9 @@ export function normalizeComparisons<T>(
       before: readImage(item.before, `${field} ${index + 1}번 BEFORE`),
       after: readImage(item.after, `${field} ${index + 1}번 AFTER`),
       caption: item.caption?.trim() || undefined,
+      ...(item.beforeAnnotations !== undefined ? {
+        beforeAnnotations: parseWorkImageAnnotations(item.beforeAnnotations, `${field} ${index + 1}번 손상 위치 표시`),
+      } : {}),
     };
   });
 }

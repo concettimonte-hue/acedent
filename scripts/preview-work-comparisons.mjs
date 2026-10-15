@@ -15,7 +15,9 @@ export const previewWork = {
   body: '미리보기용으로 기존 사진을 반복 배치했습니다. 운영 사례는 변경하지 않습니다.',
   parts: [{ part: ['도어'], label: '도어 조수석', category: 'dent', note: '대표 전후 비교는 그대로 두고, 그 아래에 추가 비교를 배치합니다.',
     before, after, thumbnail: after,
-    comparisons: [{ before, after, caption: '다른 각도 전후 비교 · 예시 사진' }, { before, after }],
+    comparisons: [{ before, after, caption: '조수석 도어 · 다른 각도에서 본 손상과 수리 결과',
+      beforeAnnotations: [{ type: 'arrow', startX: 0.13, startY: 0.28, endX: 0.38, endY: 0.48 }],
+    }, { before, after }],
     gallery: [{ src: after, width: 1600, height: 1200, caption: '기존 추가 사진 갤러리도 유지됩니다.' }],
   }],
 };
@@ -99,7 +101,7 @@ export async function startComparisonPreview({ port = 0 } = {}) {
   return { server, origin: `http://127.0.0.1:${server.httpServer.address().port}`, getSavedPayload: () => savedPayload, getUploads: () => uploads };
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { origin } = await startComparisonPreview({ port: 4175 });
   console.log(`Local-only preview: ${origin}/preview/admin and ${origin}/preview/detail`);
 }

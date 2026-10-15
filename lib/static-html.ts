@@ -277,7 +277,7 @@ export function getWorkDetailStaticHtml(
           ${image(part.before, getWorkImageAlt(work, part, '전'), { eager: index === 0 })}
           ${image(part.after, getWorkImageAlt(work, part, '후'), { eager: index === 0 })}
         </div>
-        ${(part.comparisons ?? []).map((pair) => `<figure>${pair.caption ? `<figcaption>${text(pair.caption)}</figcaption>` : ''}<div class="seo-comparison">${image(pair.before, getWorkComparisonImageAlt(work, part, pair, '전'))}${image(pair.after, getWorkComparisonImageAlt(work, part, pair, '후'))}</div></figure>`).join('')}
+        ${(part.comparisons ?? []).map((pair) => `<figure class="work-additional-comparison">${pair.caption ? `<figcaption>${text(pair.caption)}</figcaption>` : ''}<div class="seo-comparison">${image(pair.before, getWorkComparisonImageAlt(work, part, pair, '전'))}${image(pair.after, getWorkComparisonImageAlt(work, part, pair, '후'))}</div></figure>`).join('')}
         ${part.gallery?.length ? gallerySection(part.gallery, `${part.label} 추가 사진`, part) : ''}
       </section>`;
   return `<main class="seo-static seo-work-detail">

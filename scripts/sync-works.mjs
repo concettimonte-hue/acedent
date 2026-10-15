@@ -123,7 +123,10 @@ function validateWork(work, sourceFile) {
         ) || (pair.caption !== undefined && (typeof pair.caption !== 'string' || pair.caption.trim().length > 120))) {
           throw new Error(`${sourceFile}: parts[${index}].comparisons 전·후 사진과 설명을 확인하세요.`);
         }
-        return { before: pair.before.trim(), after: pair.after.trim(), ...(pair.caption?.trim() ? { caption: pair.caption.trim() } : {}) };
+        // The shared comparison parser validates coordinates in both render builds.
+        return { before: pair.before.trim(), after: pair.after.trim(), ...(pair.caption?.trim() ? { caption: pair.caption.trim() } : {}),
+          ...(pair.beforeAnnotations !== undefined ? { beforeAnnotations: pair.beforeAnnotations } : {}),
+        };
       });
     }
   }

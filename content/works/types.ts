@@ -61,6 +61,8 @@ export const WORK_COMPARISON_MAX_TOTAL = 6;
 /** 기존 PART의 다른 각도 비교. 분류·대표 이미지·slug에는 사용하지 않습니다. */
 export interface WorkComparison {
   before: string;
+  /** 이 비교의 BEFORE에만 적용하는 비파괴 손상 위치 좌표입니다. */
+  beforeAnnotations?: WorkImageAnnotation[];
   after: string;
   caption?: string;
 }

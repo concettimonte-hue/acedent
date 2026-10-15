@@ -10,6 +10,8 @@ import { accessFixture } from './access-test-fixture.mjs';
 
 const base = JSON.parse(readFileSync(new URL('../content/works.generated.json', import.meta.url), 'utf8')).records[0].work;
 const pair = { before: '/works/extra-before.jpg', after: '/works/extra-after.jpg', caption: '측면 다른 각도' };
+const marks = [{ type: 'arrow', startX: 0.1, startY: 0.3, endX: 0.4, endY: 0.5 },
+  { type: 'circle', x: 0.3, y: 0.4, width: 0.15, height: 0.2 }];
 const work = { ...base, parts: [{ ...base.parts[0], comparisons: [pair] }, ...base.parts.slice(1)] };
 const helpers = loadTs('lib/work-comparisons.ts');
 const images = loadTs('lib/work-images.ts');
@@ -37,6 +39,24 @@ await test('filters, recommendations, slug, card and OG selection are invariant'
   const { createBaseWorkSlug } = loadTs('functions/_shared/work-slug.ts');
   const input = { ...base, parts: base.parts.map(p => ({ ...p, detail: p.label })) };
   assert.equal(createBaseWorkSlug(input), createBaseWorkSlug({ ...input, parts: input.parts.map(p => ({ ...p, comparisons: [pair] })) }));
+});
+
+await test('comparison marks are optional, independently validated and rendered without inheriting parent marks', () => {
+  const parse = value => helpers.normalizeComparisons(value, helpers.comparisonImageUrl);
+  assert.equal(parse([pair])[0].beforeAnnotations, undefined);
+  assert.deepEqual(parse([{ ...pair, beforeAnnotations: marks }])[0].beforeAnnotations, marks);
+  assert.deepEqual(parse([{ ...pair, beforeAnnotations: [] }])[0].beforeAnnotations, []);
+  for (const bad of [{}, Array(4).fill(marks[0]), [{ ...marks[0], endX: 2 }], [{ type: 'script' }]]) {
+    assert.throws(() => parse([{ ...pair, beforeAnnotations: bad }]));
+  }
+  const Component = loadTs('components/WorkAdditionalComparisons.tsx').default;
+  const render = comparisons => renderToStaticMarkup(createElement(Component, {
+    work, part: { ...work.parts[0], beforeAnnotations: marks, comparisons },
+  }));
+  assert(!render([pair]).includes('work-image-annotations'), 'parent marks must not leak into another angle');
+  const html = render([{ ...pair, beforeAnnotations: marks }, pair]);
+  assert.equal((html.match(/class="work-image-annotations"/g) || []).length, 1);
+  assert.equal((html.match(/work-image-annotation-mark/g) || []).length, 2);
 });
 
 await test('React/static HTML/JSON-LD use same ALT; captions escaped; no extra PART or category', () => {
@@ -68,6 +88,10 @@ await test('sync validates and normalizes nested comparison images without chang
   // oxlint-disable-next-line typescript/no-implied-eval
   const validate = new Function(`const workCategories = new Set(['dent','panel-paint','partial-paint','replace-paint','polish','full-polish','coating']); const galleryMaxPerScope=6, galleryMaxTotal=12, comparisonMaxPerPart=3, comparisonMaxTotal=6; const workPartPositions = new Set(['front','rear']); ${source.slice(source.indexOf('function validateWork('), source.indexOf('function localRecords('))}; return validateWork;`)();
   assert.deepEqual(validate(structuredClone(work), 'fixture').parts[0].comparisons, [pair]);
+  const annotated = structuredClone(work);
+  annotated.parts[0].comparisons[0].beforeAnnotations = marks;
+  assert.deepEqual(validate(annotated, 'fixture').parts[0].comparisons[0].beforeAnnotations, marks);
+  assert.deepEqual(helpers.normalizeComparisons(annotated.parts[0].comparisons, helpers.comparisonImageUrl)[0].beforeAnnotations, marks);
   const old = structuredClone(base);
   delete old.parts[0].comparisons;
   assert.equal(validate(old, 'fixture').parts[0].comparisons, undefined);
@@ -155,6 +179,28 @@ await test('preservation: reused comparison keys leave cleanup queue before depl
   assert.equal(db.prepare('SELECT COUNT(*) AS n FROM work_assets').get().n, keys.length);
 });
 
+await test('comparison marks survive edit/read and reject a stale editor; explicit clearing remains supported', async t => {
+  const { db, env, slug, input } = preservationFixture(t);
+  const { updateWork, getWorkForEdit } = loadTs('functions/_shared/work-edit.ts');
+  const marked = structuredClone(input);
+  marked.parts[0].comparisons[0].beforeAnnotations = marks;
+  const saved = await updateWork(env, slug, marked);
+  assert.equal(saved.status, 200);
+  assert.deepEqual((await saved.json()).work.parts[0].comparisons[0].beforeAnnotations, marks);
+  assert.deepEqual((await (await getWorkForEdit(env, slug)).json()).work.parts[0].comparisons[0].beforeAnnotations, marks);
+  const snapshot = db.prepare('SELECT payload_json FROM works').get().payload_json;
+  assert.equal((await updateWork(env, slug, input)).status, 409);
+  assert.equal(db.prepare('SELECT payload_json FROM works').get().payload_json, snapshot);
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM asset_cleanup_queue').get().n, 0);
+  const invalid = structuredClone(marked); invalid.parts[0].comparisons[0].beforeAnnotations[0].endX = 2;
+  assert.equal((await updateWork(env, slug, invalid)).status, 400);
+  assert.equal(db.prepare('SELECT payload_json FROM works').get().payload_json, snapshot);
+  marked.parts[0].comparisons[0].beforeAnnotations = [];
+  const cleared = await updateWork(env, slug, marked);
+  assert.equal(cleared.status, 200);
+  assert.equal((await cleared.json()).work.parts[0].comparisons[0].beforeAnnotations, undefined);
+});
+
 await test('actual upload/create/read/update/delete APIs register all pair assets and hold cleanup until deployment', async t => {
   const auth = await accessFixture(t);
   const { db, binding } = database(); t.after(() => db.close());
@@ -186,7 +232,7 @@ await test('actual upload/create/read/update/delete APIs register all pair asset
     objects.set(key, { customMetadata: { kind, width: String(width), height: String(height), bytes: '1000' } });
     return { key };
   };
-  const part = { part: ['도어'], detail: '조수석', note: '로컬 테스트', before, after, thumbnail: asset('thumbnail', 800, 600), comparisons: [{ before: extraBefore, after: extraAfter, caption: '다른 각도' }] };
+  const part = { part: ['도어'], detail: '조수석', note: '로컬 테스트', before, after, thumbnail: asset('thumbnail', 800, 600), comparisons: [{ before: extraBefore, after: extraAfter, caption: '다른 각도', beforeAnnotations: marks }] };
   const input = { uploadId, date: '2026-10-15', carMaker: 'BMW', carModel: '530i', color: '검정', category: 'panel-paint', days: '2일', title: '도어 복원', summary: '로컬 테스트 요약', body: '로컬 테스트 설명', parts: [part], ogImage: asset('og-image', 1200, 630) };
   const create = loadTs('functions/admin/api/works.ts').onRequestPost;
   const failed = await create({ env, request: await request({ ...input, parts: [{ ...part, comparisons: [{ before: extraBefore }] }] }) });
@@ -202,6 +248,7 @@ await test('actual upload/create/read/update/delete APIs register all pair asset
   const saved = (await result.json()).work;
   assert.equal(saved.parts.length, 1); assert.equal(saved.parts[0].category, undefined);
   assert.equal(saved.parts[0].comparisons[0].before, extraBefore.url);
+  assert.deepEqual(saved.parts[0].comparisons[0].beforeAnnotations, marks);
   assert.equal(db.prepare('SELECT COUNT(*) AS n FROM work_assets').get().n, 6);
   assert.equal(db.prepare('SELECT COUNT(*) AS n FROM asset_cleanup_queue').get().n, 0);
   const api = loadTs('functions/admin/api/works/[slug].ts');

@@ -377,7 +377,9 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
           { ...pairBefore, kind: 'before' as const, partIndex: index },
           { ...pairAfter, kind: 'after' as const, partIndex: index },
         );
-        comparisons.push({ before: assetUrl(publicBase, pairBefore.key), after: assetUrl(publicBase, pairAfter.key), caption: pair.caption });
+        comparisons.push({ before: assetUrl(publicBase, pairBefore.key), after: assetUrl(publicBase, pairAfter.key), caption: pair.caption,
+          ...(pair.beforeAnnotations?.length ? { beforeAnnotations: pair.beforeAnnotations } : {}),
+        });
       }
       mediaParts.push({
         part: part.part,

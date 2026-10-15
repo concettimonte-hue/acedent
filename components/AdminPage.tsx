@@ -103,6 +103,7 @@ interface PartDraft {
 interface ComparisonDraft {
   id: string;
   before?: ImageDraft;
+  beforeAnnotations: WorkImageAnnotation[];
   after?: ImageDraft;
   caption: string;
   processing?: 'before' | 'after';
@@ -661,6 +662,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
               before: existingImage(pair.before, `${index + 1}번 PART 추가 비교 ${pairIndex + 1} BEFORE`),
               after: existingImage(pair.after, `${index + 1}번 PART 추가 비교 ${pairIndex + 1} AFTER`),
               caption: pair.caption || '',
+              beforeAnnotations: pair.beforeAnnotations ?? [],
             })),
           } satisfies PartDraft;
         }));
@@ -712,6 +714,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
       gallery: galleryPreview(part.gallery),
       comparisons: part.comparisons.filter((pair) => pair.before && pair.after).map((pair) => ({
         before: pair.before!.preview, after: pair.after!.preview, caption: pair.caption.trim() || undefined,
+        beforeAnnotations: pair.beforeAnnotations,
       })),
     })),
     ogImage: ogImage?.preview,
@@ -849,7 +852,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     try {
       const image = await processImage(file, 1600, 1200, 200_000);
       comparisonUrls.current.add(image.preview);
-      updateComparison(partId, pairId, { [kind]: image, processing: undefined });
+      updateComparison(partId, pairId, { [kind]: image, ...(kind === 'before' ? { beforeAnnotations: [] } : {}), processing: undefined });
     } catch (imageError) {
       updateComparison(partId, pairId, { processing: undefined });
       setError(imageError instanceof Error ? imageError.message : '추가 비교 사진 처리에 실패했습니다.');
@@ -858,7 +861,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
   const addComparison = (partId: string) => setParts((current) => {
     if (current.reduce((count, part) => count + part.comparisons.length, 0) >= WORK_COMPARISON_MAX_TOTAL) return current;
     return current.map((part) => part.id !== partId || part.comparisons.length >= WORK_COMPARISON_MAX_PER_PART ? part : {
-      ...part, comparisons: [...part.comparisons, { id: crypto.randomUUID(), caption: '' }],
+      ...part, comparisons: [...part.comparisons, { id: crypto.randomUUID(), caption: '', beforeAnnotations: [] }],
     });
   });
   const moveComparison = (partId: string, pairId: string, direction: -1 | 1) => setParts((current) => current.map((part) => {
@@ -1144,6 +1147,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
         for (const pair of part.comparisons) {
           comparisons.push({
             before: await upload(pair.before!, 'before', `comparison-${pair.id}`),
+            beforeAnnotations: pair.beforeAnnotations,
             after: await upload(pair.after!, 'after', `comparison-${pair.id}`),
             caption: pair.caption.trim() || undefined,
           });
@@ -1423,6 +1427,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
                     onAdd={() => addComparison(part.id)}
                     onFile={(pairId, kind, file) => { void chooseComparisonImage(part.id, pairId, kind, file); }}
                     onCaption={(pairId, caption) => updateComparison(part.id, pairId, { caption })}
+                    onAnnotations={(pairId, beforeAnnotations) => updateComparison(part.id, pairId, { beforeAnnotations })}
                     onMove={(pairId, direction) => moveComparison(part.id, pairId, direction)}
                     onRemove={(pairId) => updatePart(part.id, { comparisons: part.comparisons.filter((pair) => pair.id !== pairId) })}
                     onError={setError}

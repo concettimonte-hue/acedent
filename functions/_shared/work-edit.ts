@@ -362,7 +362,17 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
           usedKeys.add(asset.object_key);
           records.set(asset.object_key, { ...asset, part_index: index });
         }
-        comparisons.push({ before: assetUrl(publicBase, pairBefore.object_key), after: assetUrl(publicBase, pairAfter.object_key), caption: pair.caption });
+        // An already-open older editor must not silently clear marks it cannot display.
+        if (pair.beforeAnnotations === undefined && previous.parts.some((previousPart) =>
+          previousPart.comparisons?.some((previousPair) => previousPair.beforeAnnotations?.length && (
+            previousPair.before === pairBefore.public_url || previousPair.before === assetUrl(publicBase, pairBefore.object_key)
+          )),
+        )) {
+          return json({ error: '저장된 추가 비교의 손상 위치 표시가 있습니다. 새로고침한 뒤 다시 수정하세요.' }, 409);
+        }
+        comparisons.push({ before: assetUrl(publicBase, pairBefore.object_key), after: assetUrl(publicBase, pairAfter.object_key), caption: pair.caption,
+          ...(pair.beforeAnnotations?.length ? { beforeAnnotations: pair.beforeAnnotations } : {}),
+        });
       }
       mediaParts.push({
         part: part.part,
