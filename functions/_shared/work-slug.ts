@@ -5,6 +5,14 @@ import {
   SLUG_PART_TERMS,
   SLUG_WORK_TERMS,
 } from '../../lib/slug-dictionary';
+import { VEHICLE_BRANDS } from '../../lib/vehicle-brands';
+
+// New-case slug generation only. Existing explicit mappings keep their precedence
+// (e.g. 벤츠 -> mercedes). Do not expand the shared SEO synonym dictionary.
+const newWorkMakerTerms: Record<string, string> = {
+  ...Object.fromEntries(VEHICLE_BRANDS.map((brand) => [brand.label, brand.id])),
+  ...SLUG_CAR_MAKER_TERMS,
+};
 
 interface WorkSlugPartInput {
   part: unknown;
@@ -135,7 +143,7 @@ export function createWorkSlugAnalysis(input: WorkSlugInput): WorkSlugAnalysis {
     primaryPart,
   ].filter((part): part is string => typeof part === 'string');
   const partSources = primaryPart ? [primaryPart] : [];
-  const maker = analyzeField(input.carMaker, SLUG_CAR_MAKER_TERMS, true);
+  const maker = analyzeField(input.carMaker, newWorkMakerTerms, true);
   const model = analyzeField(input.carModel, SLUG_CAR_MODEL_TERMS, true);
   const locationsFromParts = locationSources.map((part) => analyzeField(part, SLUG_LOCATION_TERMS, false));
   const normalizedParts = partSources.map((part) => analyzeField(part, SLUG_PART_TERMS, false));

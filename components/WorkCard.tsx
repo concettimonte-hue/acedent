@@ -27,6 +27,7 @@ interface WorkCardProps {
   matchedPartIndex?: number;
   sourceWorkSlug?: string;
   canEdit?: boolean;
+  showVehicleLogo?: boolean;
 }
 
 export default function WorkCard({
@@ -38,6 +39,7 @@ export default function WorkCard({
   matchedPartIndex,
   sourceWorkSlug,
   canEdit = false,
+  showVehicleLogo = false,
 }: WorkCardProps) {
   const representativePart = (matchedPartIndex === undefined ? undefined : work.parts[matchedPartIndex]) || getWorkRepresentativePart(
     work,
@@ -87,7 +89,7 @@ export default function WorkCard({
         )}
       </span>
       <span className="work-card-copy">
-        <WorkVehicleTag maker={work.carMaker} model={work.carModel} />
+        <WorkVehicleTag maker={work.carMaker} model={work.carModel} showLogo={showVehicleLogo} />
         <strong>{work.title}</strong>
         <span className="work-card-summary">{work.summary}</span>
         <span className="work-card-footer">

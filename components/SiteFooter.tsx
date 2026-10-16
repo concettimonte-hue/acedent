@@ -91,6 +91,7 @@ export default function SiteFooter() {
 
       <div className="site-footer-bottom">
         <small>서울 동대문 자동차 외장관리 전문점 · © ACE DENT · 사진 무단 사용 금지</small>
+        <a className="site-footer-credits" href="/brands/credits.html">로고 출처</a>
       </div>
     </footer>
   );

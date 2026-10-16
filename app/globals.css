@@ -2233,6 +2233,15 @@ section[id] {
   font-size: 0.62rem;
   letter-spacing: 0.02em;
 }
+.site-footer-credits {
+  display: inline-block;
+  margin-left: 0.75rem;
+  padding-block: 0.25rem;
+  color: #a2a6a2;
+  font-size: 0.7rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
 .mobile-action-bar {
   display: none;
 }
@@ -3263,6 +3272,9 @@ section[id] {
   white-space: nowrap;
 }
 .work-vehicle-tag-maker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   color: #b7bab7;
   font-weight: 700;
   letter-spacing: 0.035em;
@@ -3273,6 +3285,29 @@ section[id] {
   color: #f4f5f1;
   font-weight: 850;
   text-overflow: ellipsis;
+}
+.vehicle-brand-logo {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  object-fit: contain;
+}
+.vehicle-brand-logo.is-monochrome {
+  /* Only explicitly reviewed single-colour shapes with transparent negative space. */
+  filter: brightness(0) invert(0.82);
+}
+.vehicle-brand-logo.is-metallic {
+  /* Preserve the tonal detail of silver emblems instead of flattening their fills. */
+  filter: grayscale(1) brightness(1.1);
+}
+.vehicle-brand-logo.is-yellow {
+  /* Explicit Chevrolet display exception; the source SVG remains unchanged. */
+  filter: brightness(0) saturate(100%) invert(80%) sepia(80%) saturate(800%);
+}
+.vehicle-brand-logo.is-wide {
+  width: 32px;
+  flex-basis: 32px;
 }
 .work-card-copy > strong {
   margin-top: 0.5rem;
@@ -4488,7 +4523,7 @@ section[id] {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .seo-comparison img,
-.seo-work-card img,
+.seo-work-card img:not(.vehicle-brand-logo),
 .seo-static #location img {
   width: 100%;
   height: auto;
@@ -4568,6 +4603,13 @@ section[id] {
 .admin-fields + .admin-fields { margin-top: 1rem; }
 .admin-page label { display: grid; gap: .5rem; color: #d5d7d4; font-size: .88rem; font-weight: 800; }
 .admin-page label small { color: #7f837f; font-weight: 600; }
+.admin-brand-field { display: grid; min-width: 0; align-content: start; gap: .5rem; }
+.admin-brand-selection { display: flex; min-width: 0; align-items: center; gap: .6rem; }
+.admin-brand-selection select { min-width: 0; flex: 1; }
+.admin-vehicle-model-field { min-width: 0; align-content: start; }
+.admin-brand-selection select, .admin-vehicle-model-field input { height: 48px; }
+.admin-brand-field .admin-brand-custom { font-size: .78rem; font-weight: 600; }
+.admin-brand-hint { margin: 0; color: #b7bab7; font-size: .75rem; line-height: 1.6; overflow-wrap: anywhere; }
 .admin-page input:not([type='file']), .admin-page select, .admin-page textarea { width: 100%; min-height: 48px; padding: .75rem .85rem; border: 1px solid #3a3d3a; border-radius: 0; outline: 0; background: #080908; color: #fff; font: inherit; font-size: 1rem; }
 .admin-page textarea { line-height: 1.6; resize: vertical; }
 .admin-page input:focus, .admin-page select:focus, .admin-page textarea:focus { border-color: #f8db00; box-shadow: 0 0 0 2px rgb(248 219 0 / 14%); }

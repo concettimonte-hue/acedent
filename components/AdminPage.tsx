@@ -25,6 +25,7 @@ import WorkClassification from '@/components/WorkClassification';
 import WorkDescription from '@/components/WorkDescription';
 import WorkPhotoGallery from '@/components/WorkPhotoGallery';
 import WorkVehicleTag from '@/components/WorkVehicleTag';
+import AdminVehicleBrandField from '@/components/AdminVehicleBrandField';
 import {
   WORK_GALLERY_MAX_PER_SCOPE,
   WORK_GALLERY_MAX_TOTAL,
@@ -1280,8 +1281,8 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
           <section className="admin-panel">
             <div className="admin-panel-heading"><span>01</span><h1>차량과 작업 정보</h1></div>
             <div className="admin-fields admin-fields-two">
-              <label>차량 제조사<input required value={form.carMaker} onChange={(e) => updateForm('carMaker', e.target.value)} placeholder="예: 포르쉐" /></label>
-              <label>차종 <small>선택</small><input value={form.carModel} onChange={(e) => updateForm('carModel', e.target.value)} placeholder="예: 파나메라" /></label>
+              <AdminVehicleBrandField key={editSlug || 'new'} value={form.carMaker} onChange={(value) => updateForm('carMaker', value)} />
+              <label className="admin-vehicle-model-field"><span>차종 <small>선택</small></span><input value={form.carModel} onChange={(e) => updateForm('carModel', e.target.value)} placeholder="예: 파나메라" /></label>
               <label>색상<input required={!editing} value={form.color} onChange={(e) => updateForm('color', e.target.value)} placeholder="예: 화이트 계열" /></label>
               <label>카테고리<select value={form.category} onChange={(e) => updatePrimaryCategory(e.target.value as WorkCategory)}>{WORK_CATEGORIES.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select></label>
               <label>작업기간<input required value={form.days} onChange={(e) => updateForm('days', e.target.value)} placeholder="예: 2일" /></label>
@@ -1517,13 +1518,13 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
         <aside className="admin-preview" aria-label="등록 미리보기">
           <div className="admin-preview-heading"><span>PREVIEW</span><strong>실제 스타일 미리보기</strong></div>
           <div className="admin-card-preview">
-            {previewWork.parts[0]?.after ? <WorkCard work={previewWork} /> : <div className="admin-preview-empty">대표 AFTER 사진을 선택하면 카드가 표시됩니다.</div>}
+            {previewWork.parts[0]?.after ? <WorkCard work={previewWork} showVehicleLogo /> : <div className="admin-preview-empty">대표 AFTER 사진을 선택하면 카드가 표시됩니다.</div>}
           </div>
           <article className="work-detail admin-detail-preview">
             <header className="work-detail-heading">
               <WorkClassification work={previewWork} />
               <h1>{previewWork.title}</h1>
-              <div className="work-detail-meta"><WorkVehicleTag maker={previewWork.carMaker} model={previewWork.carModel} /><span>{previewWork.part[0]}</span>{previewWork.subParts.map((part) => <span className="work-detail-secondary-part" key={part}>{part}</span>)}<span>{previewWork.color}</span><strong>{previewWork.days}</strong></div>
+              <div className="work-detail-meta"><WorkVehicleTag maker={previewWork.carMaker} model={previewWork.carModel} showLogo /><span>{previewWork.part[0]}</span>{previewWork.subParts.map((part) => <span className="work-detail-secondary-part" key={part}>{part}</span>)}<span>{previewWork.color}</span><strong>{previewWork.days}</strong></div>
             </header>
             <div className="work-detail-parts">
               {previewWork.parts.map((part, index) => <section className="work-detail-part" key={`${part.label}-${index}`}>

@@ -362,6 +362,7 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
                 contextPart={selectedPart}
                 imageState="before"
                 canEdit={canEdit}
+                showVehicleLogo
                 key={work.slug}
               />
             ))}

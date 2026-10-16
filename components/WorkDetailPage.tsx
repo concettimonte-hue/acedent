@@ -79,7 +79,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
           <WorkClassification work={work} />
           <h1>{work.title}</h1>
           <div className="work-detail-meta">
-            <WorkVehicleTag maker={work.carMaker} model={work.carModel} />
+            <WorkVehicleTag maker={work.carMaker} model={work.carModel} showLogo />
             <span>{work.part[0]}</span>
             {work.subParts.map((part) => (
               <span className="work-detail-secondary-part" key={part}>{part}</span>

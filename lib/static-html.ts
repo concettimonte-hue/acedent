@@ -53,6 +53,7 @@ import {
 } from './work-related';
 import { getWorkCategoryGuide } from './work-seo';
 import { withLandingUtm } from './tracking';
+import { findVehicleBrand, getVehicleBrandLogo, getVehicleBrandLogoClassName } from './vehicle-brands';
 
 const business = businessData as BusinessContent;
 const site = siteData as SiteContent;
@@ -74,6 +75,17 @@ const escapeHtml = (value: string) =>
 const text = (value: string) => escapeHtml(value);
 const car = (work: WorkItem) => [work.carMaker, work.carModel].filter(Boolean).join(' ');
 
+export function getStaticWorkVehicleTag(maker: string, model?: string) {
+  const normalizedMaker = maker.trim();
+  const normalizedModel = model?.trim();
+  if (!normalizedMaker && !normalizedModel) return '';
+  const logo = normalizedMaker ? getVehicleBrandLogo(findVehicleBrand(maker)) : undefined;
+  const logoImage = logo ? `<img class="${getVehicleBrandLogoClassName(logo)}" src="${text(logo.src)}" alt="" aria-hidden="true" width="${logo.width ?? 20}" height="20" decoding="async" data-static-vehicle-brand />` : '';
+  return `<span class="work-vehicle-tag">${normalizedMaker ? `<span class="work-vehicle-tag-maker">${logoImage}${text(normalizedMaker)}</span>` : ''}${normalizedModel ? `<span class="work-vehicle-tag-model">${text(normalizedModel)}</span>` : ''}</span>`;
+}
+
+const staticVehicleLogoFallback = '<script src="/vehicle-brand-logos.js" defer></script>';
+
 function image(
   src: string,
   alt: string,
@@ -89,6 +101,7 @@ function workCard(
   contextPart?: WorkPartValue,
   imageState: 'before' | 'after' = 'after',
   matchedPartIndex?: number,
+  showVehicleLogo = false,
 ) {
   const representativePart = (matchedPartIndex === undefined ? undefined : work.parts[matchedPartIndex]) || getWorkRepresentativePart(
     work,
@@ -107,7 +120,8 @@ function workCard(
       <p>${text(getWorkCategoryLabel(displayedCategory))}</p>
       ${imageState === 'before' ? '<p>BEFORE · 손상 상태</p>' : ''}
       ${reasonLabels.length ? `<p>${reasonLabels.map(text).join(' · ')}</p>` : ''}
-      <h3>${text(car(work))} ${text(work.title)}</h3>
+      ${showVehicleLogo ? getStaticWorkVehicleTag(work.carMaker, work.carModel) : ''}
+      <h3>${showVehicleLogo ? '' : `${text(car(work))} `}${text(work.title)}</h3>
       <p>${text(work.summary)}</p>
       <small>${text(formatWorkCardParts(work))} · ${text(work.days)}</small>
     </a>
@@ -142,7 +156,7 @@ function siteFooter() {
       </div>
       <nav class="site-footer-links" aria-label="하단 주요 메뉴"><a href="/works">수리사례</a><a href="/#location">오시는 길</a><a href="${text(withLandingUtm(naver.blog, 'blog'))}" target="_blank" rel="noopener noreferrer">네이버 블로그</a></nav>
     </div>
-    <div class="site-footer-bottom"><small>서울 동대문 자동차 외장관리 전문점 · © ACE DENT · 사진 무단 사용 금지</small></div>
+    <div class="site-footer-bottom"><small>서울 동대문 자동차 외장관리 전문점 · © ACE DENT · 사진 무단 사용 금지</small><a class="site-footer-credits" href="/brands/credits.html">로고 출처</a></div>
   </footer>`;
 }
 
@@ -221,13 +235,14 @@ export function getWorksStaticHtml(
     ? getWorkPartLandings(works).filter((landing) => landing.category === category)
     : [];
   return `<main class="seo-static seo-works">
+    ${staticVehicleLogoFallback}
     <header class="seo-static-header"><a href="/">ACE DENT</a><a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
     <section><p>ACE DENT · REPAIR ARCHIVE</p><h1>${text(heading)}</h1><p>작업 방식이나 손상 부위로 비슷한 사례를 찾아보세요. 아는 항목만 골라도 됩니다.</p></section>
     ${categoryGuide ? `<details class="works-category-guide" aria-labelledby="works-category-guide-${text(category ?? '')}"><summary><h2 id="works-category-guide-${text(category ?? '')}">${text(categoryGuide.title)}</h2><span class="works-category-guide-action"><span class="when-closed">설명 보기</span><span class="when-open">접기</span></span></summary><div class="works-category-guide-body">${categoryGuide.paragraphs.map((paragraph) => `<p>${text(paragraph)}</p>`).join('')}</div></details>` : ''}
     <p class="work-filter-heading" id="static-work-category-question">어떤 작업이 궁금하세요?</p>
     <nav aria-label="작업방식" aria-describedby="static-work-category-question"><a href="/works">전체</a>${getAvailableWorkCategories(works).map((item) => `<a href="/works/${item.id}">${text(item.label)}</a>`).join('')}</nav>
     ${partLandings.length ? `<p class="work-filter-heading" id="static-work-part-question">어디가 손상됐나요?</p><nav aria-label="수리 부위" aria-describedby="static-work-part-question">${partLandings.map((landing) => `<a href="${text(landing.path)}">${text(landing.part)}</a>`).join('')}</nav>` : ''}
-    <section aria-label="수리사례 목록"><div class="works-count"><span>${text(resultLabel)} <strong>${visible.length}건</strong></span>${category || part ? '<a class="works-filter-reset" href="/works">선택 초기화</a>' : ''}</div>${visible.length ? `<div class="seo-works-grid">${visible.map((work) => workCard(work, category, [], part, 'before')).join('')}</div>` : '<p>이 조건으로 등록된 사례가 없습니다. 수리 가능 여부와는 다릅니다. 다른 항목을 고르거나 선택을 초기화해 보세요.</p>'}</section>
+    <section aria-label="수리사례 목록"><div class="works-count"><span>${text(resultLabel)} <strong>${visible.length}건</strong></span>${category || part ? '<a class="works-filter-reset" href="/works">선택 초기화</a>' : ''}</div>${visible.length ? `<div class="seo-works-grid">${visible.map((work) => workCard(work, category, [], part, 'before', undefined, true)).join('')}</div>` : '<p>이 조건으로 등록된 사례가 없습니다. 수리 가능 여부와는 다릅니다. 다른 항목을 고르거나 선택을 초기화해 보세요.</p>'}</section>
     ${siteFooter()}
   </main>`;
 }
@@ -281,11 +296,13 @@ export function getWorkDetailStaticHtml(
         ${part.gallery?.length ? gallerySection(part.gallery, `${part.label} 추가 사진`, part) : ''}
       </section>`;
   return `<main class="seo-static seo-work-detail">
+    ${staticVehicleLogoFallback}
     <header class="seo-static-header"><a href="/">ACE DENT</a><a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
     <nav aria-label="현재 위치"><a href="/">홈</a> / <a href="/works">수리사례</a> / <a href="/works/${text(work.category)}">${text(categoryLabel)}</a></nav>
     <article>
       ${classification}
       <h1>${text(work.title)}</h1>
+      ${getStaticWorkVehicleTag(work.carMaker, work.carModel)}
       <p>${text(work.part[0])}${work.subParts.length ? ` · 보조 부위: ${work.subParts.map(text).join(' · ')}` : ''} · ${work.color ? `${text(work.color)} · ` : ''}${text(work.days)}</p>
       ${work.parts.map(partSection).join('')}
       <h2>작업 설명</h2>
