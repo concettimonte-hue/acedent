@@ -346,6 +346,7 @@ export default function AdminWorksList() {
             <p>등록된 사례를 수정·삭제하고, D1 기록과 R2 파일의 차이를 직접 점검할 수 있습니다.</p>
           </div>
           <a href="/admin?view=new"><Plus aria-hidden="true" /> 새 사례 등록</a>
+          <a href="/admin?view=drafts">초안·검토 목록</a>
         </div>
 
         <div className="admin-list-summary" aria-live="polite">

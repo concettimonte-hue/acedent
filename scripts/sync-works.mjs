@@ -5,6 +5,14 @@ import { resolve } from 'node:path';
 const projectDirectory = resolve(import.meta.dirname, '..');
 const worksDirectory = resolve(projectDirectory, 'content', 'works');
 const outputPath = resolve(projectDirectory, 'content', 'works.generated.json');
+// Local verification only: preserve the reviewed snapshot byte-for-byte, no .env or remote reads.
+if (process.env.ACEDENT_OFFLINE_BUILD === '1') {
+  if (process.env.CF_PAGES === '1') throw new Error('운영 Pages에서는 오프라인 빌드 모드를 사용할 수 없습니다.');
+  const snapshot = JSON.parse(readFileSync(outputPath, 'utf8'));
+  if (!snapshot.records?.length) throw new Error('오프라인 검증용 공개 사례 스냅샷이 없습니다.');
+  console.log(`오프라인 검증: 기존 공개 사례 ${snapshot.records.length}건 유지 (D1/환경파일 접근 없음)`);
+  process.exit(0);
+}
 const legacyR2PublicBases = [
   'https://pub-e6a8f147577c403f93d85e03a6361345.r2.dev',
 ];

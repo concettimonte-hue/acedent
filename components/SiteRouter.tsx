@@ -13,6 +13,7 @@ import { hasWorkPartLanding } from '@/lib/work-landings';
 
 const AdminPage = lazy(() => import('@/components/AdminPage'));
 const AdminWorksList = lazy(() => import('@/components/AdminWorksList'));
+const AdminDraftsList = lazy(() => import('@/components/AdminDraftsList'));
 const AdminAnalyticsDashboard = lazy(() => import('@/components/AdminAnalyticsDashboard'));
 
 function normalizePath(pathname: string) {
@@ -55,6 +56,10 @@ export default function SiteRouter() {
           <AdminAnalyticsDashboard />
         ) : adminView === 'new' ? (
           <AdminPage />
+        ) : adminView === 'drafts' ? (
+          <AdminDraftsList />
+        ) : (adminView === 'draft' || adminView === 'draft-preview') && search.get('id') ? (
+          <AdminPage draftId={search.get('id')!} previewOnly={adminView === 'draft-preview'} />
         ) : adminView === 'edit' && editSlug ? (
           <AdminPage editSlug={editSlug} />
         ) : (

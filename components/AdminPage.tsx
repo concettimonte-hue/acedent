@@ -53,6 +53,8 @@ import { imageWatermarkIconPath, imageWatermarkText } from '@/lib/image-rights';
 import { getWorkSeoCopy, getWorkSeoWarnings } from '@/lib/work-seo';
 import { getWorks } from '@/lib/works';
 import { siteUrl } from '@/lib/seo';
+import AdminDraftPublishPanel from '@/components/AdminDraftPublishPanel';
+import { draftImageUrl, type DraftPayload, type DraftRecord } from '@/lib/work-drafts';
 
 interface ProcessedImage {
   blob: Blob;
@@ -127,6 +129,8 @@ interface StoredAsset {
 
 interface AdminPageProps {
   editSlug?: string;
+  draftId?: string;
+  previewOnly?: boolean;
 }
 
 const today = new Date().toISOString().slice(0, 10);
@@ -486,6 +490,7 @@ function uploadImage(
   partIndex: number,
   onProgress: (value: number) => void,
   name = 'image',
+  draftAssetId?: string,
 ) {
   return new Promise<UploadedAsset>((resolve, reject) => {
     const form = new FormData();
@@ -494,9 +499,10 @@ function uploadImage(
     form.append('uploadId', uploadId);
     form.append('partIndex', String(partIndex));
     form.append('name', name);
+    if (draftAssetId) form.append('assetId', draftAssetId);
 
     const request = new XMLHttpRequest();
-    request.open('POST', '/admin/api/images');
+    request.open('POST', draftAssetId ? `/admin/api/drafts/${uploadId}/assets` : '/admin/api/images');
     request.withCredentials = true;
     request.upload.onprogress = (event) => {
       if (event.lengthComputable) onProgress(event.loaded / event.total);
@@ -515,8 +521,12 @@ function uploadImage(
   });
 }
 
-export default function AdminPage({ editSlug }: AdminPageProps) {
+export default function AdminPage({ editSlug, draftId, previewOnly = false }: AdminPageProps) {
   const editing = Boolean(editSlug);
+  const localDraftId = useRef(draftId || crypto.randomUUID());
+  const draftVersion = useRef(0);
+  const [savedDraft, setSavedDraft] = useState<DraftRecord>();
+  const draftUploads = useRef(new WeakMap<ProcessedImage, { id: string; result?: UploadedAsset }>());
   const [form, setForm] = useState({
     date: today,
     carMaker: '',
@@ -543,10 +553,44 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
   const [deploymentUrl, setDeploymentUrl] = useState('');
   const [deploymentState, setDeploymentState] = useState<DeploymentState>('idle');
   const [dragTarget, setDragTarget] = useState('');
-  const [loadingWork, setLoadingWork] = useState(editing);
-  const [workLoaded, setWorkLoaded] = useState(!editing);
+  const [loadingWork, setLoadingWork] = useState(editing || Boolean(draftId));
+  const [workLoaded, setWorkLoaded] = useState(!editing && !draftId);
   const [annotationEditorPartId, setAnnotationEditorPartId] = useState('');
   const comparisonUrls = useRef(new Set<string>());
+  const hydrateDraft = (record: DraftRecord) => {
+    const p = record.payload;
+    const media = (ref?: { key: string }): ExistingImage | undefined => {
+      if (!ref) return undefined;
+      const asset = record.assets.find(item => item.object_key === ref.key && item.ready === 1);
+      if (!asset) throw new Error('초안 사진 기록이 완전하지 않습니다. 저장을 중단하고 관리자에게 확인해 주세요.');
+      return { key: ref.key, preview: draftImageUrl(record.id, ref.key), bytes: asset.bytes, width: asset.width, height: asset.height };
+    };
+    const gallery = (items: DraftPayload['gallery']) => items.map(item => ({ id: crypto.randomUUID(), image: media(item.image), thumbnail: media(item.thumbnail), caption: item.caption }));
+    setForm({ date: p.date, carMaker: p.carMaker, carModel: p.carModel, color: p.color, category: p.category as WorkCategory,
+      days: p.days, title: p.title, summary: p.summary, body: p.body, blogUrl: p.blogUrl });
+    setSubCategories(p.subCategories); setSubParts(p.subParts.filter(isWorkPart));
+    setParts(p.parts.map(part => ({ ...newPart(), parts: part.part.filter(isWorkPart),
+      customPartEnabled: part.part.some(value => !isWorkPart(value)), customPart: part.part.filter(value => !isWorkPart(value)).join(' · '),
+      position: part.position || '', category: part.category || '', detail: part.detail, label: '', note: part.note,
+      before: media(part.before), after: media(part.after), thumbnail: media(part.thumbnail), beforeAnnotations: part.beforeAnnotations,
+      gallery: gallery(part.gallery), comparisons: part.comparisons.map(pair => ({ id: crypto.randomUUID(), before: media(pair.before), after: media(pair.after), caption: pair.caption, beforeAnnotations: pair.beforeAnnotations })),
+    })));
+    setWorkGallery(gallery(p.gallery)); setOgImage(media(p.ogImage));
+    draftVersion.current = record.version; setSavedDraft(record);
+  };
+  useEffect(() => {
+    if (!draftId) return;
+    let active = true;
+    void (async () => {
+      try {
+        const response = await fetch(`/admin/api/drafts/${draftId}`, { credentials: 'same-origin', cache: 'no-store' });
+        const result = await response.json() as DraftRecord & { error?: string }; if (!response.ok) throw new Error(result.error || '초안 조회 실패');
+        if (active) { hydrateDraft(result); setWorkLoaded(true); }
+      } catch (error) { if (active) setError(error instanceof Error ? error.message : '초안 조회 실패'); }
+      finally { if (active) setLoadingWork(false); }
+    })();
+    return () => { active = false; };
+  }, [draftId]);
   useEffect(() => {
     const urls = comparisonUrls.current;
     return () => { urls.forEach((url) => URL.revokeObjectURL(url)); urls.clear(); };
@@ -1061,6 +1105,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
 
   const submit = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!editing) { await saveDraft('writing'); return; }
     setError('');
     setSaving(true);
     setProgress(0);
@@ -1252,7 +1297,73 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
     }
   };
 
-  if (editing && !workLoaded) {
+  const saveDraft = async (state: 'writing' | 'review') => {
+    if (saving || previewOnly) return;
+    setSaving(true); setError(''); setProgress(0);
+    const id = localDraftId.current;
+    const put = async (payload: DraftPayload, version: number) => {
+      const response = await fetch(`/admin/api/drafts/${id}`, { method: 'PUT', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ version, state, payload }) });
+      const result = await response.json() as DraftRecord & { error?: string }; if (!response.ok) throw new Error(result.error || '초안 저장 실패');
+      draftVersion.current = result.version; setSavedDraft(result); return result as DraftRecord;
+    };
+    try {
+      if (parts.some(part => part.processing || part.comparisons.some(pair => pair.processing) || part.gallery.some(item => item.processing)) || workGallery.some(item => item.processing)) throw new Error('사진 처리가 끝난 뒤 저장해 주세요.');
+      // Persist all text/annotations first; an interrupted first photo upload must not
+      // discard PART notes or captions. Photo references are attached after upload.
+      const base: DraftPayload = {
+        ...form, subCategories, subParts,
+        parts: parts.map(part => ({
+          part: selectedPartValues(part), position: part.position || undefined,
+          category: part.category || undefined, detail: part.detail, note: part.note,
+          beforeAnnotations: part.beforeAnnotations,
+          gallery: part.gallery.map(item => ({ caption: item.caption })),
+          comparisons: part.comparisons.map(pair => ({ caption: pair.caption, beforeAnnotations: pair.beforeAnnotations })),
+        })),
+        gallery: workGallery.map(item => ({ caption: item.caption })),
+      };
+      if (!draftVersion.current) await put(base, 0);
+      let uploaded = 0;
+      const upload = async (image: ImageDraft | undefined, kind: WorkAssetKind, index: number) => {
+        if (!image) return undefined;
+        if (!isProcessedImage(image)) return { key: image.key };
+        let cached = draftUploads.current.get(image);
+        if (!cached) { cached = { id: crypto.randomUUID() }; draftUploads.current.set(image, cached); }
+        if (!cached.result) cached.result = await uploadImage(image, kind, id, index, fraction => setProgress(Math.round(fraction * 100)), 'draft', cached.id);
+        uploaded += 1; setStatus(`비공개 사진 ${uploaded}개 저장됨`); return { key: cached.result.key };
+      };
+      const gallery = async (items: GalleryDraft[], index: number) => {
+        const result = []; for (const item of items) result.push({ image: await upload(item.image, 'gallery', index), thumbnail: await upload(item.thumbnail, 'gallery-thumbnail', index), caption: item.caption }); return result;
+      };
+      const draftParts: DraftPayload['parts'] = [];
+      for (const [index, part] of parts.entries()) {
+        const comparisons = [];
+        for (const pair of part.comparisons) comparisons.push({ before: await upload(pair.before, 'before', index), after: await upload(pair.after, 'after', index), caption: pair.caption, beforeAnnotations: pair.beforeAnnotations });
+        draftParts.push({ part: selectedPartValues(part), position: part.position || undefined, category: part.category || undefined, detail: part.detail, note: part.note,
+          before: await upload(part.before, 'before', index), after: await upload(part.after, 'after', index), thumbnail: await upload(part.thumbnail, 'thumbnail', index),
+          beforeAnnotations: part.beforeAnnotations, comparisons, gallery: await gallery(part.gallery, index) });
+      }
+      let nextOg: ProcessedImage | undefined;
+      const first = parts[0];
+      if (first?.before && first.after) {
+        const processed = async (image: ImageDraft): Promise<ProcessedImage> => {
+          if (isProcessedImage(image)) return image;
+          const response = await fetch(image.preview, { credentials: 'same-origin', cache: 'no-store' });
+          if (!response.ok) throw new Error('공유 이미지용 비공개 사진을 읽지 못했습니다.');
+          return { ...image, blob: await response.blob() };
+        };
+        nextOg = await createOgImage(await processed(first.before), await processed(first.after), first.beforeAnnotations);
+      }
+      try {
+        const result = await put({ ...base, parts: draftParts, gallery: await gallery(workGallery, 20), ogImage: await upload(nextOg, 'og-image', 20) }, draftVersion.current);
+        hydrateDraft(result);
+        window.history.replaceState(null, '', `/admin?view=draft&id=${id}`);
+        setStatus(state === 'review' ? '검토 대기로 저장됨 · 아직 공개되지 않음' : '임시저장됨 · 아직 공개되지 않음');
+      } finally { if (nextOg) URL.revokeObjectURL(nextOg.preview); }
+    } catch (error) { setError(error instanceof Error ? error.message : '임시저장 실패'); }
+    finally { setSaving(false); }
+  };
+
+  if ((editing || draftId) && !workLoaded) {
     return (
       <main className="admin-page">
         <header className="admin-header">
@@ -1276,15 +1387,18 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
         <div><span>ADMIN</span><strong>수리사례 {editing ? '수정' : '등록'}</strong></div>
       </header>
 
-      <div className="admin-layout">
-        <form className="admin-form" onSubmit={submit}>
+      {!editing && <div className="admin-draft-nav"><a href="/admin?view=drafts">초안·검토 목록</a><span>초안은 관리자에게만 보입니다. 저장만으로 공개·배포되지 않습니다.</span></div>}
+      {savedDraft && previewOnly && <AdminDraftPublishPanel initial={savedDraft} />}
+      <div className={`admin-layout${previewOnly ? ' admin-draft-preview-only' : ''}`}>
+        {!previewOnly && <form className="admin-form" onSubmit={submit} noValidate={!editing}>
+          <fieldset className="admin-draft-fields" disabled={saving || Boolean(savedDraft && !['writing', 'review'].includes(savedDraft.state))}>
           <section className="admin-panel">
             <div className="admin-panel-heading"><span>01</span><h1>차량과 작업 정보</h1></div>
             <div className="admin-fields admin-fields-two">
               <AdminVehicleBrandField key={editSlug || 'new'} value={form.carMaker} onChange={(value) => updateForm('carMaker', value)} />
               <label className="admin-vehicle-model-field"><span>차종 <small>선택</small></span><input value={form.carModel} onChange={(e) => updateForm('carModel', e.target.value)} placeholder="예: 파나메라" /></label>
               <label>색상<input required={!editing} value={form.color} onChange={(e) => updateForm('color', e.target.value)} placeholder="예: 화이트 계열" /></label>
-              <label>카테고리<select value={form.category} onChange={(e) => updatePrimaryCategory(e.target.value as WorkCategory)}>{WORK_CATEGORIES.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select></label>
+              <label>카테고리<select value={form.category} onChange={(e) => updatePrimaryCategory(e.target.value as WorkCategory)}>{!form.category && <option value="">선택 안 함</option>}{WORK_CATEGORIES.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select></label>
               <label>작업기간<input required value={form.days} onChange={(e) => updateForm('days', e.target.value)} placeholder="예: 2일" /></label>
               <label>작업 완료일<input type="date" required value={form.date} onChange={(e) => updateForm('date', e.target.value)} /></label>
             </div>
@@ -1462,7 +1576,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
             <p className="admin-gallery-limit">추가 사진은 PART별·전체 영역별 최대 {WORK_GALLERY_MAX_PER_SCOPE}장, 사례 한 건에 총 {WORK_GALLERY_MAX_TOTAL}장까지 등록됩니다.</p>
           </section>
 
-          <section className="admin-submit-panel">
+          {editing ? <section className="admin-submit-panel">
             <div><span>{status}</span>{saving && <progress value={progress} max="100">{progress}%</progress>}<small>{saving ? `${progress}%` : '저장하면 Cloudflare 빌드가 자동으로 시작됩니다.'}</small></div>
             <button type="submit" disabled={saving}><UploadCloud aria-hidden="true" />{saving ? `${editing ? '수정' : '등록'} 진행 중` : `사례 ${editing ? '수정' : '저장'} 및 배포`}</button>
             {error && <p role="alert">{error}</p>}
@@ -1512,8 +1626,15 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
                 )}
               </div>
             )}
-          </section>
-        </form>
+          </section> : <section className="admin-submit-panel admin-draft-save">
+            <p role="status">{status}</p><p>빈 항목이나 사진 한 장만 있어도 저장할 수 있습니다. 발행은 저장된 미리보기에서 별도로 진행합니다.</p>
+            {saving && <progress value={progress} max="100" aria-label="비공개 사진 업로드 진행률" />}
+            <div className="admin-draft-actions"><button type="button" disabled={saving} onClick={() => void saveDraft('writing')}>임시저장</button><button type="button" disabled={saving} onClick={() => void saveDraft('review')}>검토 대기로 저장</button></div>
+            {error && <p role="alert">{error}</p>}
+          </section>}
+          </fieldset>
+          {!editing && savedDraft && <div className="admin-draft-actions"><a href={`/admin?view=draft-preview&id=${savedDraft.id}`}>저장된 버전 미리보기·발행 ↗</a><small>현재 화면의 미저장 변경은 미리보기에 포함되지 않습니다.</small></div>}
+        </form>}
 
         <aside className="admin-preview" aria-label="등록 미리보기">
           <div className="admin-preview-heading"><span>PREVIEW</span><strong>실제 스타일 미리보기</strong></div>
@@ -1529,7 +1650,7 @@ export default function AdminPage({ editSlug }: AdminPageProps) {
             <div className="work-detail-parts">
               {previewWork.parts.map((part, index) => <section className="work-detail-part" key={`${part.label}-${index}`}>
                 <header className="work-detail-part-heading"><span>PART {String(index + 1).padStart(2, '0')}{part.category && ` · ${getWorkCategoryLabel(part.category)}`}</span><h2>{part.label}</h2><p>{part.note}</p></header>
-                {part.before && part.after ? <div className="work-detail-slider"><BeforeAfterSlider beforeSrc={part.before} afterSrc={part.after} beforeAlt={getWorkImageAlt(previewWork, part, '전')} afterAlt={getWorkImageAlt(previewWork, part, '후')} beforeAnnotations={part.beforeAnnotations} mode="drag" /></div> : <div className="admin-preview-empty">전·후 사진을 선택하면 비교 슬라이더가 표시됩니다.</div>}
+                {part.before && part.after ? <div className="work-detail-slider"><BeforeAfterSlider beforeSrc={part.before} afterSrc={part.after} beforeAlt={getWorkImageAlt(previewWork, part, '전')} afterAlt={getWorkImageAlt(previewWork, part, '후')} beforeAnnotations={part.beforeAnnotations} mode="drag" /></div> : part.before || part.after ? <figure className="admin-draft-single-photo"><img src={part.before || part.after} alt={`${part.before ? 'BEFORE' : 'AFTER'} 초안 사진`} /><figcaption>{part.before ? 'BEFORE' : 'AFTER'}만 저장됨 · 반대편 사진 미입력</figcaption></figure> : <div className="admin-preview-empty">전·후 사진을 선택하면 비교 슬라이더가 표시됩니다.</div>}
                 <WorkAdditionalComparisons work={previewWork} part={part} />
                 {part.gallery && part.gallery.length > 0 && <WorkPhotoGallery images={part.gallery} work={previewWork} part={part} title="해당 부위 사진 더 보기" compact />}
               </section>)}

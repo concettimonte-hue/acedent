@@ -1,5 +1,5 @@
 // Test-only TypeScript loader and in-memory D1 fixtures. No credentials/network.
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, statSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { createRequire } from 'node:module';
 import { DatabaseSync } from 'node:sqlite';
@@ -19,7 +19,7 @@ export function loadTs(relative, { fresh = false } = {}) {
     if (!specifier.startsWith('.') && !specifier.startsWith('@/')) return nativeRequire(specifier);
     const base = specifier.startsWith('@/') ? resolve(root, specifier.slice(2)) : resolve(dirname(path), specifier);
     if (base.endsWith('.json')) return JSON.parse(readFileSync(base, 'utf8'));
-    const target = [base, `${base}.ts`, `${base}.tsx`].find((candidate) => existsSync(candidate));
+    const target = [base, `${base}.ts`, `${base}.tsx`].find((candidate) => existsSync(candidate) && statSync(candidate).isFile());
     if (!target) throw new Error(`Missing test dependency: ${specifier}`);
     return loadTs(target);
   };

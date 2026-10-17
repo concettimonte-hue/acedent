@@ -51,7 +51,7 @@ interface PartInput {
   gallery?: unknown;
 }
 
-interface WorkInput {
+export interface WorkInput {
   uploadId: string;
   date: string;
   carMaker: string;
@@ -291,120 +291,67 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
   return json({ works, total: works.length });
 };
 
-export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) => {
-  const access = await requireAccess(request, env);
-  if (!access.ok) return access.response;
-  if (!env.ACEDENT_DB || !env.ACEDENT_IMAGES) return json({ error: 'D1/R2 바인딩이 설정되지 않았습니다.' }, 503);
+export async function prepareNewWork(env: AdminEnv, input: WorkInput) {
+  const date = required(input.date, '작업 완료일', 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('작업 완료일 형식이 올바르지 않습니다.');
+  const uploadId = required(input.uploadId, '업로드 식별자', 64);
+  if (!/^[a-zA-Z0-9-]{8,64}$/.test(uploadId)) throw new Error('업로드 식별자가 올바르지 않습니다.');
+  const categoryValue = input.category;
+  if (!isWorkCategory(categoryValue)) throw new Error('카테고리를 선택하세요.');
+  const category = categoryValue as WorkCategory;
+  if (!Array.isArray(input.parts) || input.parts.length === 0) throw new Error('작업 부위를 한 개 이상 추가하세요.');
 
-  try {
-    const input = (await request.json()) as WorkInput;
-    const date = required(input.date, '작업 완료일', 10);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('작업 완료일 형식이 올바르지 않습니다.');
-    const uploadId = required(input.uploadId, '업로드 식별자', 64);
-    if (!/^[a-zA-Z0-9-]{8,64}$/.test(uploadId)) throw new Error('업로드 식별자가 올바르지 않습니다.');
-    const categoryValue = input.category;
-    if (!isWorkCategory(categoryValue)) throw new Error('카테고리를 선택하세요.');
-    const category = categoryValue as WorkCategory;
-    if (!Array.isArray(input.parts) || input.parts.length === 0) throw new Error('작업 부위를 한 개 이상 추가하세요.');
+  const normalizedParts = input.parts.map((part, index) => {
+    const workParts = normalizePartValues(part.part, index);
+    return {
+      ...part,
+      part: workParts,
+      position: normalizePartPosition(part.position, workParts, index),
+      category: normalizePartCategory(part.category, index),
+      detail: typeof part.detail === 'string' ? part.detail.trim() : '',
+      note: required(part.note, `${index + 1}번 부위 설명`, 300),
+      beforeAnnotations: parseWorkImageAnnotations(part.beforeAnnotations, `${index + 1}번 PART 손상 위치 표시`),
+      gallery: normalizeGallery(part.gallery, `${index + 1}번 PART 추가 사진`),
+      comparisons: normalizeComparisons(part.comparisons, comparisonAssetReference, `${index + 1}번 PART 추가 전후 비교`),
+    };
+  });
+  input.parts = normalizedParts;
+  validateComparisonTotal(normalizedParts);
+  const primaryPart = normalizedParts[0].part[0];
+  const subCategories = normalizeSubCategories(input.subCategories, category);
+  const subParts = normalizeSubParts(input.subParts, primaryPart);
+  const workGallery = normalizeGallery(input.gallery, '사례 전체 추가 사진');
+  const totalGalleryImages = workGallery.length + normalizedParts.reduce((count, part) => count + part.gallery.length, 0);
+  if (totalGalleryImages > WORK_GALLERY_MAX_TOTAL) {
+    throw new Error(`추가 사진은 사례 전체 최대 ${WORK_GALLERY_MAX_TOTAL}장까지 등록할 수 있습니다.`);
+  }
 
-    const normalizedParts = input.parts.map((part, index) => {
-      const workParts = normalizePartValues(part.part, index);
-      return {
-        ...part,
-        part: workParts,
-        position: normalizePartPosition(part.position, workParts, index),
-        category: normalizePartCategory(part.category, index),
-        detail: typeof part.detail === 'string' ? part.detail.trim() : '',
-        note: required(part.note, `${index + 1}번 부위 설명`, 300),
-        beforeAnnotations: parseWorkImageAnnotations(part.beforeAnnotations, `${index + 1}번 PART 손상 위치 표시`),
-        gallery: normalizeGallery(part.gallery, `${index + 1}번 PART 추가 사진`),
-        comparisons: normalizeComparisons(part.comparisons, comparisonAssetReference, `${index + 1}번 PART 추가 전후 비교`),
-      };
-    });
-    input.parts = normalizedParts;
-    validateComparisonTotal(normalizedParts);
-    const primaryPart = normalizedParts[0].part[0];
-    const subCategories = normalizeSubCategories(input.subCategories, category);
-    const subParts = normalizeSubParts(input.subParts, primaryPart);
-    const workGallery = normalizeGallery(input.gallery, '사례 전체 추가 사진');
-    const totalGalleryImages = workGallery.length + normalizedParts.reduce((count, part) => count + part.gallery.length, 0);
-    if (totalGalleryImages > WORK_GALLERY_MAX_TOTAL) {
-      throw new Error(`추가 사진은 사례 전체 최대 ${WORK_GALLERY_MAX_TOTAL}장까지 등록할 수 있습니다.`);
-    }
+  const slugAnalysis = createWorkSlugAnalysis(input);
+  const slug = await nextAvailableSlug(env.ACEDENT_DB, slugAnalysis.slug);
 
-    const slugAnalysis = createWorkSlugAnalysis(input);
-    const slug = await nextAvailableSlug(env.ACEDENT_DB, slugAnalysis.slug);
-
-    const publicBase = cleanPublicBase(env.R2_PUBLIC_BASE_URL);
-    const assets = [];
-    const mediaParts = [];
-    for (const [index, part] of normalizedParts.entries()) {
-      const [before, after, thumbnail] = await Promise.all([
-        verifyAsset(env, part.before, 'before', uploadId),
-        verifyAsset(env, part.after, 'after', uploadId),
-        verifyAsset(env, part.thumbnail, 'thumbnail', uploadId),
-      ]);
-      assets.push(
-        { ...before, kind: 'before', partIndex: index },
-        { ...after, kind: 'after', partIndex: index },
-        { ...thumbnail, kind: 'thumbnail', partIndex: index },
-      );
-      const gallery = [];
-      for (const item of part.gallery) {
-        const [image, galleryThumbnail] = await Promise.all([
-          verifyAsset(env, item.image, 'gallery', uploadId),
-          verifyAsset(env, item.thumbnail, 'gallery-thumbnail', uploadId),
-        ]);
-        assets.push(
-          { ...image, kind: 'gallery' as const, partIndex: index },
-          { ...galleryThumbnail, kind: 'gallery-thumbnail' as const, partIndex: index },
-        );
-        gallery.push({
-          src: assetUrl(publicBase, image.key),
-          thumbnail: assetUrl(publicBase, galleryThumbnail.key),
-          caption: item.caption,
-          width: image.width,
-          height: image.height,
-        });
-      }
-      const comparisons = [];
-      for (const pair of part.comparisons) {
-        const [pairBefore, pairAfter] = await Promise.all([
-          verifyAsset(env, pair.before, 'before', uploadId),
-          verifyAsset(env, pair.after, 'after', uploadId),
-        ]);
-        assets.push(
-          { ...pairBefore, kind: 'before' as const, partIndex: index },
-          { ...pairAfter, kind: 'after' as const, partIndex: index },
-        );
-        comparisons.push({ before: assetUrl(publicBase, pairBefore.key), after: assetUrl(publicBase, pairAfter.key), caption: pair.caption,
-          ...(pair.beforeAnnotations?.length ? { beforeAnnotations: pair.beforeAnnotations } : {}),
-        });
-      }
-      mediaParts.push({
-        part: part.part,
-        position: part.position,
-        category: part.category,
-        label: formatWorkPartLabel(part.part, part.position, part.detail),
-        before: assetUrl(publicBase, before.key),
-        beforeAnnotations: part.beforeAnnotations.length > 0 ? part.beforeAnnotations : undefined,
-        after: assetUrl(publicBase, after.key),
-        thumbnail: assetUrl(publicBase, thumbnail.key),
-        note: part.note,
-        gallery,
-        ...(comparisons.length ? { comparisons } : {}),
-      });
-    }
-
+  const publicBase = cleanPublicBase(env.R2_PUBLIC_BASE_URL);
+  const assets = [];
+  const mediaParts = [];
+  for (const [index, part] of normalizedParts.entries()) {
+    const [before, after, thumbnail] = await Promise.all([
+      verifyAsset(env, part.before, 'before', uploadId),
+      verifyAsset(env, part.after, 'after', uploadId),
+      verifyAsset(env, part.thumbnail, 'thumbnail', uploadId),
+    ]);
+    assets.push(
+      { ...before, kind: 'before', partIndex: index },
+      { ...after, kind: 'after', partIndex: index },
+      { ...thumbnail, kind: 'thumbnail', partIndex: index },
+    );
     const gallery = [];
-    for (const item of workGallery) {
+    for (const item of part.gallery) {
       const [image, galleryThumbnail] = await Promise.all([
         verifyAsset(env, item.image, 'gallery', uploadId),
         verifyAsset(env, item.thumbnail, 'gallery-thumbnail', uploadId),
       ]);
       assets.push(
-        { ...image, kind: 'gallery' as const, partIndex: 20 },
-        { ...galleryThumbnail, kind: 'gallery-thumbnail' as const, partIndex: 20 },
+        { ...image, kind: 'gallery' as const, partIndex: index },
+        { ...galleryThumbnail, kind: 'gallery-thumbnail' as const, partIndex: index },
       );
       gallery.push({
         src: assetUrl(publicBase, image.key),
@@ -414,76 +361,139 @@ export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) =
         height: image.height,
       });
     }
+    const comparisons = [];
+    for (const pair of part.comparisons) {
+      const [pairBefore, pairAfter] = await Promise.all([
+        verifyAsset(env, pair.before, 'before', uploadId),
+        verifyAsset(env, pair.after, 'after', uploadId),
+      ]);
+      assets.push(
+        { ...pairBefore, kind: 'before' as const, partIndex: index },
+        { ...pairAfter, kind: 'after' as const, partIndex: index },
+      );
+      comparisons.push({ before: assetUrl(publicBase, pairBefore.key), after: assetUrl(publicBase, pairAfter.key), caption: pair.caption,
+        ...(pair.beforeAnnotations?.length ? { beforeAnnotations: pair.beforeAnnotations } : {}),
+      });
+    }
+    mediaParts.push({
+      part: part.part,
+      position: part.position,
+      category: part.category,
+      label: formatWorkPartLabel(part.part, part.position, part.detail),
+      before: assetUrl(publicBase, before.key),
+      beforeAnnotations: part.beforeAnnotations.length > 0 ? part.beforeAnnotations : undefined,
+      after: assetUrl(publicBase, after.key),
+      thumbnail: assetUrl(publicBase, thumbnail.key),
+      note: part.note,
+      gallery,
+      ...(comparisons.length ? { comparisons } : {}),
+    });
+  }
 
-    const ogImage = await verifyAsset(env, input.ogImage as AssetReference, 'og-image', uploadId);
-    assets.push({ ...ogImage, kind: 'og-image' as const, partIndex: 20 });
+  const gallery = [];
+  for (const item of workGallery) {
+    const [image, galleryThumbnail] = await Promise.all([
+      verifyAsset(env, item.image, 'gallery', uploadId),
+      verifyAsset(env, item.thumbnail, 'gallery-thumbnail', uploadId),
+    ]);
+    assets.push(
+      { ...image, kind: 'gallery' as const, partIndex: 20 },
+      { ...galleryThumbnail, kind: 'gallery-thumbnail' as const, partIndex: 20 },
+    );
+    gallery.push({
+      src: assetUrl(publicBase, image.key),
+      thumbnail: assetUrl(publicBase, galleryThumbnail.key),
+      caption: item.caption,
+      width: image.width,
+      height: image.height,
+    });
+  }
 
-    const work: WorkItem = {
+  const ogImage = await verifyAsset(env, input.ogImage as AssetReference, 'og-image', uploadId);
+  assets.push({ ...ogImage, kind: 'og-image' as const, partIndex: 20 });
+
+  const work: WorkItem = {
+    slug,
+    date,
+    title: required(input.title, '제목', 80),
+    category,
+    subCategories,
+    part: [primaryPart],
+    subParts,
+    carMaker: required(input.carMaker, '차량 제조사', 40),
+    carModel: optional(input.carModel, '차종', 60),
+    color: required(input.color, '색상', 40),
+    parts: mediaParts,
+    ogImage: assetUrl(publicBase, ogImage.key),
+    gallery,
+    summary: required(input.summary, '요약', 300),
+    body: required(input.body, '상세 설명', 5000),
+    blogUrl: input.blogUrl?.trim() || undefined,
+    featured: false,
+    days: required(input.days, '작업기간', 20),
+    sliderType: 'drag',
+  };
+  if (work.blogUrl && !/^https:\/\//i.test(work.blogUrl)) throw new Error('블로그 링크는 https:// 주소로 입력하세요.');
+
+  return { work, assets, uploadId, publicBase, slugBase: slugAnalysis.slug, slugWarnings: slugAnalysis.excludedTerms };
+}
+
+export function newWorkStatements(env: AdminEnv, prepared: Awaited<ReturnType<typeof prepareNewWork>>, email: string) {
+  const { work, assets, uploadId, publicBase } = prepared;
+  const slug = work.slug, date = work.date, now = new Date().toISOString();
+  const statements = [
+    env.ACEDENT_DB.prepare(
+      `INSERT INTO works
+       (slug, date, category, sub_categories, sub_parts, payload_json, status, created_by_email, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, 'published', ?, ?, ?)`,
+    ).bind(
       slug,
       date,
-      title: required(input.title, '제목', 80),
-      category,
-      subCategories,
-      part: [primaryPart],
-      subParts,
-      carMaker: required(input.carMaker, '차량 제조사', 40),
-      carModel: optional(input.carModel, '차종', 60),
-      color: required(input.color, '색상', 40),
-      parts: mediaParts,
-      ogImage: assetUrl(publicBase, ogImage.key),
-      gallery,
-      summary: required(input.summary, '요약', 300),
-      body: required(input.body, '상세 설명', 5000),
-      blogUrl: input.blogUrl?.trim() || undefined,
-      featured: false,
-      days: required(input.days, '작업기간', 20),
-      sliderType: 'drag',
-    };
-    if (work.blogUrl && !/^https:\/\//i.test(work.blogUrl)) throw new Error('블로그 링크는 https:// 주소로 입력하세요.');
-
-    const now = new Date().toISOString();
-    const statements = [
+      work.category,
+      JSON.stringify(work.subCategories),
+      JSON.stringify(work.subParts),
+      JSON.stringify(work),
+      email,
+      now,
+      now,
+    ),
+    ...assets.map((asset) =>
       env.ACEDENT_DB.prepare(
-        `INSERT INTO works
-         (slug, date, category, sub_categories, sub_parts, payload_json, status, created_by_email, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, 'published', ?, ?, ?)`,
+        `INSERT INTO work_assets
+         (object_key, work_slug, public_url, kind, part_index, width, height, bytes, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       ).bind(
+        asset.key,
         slug,
-        date,
-        work.category,
-        JSON.stringify(work.subCategories),
-        JSON.stringify(work.subParts),
-        JSON.stringify(work),
-        access.email,
+        assetUrl(publicBase, asset.key),
+        asset.kind,
+        asset.partIndex,
+        asset.width,
+        asset.height,
+        asset.bytes,
         now,
-        now,
       ),
-      ...assets.map((asset) =>
-        env.ACEDENT_DB.prepare(
-          `INSERT INTO work_assets
-           (object_key, work_slug, public_url, kind, part_index, width, height, bytes, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        ).bind(
-          asset.key,
-          slug,
-          assetUrl(publicBase, asset.key),
-          asset.kind,
-          asset.partIndex,
-          asset.width,
-          asset.height,
-          asset.bytes,
-          now,
-        ),
-      ),
-      ...assets.map((asset) =>
-        env.ACEDENT_DB.prepare(
-          'DELETE FROM asset_cleanup_queue WHERE object_key = ? AND work_slug = ?',
-        ).bind(asset.key, `upload-${uploadId}`),
-      ),
-    ];
-    await env.ACEDENT_DB.batch(statements);
+    ),
+    ...assets.map((asset) =>
+      env.ACEDENT_DB.prepare(
+        'DELETE FROM asset_cleanup_queue WHERE object_key = ? AND work_slug = ?',
+      ).bind(asset.key, `upload-${uploadId}`),
+    ),
+  ];
+  return statements;
+}
 
-    return json({ work, metadata: getWorkSeoCopy(work), slugWarnings: slugAnalysis.excludedTerms }, 201);
+export const onRequestPost: PagesFunction<AdminEnv> = async ({ request, env }) => {
+  const access = await requireAccess(request, env);
+  if (!access.ok) return access.response;
+  if (!env.ACEDENT_DB || !env.ACEDENT_IMAGES) return json({ error: 'D1/R2 바인딩이 설정되지 않았습니다.' }, 503);
+
+  try {
+    const prepared = await prepareNewWork(env, (await request.json()) as WorkInput);
+    const { work, slugWarnings } = prepared;
+    await env.ACEDENT_DB.batch(newWorkStatements(env, prepared, access.email));
+
+    return json({ work, metadata: getWorkSeoCopy(work), slugWarnings }, 201);
   } catch (error) {
     const message = error instanceof Error ? error.message : '사례 저장에 실패했습니다.';
     if (/sub_categories|sub_parts|no column named/i.test(message)) {

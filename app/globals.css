@@ -4,6 +4,39 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* SITE-012: authenticated draft surfaces only; public case layout is unchanged. */
+.admin-draft-fields { display: contents; border: 0; padding: 0; margin: 0; }
+.admin-draft-nav, .admin-drafts-list, .admin-draft-publish { max-width: 1440px; margin: 20px auto; padding: 20px; color: #e0e0db; }
+.admin-draft-nav { display: flex; flex-wrap: wrap; gap: 12px 24px; }
+.admin-draft-nav a, .admin-draft-actions a { color: #f8db00; }
+.admin-draft-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+.admin-draft-actions button, .admin-draft-actions a { min-height: 44px; padding: 10px 14px; border: 1px solid #44463f; }
+.admin-draft-actions button:disabled { opacity: .5; cursor: not-allowed; }
+.admin-draft-actions small { flex-basis: 100%; }
+.admin-draft-save > p, .admin-draft-publish > p { margin: 12px 0; line-height: 1.65; }
+.admin-draft-publish > output { display: block; margin: 12px 0; line-height: 1.65; }
+.admin-draft-publish { border: 1px solid #44463f; background: #11130f; }
+.admin-draft-publish h1 { font-size: 24px; font-weight: 700; }
+.admin-draft-publish small { font-size: 13px; color: #c1c3bb; }
+.admin-page .admin-draft-confirm { display: flex; align-items: flex-start; gap: 10px; line-height: 1.6; }
+.admin-page .admin-draft-confirm input[type='checkbox'] { flex: 0 0 20px; width: 20px; min-height: 20px; height: 20px; padding: 0; margin-top: 3px; appearance: auto; accent-color: #f8db00; }
+.admin-layout.admin-draft-preview-only { display: block; max-width: 1080px; }
+.admin-draft-preview-only .admin-preview { position: static; max-height: none; overflow: visible; }
+.admin-draft-single-photo img { width: 100%; height: auto; }
+.admin-draft-single-photo figcaption { padding: 12px; color: #dadbd6; }
+.admin-draft-row { display: grid; grid-template-columns: 160px minmax(0,1fr); gap: 20px; padding: 24px 0; border-bottom: 1px solid #383b34; }
+.admin-draft-row img, .admin-draft-no-photo { width: 160px; aspect-ratio: 4/3; object-fit: cover; background: #191c16; }
+.admin-draft-row h2 { font-size: 19px; font-weight: 700; margin: 8px 0; overflow-wrap: anywhere; }
+.admin-draft-row p { margin: 6px 0; overflow-wrap: anywhere; }
+.admin-draft-row time, .admin-draft-row small { color: #babeb1; font-size: 13px; }
+.admin-draft-row .admin-draft-actions { grid-column: 1 / -1; margin: 0; }
+@media (max-width: 600px) {
+  .admin-draft-row { grid-template-columns: 88px minmax(0,1fr); gap: 12px; }
+  .admin-draft-row img, .admin-draft-no-photo { width: 88px; }
+  .admin-draft-nav, .admin-drafts-list, .admin-draft-publish { padding: 16px; margin: 12px; }
+  .admin-draft-publish h1 { font-size: 20px; }
+}
+
 /* Extra comparisons stay inside their PART; no new classification heading. */
 .work-additional-comparisons { display: grid; gap: 24px; margin-top: 24px; min-width: 0; }
 .work-additional-comparison { min-width: 0; margin: 0; }

@@ -21,6 +21,17 @@
     {
       "binding": "ACEDENT_IMAGES",
       "bucket_name": "acedent-images"
+    },
+    {
+      "binding": "ACEDENT_DRAFT_IMAGES",
+      "bucket_name": "acedent-draft-images"
     }
-  ]
+  ],
+  "env": {
+    "preview": {
+      "vars": {},
+      "d1_databases": [],
+      "r2_buckets": []
+    }
+  }
 }

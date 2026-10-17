@@ -3,6 +3,8 @@ import { verifyAccessAssertion, type AccessEnv } from './access';
 export interface AdminEnv extends AccessEnv {
   ACEDENT_DB: D1Database;
   ACEDENT_IMAGES: R2Bucket;
+  /** Separate bucket with public access disabled. Never fall back to ACEDENT_IMAGES. */
+  ACEDENT_DRAFT_IMAGES?: R2Bucket;
   R2_PUBLIC_BASE_URL: string;
   DEPLOY_HOOK_URL: string;
   CLOUDFLARE_API_TOKEN: string;

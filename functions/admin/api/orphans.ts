@@ -1,4 +1,5 @@
 import { json, requireAccess, type AdminEnv } from '../../_shared/admin';
+import { publishingDraftKeys } from '../../_shared/draft-asset-claims';
 
 interface QueueRow {
   object_key: string;
@@ -50,6 +51,7 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
       ).all<QueueRow>(),
     ]);
     const referenced = new Set(assetRows.results.map((row) => row.object_key));
+    for (const key of await publishingDraftKeys(env)) referenced.add(key);
     const queued = new Map(queueRows.results.map((row) => [row.object_key, row]));
     const orphans = objects
       .filter((object) => !referenced.has(object.key))
@@ -115,6 +117,8 @@ export const onRequestDelete: PagesFunction<AdminEnv> = async ({ request, env })
     const uniqueKeys = [...new Set(input.keys)];
     if (!uniqueKeys.every(validKey)) return json({ error: '삭제 대상 키가 올바르지 않습니다.' }, 400);
     const keys = uniqueKeys as string[];
+    const publishingKeys = new Set(await publishingDraftKeys(env));
+    if (keys.some(key => publishingKeys.has(key))) return json({ error: '발행 준비 중인 초안 사진이 포함되어 삭제를 중단했습니다.' }, 409);
 
     const placeholders = keys.map(() => '?').join(', ');
     const referenced = await env.ACEDENT_DB.prepare(
