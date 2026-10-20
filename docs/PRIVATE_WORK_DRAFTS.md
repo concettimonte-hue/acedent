@@ -37,6 +37,14 @@
 
 ## API
 
+### 목록 구분 — SITE-013 / 2026-10-20
+
+- 기본 `진행 중`에는 작성·검토·발행 준비·배포 중/실패/상태 불명 기록이 남는다. `deploy_state === 'ready'`만 `발행 완료`로 분류한다. 목록 조회/필터 전환은 상태 갱신·배포를 실행하지 않는다.
+- 완료 기록과 비공개 사진은 삭제하지 않는다. 목록의 제목·사진과 `발행 당시 원본·기록`은 발행 시점 스냅샷이다. 현재 공개 내용은 `공개 글 보기`로, 수정은 기존 `/admin?view=edit&slug=...` 공개 편집기로 연결한다.
+- 목록 GET의 `published_work_slug`는 `published_slug`와 현재 `works.status='published'`를 JOIN한 읽기 전용 필드다. 대상이 없거나 삭제 대기이면 null이다. 이때 공개/수정 링크를 만들지 않고 안내와 공개 사례 관리 링크를 표시한다. 페이지를 연 뒤 다른 창에서 삭제된 경우는 목록 새로고침으로 재조회한다. 발행 이력의 ready가 현재 공개 존재를 보장하지 않는다.
+- 기존 초안 저장/삭제/발행 API와 보호 규칙은 그대로다. 새 스키마/환경변수/마이그레이션은 없다.
+- 검증: `node scripts/test-draft-list.mjs`, 기존 `node scripts/test-private-drafts.mjs`. 읽기 전용 합성 시안은 `node scripts/preview-draft-list.mjs` → `http://127.0.0.1:4184/preview/draft-list`. 상태/빈 목록을 확인할 수 있고 공개/편집 이동은 목적지 표시만 하며 실제 이동을 차단한다.
+
 모두 `/admin/api` 아래이며 Access 인증이 필요하다. fetch는 same-origin credentials를 사용한다.
 
 | 경로 | 방식 | 역할 |

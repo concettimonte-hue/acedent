@@ -30,6 +30,15 @@
 .admin-draft-row p { margin: 6px 0; overflow-wrap: anywhere; }
 .admin-draft-row time, .admin-draft-row small { color: #babeb1; font-size: 13px; }
 .admin-draft-row .admin-draft-actions { grid-column: 1 / -1; margin: 0; }
+/* SITE-013: read-only grouping of draft work and retained publication records. */
+.admin-draft-filters { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; border: 0; padding: 0; margin: 24px 0 12px; }
+.admin-draft-filters button { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 10px 16px; border: 1px solid #56594f; color: #e0e0db; font-weight: 600; }
+.admin-draft-filters button[aria-pressed='true'] { background: #f8db00; border-color: #f8db00; color: #030403; }
+.admin-draft-filters span { font-variant-numeric: tabular-nums; }
+.admin-draft-filters button:focus-visible, .admin-drafts-list a:focus-visible, .admin-drafts-list button:focus-visible { outline: 2px solid #f8db00; outline-offset: 4px; }
+.admin-draft-list-note { display: block; color: #babeb1; font-size: 14px; line-height: 1.7; margin: 12px 0; }
+.admin-draft-link-notice { color: #e0e0db; line-height: 1.7; }
+.admin-draft-row .admin-draft-history-link { color: #babeb1; border-color: transparent; }
 @media (max-width: 600px) {
   .admin-draft-row { grid-template-columns: 88px minmax(0,1fr); gap: 12px; }
   .admin-draft-row img, .admin-draft-no-photo { width: 88px; }
