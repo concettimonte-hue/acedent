@@ -15,6 +15,7 @@ import {
   trackTelClick,
 } from '@/lib/analytics';
 import { withLandingUtm } from '@/lib/tracking';
+import { imageUsagePath } from '@/lib/image-rights';
 
 const business = businessData as BusinessContent;
 const naver = naverData as NaverContent;
@@ -91,6 +92,7 @@ export default function SiteFooter() {
 
       <div className="site-footer-bottom">
         <small>서울 동대문 자동차 외장관리 전문점 · © ACE DENT · 사진 무단 사용 금지</small>
+        <a className="site-footer-credits" href={imageUsagePath}>사진 이용 안내</a>
         <a className="site-footer-credits" href="/brands/credits.html">로고 출처</a>
       </div>
     </footer>

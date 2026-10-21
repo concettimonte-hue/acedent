@@ -53,6 +53,7 @@ import {
 } from './work-related';
 import { getWorkCategoryGuide } from './work-seo';
 import { withLandingUtm } from './tracking';
+import { imageUsagePath } from './image-rights';
 import { findVehicleBrand, getVehicleBrandLogo, getVehicleBrandLogoClassName } from './vehicle-brands';
 
 const business = businessData as BusinessContent;
@@ -156,7 +157,7 @@ function siteFooter() {
       </div>
       <nav class="site-footer-links" aria-label="하단 주요 메뉴"><a href="/works">수리사례</a><a href="/#location">오시는 길</a><a href="${text(withLandingUtm(naver.blog, 'blog'))}" target="_blank" rel="noopener noreferrer">네이버 블로그</a></nav>
     </div>
-    <div class="site-footer-bottom"><small>서울 동대문 자동차 외장관리 전문점 · © ACE DENT · 사진 무단 사용 금지</small><a class="site-footer-credits" href="/brands/credits.html">로고 출처</a></div>
+    <div class="site-footer-bottom"><small>서울 동대문 자동차 외장관리 전문점 · © ACE DENT · 사진 무단 사용 금지</small><a class="site-footer-credits" href="${imageUsagePath}">사진 이용 안내</a><a class="site-footer-credits" href="/brands/credits.html">로고 출처</a></div>
   </footer>`;
 }
 
