@@ -2826,8 +2826,20 @@ section[id] {
     font-size: 0.75rem;
     font-weight: 900;
   }
-  .mobile-action-bar .mobile-action-works {
-    font-size: 0.72rem;
+  .mobile-action-bar a.mobile-action-works {
+    font-size: 0.8125rem;
+  }
+  .mobile-action-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+  .mobile-action-bar .mobile-action-label svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
   }
   .mobile-action-bar svg {
     width: 20px;
@@ -2840,9 +2852,11 @@ section[id] {
     padding-right: 0.25rem;
     padding-left: 0.25rem;
   }
-  .mobile-action-bar a,
-  .mobile-action-bar .mobile-action-works {
+  .mobile-action-bar a {
     font-size: 0.62rem;
+  }
+  .mobile-action-bar a.mobile-action-works {
+    font-size: 0.75rem;
   }
   .mobile-action-bar svg {
     width: 18px;

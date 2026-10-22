@@ -363,7 +363,10 @@ export default function Home() {
           onClick={() => trackWorksNavigation('bottom_mobile')}
         >
           <Images aria-hidden="true" />
-          수리사례
+          <span className="mobile-action-label">
+            수리사례
+            <ChevronRight aria-hidden="true" />
+          </span>
         </a>
         <a
           href={contact.phoneHref}
