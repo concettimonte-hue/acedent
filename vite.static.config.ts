@@ -18,30 +18,27 @@ import {
 import {
   autoBodyShopJsonLd,
   faqJsonLd,
+  getPageImageJsonLd,
+  homeMetadata,
   organizationJsonLd,
+  pageImageJsonLdId,
   serializeJsonLd,
   siteUrl,
-  worksOgImageAlt,
-  worksOgImageUrl,
   websiteJsonLd,
+  type PageMetadata,
 } from './lib/seo';
 import {
   getHomeStaticHtml,
   getWorkDetailStaticHtml,
   getWorksStaticHtml,
 } from './lib/static-html';
-import {
-  getWorkPartLandingSeoCopy,
-  getWorkSeoCopy,
-  getWorksSeoCopy,
-} from './lib/work-seo';
+import { getWorkSeoCopy } from './lib/work-seo';
+import { getWorkMetadata, getWorksMetadata } from './lib/work-metadata';
 import {
   getAbsoluteWorkImageUrl,
   getWorkImageAlt,
   getWorkGalleryImageAlt,
   getWorkComparisonImages,
-  getWorkOgImageSrc,
-  getWorkPrimaryPart,
 } from './lib/work-images';
 import { workMatchesCategory } from './lib/work-categories';
 import { getImageRightsMetadata } from './lib/image-rights';
@@ -166,17 +163,10 @@ const escapeHtml = (value: string) =>
 
 const escapeXml = escapeHtml;
 
-interface RouteMetadata {
-  title: string;
-  description: string;
-  canonical: string;
-  image: string;
-  imageWidth?: number;
-  imageHeight?: number;
-  imageAlt?: string;
-  type?: 'website' | 'article';
+interface RouteMetadata extends PageMetadata {
   jsonLd?: Array<{ id: string; data: unknown }>;
   bodyHtml: string;
+  privatePage?: boolean;
 }
 
 function renderRouteHtml(baseHtml: string, metadata: RouteMetadata) {
@@ -250,10 +240,18 @@ function renderRouteHtml(baseHtml: string, metadata: RouteMetadata) {
     .replace(
       /<script[^>]*id="acedent-website-jsonld"[^>]*>[\s\S]*?<\/script>/i,
       '',
+    )
+    .replace(
+      /<script[^>]*id="acedent-page-jsonld"[^>]*>[\s\S]*?<\/script>/i,
+      '',
     );
 
-  if (metadata.jsonLd) {
-    const scripts = metadata.jsonLd
+  const jsonLd = [
+    ...(metadata.jsonLd ?? []),
+    ...(metadata.privatePage ? [] : [{ id: pageImageJsonLdId, data: getPageImageJsonLd(metadata) }]),
+  ];
+  if (jsonLd.length) {
+    const scripts = jsonLd
       .map(
         ({ id, data }) =>
           `<script id="${id}" type="application/ld+json">${serializeJsonLd(data)}</script>`,
@@ -380,6 +378,12 @@ const seoAssetsPlugin = (): Plugin => ({
     handler: () => [
       {
         tag: 'script',
+        attrs: { id: pageImageJsonLdId, type: 'application/ld+json' },
+        children: serializeJsonLd(getPageImageJsonLd(homeMetadata)),
+        injectTo: 'head',
+      },
+      {
+        tag: 'script',
         attrs: { id: 'acedent-business-jsonld', type: 'application/ld+json' },
         children: serializeJsonLd(autoBodyShopJsonLd),
         injectTo: 'head',
@@ -426,6 +430,8 @@ const seoAssetsPlugin = (): Plugin => ({
       'content/process.json',
     ];
     const listingSources = [
+      'lib/work-metadata.ts',
+      'lib/seo.ts',
       'lib/static-html.ts',
       'lib/work-seo.ts',
       'lib/work-images.ts',
@@ -435,6 +441,8 @@ const seoAssetsPlugin = (): Plugin => ({
       'components/WorkCard.tsx',
     ];
     const detailSources = [
+      'lib/work-metadata.ts',
+      'lib/seo.ts',
       'lib/static-html.ts',
       'lib/work-seo.ts',
       'lib/work-images.ts',
@@ -582,6 +590,10 @@ const seoAssetsPlugin = (): Plugin => ({
         description: '에이스덴트 수리사례 관리자 목록 및 입력 화면입니다.',
         canonical: `${siteUrl}/admin`,
         image: `${siteUrl}/og-image.jpg`,
+        imageAlt: '에이스덴트 로고',
+        imageWidth: 1200,
+        imageHeight: 630,
+        privatePage: true,
         bodyHtml: '<main class="admin-page"><p class="admin-static-loading">관리자 화면을 불러오는 중입니다.</p></main>',
       }).replace(
         '<meta name="robots" content="index, follow, max-image-preview:large" />',
@@ -589,68 +601,42 @@ const seoAssetsPlugin = (): Plugin => ({
       ),
     );
 
-    const allWorksSeo = getWorksSeoCopy();
-
     writeRoute(
       'works.html',
       renderRouteHtml(baseHtml, {
-        title: allWorksSeo.title,
-        description: allWorksSeo.description,
-        canonical: `${siteUrl}/works`,
-        image: worksOgImageUrl,
-        imageAlt: worksOgImageAlt,
+        ...getWorksMetadata(undefined, undefined, works),
         bodyHtml: getWorksStaticHtml(works),
       }),
     );
 
     for (const category of activeCategories) {
-      const categorySeo = getWorksSeoCopy(category.id);
       writeRoute(
         `works/${category.id}.html`,
         renderRouteHtml(baseHtml, {
-          title: categorySeo.title,
-          description: categorySeo.description,
-          canonical: `${siteUrl}/works/${category.id}`,
-          image: `${siteUrl}/og-image.jpg`,
+          ...getWorksMetadata(category.id, undefined, works),
           bodyHtml: getWorksStaticHtml(works, category.id),
         }),
       );
     }
 
     for (const landing of partLandings) {
-      const landingSeo = getWorkPartLandingSeoCopy(landing.category, landing.part);
       writeRoute(
         `${getWorkPartLandingPath(landing.category, landing.part).slice(1)}.html`,
         renderRouteHtml(baseHtml, {
-          title: landingSeo.title,
-          description: landingSeo.description,
-          canonical: `${siteUrl}${landing.path}`,
-          image: worksOgImageUrl,
-          imageAlt: worksOgImageAlt,
+          ...getWorksMetadata(landing.category, landing.part, works),
           bodyHtml: getWorksStaticHtml(works, landing.category, landing.part),
         }),
       );
     }
 
     for (const work of works) {
-      const canonical = `${siteUrl}/works/detail/${work.slug}`;
-      const workSeo = getWorkSeoCopy(work);
       const categoryWorks = works
         .filter((candidate) => workMatchesCategory(candidate, work.category));
       const relatedSuggestions = selectRelatedWorkSuggestions(works, work, 3);
       writeRoute(
         `works/detail/${work.slug}.html`,
         renderRouteHtml(baseHtml, {
-          title: workSeo.title,
-          description: workSeo.description,
-          canonical,
-          image: getAbsoluteWorkImageUrl(getWorkOgImageSrc(work), siteUrl),
-          imageWidth: work.ogImage ? 1200 : 1600,
-          imageHeight: work.ogImage ? 630 : 1200,
-          imageAlt: work.ogImage
-            ? `${work.carMaker} ${work.carModel} ${work.title} 수리 전후 비교`.replace(/\s+/g, ' ').trim()
-            : getWorkImageAlt(work, getWorkPrimaryPart(work), '후'),
-          type: 'article',
+          ...getWorkMetadata(work),
           jsonLd: [
             { id: 'work-breadcrumb-jsonld', data: getBreadcrumbJsonLd(work) },
             { id: 'work-image-jsonld', data: getWorkImageJsonLd(work) },

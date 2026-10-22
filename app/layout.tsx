@@ -4,7 +4,10 @@ import {
   autoBodyShopJsonLd,
   defaultTitle,
   faqJsonLd,
+  getPageImageJsonLd,
+  homeMetadata,
   organizationJsonLd,
+  pageImageJsonLdId,
   serializeJsonLd,
   siteDescription,
   siteUrl,
@@ -33,10 +36,10 @@ export const metadata: Metadata = {
     description: siteDescription,
     images: [
       {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: '에이스덴트 로고',
+        url: homeMetadata.image,
+        width: homeMetadata.imageWidth,
+        height: homeMetadata.imageHeight,
+        alt: homeMetadata.imageAlt,
       },
     ],
   },
@@ -44,7 +47,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: defaultTitle,
     description: siteDescription,
-    images: ['/og-image.jpg'],
+    images: [homeMetadata.image],
   },
   robots: 'index, follow, max-image-preview:large',
   icons: {
@@ -61,6 +64,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="ko">
       <head>
+        <script
+          id={pageImageJsonLdId}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(getPageImageJsonLd(homeMetadata)) }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(autoBodyShopJsonLd) }}

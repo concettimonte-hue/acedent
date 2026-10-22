@@ -16,6 +16,45 @@ export const ogImageUrl = `${siteUrl}/og-image.jpg`;
 export const worksOgImageUrl = `${siteUrl}/og-works.jpg`;
 export const worksOgImageAlt = '렉서스 UX250h 후도어 판금도장 전후 비교';
 export const logoImageUrl = `${siteUrl}/images/ace-dent-logo.png`;
+export const homeImage = {
+  image: `${siteUrl}/storefront.jpg`,
+  imageAlt: '서울 동대문 에이스덴트 매장 간판과 출입구',
+  imageWidth: 750,
+  imageHeight: 654,
+} as const;
+
+export interface PageMetadata {
+  title: string;
+  description: string;
+  canonical: string;
+  image: string;
+  imageAlt: string;
+  imageWidth: number;
+  imageHeight: number;
+  type?: 'website' | 'article';
+}
+
+export const homeMetadata: PageMetadata = {
+  title: defaultTitle,
+  description: siteDescription,
+  canonical: siteUrl,
+  ...homeImage,
+};
+
+export const pageImageJsonLdId = 'acedent-page-jsonld';
+
+/** 검색엔진의 선호 이미지 신호. 노출 보장이나 별도 리치 결과 유형이 아닙니다. */
+export function getPageImageJsonLd(metadata: PageMetadata) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${metadata.canonical}#webpage`,
+    url: metadata.canonical,
+    name: metadata.title,
+    description: metadata.description,
+    primaryImageOfPage: metadata.image,
+  };
+}
 export const naverSameAs = Array.from(
   new Set([naver.blog, naver.place, ...naver.sameAs]),
 );
@@ -65,7 +104,7 @@ export const autoBodyShopJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'AutoBodyShop',
   name: business.name,
-  image: logoImageUrl,
+  image: homeImage.image,
   logo: logoImageUrl,
   url: siteUrl,
   telephone: business.telephone,

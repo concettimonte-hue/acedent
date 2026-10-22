@@ -1,5 +1,5 @@
-import type { WorkCategory, WorkItem, WorkPart } from '@/content/works/types';
-import { getWorkCategoryLabel } from '@/content/works/types';
+import type { WorkCategory, WorkItem, WorkPart } from '../content/works/types';
+import { getWorkCategoryLabel } from '../content/works/types';
 import {
   getWorkImageAlt,
   getWorkGalleryImageAlt,
@@ -7,37 +7,61 @@ import {
   getAbsoluteWorkImageUrl,
   getWorkOgImageSrc,
   resolveWorkImageSrc,
-} from '@/lib/work-images';
+} from './work-images';
 import {
-  ogImageUrl,
+  getPageImageJsonLd,
+  homeImage,
+  pageImageJsonLdId,
+  serializeJsonLd,
   siteUrl,
   worksOgImageAlt,
   worksOgImageUrl,
-} from '@/lib/seo';
+  type PageMetadata,
+} from './seo';
 import {
   getWorkPartLandingSeoCopy,
   getWorkSeoCopy,
   getWorksSeoCopy,
-} from '@/lib/work-seo';
-import { getWorksCanonicalPath } from '@/lib/work-routes';
-import { getWorkPartLandingPath } from '@/lib/work-landings';
-import { getImageRightsMetadata } from '@/lib/image-rights';
+} from './work-seo';
+import { getWorksCanonicalPath } from './work-routes';
+import { getWorkPartLandingPath } from './work-landings';
+import { getImageRightsMetadata } from './image-rights';
+import { getWorkRepresentativePart, workMatchesCategory } from './work-categories';
 
 const imageRightsMetadata = getImageRightsMetadata(siteUrl);
 
-export interface WorkMetadata {
-  title: string;
-  description: string;
-  canonical: string;
-  image: string;
-  imageAlt?: string;
-}
+export type WorkMetadata = PageMetadata;
 
 export function getWorkSeoTitle(work: WorkItem) {
   return getWorkSeoCopy(work).title;
 }
 
-export function getWorksMetadata(category?: WorkCategory, part?: WorkPart): WorkMetadata {
+/** 같은 날짜의 입력 순서에도 의존하지 않으며, 명시 PART → 기존 데이터 순으로 선택합니다. */
+function getWorksPageImage(works: readonly WorkItem[], category?: WorkCategory, part?: WorkPart) {
+  if (!category) return {
+    image: worksOgImageUrl, imageAlt: worksOgImageAlt, imageWidth: 1200, imageHeight: 630,
+  };
+
+  const candidates = works
+    .filter((work) => workMatchesCategory(work, category))
+    .slice()
+    .sort((a, b) => b.date.localeCompare(a.date) || a.slug.localeCompare(b.slug))
+    .map((work) => ({ work, media: getWorkRepresentativePart(work, category, part) }))
+    .filter(({ media }) => !part || media.part?.includes(part));
+  const selected = candidates.find(({ media }) => media.category === category)
+    ?? candidates.find(({ work, media }) => !media.category && work.category === category);
+
+  // 보조 작업만 일치하면 특정 PART와 결합하지 않습니다. 중립적인 업체 사진으로 대체.
+  if (!selected) return homeImage;
+  return {
+    image: getAbsoluteWorkImageUrl(selected.media.before, siteUrl),
+    imageAlt: getWorkImageAlt(selected.work, selected.media, '전'),
+    imageWidth: 1600,
+    imageHeight: 1200,
+  };
+}
+
+export function getWorksMetadata(category?: WorkCategory, part?: WorkPart, works: readonly WorkItem[] = []): WorkMetadata {
   const { title, description } = category && part
     ? getWorkPartLandingSeoCopy(category, part)
     : getWorksSeoCopy(category);
@@ -49,8 +73,7 @@ export function getWorksMetadata(category?: WorkCategory, part?: WorkPart): Work
     title,
     description,
     canonical,
-    image: category ? ogImageUrl : worksOgImageUrl,
-    imageAlt: category ? '에이스덴트 로고' : worksOgImageAlt,
+    ...getWorksPageImage(works, category, part),
   };
 }
 
@@ -61,6 +84,9 @@ export function getWorkMetadata(work: WorkItem): WorkMetadata {
     description,
     canonical: `${siteUrl}/works/detail/${work.slug}`,
     image: getAbsoluteWorkImageUrl(getWorkOgImageSrc(work), siteUrl),
+    imageWidth: work.ogImage ? 1200 : 1600,
+    imageHeight: work.ogImage ? 630 : 1200,
+    type: 'article',
     imageAlt: work.ogImage
       ? `${work.carMaker} ${work.carModel} ${work.title} 수리 전후 비교`.replace(/\s+/g, ' ').trim()
       : getWorkImageAlt(work, work.parts[0], '후'),
@@ -188,9 +214,10 @@ export function applyClientMetadata(metadata: WorkMetadata) {
   setMeta('meta[property="og:description"]', 'content', metadata.description);
   setMeta('meta[property="og:url"]', 'content', metadata.canonical);
   setMeta('meta[property="og:image"]', 'content', metadata.image);
-  if (metadata.imageAlt) {
-    setMeta('meta[property="og:image:alt"]', 'content', metadata.imageAlt);
-  }
+  setMeta('meta[property="og:image:alt"]', 'content', metadata.imageAlt);
+  setMeta('meta[property="og:image:width"]', 'content', String(metadata.imageWidth));
+  setMeta('meta[property="og:image:height"]', 'content', String(metadata.imageHeight));
+  setMeta('meta[property="og:type"]', 'content', metadata.type ?? 'website');
   setMeta('meta[name="twitter:title"]', 'content', metadata.title);
   setMeta('meta[name="twitter:description"]', 'content', metadata.description);
   setMeta('meta[name="twitter:image"]', 'content', metadata.image);
@@ -198,4 +225,13 @@ export function applyClientMetadata(metadata: WorkMetadata) {
   document.head
     .querySelector<HTMLLinkElement>('link[rel="canonical"]')
     ?.setAttribute('href', metadata.canonical);
+
+  let pageScript = document.getElementById(pageImageJsonLdId);
+  if (!pageScript) {
+    pageScript = document.createElement('script');
+    pageScript.id = pageImageJsonLdId;
+    pageScript.setAttribute('type', 'application/ld+json');
+    document.head.appendChild(pageScript);
+  }
+  pageScript.textContent = serializeJsonLd(getPageImageJsonLd(metadata));
 }

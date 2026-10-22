@@ -176,8 +176,8 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
       landingFilters?.part === selectedPart
       ? selectedPart
       : undefined;
-    applyClientMetadata(getWorksMetadata(selectedCategory, canonicalPart));
-  }, [selectedCategory, selectedPart]);
+    applyClientMetadata(getWorksMetadata(selectedCategory, canonicalPart, allWorks));
+  }, [allWorks, selectedCategory, selectedPart]);
 
   useEffect(() => {
     if (!selectedPart || availableFilterParts.includes(selectedPart)) return;
