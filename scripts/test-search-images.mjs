@@ -3,20 +3,26 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { test } from 'node:test';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { loadTs } from './test-support.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const { getWorksMetadata, getWorkMetadata, applyClientMetadata } = loadTs('lib/work-metadata.ts');
-const { homeImage, homeMetadata, getPageImageJsonLd, pageImageJsonLdId, siteUrl, organizationJsonLd, autoBodyShopJsonLd, worksOgImageUrl } = loadTs('lib/seo.ts');
+const { homeImage, homeMetadata, storefrontImagePath, getPageImageJsonLd, pageImageJsonLdId, siteUrl, organizationJsonLd, autoBodyShopJsonLd, worksOgImageUrl } = loadTs('lib/seo.ts');
 const { getAvailableWorkCategories } = loadTs('lib/work-categories.ts');
 const { getWorkPartLandings } = loadTs('lib/work-landings.ts');
 const works = loadTs('lib/works.ts').getWorks();
+const { jpegDimensions } = loadTs('functions/_shared/admin.ts');
+const { getHomeStaticHtml } = loadTs('lib/static-html.ts');
+const LocationSection = loadTs('components/LocationSection.tsx').default;
 const base = works[0];
 const media = (category, part, key) => ({ category, part: [part], label: part, note: '', before: `/works/${key}-before.jpg`, after: `/works/${key}-after.jpg` });
 const fixture = (slug, parts, extra = {}) => ({ ...base, slug, date: '2026-01-01', category: 'panel-paint', subCategories: [], parts, ...extra });
 
 await test('home photo and logo have separate roles; preferred URL is absolute', () => {
-  assert.equal(homeImage.image, siteUrl + '/storefront.jpg');
+  assert.equal(homeImage.image, siteUrl + storefrontImagePath);
+  assert.equal(storefrontImagePath, '/storefront-20261023.jpg');
   assert.equal(autoBodyShopJsonLd.image, homeImage.image);
   assert.equal(organizationJsonLd.logo.contentUrl, siteUrl + '/images/ace-dent-logo.png');
   assert.equal(autoBodyShopJsonLd.logo, organizationJsonLd.logo.contentUrl);
@@ -25,6 +31,21 @@ await test('home photo and logo have separate roles; preferred URL is absolute',
   assert.equal(page.primaryImageOfPage, homeImage.image);
   assert.equal(page.url, siteUrl);
   assert.equal(page['@id'], siteUrl + '#webpage');
+});
+
+await test('approved storefront stays within budget and both renderers use its actual dimensions', () => {
+  const jpg = readFileSync(resolve(root, 'public', storefrontImagePath.slice(1)));
+  assert(jpg.length <= 200_000, 'storefront exceeds 200KB');
+  assert.deepEqual(jpegDimensions(jpg), { width: homeImage.imageWidth, height: homeImage.imageHeight });
+  assert(homeImage.imageWidth <= 1600);
+  for (const html of [getHomeStaticHtml(works), renderToStaticMarkup(createElement(LocationSection))]) {
+    const photo = [...html.matchAll(/<img\b[^>]*>/g)].map(match => match[0]).find(tag => tag.includes(`src="${storefrontImagePath}"`));
+    assert(photo, 'storefront is present');
+    assert(photo.includes(`width="${homeImage.imageWidth}"`));
+    assert(photo.includes(`height="${homeImage.imageHeight}"`));
+    assert(photo.includes('loading="lazy"'));
+    assert(!html.includes('src="/storefront.jpg"'));
+  }
 });
 
 await test('mixed case selects the exact category/part, never the case OG or another PART', () => {

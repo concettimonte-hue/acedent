@@ -16,11 +16,12 @@ export const ogImageUrl = `${siteUrl}/og-image.jpg`;
 export const worksOgImageUrl = `${siteUrl}/og-works.jpg`;
 export const worksOgImageAlt = '렉서스 UX250h 후도어 판금도장 전후 비교';
 export const logoImageUrl = `${siteUrl}/images/ace-dent-logo.png`;
+export const storefrontImagePath = '/storefront-20261023.jpg';
 export const homeImage = {
-  image: `${siteUrl}/storefront.jpg`,
+  image: `${siteUrl}${storefrontImagePath}`,
   imageAlt: '서울 동대문 에이스덴트 매장 간판과 출입구',
-  imageWidth: 750,
-  imageHeight: 654,
+  imageWidth: 1448,
+  imageHeight: 1086,
 } as const;
 
 export interface PageMetadata {

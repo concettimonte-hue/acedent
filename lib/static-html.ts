@@ -54,6 +54,7 @@ import {
 import { getWorkCategoryGuide } from './work-seo';
 import { withLandingUtm } from './tracking';
 import { imageUsagePath } from './image-rights';
+import { homeImage, storefrontImagePath } from './seo';
 import { findVehicleBrand, getVehicleBrandLogo, getVehicleBrandLogoClassName } from './vehicle-brands';
 
 const business = businessData as BusinessContent;
@@ -208,7 +209,7 @@ export function getHomeStaticHtml(works: WorkItem[]) {
     <section id="process"><p>${text(process.sectionLabel)}</p><h2>${text(process.heading)}</h2><div class="seo-grid">${process.items.map((item) => `<article><strong>${text(item.step)}</strong><h3>${text(item.title)}</h3><p>${text(item.desc)}</p></article>`).join('')}</div></section>
     <section id="faq"><p>${text(faq.sectionLabel)}</p><h2>${text(faq.heading)}</h2>${faqList()}</section>
     <section id="contact"><p>CONTACT</p><h2>${contact.titleLines.map(text).join(' ')}</h2><p>${text(contact.description)}</p><a href="${text(contact.phoneHref)}">${text(contact.phoneDisplay)}</a><a href="${text(contact.smsHref)}">${text(contact.smsLabel)}</a><a href="${text(naver.talk)}" target="_blank" rel="noopener noreferrer">${text(contact.talkLabel)}</a></section>
-    <section id="location"><p>${text(contact.locationSectionLabel)}</p><h2>${text(contact.locationHeading)}</h2>${image('/storefront.jpg', '서울 동대문 판금도색 외형복원 전문 에이스덴트 매장 외관')}<address>${text(contact.footerAddress)} · ${text(contact.phoneDisplay)}</address><a href="${text(naver.place)}" target="_blank" rel="noopener noreferrer">${text(contact.directionsLabel)}</a><p>${text(contact.nearbyIntro)} ${text(contact.nearbyAreas)}</p></section>
+    <section id="location"><p>${text(contact.locationSectionLabel)}</p><h2>${text(contact.locationHeading)}</h2>${image(storefrontImagePath, '서울 동대문 판금도색 외형복원 전문 에이스덴트 매장 외관', { width: homeImage.imageWidth, height: homeImage.imageHeight })}<address>${text(contact.footerAddress)} · ${text(contact.phoneDisplay)}</address><a href="${text(naver.place)}" target="_blank" rel="noopener noreferrer">${text(contact.directionsLabel)}</a><p>${text(contact.nearbyIntro)} ${text(contact.nearbyAreas)}</p></section>
     <section id="naver-connect"><h2>${text(naver.section.title)}</h2>${naver.section.items.map((item) => `<a href="${text(naver[item.key])}" target="_blank" rel="noopener noreferrer">${text(item.title)} ↗</a>`).join('')}</section>
     ${siteFooter()}
   </main>`;

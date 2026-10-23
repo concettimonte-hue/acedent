@@ -7,6 +7,7 @@ import siteData from '@/content/site.json';
 import type { NaverContent, SiteContent } from '@/content/types';
 import { trackPlaceClick, trackTelClick } from '@/lib/analytics';
 import { withLandingUtm } from '@/lib/tracking';
+import { homeImage, storefrontImagePath } from '@/lib/seo';
 
 const naver = naverData as NaverContent;
 const site = siteData as SiteContent;
@@ -31,10 +32,10 @@ export default function LocationSection() {
       <div className="location-grid">
         <div className="location-photo">
           <img
-            src="/storefront.jpg"
+            src={storefrontImagePath}
             alt="서울 동대문 판금도색 외형복원 전문 에이스덴트 매장 외관"
-            width="1600"
-            height="1200"
+            width={homeImage.imageWidth}
+            height={homeImage.imageHeight}
             loading="lazy"
             decoding="async"
           />
