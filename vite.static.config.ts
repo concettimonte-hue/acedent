@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
 import generatedWorksData from './content/works.generated.json';
 import { normalizeComparisons, comparisonImageUrl, validateComparisonTotal } from './lib/work-comparisons';
+import { normalizeWorkPartTaxonomy } from './lib/work-part-taxonomy';
+import { getLegacyWheelRedirect } from './lib/work-routes';
 import {
   WORK_CATEGORIES,
   WORK_GALLERY_MAX_PER_SCOPE,
@@ -142,7 +144,7 @@ function loadBuildWorks(): BuildWork[] {
       if (totalGalleryImages > WORK_GALLERY_MAX_TOTAL) {
         throw new Error(`${fileName}: 추가 사진은 사례 전체 최대 ${WORK_GALLERY_MAX_TOTAL}장이어야 합니다.`);
       }
-      return { ...work, parts, gallery, sourceFile, lastModified };
+      return normalizeWorkPartTaxonomy({ ...work, parts, gallery, sourceFile, lastModified });
     })
     .sort((a, b) => b.date.localeCompare(a.date));
 
@@ -430,6 +432,10 @@ const seoAssetsPlugin = (): Plugin => ({
       'content/process.json',
     ];
     const listingSources = [
+      'lib/work-part-taxonomy.ts',
+      'lib/work-landings.ts',
+      'lib/work-routes.ts',
+      'content/works/types.ts',
       'lib/work-metadata.ts',
       'lib/seo.ts',
       'lib/static-html.ts',
@@ -441,6 +447,7 @@ const seoAssetsPlugin = (): Plugin => ({
       'components/WorkCard.tsx',
     ];
     const detailSources = [
+      'lib/work-part-taxonomy.ts',
       'lib/work-metadata.ts',
       'lib/seo.ts',
       'lib/static-html.ts',
@@ -568,6 +575,15 @@ const seoAssetsPlugin = (): Plugin => ({
     const partLandings = getWorkPartLandings(works);
     const outputDirectory = resolve(options.dir ?? 'dist');
     const baseHtml = readFileSync(resolve(outputDirectory, 'index.html'), 'utf8');
+
+    // Keep the old wheel landing reachable, but don't reserve the wheel route
+    // forever: new actual wheel cases stop this temporary redirect on rebuild.
+    const coverRedirects = WORK_CATEGORIES.flatMap(({ id }) => {
+      const source = getWorkPartLandingPath(id, '휠');
+      const destination = getLegacyWheelRedirect(source, '', works);
+      return destination ? [source, `${source}/`, `${source}.html`].map(path => `${path} ${destination} 302`) : [];
+    });
+    writeFileSync(resolve(outputDirectory, '_redirects'), `${readFileSync(resolve(projectDirectory, 'public/_redirects'), 'utf8').trim()}\n${coverRedirects.join('\n')}\n`);
 
     const writeRoute = (fileName: string, html: string) => {
       const target = resolve(outputDirectory, fileName);

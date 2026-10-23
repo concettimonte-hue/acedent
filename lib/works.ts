@@ -1,4 +1,5 @@
 import { normalizeComparisons, comparisonImageUrl, validateComparisonTotal } from './work-comparisons';
+import { normalizeWorkPartTaxonomy } from './work-part-taxonomy';
 import {
   WORK_PARTS,
   WORK_GALLERY_MAX_PER_SCOPE,
@@ -196,7 +197,7 @@ function parseWork(value: unknown, fileName: string): WorkItem {
     throw new Error(`${fileName}: sliderType은 drag 또는 split이어야 합니다.`);
   }
 
-  return {
+  return normalizeWorkPartTaxonomy({
     slug: requireString(item.slug, 'slug', fileName),
     date,
     title: requireString(item.title, 'title', fileName),
@@ -224,7 +225,7 @@ function parseWork(value: unknown, fileName: string): WorkItem {
       typeof item.featuredOrder === 'number' ? item.featuredOrder : undefined,
     days: requireString(item.days, 'days', fileName),
     sliderType: item.sliderType,
-  };
+  });
 }
 
 const allWorks = (generatedWorksData as GeneratedWorksData).records

@@ -22,6 +22,7 @@ export const WORK_PARTS = [
   '필러',
   '루프',
   '휠',
+  '스페어타이어 커버',
   '사이드스텝',
   '차량 전체',
 ] as const;
@@ -39,6 +40,7 @@ export const WORK_PART_FILTER_ORDER = [
   '필러',
   '사이드미러',
   '휠',
+  '스페어타이어 커버',
   '차량 전체',
 ] as const satisfies readonly WorkPart[];
 

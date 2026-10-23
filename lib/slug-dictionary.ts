@@ -98,6 +98,8 @@ export const SLUG_PART_TERMS: Record<string, string> = {
   로커패널: 'side-step',
   휠: 'wheel',
   휠하우스: 'wheel',
+  스페어타이어커버: 'spare-tire-cover',
+  스페어타이어휠커버: 'spare-tire-cover',
   차량전체: 'full-body',
   전체차량: 'full-body',
 };

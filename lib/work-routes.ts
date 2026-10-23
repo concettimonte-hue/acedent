@@ -4,8 +4,11 @@ import {
   isWorkPart,
   type WorkCategory,
   type WorkPart,
+  type WorkItem,
 } from '../content/works/types';
-import { getWorkPartFromRouteSlug } from './work-landings';
+import { getWorkPartFromRouteSlug, getWorkPartLandingPath, hasWorkPartLanding } from './work-landings';
+import { getWorkPartsForCategory } from './work-categories';
+import { normalizeWorkPartName, SPARE_TIRE_COVER } from './work-part-taxonomy';
 
 export interface WorkFilters {
   category?: WorkCategory;
@@ -39,7 +42,8 @@ export function readWorkFilters(
   fallbackPart?: WorkPart,
 ): WorkFilters {
   const search = new URLSearchParams(searchValue);
-  const part = search.get('part');
+  const rawPart = search.get('part');
+  const part = rawPart ? normalizeWorkPartName(rawPart) : undefined;
   const landingFilters = getWorkPartLandingFilters(pathname);
 
   return {
@@ -74,11 +78,26 @@ export function getLegacyWorksRedirect(pathname: string, searchValue: string) {
   const category = getWorkCategoryFromQuery(search.get('category'));
   if (!category) return undefined;
 
-  const partValue = search.get('part');
+  const rawPartValue = search.get('part');
+  const partValue = rawPartValue ? normalizeWorkPartName(rawPartValue) : undefined;
   const part = partValue && isWorkPart(partValue) ? partValue : undefined;
   return getWorksFilterUrl(category, part, searchValue);
 }
 
 export function getWorksCanonicalPath(category?: WorkCategory) {
   return category ? `/works/${category}` : '/works';
+}
+
+/** Old wheel links remain useful while there are no actual wheel cases. */
+export function getLegacyWheelRedirect(pathname: string, searchValue: string, works: readonly WorkItem[]) {
+  const filters = readWorkFilters(pathname, searchValue);
+  const normalizedPath = pathname.replace(/\/+$/, '');
+  if (normalizedPath !== '/works' && !getWorkCategoryFromPath(pathname) && !getWorkPartLandingFilters(pathname)) return undefined;
+  if (filters.part !== '휠') return undefined;
+  const parts = works.flatMap(work => getWorkPartsForCategory(work, filters.category));
+  if (parts.includes('휠') || !parts.includes(SPARE_TIRE_COVER)) return undefined;
+  const fallback = getWorksFilterUrl(filters.category, SPARE_TIRE_COVER, searchValue);
+  if (!filters.category || !hasWorkPartLanding(works, filters.category, SPARE_TIRE_COVER)) return fallback;
+  const queryIndex = fallback.indexOf('?');
+  return getWorkPartLandingPath(filters.category, SPARE_TIRE_COVER) + (queryIndex < 0 ? '' : fallback.slice(queryIndex));
 }

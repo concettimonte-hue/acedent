@@ -2,16 +2,18 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import SiteRouter from '@/components/SiteRouter';
 import { initializeSpaPageViews } from '@/lib/analytics';
-import { getLegacyWorksRedirect } from '@/lib/work-routes';
+import { getLegacyWorksRedirect, getLegacyWheelRedirect } from '@/lib/work-routes';
+import { getWorks } from '@/lib/works';
 import './globals.css';
 
 const legacyWorksRedirect = getLegacyWorksRedirect(
   window.location.pathname,
   window.location.search,
 );
+const redirect = legacyWorksRedirect || getLegacyWheelRedirect(window.location.pathname, window.location.search, getWorks());
 
-if (legacyWorksRedirect) {
-  window.location.replace(legacyWorksRedirect);
+if (redirect) {
+  window.location.replace(redirect);
 } else {
   initializeSpaPageViews();
 

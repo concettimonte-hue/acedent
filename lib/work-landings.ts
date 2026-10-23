@@ -19,6 +19,7 @@ export const WORK_PART_ROUTE_SLUGS: Record<WorkPart, string> = {
   필러: 'pillar',
   루프: 'roof',
   휠: 'wheel',
+  '스페어타이어 커버': 'spare-tire-cover',
   사이드스텝: 'side-step',
   '차량 전체': 'full-body',
 };

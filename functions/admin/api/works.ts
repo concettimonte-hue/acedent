@@ -26,6 +26,7 @@ import {
   type AdminEnv,
 } from '../../_shared/admin';
 import { createWorkSlugAnalysis, nextNumericWorkSlug } from '../../_shared/work-slug';
+import { normalizeWorkPartName, normalizeWorkPartTaxonomy } from '../../../lib/work-part-taxonomy';
 
 interface AssetReference {
   key: string;
@@ -98,7 +99,7 @@ function normalizePartValues(value: unknown, index: number): WorkPartValue[] {
     if (typeof part !== 'string' || !isWorkPartValue(part)) {
       throw new Error(`${index + 1}번 작업 부위가 올바르지 않습니다.`);
     }
-    return part.trim() as WorkPartValue;
+    return normalizeWorkPartName(part.trim());
   });
   const unique = [...new Set(normalized)];
   if (unique.length > 3) throw new Error(`${index + 1}번 사진 묶음의 작업 부위는 최대 3개까지 선택할 수 있습니다.`);
@@ -254,7 +255,7 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
 
   const works = rows.results.map((row) => {
     try {
-      const work = JSON.parse(String(row.payload_json)) as WorkItem;
+      const work = normalizeWorkPartTaxonomy(JSON.parse(String(row.payload_json)) as WorkItem);
       const firstPart = work.parts?.[0];
       return {
         slug: String(row.slug),
