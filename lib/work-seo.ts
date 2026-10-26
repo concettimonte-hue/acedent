@@ -21,6 +21,7 @@ export const categorySeoTerms: Record<WorkCategory, string> = {
   'partial-paint': '범퍼 부분도색',
   'replace-paint': '자동차 교환도색',
   polish: '자동차 흠집·오염 제거',
+  'touch-up': '자동차 터치업 보수',
   'full-polish': '자동차 전체 광택',
   coating: '자동차 유리막 코팅',
 };
@@ -31,6 +32,7 @@ const categoryTitleTerms: Record<WorkCategory, readonly string[]> = {
   'partial-paint': ['부분도색', '부분도장', '보카시'],
   'replace-paint': ['교환도색', '교환', '교체'],
   polish: ['흠집제거', '기스제거', '스크래치제거', '오염제거', '이염제거', '폴리싱', '폴리쉬'],
+  'touch-up': ['터치업', '붓터치', 'touch-up', 'touchup'],
   'full-polish': ['차량전체광택', '전체광택', '광택', '전체폴리싱'],
   coating: ['유리막', '유리막코팅', '발수코팅', '코팅'],
 };
@@ -41,6 +43,7 @@ const categoryTitleFallback: Record<WorkCategory, string> = {
   'partial-paint': '부분도색',
   'replace-paint': '교환도색',
   polish: '흠집·오염제거',
+  'touch-up': '터치업 보수',
   'full-polish': '차량 전체 광택',
   coating: '유리막 코팅',
 };
@@ -89,6 +92,14 @@ const workCategoryGuides: Partial<Record<WorkCategory, WorkCategoryGuide>> = {
       '깊게 패이거나 칠이 벗겨진 부분은 폴리싱만으로 복원하기 어렵습니다. 상태에 따라 붓터치나 도색을 안내하며, 붓터치 자국과 찌그러짐은 남을 수 있습니다. 오염이 도장면을 파고든 경우도 자국이 남거나 재도장이 필요할 수 있어, 가능한 결과와 한계를 먼저 설명합니다.',
     ],
   },
+  'touch-up': {
+    eyebrow: 'TOUCH-UP GUIDE',
+    title: '터치업 보수는 어떤 작업인가요?',
+    paragraphs: [
+      '작은 도장 손상에 색을 보충하거나 거칠게 남은 붓터치 자국을 다듬는 작업입니다. 손상과 기존 보수 상태에 따라 터치업, 샌딩, 폴리싱을 조합해 주변 도장면과의 질감과 경계 차이를 줄입니다.',
+      '넓은 도장 손상이나 깊은 변형까지 해결하는 방식은 아닙니다. 색 차이나 보수 흔적이 남을 수 있어, 가능한 마감 수준과 도색이 필요한지를 먼저 안내합니다.',
+    ],
+  },
   'full-polish': {
     eyebrow: 'FULL POLISH GUIDE',
     title: '차량 전체 광택 사례에서 확인할 점',
@@ -100,8 +111,8 @@ const workCategoryGuides: Partial<Record<WorkCategory, WorkCategoryGuide>> = {
 };
 
 export function getWorkCategoryGuide(category?: WorkCategory, part?: WorkPart) {
-  // 덴트·판금·흠집 안내는 최상위에 한정하고 기존 부분도색·전체광택의 부위별 노출은 유지합니다.
-  if (part && (category === 'dent' || category === 'panel-paint' || category === 'polish')) return undefined;
+  // 새 안내는 최상위에 한정하고 기존 부분도색·전체광택의 부위별 노출은 유지합니다.
+  if (part && (category === 'dent' || category === 'panel-paint' || category === 'polish' || category === 'touch-up')) return undefined;
   return category ? workCategoryGuides[category] : undefined;
 }
 

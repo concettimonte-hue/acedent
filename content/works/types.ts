@@ -6,6 +6,7 @@ export const WORK_CATEGORIES = [
   { id: 'partial-paint', label: '부분도색' },
   { id: 'replace-paint', label: '교환도색' },
   { id: 'polish', label: '흠집·오염제거' },
+  { id: 'touch-up', label: '터치업 보수' },
   { id: 'full-polish', label: '차량 전체 광택' },
   { id: 'coating', label: '유리막 코팅' },
 ] as const;

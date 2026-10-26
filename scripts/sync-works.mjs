@@ -22,6 +22,7 @@ const workCategories = new Set([
   'partial-paint',
   'replace-paint',
   'polish',
+  'touch-up',
   'full-polish',
   'coating',
 ]);
