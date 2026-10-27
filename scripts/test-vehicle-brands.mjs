@@ -36,7 +36,7 @@ await test('all snapshot values recognized except ambiguous input; lookup does n
 
 await test('existing alias is selected without canonicalizing raw value; custom and blank are editable', () => {
   const alias = render(BrandField, { value: '메르세데스-벤츠 (Mercedes-Benz)', onChange() { assert.fail('render must never change value'); } });
-  assert.match(alias, /value="mercedes-benz" selected="">벤츠/);
+  assert.match(alias, /value="mercedes-benz" selected="">메르세데스-벤츠/);
   assert.match(alias, /기존 입력: 메르세데스-벤츠 \(Mercedes-Benz\)/);
   const unknown = render(BrandField, { value: '현', onChange() { assert.fail(); } });
   assert.match(unknown, /value="custom" selected=""/);
@@ -78,6 +78,24 @@ await test('22 documented local assets; unknown brands stay text-only', () => {
   assert.equal(getVehicleBrandLogo({ logo: { src: '/brands/test.svg', source: '', usageNote: '' } }), undefined);
   const local = { src: '/brands/local-test.svg', source: 'local fixture', usageNote: 'generic test, not brand logo' };
   assert.deepEqual(getVehicleBrandLogo({ logo: local }), local);
+});
+
+await test('Mercedes display uses Korean full name while old raw values and new slug prefix stay compatible', () => {
+  const { getStaticWorkVehicleTag } = loadTs('lib/static-html.ts');
+  const { createWorkSlugAnalysis } = loadTs('functions/_shared/work-slug.ts');
+  for (const maker of ['벤츠', '벤츠 (Mercedes-Benz)', '메르세데스 벤츠', '메르세데스-벤츠', 'Mercedes-Benz', '메르세데스-벤츠 (Mercedes-Benz)']) {
+    for (const markup of [render(VehicleTag, { maker, model: 'CLS450' }), getStaticWorkVehicleTag(maker, 'CLS450')]) {
+      assert.match(markup, />메르세데스-벤츠<\/span>/);
+      assert.doesNotMatch(markup, />Mercedes-Benz|\(Mercedes-Benz\)/);
+    }
+    const field = render(BrandField, { value: maker, onChange() { assert.fail('existing raw value must remain'); } });
+    assert.match(field, /value="mercedes-benz" selected="">메르세데스-벤츠<\/option>/);
+  }
+  const input = { carModel: 'CLS450', parts: [{ part: ['범퍼'] }], category: 'panel-paint' };
+  for (const carMaker of ['벤츠', '메르세데스-벤츠']) {
+    assert.equal(createWorkSlugAnalysis({ ...input, carMaker }).slug, 'mercedes-cls450-bumper-panel-paint');
+  }
+  assert.match(render(VehicleTag, { maker: '현대자동차', model: '쏘나타' }), />현대자동차<\/span>/);
 });
 
 await test('public asset attribution is reachable and prior wordmarks are preserved', () => {
@@ -141,7 +159,7 @@ await test('all dropdown labels keep the brand in new slugs; existing maker mapp
   const input = { carModel: 'A1', parts: [{ part: ['범퍼'] }], category: 'panel-paint' };
   for (const brand of VEHICLE_BRANDS) {
     const result = createWorkSlugAnalysis({ ...input, carMaker: brand.label });
-    const expected = SLUG_CAR_MAKER_TERMS[brand.label] || brand.id;
+    const expected = brand.id === 'mercedes-benz' ? 'mercedes' : SLUG_CAR_MAKER_TERMS[brand.label] || brand.id;
     assert.equal(result.slug, `${expected}-a1-bumper-panel-paint`);
     assert.deepEqual(result.excludedTerms, []);
   }

@@ -1,7 +1,7 @@
 'use client';
 
 import VehicleBrandLogo from '@/components/VehicleBrandLogo';
-import { findVehicleBrand } from '@/lib/vehicle-brands';
+import { findVehicleBrand, getVehicleBrandDisplayName } from '@/lib/vehicle-brands';
 
 interface WorkVehicleTagProps {
   maker: string;
@@ -10,7 +10,7 @@ interface WorkVehicleTagProps {
 }
 
 export default function WorkVehicleTag({ maker, model, showLogo = false }: WorkVehicleTagProps) {
-  const normalizedMaker = maker.trim();
+  const normalizedMaker = getVehicleBrandDisplayName(maker);
   const normalizedModel = model?.trim();
 
   if (!normalizedMaker && !normalizedModel) {

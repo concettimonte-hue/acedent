@@ -1,8 +1,10 @@
 import type {
   WorkCategory,
   WorkItem,
+  WorkPartPosition,
   WorkPartValue,
 } from '../content/works/types';
+import { formatWorkPartNames, isPositionableWorkPart } from '../content/works/types';
 import { getWorkFilterCategories } from './work-categories';
 import { getWorkFilterParts } from './work-parts';
 
@@ -14,6 +16,7 @@ export interface RelatedWorkSuggestion {
   matchedCategory?: WorkCategory;
   matchedPart?: WorkPartValue;
   matchedPartIndex?: number;
+  matchedPosition?: WorkPartPosition;
 }
 
 const reasonLabels: Record<RelatedWorkReason, string> = {
@@ -25,9 +28,19 @@ export function getRelatedWorkReasonLabel(reason: RelatedWorkReason) {
   return reasonLabels[reason];
 }
 
+export function getRelatedWorkReasonLabels(
+  suggestion: Pick<RelatedWorkSuggestion, 'reasons' | 'matchedPart' | 'matchedPosition'>,
+) {
+  return suggestion.reasons.map((reason) => (
+    reason === 'part' && suggestion.matchedPart && suggestion.matchedPosition
+      ? `같은 ${formatWorkPartNames([suggestion.matchedPart], suggestion.matchedPosition)[0]}`
+      : getRelatedWorkReasonLabel(reason)
+  ));
+}
+
 interface RelatedWorkMatch extends Omit<RelatedWorkSuggestion, 'work'> {
   score: number;
-  positionMatch?: boolean;
+  positionScore: number;
 }
 
 function getRelatedPartPairs(work: WorkItem) {
@@ -42,9 +55,22 @@ function getRelatedPartPairs(work: WorkItem) {
         ? work.part
         : [];
 
-    if (!category) return [];
-    return parts.map((part) => ({ part, category, position: mediaPart.position, index }));
+    return parts.map((part) => ({
+      part, category, index,
+      position: isPositionableWorkPart(part) ? mediaPart.position : undefined,
+    }));
   });
+}
+
+// Only compare positions on the same body part. Unknown is a safer fallback
+// than an explicitly opposite position; labels/titles never supply missing data.
+function positionScore(source?: WorkPartPosition, candidate?: WorkPartPosition) {
+  if (!source || !candidate) return 0;
+  return source === candidate ? 1 : -1;
+}
+
+function compareMatches(a: RelatedWorkMatch, b: RelatedWorkMatch) {
+  return b.score - a.score || b.positionScore - a.positionScore;
 }
 
 function getRelatedWorkReasons(
@@ -63,36 +89,37 @@ function getRelatedWorkReasons(
   // 부위와 작업이 각각 다른 PART에서 일치하는 교차 판정은
   // "같은 부위 · 같은 작업"으로 취급하지 않습니다. 다만 PART가 하나뿐인
   // 기존 사례는 사례 대표 부위·작업 외에 연결할 대상이 없으므로 호환합니다.
+  const primaryPart = source.part[0] ?? sourceParts[0];
   const candidatePartPairs = getRelatedPartPairs(candidate);
-  const exactPartMatch = getRelatedPartPairs(source).flatMap((sourcePair) =>
-    candidatePartPairs.filter((candidatePair) => candidatePair.part === sourcePair.part && candidatePair.category === sourcePair.category)
-      .map((candidatePair) => ({ ...candidatePair, positionMatch: Boolean(sourcePair.position && sourcePair.position === candidatePair.position) })),
-  ).sort((a, b) => Number(b.positionMatch) - Number(a.positionMatch))[0];
+  const matches = getRelatedPartPairs(source).flatMap((sourcePair) =>
+    candidatePartPairs.filter((pair) => pair.part === sourcePair.part)
+      .map((pair): RelatedWorkMatch => {
+        const exact = Boolean(sourcePair.category && sourcePair.category === pair.category);
+        const position = positionScore(sourcePair.position, pair.position);
+        return {
+          reasons: exact ? ['part', 'category'] : ['part'],
+          matchedCategory: exact ? pair.category : undefined,
+          matchedPart: pair.part,
+          matchedPartIndex: pair.index,
+          matchedPosition: position === 1 ? pair.position : undefined,
+          score: exact ? 8 : pair.part === primaryPart ? 4 : 2,
+          positionScore: position,
+        };
+      }),
+  ).sort(compareMatches);
 
-  if (exactPartMatch) {
-    return {
-      reasons: ['part', 'category'],
-      matchedCategory: exactPartMatch.category,
-      matchedPart: exactPartMatch.part,
-      matchedPartIndex: exactPartMatch.index,
-      positionMatch: exactPartMatch.positionMatch,
-      score: 8,
-    };
-  }
+  if (matches[0]) return matches[0];
 
   // 정확한 PART 조합이 없으면 사진과 안내 문구가 서로 어긋나지 않도록
   // 부위 일치를 작업 일치보다 우선해 하나의 기준만 사용합니다.
   if (samePart) {
-    const primaryPart = source.part[0] ?? sourceParts[0];
-    const sourcePositions = new Set(source.parts.filter((part) => part.part?.includes(samePart) && part.position).map((part) => part.position));
-    const positionIndex = candidate.parts.findIndex((part) => part.part?.includes(samePart) && part.position && sourcePositions.has(part.position));
-    const partIndex = positionIndex >= 0 ? positionIndex : candidate.parts.findIndex((part) => part.part?.includes(samePart));
+    const partIndex = candidate.parts.findIndex((part) => part.part?.includes(samePart));
 
     return {
       reasons: ['part'],
       matchedPart: samePart,
       matchedPartIndex: partIndex >= 0 ? partIndex : undefined,
-      positionMatch: positionIndex >= 0,
+      positionScore: 0,
       score: samePart === primaryPart ? 4 : 2,
     };
   }
@@ -101,6 +128,7 @@ function getRelatedWorkReasons(
     reasons: sameCategory ? ['category'] : [],
     matchedCategory: sameCategory,
     score: sameCategory ? 1 : 0,
+    positionScore: 0,
   };
 }
 
@@ -119,14 +147,15 @@ export function selectRelatedWorkSuggestions(
       candidate.slug !== source.slug && reasons.length > 0
     ))
     .sort((a, b) => (
-      b.score - a.score || Number(Boolean(b.positionMatch)) - Number(Boolean(a.positionMatch)) || a.index - b.index
+      compareMatches(a, b) || a.index - b.index
     ))
     .slice(0, limit)
-    .map(({ candidate, reasons, matchedCategory, matchedPart, matchedPartIndex }) => ({
+    .map(({ candidate, reasons, matchedCategory, matchedPart, matchedPartIndex, matchedPosition }) => ({
       work: candidate,
       reasons,
       matchedCategory,
       matchedPart,
       matchedPartIndex,
+      matchedPosition,
     }));
 }

@@ -60,7 +60,7 @@ export const VEHICLE_BRANDS: readonly VehicleBrand[] = [
   brand('lexus', '렉서스', 'Lexus'),
   brand('lincoln', '링컨', 'Lincoln'),
   brand('mini', '미니', 'MINI'),
-  brand('mercedes-benz', '벤츠', 'Mercedes-Benz', ['메르세데스-벤츠', '메르세데스 벤츠', '메르세데스-벤츠 (Mercedes-Benz)']),
+  brand('mercedes-benz', '메르세데스-벤츠', 'Mercedes-Benz', ['벤츠', '벤츠 (Mercedes-Benz)', '메르세데스 벤츠']),
   brand('volvo', '볼보', 'Volvo'),
   brand('bmw', 'BMW', 'BMW'),
   brand('byd', 'BYD', 'BYD'),
@@ -82,6 +82,12 @@ const brandByAlias = new Map(VEHICLE_BRANDS.flatMap((item) =>
 /** Exact aliases only. Do not guess from partial strings, models, or typos such as "현". */
 export function findVehicleBrand(value: string): VehicleBrand | undefined {
   return brandByAlias.get(lookupKey(value));
+}
+
+/** Presentation only: keep stored manufacturer text, SEO copy and URLs intact. */
+export function getVehicleBrandDisplayName(value: string): string {
+  const brand = findVehicleBrand(value);
+  return brand?.id === 'mercedes-benz' ? brand.label : value.trim();
 }
 
 export function getVehicleBrandLogo(brand: VehicleBrand | undefined): VehicleBrandLogoAsset | undefined {

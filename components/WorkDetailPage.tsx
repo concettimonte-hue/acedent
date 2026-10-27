@@ -26,7 +26,7 @@ import {
   getWorkPartLandingPath,
   hasWorkPartLanding,
 } from '@/lib/work-landings';
-import { getRelatedWorkReasonLabel } from '@/lib/work-related';
+import { getRelatedWorkReasonLabels } from '@/lib/work-related';
 import {
   formatWorkCar,
   getRelatedWorkSuggestions,
@@ -215,6 +215,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
               matchedCategory,
               matchedPart,
               matchedPartIndex,
+              matchedPosition,
             }) => (
               <WorkCard
                 work={related}
@@ -222,7 +223,7 @@ export default function WorkDetailPage({ work }: WorkDetailPageProps) {
                 contextPart={matchedPart}
                 matchedPartIndex={matchedPartIndex}
                 sourceWorkSlug={work.slug}
-                reasonLabels={reasons.map(getRelatedWorkReasonLabel)}
+                reasonLabels={getRelatedWorkReasonLabels({ reasons, matchedPart, matchedPosition })}
                 imageState="before"
                 key={related.slug}
               />
