@@ -54,6 +54,16 @@ const projectDirectory = fileURLToPath(new URL('.', import.meta.url));
 const sitemapFallbackDate = '2026-09-08';
 const imageRightsMetadata = getImageRightsMetadata(siteUrl);
 
+// Run independently of the bundle, before any stylesheet/module can fail.
+const assetRecoveryPlugin = (): Plugin => ({
+  name: 'acedent-asset-recovery',
+  apply: 'build',
+  transformIndexHtml: {
+    order: 'post',
+    handler: (html) => html.replace('<head>', `<head>\n<script id="acedent-asset-recovery-script">${readFileSync(resolve(projectDirectory, 'lib/asset-recovery.js'), 'utf8')}</script>`),
+  },
+});
+
 interface BuildWork extends WorkItem {
   sourceFile: string;
   lastModified: string;
@@ -671,7 +681,7 @@ const seoAssetsPlugin = (): Plugin => ({
 
 export default defineConfig({
   css: { postcss: { plugins: [tailwindcss()] } },
-  plugins: [seoAssetsPlugin(), react()],
+  plugins: [seoAssetsPlugin(), react(), assetRecoveryPlugin()],
   build: {
     outDir: 'dist',
     emptyOutDir: true,

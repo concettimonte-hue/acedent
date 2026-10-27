@@ -1,0 +1,12 @@
+# Revalidate HTML and asset responses instead of retaining a deployment mismatch.
+# In particular, a removed hashed asset must not leave a cached HTML fallback.
+/
+  Cache-Control: no-cache, max-age=0, must-revalidate
+/works
+  Cache-Control: no-cache, max-age=0, must-revalidate
+/works/*
+  Cache-Control: no-cache, max-age=0, must-revalidate
+/admin
+  Cache-Control: private, no-cache, max-age=0, must-revalidate
+/assets/*
+  Cache-Control: no-cache, max-age=0, must-revalidate
