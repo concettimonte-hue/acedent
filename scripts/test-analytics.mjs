@@ -1,19 +1,8 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
-import ts from 'typescript';
+import { loadTs } from './test-support.mjs';
 
-const source = await readFile(new URL('../lib/analytics.ts', import.meta.url), 'utf8');
-const { outputText } = ts.transpileModule(source, {
-  compilerOptions: {
-    module: ts.ModuleKind.ES2022,
-    target: ts.ScriptTarget.ES2022,
-  },
-  fileName: 'analytics.ts',
-});
-const analytics = await import(
-  `data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`
-);
+const analytics = loadTs('lib/analytics.ts');
 
 function installBrowser(pathname = '/works/detail/sample-work', cookie = '') {
   const gtagCalls = [];

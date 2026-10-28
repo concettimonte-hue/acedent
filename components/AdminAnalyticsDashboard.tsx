@@ -4,6 +4,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AdminPagination from '@/components/AdminPagination';
+import AdminAcquisitionPanel from '@/components/AdminAcquisitionPanel';
+import type { VisitAcquisition } from '@/lib/visit-acquisition';
 import { matchesAdminSearch, paginateAdminRows } from '@/lib/admin-list';
 import {
   analyticsComparison as comparison,
@@ -24,6 +26,7 @@ import {
 type PageType = 'home' | 'works' | 'category' | 'detail' | 'other';
 
 interface AnalyticsResult {
+  acquisition?: VisitAcquisition;
   excluded: boolean;
   trackingSince: string | null;
   generatedAt: string;
@@ -262,6 +265,8 @@ export default function AdminAnalyticsDashboard() {
               </article>
             </section>
 
+            <AdminAcquisitionPanel key={`${analytics.period.start}:${analytics.period.end}`} data={analytics.acquisition} />
+
             <section className="admin-analytics-section" aria-labelledby="analytics-flow-heading">
               <header>
                 <div>
@@ -353,7 +358,7 @@ export default function AdminAnalyticsDashboard() {
 
             <aside className="admin-analytics-note">
               <p><strong>집계 기준</strong> {analytics.trackingSince ? `${analytics.trackingSince}부터` : '배포 후부터'} · 브라우저 쿠키 기준 방문자입니다. 이 관리자 브라우저는 제외 쿠키가 설정됩니다. 쿠키 삭제·기기 변경 시 새 방문자로 계산될 수 있습니다.</p>
-              <p><strong>검색 유입</strong> 검색어·노출·클릭은 GA4와 Search Console을 연결한 뒤 Google 보고서에서 확인하는 것이 가장 정확합니다.</p>
+              <p><strong>검색 유입</strong> 위 출처 통계에는 검색어·노출수는 없습니다. 검색 노출·클릭·검색어는 Search Console과 네이버 서치어드바이저에서 별도로 확인합니다.</p>
             </aside>
           </>
         )}

@@ -48,8 +48,8 @@ createRoot(document.getElementById('root')).render(React.createElement(Dashboard
           }
           if (url.pathname !== '/preview/analytics') return next();
           const html = await vite.transformIndexHtml(req.url, `<!doctype html><html lang="ko"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>방문통계 날짜별 미리보기</title>
-</head><body><aside style="padding:12px 20px;background:#282715;color:#f5e67d;font:14px/1.6 sans-serif">배포 전 미리보기 · 모든 숫자는 테스트용 예시입니다. 실제 방문 기록·사례 변경 없음.<span id="preview-link" role="status"></span></aside>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>방문통계 유입·첫 페이지 미리보기</title>
+</head><body><aside style="padding:12px 20px;background:#282715;color:#f5e67d;font:14px/1.6 sans-serif">배포 전 미리보기 · 모든 숫자·유입 출처는 테스트용 예시입니다. 실제 방문 기록·사례 변경 없음. 6일 전보다 오래된 날짜는 도입 전 상태 예시입니다.<span id="preview-link" role="status"></span></aside>
 <div id="root"></div><script type="module" src="/analytics-preview-entry.js"></script></body></html>`);
           res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
           res.end(html);

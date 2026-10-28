@@ -2,6 +2,7 @@ import { type AdminEnv, json, requireAccess } from '../../_shared/admin';
 import { WORK_CATEGORIES } from '../../../content/works/types';
 import { getWorkPartFromRouteSlug } from '../../../lib/work-landings';
 import { analyticsDate, analyticsPeriod, selectedAnalyticsPeriod } from '../../../lib/admin-analytics';
+import { isVisitSource, type VisitAcquisition } from '../../../lib/visit-acquisition';
 
 const OWNER_COOKIE = 'acedent_owner_excluded';
 
@@ -43,6 +44,23 @@ interface WorkLabelRow {
   slug: string;
   payload_json: string;
   created_at: string;
+}
+
+async function readAcquisition(db: D1Database, start: string, end: string) {
+  try {
+    const [first, rows] = await Promise.all([
+      db.prepare('SELECT MIN(started_at) AS started_at FROM site_visit_sessions').first<{ started_at: string | null }>(),
+      db.prepare(`SELECT source, landing_path AS path, COUNT(*) AS entries
+        FROM site_visit_sessions WHERE visit_date BETWEEN ? AND ?
+        GROUP BY source, landing_path ORDER BY entries DESC, landing_path ASC`)
+        .bind(start, end).all<{ source: string; path: string; entries: number }>(),
+    ]);
+    return { available: true, trackingSince: first?.started_at || null, rows: rows.results };
+  } catch (error) {
+    // Only the new section degrades when migration has not yet been applied.
+    const missing = error instanceof Error && /no such table: (?:main\.)?site_visit_sessions/i.test(error.message);
+    return { available: false, error: missing ? 'migration-required' as const : 'unavailable' as const, trackingSince: null, rows: [] };
+  }
 }
 
 function hasOwnerCookie(request: Request) {
@@ -126,7 +144,7 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
   const { start: weekStart, end: yesterday } = analyticsPeriod(7, now);
   const monthStart = analyticsPeriod(30, now).start;
 
-  const [summary, period, previousPeriod, daily, pageGroups, topPages, previousPages, firstVisit, workRows] = await Promise.all([
+  const [summary, period, previousPeriod, daily, pageGroups, topPages, previousPages, firstVisit, workRows, acquisitionRows] = await Promise.all([
     env.ACEDENT_DB.prepare(`
       SELECT
         COUNT(DISTINCT CASE WHEN visit_date = ? THEN visitor_hash END) AS today_visitors,
@@ -195,6 +213,7 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
       FROM works
       WHERE status = 'published'
     `).all<WorkLabelRow>(),
+    readAcquisition(env.ACEDENT_DB, periodStart, periodEnd),
   ]);
 
   const workLabels = new Map<string, string>();
@@ -231,7 +250,20 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
     isPublished: !path.startsWith('/works/detail/') || publishedPaths.has(path),
   })).sort((a, b) => b.visitors - a.visitors || b.views - a.views || a.path.localeCompare(b.path));
 
+  const acquisition: VisitAcquisition = {
+    ...acquisitionRows,
+    total: acquisitionRows.rows.reduce((sum, row) => sum + numeric(row.entries), 0),
+    rows: acquisitionRows.rows.map((row) => ({
+      source: isVisitSource(row.source) ? row.source : 'other',
+      path: row.path,
+      label: pageDetails(row.path, workLabels).label,
+      entries: numeric(row.entries),
+      isPublished: !row.path.startsWith('/works/detail/') || publishedPaths.has(row.path),
+    })),
+  };
+
   return json({
+    acquisition,
     generatedAt: now.toISOString(),
     today,
     excluded: hasOwnerCookie(request),

@@ -4872,6 +4872,39 @@ section[id] {
 body:has(.admin-page) { min-width: 0; }
 .admin-browse-controls { display: flex; flex-wrap: wrap; gap: .75rem; padding: 1rem; border: 1px solid #303330; background: #101110; scroll-margin-top: 6rem; }
 .admin-analytics-section { scroll-margin-top: 6rem; }
+.admin-acquisition-note { display: grid; gap: .35rem; padding: 1rem 1.25rem; border-bottom: 1px solid #303330; }
+.admin-acquisition-note > strong { color: #f8db00; font-size: .85rem; }
+.admin-acquisition-note > span, .admin-acquisition-footnote { color: #b2b6b2; font-size: .75rem; line-height: 1.65; }
+.admin-acquisition-grid { display: grid; grid-template-columns: minmax(230px, .8fr) minmax(0, 1.6fr); }
+.admin-acquisition-grid > div { min-width: 0; padding: 1.1rem 1.25rem; }
+.admin-acquisition-sources { border-right: 1px solid #303330; }
+.admin-acquisition-grid h3 { color: #f0f2f0; font-size: .9rem; line-height: 1.5; font-weight: 800; }
+.admin-acquisition-grid > div > p { margin: .4rem 0 1rem; color: #b2b6b2; font-size: .72rem; line-height: 1.6; }
+.admin-acquisition-sources button { display: flex; width: 100%; min-height: 48px; align-items: center; justify-content: space-between; gap: .65rem; padding: .7rem; border-bottom: 1px solid #303330; color: #d9ddd9; text-align: left; font-size: .78rem; }
+.admin-acquisition-sources button > strong { flex-shrink: 0; text-align: right; }
+.admin-acquisition-sources button small { display: block; color: #b2b6b2; font-size: .68rem; font-weight: 400; }
+.admin-acquisition-sources button.is-active { background: #292713; color: #f8db00; box-shadow: inset 3px 0 #f8db00; }
+.admin-acquisition button:focus-visible, .admin-acquisition a:focus-visible { outline: 2px solid #f8db00; outline-offset: 2px; }
+.admin-acquisition-landings ol { margin: 0; padding: 0; list-style: none; }
+.admin-acquisition-landings li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto 44px; align-items: center; gap: .6rem; padding: .85rem 0; border-bottom: 1px solid #303330; }
+.admin-acquisition-landings li > div { display: grid; min-width: 0; gap: .2rem; }
+.admin-acquisition-landings li > div > strong { color: #e5e7e5; font-size: .8rem; line-height: 1.6; overflow-wrap: anywhere; }
+.admin-acquisition-landings code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #a3aaa3; font: inherit; font-size: .68rem; }
+.admin-acquisition-landings small { display: block; color: #b2b6b2; font-size: .68rem; line-height: 1.5; }
+.admin-acquisition-landings li > p { color: #e5e7e5; font-size: .8rem; text-align: right; white-space: nowrap; }
+.admin-acquisition-landings a { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid #454845; color: #cfd2cf; }
+.admin-acquisition-landings svg { width: 16px; height: 16px; }
+.admin-acquisition-more { width: 100%; min-height: 44px; margin-top: .8rem; border: 1px solid #454845; color: #e5e7e5; font-size: .78rem; }
+.admin-acquisition-footnote { margin: 0; padding: 1rem 1.25rem; border-top: 1px solid #303330; }
+@media (max-width: 760px) {
+  .admin-acquisition-grid { grid-template-columns: minmax(0, 1fr); }
+  .admin-acquisition-sources { border-right: 0; border-bottom: 1px solid #303330; }
+  .admin-acquisition-grid > div { padding: 1rem .85rem; }
+  .admin-acquisition-landings li { grid-template-columns: 20px minmax(0, 1fr) 44px; gap: .5rem; }
+  .admin-acquisition-landings li > p { grid-column: 2; text-align: left; }
+  .admin-acquisition-landings li > p small { display: inline; margin-left: .5rem; }
+  .admin-acquisition-landings li > a { grid-column: 3; grid-row: 1 / span 2; }
+}
 .admin-browse-controls label { display: grid; min-width: 130px; flex: 1; gap: .4rem; color: #bfc3bf; font-size: .78rem; }
 .admin-browse-controls .admin-browse-search { flex: 2 1 230px; }
 .admin-browse-controls input, .admin-browse-controls select { min-width: 0; width: 100%; min-height: 44px; padding: .6rem .7rem; border: 1px solid #454845; border-radius: 0; background: #080908; color: #f1f3f1; font: inherit; }

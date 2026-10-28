@@ -3,11 +3,12 @@ import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
 import { loadTs } from './test-support.mjs';
 
-export function analyticsFixture({ now = new Date(), seed = true } = {}) {
+export function analyticsFixture({ now = new Date(), seed = true, acquisition = true } = {}) {
   const { analyticsDate, shiftAnalyticsDate } = loadTs('lib/admin-analytics.ts');
   const today = analyticsDate(now);
   const db = new DatabaseSync(':memory:');
   db.exec(readFileSync(new URL('../migrations/0007_private_visit_analytics.sql', import.meta.url), 'utf8'));
+  if (acquisition) db.exec(readFileSync(new URL('../migrations/0009_visit_acquisition.sql', import.meta.url), 'utf8'));
   db.exec('CREATE TABLE works (slug TEXT PRIMARY KEY, status TEXT, payload_json TEXT, created_at TEXT)');
   const cases = [
     ['sample-door', '현대', '쏘나타', '뒤도어 찌그러짐 판금도색'],
@@ -25,6 +26,9 @@ export function analyticsFixture({ now = new Date(), seed = true } = {}) {
   function visit(visitor, date, path, views = 1) {
     insertVisit.run(visitor, date, path, views, `${date}T00:00:00Z`, `${date}T01:00:00Z`);
   }
+  function entry(id, visitor, date, path, source) {
+    db.prepare('INSERT INTO site_visit_sessions VALUES (?, ?, ?, ?, ?, ?)').run(id, visitor, `${date}T02:00:00Z`, date, path, source);
+  }
   if (seed) {
     for (let offset = 0; offset < 65; offset++) {
       const date = shiftAnalyticsDate(today, -offset);
@@ -35,6 +39,13 @@ export function analyticsFixture({ now = new Date(), seed = true } = {}) {
         if (i % 2 === 0) visit(id, date, '/works', 1);
         if (i % 3 === 0) visit(id, date, '/works/panel-paint', 1);
         if (i % 2 === 0) visit(id, date, `/works/detail/${cases[i % 5][0]}`, 1 + (i % 2));
+        // Simulate recent rollout: old visits deliberately have no attribution.
+        if (acquisition && offset < 6) {
+          const source = ['naver-search', 'google', 'naver-blog', 'direct', 'naver-place', 'google-ad'][i % 6];
+          const path = i % 2 === 0 ? `/works/detail/${cases[i % 5][0]}` : '/';
+          entry(`session-${offset}-${i}`, id, date, path, source);
+          if (i % 5 === 0) entry(`return-${offset}-${i}`, id, date, '/', 'direct');
+        }
       }
     }
   }
@@ -52,5 +63,5 @@ export function analyticsFixture({ now = new Date(), seed = true } = {}) {
       };
     },
   } };
-  return { db, env, visit, today, queries };
+  return { db, env, visit, entry, today, queries };
 }
