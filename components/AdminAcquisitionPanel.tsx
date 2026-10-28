@@ -56,6 +56,7 @@ export default function AdminAcquisitionPanel({ data }: { data?: VisitAcquisitio
         <div className="admin-acquisition-landings" aria-live="polite">
           <h3>{selected ? VISIT_SOURCES[selected] : '전체 유입'} · 처음 연 페이지</h3>
           <p>첫 페이지 이후에 본 페이지는 아래 페이지 목록에서 확인합니다.</p>
+          {selected === 'after-call-sms' && <p>문자 전용 링크로 시작한 방문입니다. 문자 발송·열람 수나 상담 완료 수는 아닙니다.</p>}
           <ol>
             {pages.slice(0, limit).map((page, index) => <li key={page.path}>
               <span className="admin-analytics-rank">{String(index + 1).padStart(2, '0')}</span>

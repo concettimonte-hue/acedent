@@ -11,6 +11,7 @@ export const VISIT_SOURCES = {
   daum: '다음',
   bing: '빙',
   social: 'SNS·메신저',
+  'after-call-sms': '통화 후 문자',
   other: '기타 외부 사이트',
   direct: '직접·출처 확인 불가',
   internal: '사이트 내 이동·출처 확인 불가',
@@ -28,10 +29,13 @@ export function visitSource(referrer: string, location: string): VisitSource {
   try { current = new URL(location); } catch { return 'direct'; }
   const params = current.searchParams;
   const source = (params.get('utm_source') || '').toLowerCase().trim();
-  const paid = /^(cpc|ppc|paid|paidsearch|paid_search)$/.test((params.get('utm_medium') || '').toLowerCase().trim());
+  const medium = (params.get('utm_medium') || '').toLowerCase().trim();
+  const paid = /^(cpc|ppc|paid|paidsearch|paid_search)$/.test(medium);
   if (['gclid', 'gbraid', 'wbraid'].some((key) => Boolean(params.get(key))) || (source === 'google' && paid)) return 'google-ad';
   if (source === 'naver' && paid) return 'naver-ad';
   // Explicit campaign tags take precedence, but arbitrary values are never stored.
+  // Require the dedicated pair: other SMS campaigns must not be inferred as after-call messages.
+  if (source === 'after_call' && medium === 'sms') return 'after-call-sms';
   if (source === 'google') return 'google';
   if (['naver_blog', 'naver-blog'].includes(source)) return 'naver-blog';
   if (['naver_place', 'naver-place'].includes(source)) return 'naver-place';

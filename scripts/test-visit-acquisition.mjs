@@ -50,6 +50,75 @@ test('session expires after 30 minutes, rejects future/malformed timestamps, and
   assert.equal(activeVisitSession('bad.cookie', beforeMidnight), null);
 });
 
+const smsUrl = `${origin}/works?utm_source=after_call&utm_medium=sms&utm_campaign=followup`;
+
+test('after-call SMS requires its explicit source/medium pair; referrer-free links and existing sources stay distinct', () => {
+  for (const referrer of ['', 'https://link.example/redirect', 'https://www.google.com/']) {
+    assert.equal(visitSource(referrer, smsUrl), 'after-call-sms');
+  }
+  assert.equal(visitSource('', `${origin}/works?utm_source=%20AFTER_CALL%20&utm_medium=SMS`), 'after-call-sms');
+  for (const query of ['utm_source=after_call', 'utm_medium=sms', 'utm_source=after_call&utm_medium=referral', 'utm_source=other&utm_medium=sms']) {
+    assert.equal(visitSource('', `${origin}/works?${query}`), 'direct', query);
+  }
+  assert.equal(visitSource('', `${smsUrl}&gclid=private-click`), 'google-ad');
+  assert.equal(visitSource('', `${origin}/works?utm_source=naver_place&utm_medium=referral`), 'naver-place');
+  assert.equal(visitSource('', `${origin}/works?utm_source=naver_blog&utm_medium=referral`), 'naver-blog');
+  assert.equal(isVisitSource('after-call-sms'), true);
+  assert.equal(isVisitSource('sms'), false);
+});
+
+test('SMS collection and authenticated reporting preserve the landing, existing rows, session origin and owner exclusion', async (t) => {
+  const f = analyticsFixture({ seed: false }); t.after(() => f.db.close());
+  const access = await accessFixture(t); Object.assign(f.env, access.env);
+  f.entry('legacy', 'legacy-visitor', f.today, '/', 'direct');
+  f.visit('legacy-visitor', f.today, '/', 3);
+  const before = JSON.stringify(f.db.prepare("SELECT * FROM site_visit_sessions WHERE session_id='legacy'").get());
+  const source = visitSource('', smsUrl);
+  const first = await collector({ request: request({ path: '/works', source }), env: f.env });
+  assert.equal(first.status, 204);
+  const cookie = cookiesFrom(first);
+  await collector({ request: request({ path: '/works/detail/sample-door', source: 'internal' }, cookie), env: f.env });
+  // A different tagged link during an active visit must not overwrite its first source.
+  await collector({ request: request({ path: '/', source: 'google' }, cookie), env: f.env });
+  const response = await admin({ request: await access.request('/admin/api/analytics?period=today'), env: f.env });
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.acquisition.total, 2);
+  assert.deepEqual(data.acquisition.rows.find(row => row.source === source), {
+    source: 'after-call-sms', path: '/works', label: '전체 수리사례', entries: 1, isPublished: true,
+  });
+  assert.equal(JSON.stringify(f.db.prepare("SELECT * FROM site_visit_sessions WHERE session_id='legacy'").get()), before);
+  assert.equal(f.db.prepare("SELECT page_views FROM site_visit_daily WHERE visitor_hash='legacy-visitor'").get().page_views, 3);
+  const existing = await collector({ request: request({ path: '/', source: 'google' }), env: f.env });
+  await collector({ request: request({ path: '/works', source }, cookiesFrom(existing)), env: f.env });
+  assert.equal(f.db.prepare("SELECT COUNT(*) AS n FROM site_visit_sessions WHERE source='after-call-sms'").get().n, 1);
+  const queryCount = f.queries.length;
+  const excluded = await collector({ request: request({ path: '/works', source }, 'acedent_owner_excluded=1'), env: f.env });
+  assert.equal(excluded.status, 204); assert.equal(f.queries.length, queryCount);
+  const saved = JSON.stringify(f.db.prepare('SELECT * FROM site_visit_sessions').all());
+  assert(!saved.includes('utm_')); assert(!saved.includes('followup'));
+});
+
+test('SMS browser entry sends only the fixed code and /works; owner browser sends no visit or GA4 event', async (t) => {
+  const originalFetch = globalThis.fetch; const originalWindow = globalThis.window; const originalDocument = globalThis.document;
+  t.after(() => { globalThis.fetch = originalFetch; globalThis.window = originalWindow; globalThis.document = originalDocument; });
+  for (const excluded of [false, true]) {
+    const sent = []; const events = []; const timers = [];
+    globalThis.fetch = async (_, options) => { sent.push(JSON.parse(options.body)); return new Response(null, { status: 204 }); };
+    globalThis.document = { cookie: excluded ? 'acedent_owner_excluded=1' : '', title: '수리사례', referrer: '' };
+    const url = new URL(smsUrl);
+    globalThis.window = { location: { pathname: url.pathname, search: url.search, href: url.href },
+      gtag: (...args) => events.push(args), history: { pushState() {}, replaceState() {} }, addEventListener() {},
+      setTimeout(callback) { timers.push(callback); } };
+    const client = loadTs('lib/analytics.ts', { fresh: true });
+    client.initializeSpaPageViews(); client.initializeSpaPageViews();
+    while (timers.length) timers.shift()();
+    await new Promise(resolve => setImmediate(resolve));
+    assert.deepEqual(sent, excluded ? [] : [{ path: '/works', source: 'after-call-sms' }]);
+    assert.equal(events.filter(e => e[1] === 'page_view').length, excluded ? 0 : 1);
+  }
+});
+
 test('one entry survives internal navigation and reload; timeout opens a second entry without changing legacy view counts', async (t) => {
   const f = analyticsFixture({ seed: false }); t.after(() => f.db.close());
   const first = await collector({ request: request({ path: '/works/detail/sample-door', source: 'naver-search' }), env: f.env });

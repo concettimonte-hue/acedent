@@ -41,8 +41,8 @@ export function analyticsFixture({ now = new Date(), seed = true, acquisition = 
         if (i % 2 === 0) visit(id, date, `/works/detail/${cases[i % 5][0]}`, 1 + (i % 2));
         // Simulate recent rollout: old visits deliberately have no attribution.
         if (acquisition && offset < 6) {
-          const source = ['naver-search', 'google', 'naver-blog', 'direct', 'naver-place', 'google-ad'][i % 6];
-          const path = i % 2 === 0 ? `/works/detail/${cases[i % 5][0]}` : '/';
+          const source = ['naver-search', 'google', 'naver-blog', 'direct', 'naver-place', 'google-ad', 'after-call-sms'][i % 7];
+          const path = source === 'after-call-sms' ? '/works' : i % 2 === 0 ? `/works/detail/${cases[i % 5][0]}` : '/';
           entry(`session-${offset}-${i}`, id, date, path, source);
           if (i % 5 === 0) entry(`return-${offset}-${i}`, id, date, '/', 'direct');
         }
