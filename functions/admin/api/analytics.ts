@@ -1,7 +1,7 @@
 import { type AdminEnv, json, requireAccess } from '../../_shared/admin';
 import { WORK_CATEGORIES } from '../../../content/works/types';
 import { getWorkPartFromRouteSlug } from '../../../lib/work-landings';
-import { analyticsDate, analyticsPeriod } from '../../../lib/admin-analytics';
+import { analyticsDate, analyticsPeriod, selectedAnalyticsPeriod } from '../../../lib/admin-analytics';
 
 const OWNER_COOKIE = 'acedent_owner_excluded';
 
@@ -53,11 +53,6 @@ function hasOwnerCookie(request: Request) {
 
 function numeric(value: number | string | null | undefined) {
   return Number(value || 0);
-}
-
-function selectedDays(request: Request) {
-  const value = Number(new URL(request.url).searchParams.get('days') || 30);
-  return value === 7 || value === 90 ? value : 30;
 }
 
 function decodePath(value: string) {
@@ -120,10 +115,16 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
   if (!access.ok) return access.response;
 
   if (!env.ACEDENT_DB) return json({ error: 'D1 바인딩이 설정되지 않았습니다.' }, 503);
-  const periodDays = selectedDays(request);
-  const { today, start: periodStart, end: periodEnd, previousStart, previousEnd } = analyticsPeriod(periodDays);
-  const weekStart = analyticsPeriod(7).start;
-  const monthStart = analyticsPeriod(30).start;
+  const now = new Date();
+  let selected;
+  try {
+    selected = selectedAnalyticsPeriod(new URL(request.url).searchParams, now);
+  } catch {
+    return json({ error: '오늘까지의 올바른 날짜를 선택해 주세요.' }, 400);
+  }
+  const { today, days: periodDays, start: periodStart, end: periodEnd, previousStart, previousEnd, isPartial } = selected;
+  const { start: weekStart, end: yesterday } = analyticsPeriod(7, now);
+  const monthStart = analyticsPeriod(30, now).start;
 
   const [summary, period, previousPeriod, daily, pageGroups, topPages, previousPages, firstVisit, workRows] = await Promise.all([
     env.ACEDENT_DB.prepare(`
@@ -137,7 +138,7 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
         COUNT(DISTINCT visitor_hash) AS all_visitors,
         COALESCE(SUM(page_views), 0) AS all_views
       FROM site_visit_daily
-    `).bind(today, today, weekStart, periodEnd, weekStart, periodEnd, monthStart, periodEnd, monthStart, periodEnd).first<SummaryRow>(),
+    `).bind(today, today, weekStart, yesterday, weekStart, yesterday, monthStart, yesterday, monthStart, yesterday).first<SummaryRow>(),
     env.ACEDENT_DB.prepare(`
       SELECT COUNT(DISTINCT visitor_hash) AS visitors,
         COALESCE(SUM(page_views), 0) AS views
@@ -231,6 +232,8 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
   })).sort((a, b) => b.visitors - a.visitors || b.views - a.views || a.path.localeCompare(b.path));
 
   return json({
+    generatedAt: now.toISOString(),
+    today,
     excluded: hasOwnerCookie(request),
     trackingSince: firstVisit?.first_date || null,
     period: {
@@ -239,7 +242,9 @@ export const onRequestGet: PagesFunction<AdminEnv> = async ({ request, env }) =>
       end: periodEnd,
       previousStart,
       previousEnd,
-      comparable: Boolean(firstVisit?.first_date && firstVisit.first_date <= previousStart),
+      isPartial,
+      // The first collection day may itself be partial.
+      comparable: !isPartial && Boolean(firstVisit?.first_date && firstVisit.first_date < previousStart),
       visitors: numeric(period?.visitors),
       views: numeric(period?.views),
       previousVisitors: numeric(previousPeriod?.visitors),

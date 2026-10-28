@@ -5,7 +5,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AdminPagination from '@/components/AdminPagination';
 import { matchesAdminSearch, paginateAdminRows } from '@/lib/admin-list';
-import { analyticsComparison as comparison } from '@/lib/admin-analytics';
+import {
+  analyticsComparison as comparison,
+  analyticsDate,
+  shiftAnalyticsDate,
+  type AnalyticsRangeDays,
+  type AnalyticsSelection,
+} from '@/lib/admin-analytics';
 import {
   BarChart3,
   ExternalLink,
@@ -15,14 +21,16 @@ import {
   Users,
 } from 'lucide-react';
 
-type PeriodDays = 7 | 30 | 90;
 type PageType = 'home' | 'works' | 'category' | 'detail' | 'other';
 
 interface AnalyticsResult {
   excluded: boolean;
   trackingSince: string | null;
+  generatedAt: string;
+  today: string;
   period: {
-    days: PeriodDays;
+    days: 1 | AnalyticsRangeDays;
+    isPartial: boolean;
     start: string;
     end: string;
     visitors: number;
@@ -55,7 +63,7 @@ interface AnalyticsResult {
   error?: string;
 }
 
-const PERIODS: PeriodDays[] = [7, 30, 90];
+const PERIODS = ['today', 'yesterday', 7, 30, 90] as const;
 const GROUP_LABELS: Record<PageType, string> = {
   home: '홈',
   works: '수리사례 목록',
@@ -69,20 +77,28 @@ function shortDate(value: string) {
   return `${Number(month)}/${Number(day)}`;
 }
 
+function koreanTime(value: string) {
+  return new Intl.DateTimeFormat('ko-KR', {
+    timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', hour12: false,
+  }).format(new Date(value));
+}
+
 export default function AdminAnalyticsDashboard() {
-  const [days, setDays] = useState<PeriodDays>(30);
+  const [selection, setSelection] = useState<AnalyticsSelection>('today');
+  const [dateInput, setDateInput] = useState(() => analyticsDate());
+  const [selectedDate, setSelectedDate] = useState('');
   const [analytics, setAnalytics] = useState<AnalyticsResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
-  const [pageType, setPageType] = useState('detail');
+  const [pageType, setPageType] = useState('');
   const [sort, setSort] = useState('visitors');
   const [pageNumber, setPageNumber] = useState(1);
   const [selectedDay, setSelectedDay] = useState('');
   const requestId = useRef(0);
   const pagesHeading = useRef<HTMLElement>(null);
 
-  const loadAnalytics = useCallback(async (period: PeriodDays) => {
+  const loadAnalytics = useCallback(async (period: AnalyticsSelection, date: string) => {
     const id = ++requestId.current;
     setLoading(true);
     setError('');
@@ -96,13 +112,19 @@ export default function AdminAnalyticsDashboard() {
         throw new Error(exclusionPayload.error || '관리자 방문 제외 설정에 실패했습니다.');
       }
 
-      const response = await fetch(`/admin/api/analytics?days=${period}`, {
+      const params = new URLSearchParams(typeof period === 'number'
+        ? { days: String(period) }
+        : period === 'date' ? { date } : { period });
+      const response = await fetch(`/admin/api/analytics?${params}`, {
         cache: 'no-store',
         credentials: 'same-origin',
       });
       const payload = await response.json() as AnalyticsResult;
       if (!response.ok || !payload.period) throw new Error(payload.error || '방문 통계를 불러오지 못했습니다.');
-      if (id === requestId.current) setAnalytics(payload);
+      if (id === requestId.current) {
+        setAnalytics(payload);
+        if (period === 'today' || period === 'yesterday') setDateInput(payload.period.start);
+      }
     } catch (loadError) {
       if (id === requestId.current) setError(loadError instanceof Error ? loadError.message : '방문 통계를 불러오지 못했습니다.');
     } finally {
@@ -111,30 +133,26 @@ export default function AdminAnalyticsDashboard() {
   }, []);
 
   useEffect(() => {
-    void loadAnalytics(days);
+    void loadAnalytics(selection, selectedDate);
     return () => { requestId.current += 1; };
-  }, [days, loadAnalytics]);
+  }, [selection, selectedDate, loadAnalytics]);
 
   const dailyRows = useMemo(() => {
     if (!analytics) return [];
     const rows = new Map(analytics.daily.map((row) => [row.date, row]));
-    const end = new Date(`${analytics.period.end}T12:00:00+09:00`);
     return Array.from({ length: analytics.period.days }, (_, index) => {
-      const date = new Date(end);
-      date.setDate(end.getDate() - (analytics.period.days - index - 1));
-      const key = new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'Asia/Seoul',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      }).format(date);
+      const key = shiftAnalyticsDate(analytics.period.start, index);
       return rows.get(key) || { date: key, visitors: 0, views: 0 };
     });
   }, [analytics]);
 
   const maxDailyViews = Math.max(1, ...dailyRows.map((row) => row.views));
-  const visitorTrend = analytics ? comparison(analytics.period.visitors, analytics.period.previousVisitors) : null;
-  const viewTrend = analytics ? comparison(analytics.period.views, analytics.period.previousViews) : null;
+  const visitorTrend = analytics?.period.comparable ? comparison(analytics.period.visitors, analytics.period.previousVisitors) : null;
+  const viewTrend = analytics?.period.comparable ? comparison(analytics.period.views, analytics.period.previousViews) : null;
+  const days = analytics?.period.days ?? 1;
+  const periodLabel = analytics?.period.isPartial ? '오늘' : days === 1 ? analytics?.period.start : `최근 ${days}일`;
+  const comparisonNote = analytics?.period.isPartial ? '집계 중 · 증감 비교 제외' : '비교 기간 수집 부족';
+  const beforeTracking = analytics && (!analytics.trackingSince || analytics.period.end < analytics.trackingSince);
   const groupMap = new Map(analytics?.pageGroups.map((row) => [row.type, row]) || []);
   const filteredPages = useMemo(() => (analytics?.topPages || []).filter((page) => (
     (!pageType || page.type === pageType) && matchesAdminSearch(query, page.label, page.path)
@@ -164,23 +182,40 @@ export default function AdminAnalyticsDashboard() {
             <h1>사이트 방문 통계</h1>
             <p>나의 방문을 제외하고, 방문자가 어떤 공개 페이지를 확인했는지 집계합니다.</p>
           </div>
-          <button type="button" onClick={() => void loadAnalytics(days)} disabled={loading}>
+          <button type="button" onClick={() => void loadAnalytics(selection, selectedDate)} disabled={loading}>
             <RefreshCw aria-hidden="true" /> 새로고침
           </button>
         </div>
 
-        <div className="admin-analytics-period" aria-label="통계 기간">
+        <div className="admin-analytics-date-controls">
+        <div className="admin-analytics-period" role="group" aria-label="통계 기간">
           {PERIODS.map((period) => (
             <button
-              className={days === period ? 'is-active' : ''}
+              className={selection === period ? 'is-active' : ''}
               key={period}
               type="button"
-              aria-pressed={days === period}
-              onClick={() => { setDays(period); setPageNumber(1); setSelectedDay(''); }}
+              aria-pressed={selection === period}
+              onClick={() => {
+                setSelection(period); setPageNumber(1); setSelectedDay('');
+                if (typeof period === 'string') setDateInput(shiftAnalyticsDate(analytics?.today || analyticsDate(), period === 'today' ? 0 : -1));
+              }}
             >
-              {period}일
+              {period === 'today' ? '오늘' : period === 'yesterday' ? '어제' : `${period}일`}
             </button>
           ))}
+        </div>
+        <form className={`admin-analytics-date-picker${selection === 'date' ? ' is-active' : ''}`} onSubmit={(event) => {
+          event.preventDefault();
+          const date = String(new FormData(event.currentTarget).get('date') || '');
+          setDateInput(date);
+          if (selection === 'date' && selectedDate === date) void loadAnalytics('date', date);
+          else { setSelection('date'); setSelectedDate(date); }
+          setPageNumber(1); setSelectedDay('');
+        }}>
+          <label htmlFor="analytics-date">날짜 선택</label>
+          <input id="analytics-date" name="date" type="date" required max={analytics?.today || analyticsDate()} value={dateInput} onChange={(event) => setDateInput(event.target.value)} />
+          <button type="submit">조회</button>
+        </form>
         </div>
 
         {error ? (
@@ -189,15 +224,21 @@ export default function AdminAnalyticsDashboard() {
           <div className="admin-analytics-empty">방문 통계를 불러오는 중입니다.</div>
         ) : (
           <>
-            <p className="admin-browse-hint">한국시간 · {analytics.period.start} ~ {analytics.period.end} (어제까지) / 비교: {analytics.period.previousStart} ~ {analytics.period.previousEnd}{!analytics.period.comparable && ' · 이전 기간의 수집 기간이 충분하지 않아 증감은 참고용입니다.'}</p>
-            <section className="admin-analytics-metrics" aria-label={`${days}일 핵심 지표`}>
+            <div className="admin-browse-hint admin-analytics-period-summary" role="status">
+              <strong>{periodLabel} 방문 현황</strong>
+              <span>한국시간 · {days === 1 ? analytics.period.start : `${analytics.period.start} ~ ${analytics.period.end} (어제까지)`}{analytics.period.isPartial ? ` · 00:00 ~ ${koreanTime(analytics.generatedAt)} · 집계 중` : ' · 하루 단위 집계'}</span>
+              <span>마지막 갱신 {analytics.today} {koreanTime(analytics.generatedAt)}{!analytics.period.isPartial && ` / 비교: ${analytics.period.previousStart}${days > 1 ? ` ~ ${analytics.period.previousEnd}` : ''}`}</span>
+              {analytics.period.isPartial ? <span>오늘은 집계가 진행 중이므로 완료된 날짜와 증감률을 비교하지 않습니다.</span> : !analytics.period.comparable && <span>이전 기간의 수집 기록이 충분하지 않아 증감률을 표시하지 않습니다.</span>}
+              {beforeTracking && <span>이 날짜에는 수집 기록이 없습니다{analytics.trackingSince ? ` (최초 기록 ${analytics.trackingSince})` : ''}. 실제 방문이 없었다는 의미는 아닙니다.</span>}
+            </div>
+            <section className="admin-analytics-metrics" aria-label={`${periodLabel} 핵심 지표`}>
               <article>
                 <span><Users aria-hidden="true" /> 방문자</span>
                 <strong>{analytics.period.visitors.toLocaleString()}<small>명</small></strong>
                 <p className={`is-${visitorTrend?.direction}`}>
                   {visitorTrend?.direction === 'up' && <TrendingUp aria-hidden="true" />}
                   {visitorTrend?.direction === 'down' && <TrendingDown aria-hidden="true" />}
-                  {analytics.period.comparable ? visitorTrend?.text : '비교 기간 수집 부족'}
+                  {analytics.period.comparable ? visitorTrend?.text : comparisonNote}
                 </p>
               </article>
               <article>
@@ -206,18 +247,18 @@ export default function AdminAnalyticsDashboard() {
                 <p className={`is-${viewTrend?.direction}`}>
                   {viewTrend?.direction === 'up' && <TrendingUp aria-hidden="true" />}
                   {viewTrend?.direction === 'down' && <TrendingDown aria-hidden="true" />}
-                  {analytics.period.comparable ? viewTrend?.text : '비교 기간 수집 부족'}
+                  {analytics.period.comparable ? viewTrend?.text : comparisonNote}
                 </p>
               </article>
               <article>
                 <span>방문자당 조회</span>
                 <strong>{analytics.period.visitors ? (analytics.period.views / analytics.period.visitors).toFixed(1) : '0'}<small>회</small></strong>
-                <p>{analytics.period.start} – {analytics.period.end}</p>
+                <p>{days === 1 ? analytics.period.start : `${analytics.period.start} – ${analytics.period.end}`}</p>
               </article>
               <article>
-                <span>오늘</span>
-                <strong>{analytics.stats.todayVisitors.toLocaleString()}<small>명</small></strong>
-                <p>조회 {analytics.stats.todayViews.toLocaleString()}회 · 집계 중</p>
+                <span>조회된 페이지</span>
+                <strong>{analytics.topPages.filter((page) => page.views > 0).length.toLocaleString()}<small>개</small></strong>
+                <p>선택한 기간의 서로 다른 페이지</p>
               </article>
             </section>
 
@@ -249,7 +290,7 @@ export default function AdminAnalyticsDashboard() {
               </div>
             </section>
 
-            <section className="admin-analytics-section" aria-labelledby="analytics-daily-heading">
+            {days > 1 && <section className="admin-analytics-section" aria-labelledby="analytics-daily-heading">
               <header>
                 <div>
                   <span>DAILY VIEWS</span>
@@ -267,13 +308,13 @@ export default function AdminAnalyticsDashboard() {
                 ))}
               </div>
               <output className="admin-browse-hint">{selectedDay || '날짜 막대를 선택하면 상세 숫자를 보여드립니다.'}</output>
-            </section>
+            </section>}
 
             <section className="admin-analytics-section" aria-labelledby="analytics-pages-heading" ref={pagesHeading}>
               <header>
                 <div>
                   <span>PAGE PERFORMANCE</span>
-                  <h2 id="analytics-pages-heading">페이지별 방문 비교</h2>
+                  <h2 id="analytics-pages-heading">{days === 1 ? `${periodLabel} 본 페이지` : '페이지별 방문 비교'}</h2>
                 </div>
                 <p>상위 20건 밖의 사례도 확인합니다. 기록이 없는 것은 실제 방문 0명을 의미하지 않습니다.</p>
               </header>
@@ -287,7 +328,7 @@ export default function AdminAnalyticsDashboard() {
               ) : (
                 <ol className="admin-analytics-pages">
                   {pagination.rows.map((page, index) => {
-                    const newlyRegistered = page.registeredOn && page.registeredOn > analytics.period.start;
+                    const newlyRegistered = page.registeredOn && page.registeredOn >= analytics.period.start;
                     return (
                       <li key={page.path}>
                         <span className="admin-analytics-rank">{String(pagination.start + index + 1).padStart(2, '0')}</span>
@@ -298,7 +339,7 @@ export default function AdminAnalyticsDashboard() {
                           {!page.isPublished && <small>현재 비공개 또는 삭제된 사례의 이전 기록</small>}
                         </div>
                         <span className="admin-analytics-type">{GROUP_LABELS[page.type]}</span>
-                        <p>{page.views ? <><strong>{page.visitors.toLocaleString()}</strong>명 <span>{page.views.toLocaleString()}회</span></> : '집계 기록 없음'}<small>이전 {page.previousVisitors.toLocaleString()}명 · {page.previousViews.toLocaleString()}회</small><small>{!analytics.period.comparable ? '비교 기간 수집 부족' : newlyRegistered ? '등록 시점 차이 고려' : `방문자 ${comparison(page.visitors, page.previousVisitors).text}`}</small></p>
+                        <p>{page.views ? <><strong>{page.visitors.toLocaleString()}</strong>명 <span>{page.views.toLocaleString()}회</span></> : '집계 기록 없음'}{!analytics.period.isPartial && <><small>이전 {page.previousVisitors.toLocaleString()}명 · {page.previousViews.toLocaleString()}회</small><small>{!analytics.period.comparable ? '비교 기간 수집 부족' : newlyRegistered ? '등록 시점 차이 고려' : `방문자 ${comparison(page.visitors, page.previousVisitors).text}`}</small></>}</p>
                         {page.isPublished && <a href={page.path} target="_blank" rel="noopener noreferrer" aria-label={`${page.label} 새 탭에서 보기`}>
                           <ExternalLink aria-hidden="true" />
                         </a>}
@@ -311,7 +352,7 @@ export default function AdminAnalyticsDashboard() {
             </section>
 
             <aside className="admin-analytics-note">
-              <p><strong>집계 기준</strong> {analytics.trackingSince ? `${analytics.trackingSince}부터` : '배포 후부터'} · 이 관리자 브라우저는 제외 쿠키가 설정됩니다. 쿠키 삭제·기기 변경 시 새 방문자로 계산될 수 있습니다.</p>
+              <p><strong>집계 기준</strong> {analytics.trackingSince ? `${analytics.trackingSince}부터` : '배포 후부터'} · 브라우저 쿠키 기준 방문자입니다. 이 관리자 브라우저는 제외 쿠키가 설정됩니다. 쿠키 삭제·기기 변경 시 새 방문자로 계산될 수 있습니다.</p>
               <p><strong>검색 유입</strong> 검색어·노출·클릭은 GA4와 Search Console을 연결한 뒤 Google 보고서에서 확인하는 것이 가장 정확합니다.</p>
             </aside>
           </>

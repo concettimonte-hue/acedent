@@ -4805,10 +4805,18 @@ section[id] {
 .admin-analytics-title > button { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; gap: .4rem; padding: .7rem 1rem; border: 1px solid #454845; color: #d7dad7; font-size: .8rem; font-weight: 850; }
 .admin-analytics-title > button svg { width: 1rem; height: 1rem; }
 .admin-analytics-title > button:disabled { opacity: .45; }
-.admin-analytics-period { display: inline-flex; margin-bottom: 1rem; border: 1px solid #303330; background: #101110; }
-.admin-analytics-period button { min-width: 72px; min-height: 42px; padding: .55rem .9rem; border-right: 1px solid #303330; color: #a7aaa7; font-size: .78rem; font-weight: 900; }
+.admin-analytics-date-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; margin-bottom: 1rem; }
+.admin-analytics-period { display: flex; flex: 0 1 390px; min-width: 0; border: 1px solid #303330; background: #101110; }
+.admin-analytics-period button { flex: 1; min-width: 0; min-height: 44px; padding: .55rem .7rem; border-right: 1px solid #303330; color: #a7aaa7; font-size: .78rem; font-weight: 900; white-space: nowrap; }
 .admin-analytics-period button:last-child { border-right: 0; }
 .admin-analytics-period button.is-active { background: #f8db00; color: #080908; }
+.admin-analytics-date-picker { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; min-width: 0; color: #bfc3bf; font-size: .8rem; }
+.admin-page .admin-analytics-date-picker input[type='date'] { min-width: 0; width: 150px; min-height: 44px; padding: .5rem; border: 1px solid #454845; border-radius: 0; background: #101110; color: #f1f3f1; color-scheme: dark; font: inherit; font-size: 16px; }
+.admin-analytics-date-picker button { min-height: 44px; padding: .5rem .75rem; border: 1px solid #454845; color: #f1f3f1; }
+.admin-page .admin-analytics-date-picker.is-active input[type='date'] { border-color: #f8db00; }
+.admin-analytics-date-controls :focus-visible { outline: 2px solid #f8db00; outline-offset: 3px; }
+.admin-browse-hint.admin-analytics-period-summary { display: grid; gap: .15rem; padding: 0 0 1rem; }
+.admin-analytics-period-summary strong { margin-bottom: .15rem; color: #e5e7e5; font-size: 1rem; }
 .admin-analytics-metrics { display: grid; margin-bottom: 1rem; border: 1px solid #303330; background: #101110; grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .admin-analytics-metrics article { display: grid; min-width: 0; min-height: 152px; align-content: center; padding: 1.25rem; border-right: 1px solid #303330; gap: .35rem; }
 .admin-analytics-metrics article:last-child { border-right: 0; }
