@@ -1,3 +1,4 @@
+import { workBodyError } from '../../lib/work-body';
 import {
   isWorkCategory,
   isWorkPartValue,
@@ -178,6 +179,9 @@ export function normalizeDraft(value: unknown, id: string): DraftPayload {
     throw new DraftError(
       '추가 비교는 전체 6쌍, 추가 사진은 전체 12장까지 저장할 수 있습니다.',
     );
+  const body = text(p.body, 5000);
+  const bodyError = workBodyError(body);
+  if (bodyError) throw new DraftError(bodyError);
   return {
     date: text(p.date, 10),
     carMaker: text(p.carMaker, 40),
@@ -187,7 +191,7 @@ export function normalizeDraft(value: unknown, id: string): DraftPayload {
     days: text(p.days, 20),
     title: text(p.title, 80),
     summary: text(p.summary, 300),
-    body: text(p.body, 5000),
+    body,
     blogUrl: text(p.blogUrl, 2000),
     subCategories: array(p.subCategories, 2).map((v) => {
       const c = category(v);

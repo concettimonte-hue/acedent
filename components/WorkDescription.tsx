@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import WorkBodyContent from '@/components/WorkBodyContent';
 
 interface WorkDescriptionProps {
   summary: string;
@@ -12,9 +13,7 @@ export default function WorkDescription({ summary, body, children }: WorkDescrip
     <div className="work-detail-copy">
       <h2 className="work-detail-copy-title">작업 설명</h2>
       <p className="work-detail-summary">{summary}</p>
-      {body.split('\n\n').map((paragraph, index) => (
-        <p key={index}>{paragraph}</p>
-      ))}
+      <WorkBodyContent body={body} />
       {children}
     </div>
   );

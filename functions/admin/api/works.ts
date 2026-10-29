@@ -1,3 +1,4 @@
+import { validateWorkBody } from '../../../lib/work-body';
 import {
   formatWorkPartLabel,
   isWorkCategory,
@@ -428,7 +429,7 @@ export async function prepareNewWork(env: AdminEnv, input: WorkInput) {
     ogImage: assetUrl(publicBase, ogImage.key),
     gallery,
     summary: required(input.summary, '요약', 300),
-    body: required(input.body, '상세 설명', 5000),
+    body: validateWorkBody(required(input.body, '상세 설명', 5000), true),
     blogUrl: input.blogUrl?.trim() || undefined,
     featured: false,
     days: required(input.days, '작업기간', 20),

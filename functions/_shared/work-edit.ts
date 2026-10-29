@@ -1,3 +1,4 @@
+import { validateWorkBody } from '../../lib/work-body';
 import { normalizeComparisons, comparisonAssetReference, validateComparisonTotal } from '../../lib/work-comparisons';
 import { normalizeWorkPartName, normalizeWorkPartTaxonomy } from '../../lib/work-part-taxonomy';
 import {
@@ -443,7 +444,7 @@ export async function updateWork(env: AdminEnv, slug: string, input: UpdateInput
       ogImage,
       gallery,
       summary: required(input.summary, '요약', 300),
-      body: required(input.body, '상세 설명', 5000),
+      body: validateWorkBody(required(input.body, '상세 설명', 5000), true),
       blogUrl: blogUrl || undefined,
       days: required(input.days, '작업기간', 20),
     };

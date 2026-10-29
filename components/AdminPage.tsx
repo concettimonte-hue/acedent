@@ -23,6 +23,8 @@ import { validateComparisonTotal } from '@/lib/work-comparisons';
 import WorkCard from '@/components/WorkCard';
 import WorkClassification from '@/components/WorkClassification';
 import WorkDescription from '@/components/WorkDescription';
+import AdminBodyEditor from '@/components/AdminBodyEditor';
+import { workBodyError } from '@/lib/work-body';
 import WorkPhotoGallery from '@/components/WorkPhotoGallery';
 import WorkVehicleTag from '@/components/WorkVehicleTag';
 import AdminVehicleBrandField from '@/components/AdminVehicleBrandField';
@@ -1105,6 +1107,8 @@ export default function AdminPage({ editSlug, draftId, previewOnly = false }: Ad
 
   const submit = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const bodyError = workBodyError(form.body, editing);
+    if (bodyError) { setError(bodyError); return; }
     if (!editing) { await saveDraft('writing'); return; }
     setError('');
     setSaving(true);
@@ -1299,6 +1303,8 @@ export default function AdminPage({ editSlug, draftId, previewOnly = false }: Ad
 
   const saveDraft = async (state: 'writing' | 'review') => {
     if (saving || previewOnly) return;
+    const bodyError = workBodyError(form.body);
+    if (bodyError) { setError(bodyError); return; }
     setSaving(true); setError(''); setProgress(0);
     const id = localDraftId.current;
     const put = async (payload: DraftPayload, version: number) => {
@@ -1422,7 +1428,7 @@ export default function AdminPage({ editSlug, draftId, previewOnly = false }: Ad
             <div className="admin-fields">
               <label>제목<input required maxLength={80} value={form.title} onChange={(e) => updateForm('title', e.target.value)} placeholder="예: 뒤범퍼 비탈거 전체도색" /></label>
               <label>요약<textarea required maxLength={300} rows={3} value={form.summary} onChange={(e) => updateForm('summary', e.target.value)} placeholder="카드와 상세 첫 문단에 함께 표시됩니다." /></label>
-              <label>상세 설명<textarea required rows={7} value={form.body} onChange={(e) => updateForm('body', e.target.value)} placeholder="확인한 손상과 실제 진행한 작업만 입력하세요." /></label>
+              <AdminBodyEditor value={form.body} summary={form.summary} onChange={(value) => updateForm('body', value)} disabled={saving} />
               <label>블로그 링크 <small>선택</small><input type="url" value={form.blogUrl} onChange={(e) => updateForm('blogUrl', e.target.value)} placeholder="https://blog.naver.com/..." /></label>
             </div>
           </section>
