@@ -19,13 +19,14 @@ function Preview() {
   const summary = '실제 사례를 바꾸지 않는 로컬 본문 편집기 미리보기';
   const load = (text: string) => { setValue(text); setRevision((v) => v + 1); };
   return <main className="admin-page" style={{ padding: '24px 16px', maxWidth: 1300, margin: 'auto' }}>
-    <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 16 }}>본문 편집기 · 배포 전 확인</h1>
+    <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 16 }}>본문 편집기 2차 · 배포 전 확인</h1>
     <nav style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 20 }}>
       <button onClick={() => load(legacy)}>일반 본문 예시</button>
       <button onClick={() => load(formatted)}>서식 본문 예시</button>
       <button onClick={() => { setSaved(value); }}>로컬 값 보관</button>
       <button disabled={!saved} onClick={() => load(saved)}>보관한 값 다시 열기</button>
       <a href="/preview/admin">실제 관리자 폼 확인 ↗</a>
+      <a href="/preview/edit">공개 사례 수정 예시 ↗</a>
     </nav>
     <div className="body-preview-grid">
       <section><AdminBodyEditor key={revision} value={value} summary={summary} onChange={setValue} /></section>
@@ -36,4 +37,14 @@ function Preview() {
   </main>;
 }
 const admin = location.pathname === '/preview/admin' || location.pathname === '/admin';
-createRoot(document.getElementById('root')!).render(admin ? <AdminPage draftId={new URLSearchParams(location.search).get('id') || undefined} /> : <Preview />);
+const search = new URLSearchParams(location.search);
+function AdminPreview() {
+  const [message, setMessage] = useState('');
+  const edit = location.pathname === '/preview/edit';
+  return <><nav style={{ padding: 16, display: 'flex', flexWrap: 'wrap', gap: 16 }}>
+    <a href="/preview/editor">편집기 예시로</a><a href="/preview/admin">새 사례 예시</a><a href="/preview/edit">공개 수정 예시</a>
+    {!edit && <button onClick={async () => { const r = await fetch('/__preview__/fail-next-draft', { method: 'POST' }); const result = await r.json() as { message: string }; setMessage(result.message); }}>다음 임시저장 실패 재현</button>}
+    <span role="status">{message}</span>
+  </nav><AdminPage editSlug={edit ? 'local-editor-test' : undefined} draftId={search.get('id') || undefined} previewOnly={search.get('view') === 'draft-preview'} /></>;
+}
+createRoot(document.getElementById('root')!).render(admin || location.pathname === '/preview/edit' ? <AdminPreview /> : <Preview />);

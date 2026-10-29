@@ -24,6 +24,7 @@ import WorkCard from '@/components/WorkCard';
 import WorkClassification from '@/components/WorkClassification';
 import WorkDescription from '@/components/WorkDescription';
 import AdminBodyEditor from '@/components/AdminBodyEditor';
+import { adminFormSnapshot, useAdminUnsavedChanges } from '@/hooks/use-admin-unsaved-changes';
 import { workBodyError } from '@/lib/work-body';
 import WorkPhotoGallery from '@/components/WorkPhotoGallery';
 import WorkVehicleTag from '@/components/WorkVehicleTag';
@@ -559,6 +560,24 @@ export default function AdminPage({ editSlug, draftId, previewOnly = false }: Ad
   const [workLoaded, setWorkLoaded] = useState(!editing && !draftId);
   const [annotationEditorPartId, setAnnotationEditorPartId] = useState('');
   const comparisonUrls = useRef(new Set<string>());
+  const [baselineRevision, setBaselineRevision] = useState(0);
+  const [pendingBodyInput, setPendingBodyInput] = useState(false);
+  const processingPhotos = parts.some(part => part.processing || part.comparisons.some(pair => pair.processing) || part.gallery.some(item => item.processing)) || workGallery.some(item => item.processing);
+  const formSnapshot = useMemo(() => adminFormSnapshot({
+    form, parts, workGallery, ogImage,
+    // Match the existing primary/secondary exclusion effects during record loading.
+    subCategories: subCategories.filter(item => item !== form.category),
+    subParts: subParts.filter(item => item !== parts[0]?.parts[0]),
+  }), [form, parts, workGallery, ogImage, subCategories, subParts]);
+  const { dirty, markSaved } = useAdminUnsavedChanges(formSnapshot, {
+    baselineRevision, enabled: workLoaded && !previewOnly,
+    busy: saving || processingPhotos, pendingInput: pendingBodyInput,
+  });
+  const saveNotice = saving ? '저장·처리 중 · 이 화면을 유지해 주세요.'
+    : processingPhotos ? '사진 처리 중 · 완료 후 저장해 주세요.'
+    : dirty ? '저장하지 않은 변경사항이 있습니다.'
+    : savedDraft || savedSlug || editing ? '현재 입력 내용은 저장된 상태입니다.'
+    : '새 사례 · 입력 후 임시저장해 주세요.';
   const hydrateDraft = (record: DraftRecord) => {
     const p = record.payload;
     const media = (ref?: { key: string }): ExistingImage | undefined => {
@@ -579,6 +598,7 @@ export default function AdminPage({ editSlug, draftId, previewOnly = false }: Ad
     })));
     setWorkGallery(gallery(p.gallery)); setOgImage(media(p.ogImage));
     draftVersion.current = record.version; setSavedDraft(record);
+    setBaselineRevision(value => value + 1);
   };
   useEffect(() => {
     if (!draftId) return;
@@ -717,6 +737,7 @@ export default function AdminPage({ editSlug, draftId, previewOnly = false }: Ad
         setOgImage(work.ogImage ? existingImage(work.ogImage, '공유 이미지') : undefined);
         setWorkLoaded(true);
         setStatus('수정 중');
+        setBaselineRevision(value => value + 1);
       } catch (loadError) {
         if (active) setError(loadError instanceof Error ? loadError.message : '사례 정보를 불러오지 못했습니다.');
       } finally {
@@ -1267,6 +1288,7 @@ export default function AdminPage({ editSlug, draftId, previewOnly = false }: Ad
       });
       const saved = await saveResponse.json() as { work?: WorkItem; cleanupPending?: number; slugWarnings?: string[]; error?: string };
       if (!saveResponse.ok || !saved.work) throw new Error(saved.error || `사례 ${editing ? '수정' : '저장'}에 실패했습니다.`);
+      markSaved(formSnapshot); // D1 save succeeded; deployment may still be pending or fail.
       setSavedSlug(saved.work.slug);
       setSlugWarnings(saved.slugWarnings || []);
       setDeploymentState('pending');
@@ -1394,6 +1416,11 @@ export default function AdminPage({ editSlug, draftId, previewOnly = false }: Ad
       </header>
 
       {!editing && <div className="admin-draft-nav"><a href="/admin?view=drafts">초안·검토 목록</a><span>초안은 관리자에게만 보입니다. 저장만으로 공개·배포되지 않습니다.</span></div>}
+      {!previewOnly && <div className={`admin-save-notice${dirty ? ' is-dirty' : ''}`}>
+        <span role="status" aria-live="polite">{saveNotice}</span>
+        <small>크게 쓰기를 닫아도 저장되지는 않습니다. {editing ? '저장과 배포 결과는 아래에서 확인하세요.' : '임시저장과 발행은 별도입니다.'}</small>
+        <a href="#admin-save">저장 위치로 ↓</a>
+      </div>}
       {savedDraft && previewOnly && <AdminDraftPublishPanel initial={savedDraft} />}
       <div className={`admin-layout${previewOnly ? ' admin-draft-preview-only' : ''}`}>
         {!previewOnly && <form className="admin-form" onSubmit={submit} noValidate={!editing}>
@@ -1428,7 +1455,7 @@ export default function AdminPage({ editSlug, draftId, previewOnly = false }: Ad
             <div className="admin-fields">
               <label>제목<input required maxLength={80} value={form.title} onChange={(e) => updateForm('title', e.target.value)} placeholder="예: 뒤범퍼 비탈거 전체도색" /></label>
               <label>요약<textarea required maxLength={300} rows={3} value={form.summary} onChange={(e) => updateForm('summary', e.target.value)} placeholder="카드와 상세 첫 문단에 함께 표시됩니다." /></label>
-              <AdminBodyEditor value={form.body} summary={form.summary} onChange={(value) => updateForm('body', value)} disabled={saving} />
+              <AdminBodyEditor value={form.body} summary={form.summary} onChange={(value) => updateForm('body', value)} onPendingInput={setPendingBodyInput} disabled={saving} />
               <label>블로그 링크 <small>선택</small><input type="url" value={form.blogUrl} onChange={(e) => updateForm('blogUrl', e.target.value)} placeholder="https://blog.naver.com/..." /></label>
             </div>
           </section>
@@ -1582,7 +1609,7 @@ export default function AdminPage({ editSlug, draftId, previewOnly = false }: Ad
             <p className="admin-gallery-limit">추가 사진은 PART별·전체 영역별 최대 {WORK_GALLERY_MAX_PER_SCOPE}장, 사례 한 건에 총 {WORK_GALLERY_MAX_TOTAL}장까지 등록됩니다.</p>
           </section>
 
-          {editing ? <section className="admin-submit-panel">
+          {editing ? <section id="admin-save" className="admin-submit-panel">
             <div><span>{status}</span>{saving && <progress value={progress} max="100">{progress}%</progress>}<small>{saving ? `${progress}%` : '저장하면 Cloudflare 빌드가 자동으로 시작됩니다.'}</small></div>
             <button type="submit" disabled={saving}><UploadCloud aria-hidden="true" />{saving ? `${editing ? '수정' : '등록'} 진행 중` : `사례 ${editing ? '수정' : '저장'} 및 배포`}</button>
             {error && <p role="alert">{error}</p>}
@@ -1632,7 +1659,7 @@ export default function AdminPage({ editSlug, draftId, previewOnly = false }: Ad
                 )}
               </div>
             )}
-          </section> : <section className="admin-submit-panel admin-draft-save">
+          </section> : <section id="admin-save" className="admin-submit-panel admin-draft-save">
             <p role="status">{status}</p><p>빈 항목이나 사진 한 장만 있어도 저장할 수 있습니다. 발행은 저장된 미리보기에서 별도로 진행합니다.</p>
             {saving && <progress value={progress} max="100" aria-label="비공개 사진 업로드 진행률" />}
             <div className="admin-draft-actions"><button type="button" disabled={saving} onClick={() => void saveDraft('writing')}>임시저장</button><button type="button" disabled={saving} onClick={() => void saveDraft('review')}>검토 대기로 저장</button></div>

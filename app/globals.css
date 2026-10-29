@@ -4654,6 +4654,12 @@ section[id] {
 
 /* Admin data-entry surface. Public case selectors remain unchanged. */
 .admin-body-editor { min-width: 0; }
+.admin-save-notice { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; margin: 0 0 1.25rem; padding: .9rem 1rem; border: 1px solid #414541; color: #daddd9; font-size: .9rem; line-height: 1.6; }
+.admin-save-notice.is-dirty { border-left: 3px solid #f8db00; }
+.admin-save-notice.is-dirty [role='status'] { color: #f8db00; }
+.admin-save-notice small { flex-basis: 100%; color: #afb4ae; }
+.admin-save-notice a { min-height: 44px; display: inline-flex; align-items: center; color: #f8db00; text-decoration: underline; text-underline-offset: .2em; }
+#admin-save { scroll-margin-top: 1rem; }
 .admin-body-heading, .admin-body-dialog > header { display: flex; justify-content: space-between; align-items: center; gap: .75rem; margin-bottom: .5rem; }
 .admin-body-heading > span { color: #d5d7d4; font-size: .88rem; font-weight: 800; }
 .admin-body-editor button, .admin-body-dialog button { min-height: 44px; padding: .55rem .8rem; border: 1px solid #414541; background: #111411; color: #daddd9; font-size: .85rem; font-weight: 700; cursor: pointer; }
@@ -4682,13 +4688,23 @@ section[id] {
 .admin-body-dialog { position: fixed; z-index: 211; inset: 0; width: min(900px, calc(100% - 3rem)); height: min(900px, calc(100dvh - 3rem)); margin: auto; display: flex; flex-direction: column; padding: 1.5rem; border: 1px solid #414541; background: #101310; color: #fff; outline: none; }
 .admin-body-dialog > header { flex-shrink: 0; padding-bottom: .8rem; border-bottom: 1px solid #303630; }
 .admin-body-dialog > header h2 { font-size: 1.1rem; font-weight: 800; }
-.admin-body-dialog > .admin-body-surface { overflow-y: auto; overscroll-behavior: contain; padding: .2rem; }
-.admin-body-dialog .admin-body-input .tiptap { min-height: 45dvh; }
+.admin-body-dialog-note { flex-shrink: 0; color: #afb4ae; font-size: .8rem; line-height: 1.5; margin: 0 0 .6rem; }
+.admin-body-dialog > .admin-body-surface { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: .2rem; }
+.admin-body-dialog .admin-body-writing { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.admin-body-dialog .admin-body-toolbar, .admin-body-dialog .admin-body-modes, .admin-body-dialog .admin-body-count { flex-shrink: 0; }
+.admin-body-dialog .admin-body-input, .admin-body-dialog .admin-body-preview { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scroll-padding-block: 1rem; }
+.admin-body-dialog .admin-body-input .tiptap { min-height: 100%; padding-bottom: 3rem; }
+.admin-body-dialog .admin-body-help { display: none; }
+.admin-body-dialog .admin-body-count { margin-top: .4rem; }
+.admin-body-dialog .admin-body-surface [hidden] { display: none; }
+@media (max-width: 900px), (max-height: 550px) {
+  .admin-body-dialog { inset: var(--body-viewport-top, 0px) 0 auto; margin: 0 auto; height: var(--body-viewport-height, 100dvh); max-height: none; }
+}
 @media (max-width: 600px) {
-  .admin-body-dialog { width: 100%; height: 100dvh; padding: max(.85rem, env(safe-area-inset-top)) .85rem max(.85rem, env(safe-area-inset-bottom)); border: 0; }
+  .admin-body-dialog { width: 100%; padding: max(.65rem, env(safe-area-inset-top)) .65rem max(.65rem, env(safe-area-inset-bottom)); border: 0; }
   .admin-body-dialog > header h2 { font-size: 1rem; }
-  .admin-body-toolbar { gap: .3rem; padding: .45rem; }
-  .admin-body-toolbar button { flex-grow: 1; padding-inline: .55rem; }
+  .admin-body-toolbar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .3rem; padding: .4rem; }
+  .admin-body-toolbar button { padding-inline: .25rem; }
   .admin-body-preview { padding: 1rem; }
 }
 .admin-page { min-height: 100vh; padding-bottom: 5rem; background: #080908; color: #fff; }
