@@ -3,12 +3,13 @@ import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
 import { loadTs } from './test-support.mjs';
 
-export function analyticsFixture({ now = new Date(), seed = true, acquisition = true } = {}) {
+export function analyticsFixture({ now = new Date(), seed = true, acquisition = true, evidence = true } = {}) {
   const { analyticsDate, shiftAnalyticsDate } = loadTs('lib/admin-analytics.ts');
   const today = analyticsDate(now);
   const db = new DatabaseSync(':memory:');
   db.exec(readFileSync(new URL('../migrations/0007_private_visit_analytics.sql', import.meta.url), 'utf8'));
   if (acquisition) db.exec(readFileSync(new URL('../migrations/0009_visit_acquisition.sql', import.meta.url), 'utf8'));
+  if (acquisition && evidence) db.exec(readFileSync(new URL('../migrations/0010_visit_source_basis.sql', import.meta.url), 'utf8'));
   db.exec('CREATE TABLE works (slug TEXT PRIMARY KEY, status TEXT, payload_json TEXT, created_at TEXT)');
   const cases = [
     ['sample-door', '현대', '쏘나타', '뒤도어 찌그러짐 판금도색'],
@@ -26,13 +27,19 @@ export function analyticsFixture({ now = new Date(), seed = true, acquisition = 
   function visit(visitor, date, path, views = 1) {
     insertVisit.run(visitor, date, path, views, `${date}T00:00:00Z`, `${date}T01:00:00Z`);
   }
-  function entry(id, visitor, date, path, source) {
-    db.prepare('INSERT INTO site_visit_sessions VALUES (?, ?, ?, ?, ?, ?)').run(id, visitor, `${date}T02:00:00Z`, date, path, source);
+  function entry(id, visitor, date, path, source, basis = 'legacy', hour = 11) {
+    const started = new Date(`${date}T${String(hour).padStart(2, '0')}:00:00+09:00`).toISOString();
+    if (evidence) {
+      db.prepare('INSERT INTO site_visit_sessions (session_id, visitor_hash, started_at, visit_date, landing_path, source, source_basis) VALUES (?, ?, ?, ?, ?, ?, ?)').run(id, visitor, started, date, path, source, basis);
+    } else {
+      db.prepare('INSERT INTO site_visit_sessions (session_id, visitor_hash, started_at, visit_date, landing_path, source) VALUES (?, ?, ?, ?, ?, ?)').run(id, visitor, started, date, path, source);
+    }
   }
   if (seed) {
     for (let offset = 0; offset < 65; offset++) {
       const date = shiftAnalyticsDate(today, -offset);
       const count = offset === 0 ? 12 : 17 + offset % 9;
+      const hourRange = offset === 0 ? new Date(now.getTime() + 9 * 3600000).getUTCHours() + 1 : 24;
       for (let i = 0; i < count; i++) {
         const id = `sample-visitor-${i}`;
         visit(id, date, '/', 1 + (i % 3));
@@ -43,8 +50,12 @@ export function analyticsFixture({ now = new Date(), seed = true, acquisition = 
         if (acquisition && offset < 6) {
           const source = ['naver-search', 'google', 'naver-blog', 'direct', 'naver-place', 'google-ad', 'after-call-sms'][i % 7];
           const path = source === 'after-call-sms' ? '/works' : i % 2 === 0 ? `/works/detail/${cases[i % 5][0]}` : '/';
-          entry(`session-${offset}-${i}`, id, date, path, source);
-          if (i % 5 === 0) entry(`return-${offset}-${i}`, id, date, '/', 'direct');
+          const basis = offset > 1 ? 'legacy' : source === 'direct'
+            ? ['no-referrer', 'unsupported-referrer', 'unrecognized-tag'][Math.floor(i / 7) % 3]
+            : source === 'google-ad' ? 'ad-tag'
+            : ['after-call-sms', 'naver-blog', 'naver-place'].includes(source) ? 'link-tag' : 'web-referrer';
+          entry(`session-${offset}-${i}`, id, date, path, source, basis, (i * 3) % hourRange);
+          if (i % 5 === 0) entry(`return-${offset}-${i}`, id, date, '/', 'direct', offset > 1 ? 'legacy' : 'no-referrer', (i * 3 + 1) % hourRange);
         }
       }
     }

@@ -1,4 +1,4 @@
-import { visitSource, type VisitSource } from './visit-acquisition';
+import { visitAttribution, type VisitAttribution } from './visit-acquisition';
 
 export type TelClickLocation = '상단' | '하단' | '플로팅';
 
@@ -121,7 +121,7 @@ function getLegacyTelLocation(placement: ContactPlacement): TelClickLocation {
 }
 
 let privateVisitQueue = Promise.resolve();
-function recordPrivateVisit(pathname = window.location.pathname, source: VisitSource = 'internal') {
+function recordPrivateVisit(pathname = window.location.pathname, attribution: VisitAttribution = { source: 'internal', basis: 'internal' }) {
   if (isAdminPath(pathname) || isOwnerExcluded()) return;
   // Keep cookie-setting responses ordered when a visitor immediately navigates.
   privateVisitQueue = privateVisitQueue.then(async () => {
@@ -133,7 +133,7 @@ function recordPrivateVisit(pathname = window.location.pathname, source: VisitSo
       referrerPolicy: 'no-referrer',
       signal: typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(8000) : undefined,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ path: pathname, source }),
+      body: JSON.stringify({ path: pathname, ...attribution }),
     });
   }).catch(() => {
     // 방문 통계 실패가 공개 페이지 이용을 방해하지 않도록 조용히 건너뜁니다.
@@ -153,7 +153,7 @@ export function initializeSpaPageViews() {
     page_location: window.location.href,
     page_title: document.title,
   });
-  recordPrivateVisit(window.location.pathname, visitSource(document.referrer, window.location.href));
+  recordPrivateVisit(window.location.pathname, visitAttribution(document.referrer, window.location.href));
 
   const schedulePageView = () => {
     const pageKey = `${window.location.pathname}${window.location.search}`;

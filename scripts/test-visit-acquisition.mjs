@@ -114,7 +114,7 @@ test('SMS browser entry sends only the fixed code and /works; owner browser send
     client.initializeSpaPageViews(); client.initializeSpaPageViews();
     while (timers.length) timers.shift()();
     await new Promise(resolve => setImmediate(resolve));
-    assert.deepEqual(sent, excluded ? [] : [{ path: '/works', source: 'after-call-sms' }]);
+    assert.deepEqual(sent, excluded ? [] : [{ path: '/works', source: 'after-call-sms', basis: 'link-tag' }]);
     assert.equal(events.filter(e => e[1] === 'page_view').length, excluded ? 0 : 1);
   }
 });
@@ -217,7 +217,7 @@ test('client sends sanitized first-entry data once; SPA navigation is internal a
   install('/works/detail/sample-door'); client.initializeSpaPageViews(); client.initializeSpaPageViews(); await flush();
   window.location = { pathname: '/works', search: '', href: `${origin}/works` }; window.history.pushState(); await flush();
   window.location.search = '?part=범퍼'; window.history.pushState(); await flush();
-  assert.deepEqual(sent, [{ path: '/works/detail/sample-door', source: 'naver-search' }, { path: '/works', source: 'internal' }]);
+  assert.deepEqual(sent, [{ path: '/works/detail/sample-door', source: 'naver-search', basis: 'web-referrer' }, { path: '/works', source: 'internal', basis: 'internal' }]);
   assert(!JSON.stringify(sent).includes('private-secret')); assert.equal(events.filter(e => e[1] === 'page_view').length, 3);
   for (const [path, cookie] of [['/admin', ''], ['/works', 'acedent_owner_excluded=1']]) {
     sent = []; install(path, cookie); client.initializeSpaPageViews(); await flush(); assert.equal(sent.length, 0);

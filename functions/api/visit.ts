@@ -1,4 +1,4 @@
-import { activeVisitSession, isVisitSource, VISIT_SESSION_SECONDS } from '../../lib/visit-acquisition';
+import { activeVisitSession, isVisitSource, isVisitBasis, VISIT_SESSION_SECONDS } from '../../lib/visit-acquisition';
 
 interface VisitEnv {
   ACEDENT_DB: D1Database;
@@ -71,7 +71,7 @@ export const onRequestPost: PagesFunction<VisitEnv> = async ({ request, env }) =
   const contentLength = Number(request.headers.get('Content-Length') || 0);
   if (contentLength > 2048) return new Response(null, { status: 413, headers });
 
-  let body: { path?: unknown; source?: unknown };
+  let body: { path?: unknown; source?: unknown; basis?: unknown };
   try {
     const text = await request.text();
     if (new TextEncoder().encode(text).byteLength > 2048) return new Response(null, { status: 413, headers });
@@ -114,10 +114,21 @@ export const onRequestPost: PagesFunction<VisitEnv> = async ({ request, env }) =
   if (isVisitSource(body.source)) {
     const sessionId = (validVisitor && activeVisitSession(readCookie(request, SESSION_COOKIE), timestamp.getTime())) || crypto.randomUUID();
     try {
-      await env.ACEDENT_DB.prepare(`
-        INSERT INTO site_visit_sessions (session_id, visitor_hash, started_at, visit_date, landing_path, source)
-        VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(session_id) DO NOTHING
-      `).bind(sessionId, visitorHash, now, koreanDate(timestamp), path, body.source).run();
+      const values = [sessionId, visitorHash, now, koreanDate(timestamp), path, body.source];
+      try {
+        await env.ACEDENT_DB.prepare(`
+          INSERT INTO site_visit_sessions (session_id, visitor_hash, started_at, visit_date, landing_path, source, source_basis)
+          VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT(session_id) DO NOTHING
+        `).bind(...values, isVisitBasis(body.basis) ? body.basis : 'legacy').run();
+      } catch (error) {
+        // Rolling deploys without 0010 still preserve the original entry. Other
+        // failures are not retried, and existing sessions are never rewritten.
+        if (!(error instanceof Error) || !/(?:no column named|no such column:)\s*source_basis/i.test(error.message)) throw error;
+        await env.ACEDENT_DB.prepare(`
+          INSERT INTO site_visit_sessions (session_id, visitor_hash, started_at, visit_date, landing_path, source)
+          VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(session_id) DO NOTHING
+        `).bind(...values).run();
+      }
       responseHeaders.append('Set-Cookie', `${SESSION_COOKIE}=${sessionId}.${timestamp.getTime()}; Path=/; Max-Age=${VISIT_SESSION_SECONDS}; SameSite=Lax; Secure; HttpOnly`);
     } catch {
       // Migration/temporary failure must not break the existing counter or site.

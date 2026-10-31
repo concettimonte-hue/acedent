@@ -3,7 +3,7 @@
 /* oxlint-disable next/no-html-link-for-pages -- Vite SPA routes are intentional. */
 import { useMemo, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
-import { VISIT_SOURCES, type VisitAcquisition, type VisitSource } from '@/lib/visit-acquisition';
+import { VISIT_SOURCES, VISIT_BASES, ENTRY_PAGE_TYPES, entryPageType, type VisitAcquisition, type VisitSource, type VisitBasis } from '@/lib/visit-acquisition';
 import { analyticsDate } from '@/lib/admin-analytics';
 
 export default function AdminAcquisitionPanel({ data }: { data?: VisitAcquisition }) {
@@ -26,6 +26,17 @@ export default function AdminAcquisitionPanel({ data }: { data?: VisitAcquisitio
   }, [data, selected]);
   const selectedTotal = pages.reduce((sum, row) => sum + row.entries, 0);
   const percent = (count: number, total: number) => total ? `${(count / total * 100).toFixed(1)}%` : '—';
+  const pageGroups = Object.entries(ENTRY_PAGE_TYPES).map(([type, label]) => ({
+    label, entries: pages.filter(page => entryPageType(page.path) === type).reduce((sum, page) => sum + page.entries, 0),
+  })).filter(group => group.entries > 0);
+  const timeGroups = Array.from({ length: 6 }, (_, index) => ({
+    label: `${String(index * 4).padStart(2, '0')}–${String(index * 4 + 3).padStart(2, '0')}시`,
+    entries: (data?.hours || []).filter(row => (!selected || row.source === selected) && Math.floor(row.hour / 4) === index).reduce((sum, row) => sum + row.entries, 0),
+  }));
+  const bases = new Map<VisitBasis, number>();
+  for (const row of data?.evidence?.rows || []) {
+    if (!selected || row.source === selected) bases.set(row.basis, (bases.get(row.basis) || 0) + row.entries);
+  }
 
   return <section className="admin-analytics-section admin-acquisition" aria-labelledby="analytics-acquisition-heading">
     <header>
@@ -57,6 +68,25 @@ export default function AdminAcquisitionPanel({ data }: { data?: VisitAcquisitio
           <h3>{selected ? VISIT_SOURCES[selected] : '전체 유입'} · 처음 연 페이지</h3>
           <p>첫 페이지 이후에 본 페이지는 아래 페이지 목록에서 확인합니다.</p>
           {selected === 'after-call-sms' && <p>문자 전용 링크로 시작한 방문입니다. 문자 발송·열람 수나 상담 완료 수는 아닙니다.</p>}
+          {selected === 'direct' && <p className="admin-acquisition-explanation">상세사례로 바로 들어와도 검색 유입으로 확정할 수 없습니다. 출처가 없으면 직접 입력·저장한 링크·앱 공유 등을 구분할 수 없습니다.</p>}
+          {selected === 'naver-other' && <p>네이버 앱·기타 네이버 출처입니다. 검색 결과를 클릭했다는 뜻은 아닙니다.</p>}
+          <div className="admin-acquisition-breakdown">
+            <h4>어떤 페이지로 들어왔나요?</h4>
+            <dl>{pageGroups.map(group => <div key={group.label}><dt>{group.label}</dt><dd>{group.entries}회 <small>{percent(group.entries, selectedTotal)}</small></dd></div>)}</dl>
+            {data.hours && <>
+              <h4>방문 시작 시간대 <small>한국시간 · 선택 기간 합계</small></h4>
+              <dl className="admin-acquisition-hours">{timeGroups.map(group => <div key={group.label}><dt>{group.label}</dt><dd>{group.entries}회</dd></div>)}</dl>
+            </>}
+            <details key={selected || 'all'} open={selected === 'direct'}>
+              <summary>출처 판별 근거 보기</summary>
+              {!data.evidence?.available
+                ? <p>{data.evidence?.error === 'unavailable' ? '판별 근거를 불러오지 못했습니다. 기존 유입 통계는 표시합니다.' : '세부 판별 근거 수집 준비 중입니다. 기존 기록의 출처는 소급해 추정하지 않습니다.'}</p>
+                : <>
+                  <dl>{[...bases].sort((a, b) => b[1] - a[1]).map(([basis, entries]) => <div key={basis}><dt>{VISIT_BASES[basis]}</dt><dd>{entries}회</dd></div>)}</dl>
+                  <p>‘판별 근거 미수집’은 도입 전 또는 이전 버전의 기록입니다. ‘출처 정보 없음’과 다르며, 과거 유입을 다시 분류하지 않습니다.</p>
+                </>}
+            </details>
+          </div>
           <ol>
             {pages.slice(0, limit).map((page, index) => <li key={page.path}>
               <span className="admin-analytics-rank">{String(index + 1).padStart(2, '0')}</span>

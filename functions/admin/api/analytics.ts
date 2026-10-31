@@ -2,7 +2,7 @@ import { type AdminEnv, json, requireAccess } from '../../_shared/admin';
 import { WORK_CATEGORIES } from '../../../content/works/types';
 import { getWorkPartFromRouteSlug } from '../../../lib/work-landings';
 import { analyticsDate, analyticsPeriod, selectedAnalyticsPeriod } from '../../../lib/admin-analytics';
-import { isVisitSource, type VisitAcquisition } from '../../../lib/visit-acquisition';
+import { isVisitSource, isVisitBasis, type VisitAcquisition } from '../../../lib/visit-acquisition';
 
 const OWNER_COOKIE = 'acedent_owner_excluded';
 
@@ -48,18 +48,43 @@ interface WorkLabelRow {
 
 async function readAcquisition(db: D1Database, start: string, end: string) {
   try {
-    const [first, rows] = await Promise.all([
+    const [first, rows, hours, evidence] = await Promise.all([
       db.prepare('SELECT MIN(started_at) AS started_at FROM site_visit_sessions').first<{ started_at: string | null }>(),
       db.prepare(`SELECT source, landing_path AS path, COUNT(*) AS entries
         FROM site_visit_sessions WHERE visit_date BETWEEN ? AND ?
         GROUP BY source, landing_path ORDER BY entries DESC, landing_path ASC`)
         .bind(start, end).all<{ source: string; path: string; entries: number }>(),
+      db.prepare(`SELECT source, CAST(strftime('%H', started_at, '+9 hours') AS INTEGER) AS hour, COUNT(*) AS entries
+        FROM site_visit_sessions WHERE visit_date BETWEEN ? AND ?
+        GROUP BY source, hour ORDER BY hour, source`)
+        .bind(start, end).all<{ source: string; hour: number | null; entries: number }>(),
+      readAcquisitionEvidence(db, start, end),
     ]);
-    return { available: true, trackingSince: first?.started_at || null, rows: rows.results };
+    return {
+      available: true, trackingSince: first?.started_at || null, rows: rows.results, evidence,
+      hours: hours.results.filter(row => row.hour !== null && row.hour >= 0 && row.hour < 24).map(row => ({
+        source: isVisitSource(row.source) ? row.source : 'other' as const, hour: Number(row.hour), entries: numeric(row.entries),
+      })),
+    };
   } catch (error) {
     // Only the new section degrades when migration has not yet been applied.
     const missing = error instanceof Error && /no such table: (?:main\.)?site_visit_sessions/i.test(error.message);
     return { available: false, error: missing ? 'migration-required' as const : 'unavailable' as const, trackingSince: null, rows: [] };
+  }
+}
+
+async function readAcquisitionEvidence(db: D1Database, start: string, end: string): Promise<NonNullable<VisitAcquisition['evidence']>> {
+  try {
+    const rows = await db.prepare(`SELECT source, source_basis, COUNT(*) AS entries
+      FROM site_visit_sessions WHERE visit_date BETWEEN ? AND ? GROUP BY source, source_basis`)
+      .bind(start, end).all<{ source: string; source_basis: string; entries: number }>();
+    return { available: true, rows: rows.results.map(row => ({
+      source: isVisitSource(row.source) ? row.source : 'other',
+      basis: isVisitBasis(row.source_basis) ? row.source_basis : 'legacy', entries: numeric(row.entries),
+    })) };
+  } catch (error) {
+    const missing = error instanceof Error && /no such column:\s*source_basis/i.test(error.message);
+    return { available: false, error: missing ? 'migration-required' : 'unavailable', rows: [] };
   }
 }
 
