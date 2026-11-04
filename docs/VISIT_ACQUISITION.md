@@ -1,5 +1,22 @@
 # 방문통계 유입 경로·첫 페이지
 
+## AI 서비스 유입 구분 (2026-11-04 · 로컬 구현, 배포 전)
+
+| 표시 / 저장 코드 | 웹 출처 도메인 | 인식하는 utm_source 값 |
+| --- | --- | --- |
+| AI · ChatGPT / `ai-chatgpt` | `chatgpt.com`, `chat.openai.com` | `chatgpt`, `chatgpt.com`, `chat.openai.com` |
+| AI · 제미나이 / `ai-gemini` | `gemini.google.com` | `gemini`, `gemini.google.com` |
+| AI · 클로드 / `ai-claude` | `claude.ai` | `claude`, `claude.ai` |
+| AI · 퍼플렉시티 / `ai-perplexity` | `perplexity.ai` | `perplexity`, `perplexity.ai` |
+
+- 웹 출처는 HTTP(S)의 정확한 도메인 또는 그 하위 도메인만 인정한다. `chatgpt.com.example.org`처럼 이름만 포함하는 호스트, URL 경로·검색어·앱 이름·사용자 에이전트는 근거로 사용하지 않는다. UTM은 위 값과 정확하게 일치할 때만 인정하며 기존처럼 대소문자·주변 공백을 정규화한다.
+- Google 광고 클릭 표식 → 기존 명시적 링크 표식과 AI 링크 표식 → 브라우저 출처 순서다. Gemini 출처는 포괄적인 `google.com` 규칙 전에 확인하되 일반 구글 검색은 구글로 유지한다. `google`, `openai`, `ai` 같은 포괄적인 값이나 AI Mode 검색이라는 추측만으로 특정 AI 서비스에 배정하지 않는다.
+- 관리자 화면의 기존 날짜·출처 선택·첫 방문 페이지·시간대·판별 근거에 네 가지 항목을 추가한다. 해당 기간에 기록이 있는 출처만 표시한다. `link-tag`와 `web-referrer` 근거를 그대로 사용한다.
+- 이것은 식별 가능한 링크 유입 횟수다. AI 추천·답변 노출 횟수·실제 상담 수가 아니며, 다른 곳으로 복사한 링크에도 표식이 남을 수 있다. AI 앱이 항상 출처나 표식을 보내는 것은 아니다. 둘 다 없으면 `direct/no-referrer`, 알 수 없는 표식만 있으면 `direct/unrecognized-tag`를 유지한다.
+- 새 코드를 사용하는 방문부터 분류한다. 과거 `direct`·`other`·`google`은 원문 출처를 보관하지 않으므로 재분류하지 않는다. 기존 세션의 첫 출처도 덮어쓰지 않는다. 관리자 제외·DNT·봇 제외·30분 세션·페이지 조회 집계는 변경하지 않는다.
+- 기존 TEXT `source` 및 공통 허용 목록을 사용하므로 D1 마이그레이션·운영 데이터 수정은 없다. API와 클라이언트가 같은 목록을 사용하며 함께 배포한다. 원문 referrer·UTM·대화 내용·검색어·개인식별자 신규 수집 없음. 코드 롤백 시 새 출처가 기타로 보일 수 있으나 저장된 행은 보존된다.
+- 로컬 확인: `node --test scripts/test-ai-visit-acquisition.mjs scripts/test-visit-acquisition.mjs scripts/test-visit-evidence.mjs scripts/test-admin-analytics-dates.mjs scripts/test-analytics.mjs`. 예시 미리보기는 PowerShell에서 `$env:ANALYTICS_PREVIEW_AI='1'`, `$env:ANALYTICS_PREVIEW_PORT='4200'` 설정 후 `node scripts/preview-analytics-dates.mjs`. 메모리 SQLite·합성 데이터만 사용한다.
+
 ## 통화 후 문자 링크 (배포 전 준비)
 
 - 문자에 넣을 짧은 링크: `https://www.acedentshop.co.kr/go/sms`

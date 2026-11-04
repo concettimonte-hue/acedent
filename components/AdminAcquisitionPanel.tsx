@@ -3,7 +3,7 @@
 /* oxlint-disable next/no-html-link-for-pages -- Vite SPA routes are intentional. */
 import { useMemo, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
-import { VISIT_SOURCES, VISIT_BASES, ENTRY_PAGE_TYPES, entryPageType, type VisitAcquisition, type VisitSource, type VisitBasis } from '@/lib/visit-acquisition';
+import { VISIT_SOURCES, VISIT_BASES, ENTRY_PAGE_TYPES, entryPageType, isAiVisitSource, type VisitAcquisition, type VisitSource, type VisitBasis } from '@/lib/visit-acquisition';
 import { analyticsDate } from '@/lib/admin-analytics';
 
 export default function AdminAcquisitionPanel({ data }: { data?: VisitAcquisition }) {
@@ -50,6 +50,7 @@ export default function AdminAcquisitionPanel({ data }: { data?: VisitAcquisitio
         <strong>{data.total ? `기록된 방문 시작 ${data.total.toLocaleString()}회` : '선택 기간의 유입 기록 없음'}</strong>
         <span>{data.trackingSince ? `${analyticsDate(new Date(data.trackingSince))} 첫 기록부터 수집한 자료입니다. 첫날은 일부 시간만 포함될 수 있습니다.` : '아직 유입 기록이 없습니다.'} 도입 전 기록은 소급해 채우지 않습니다.</span>
         <span>한 사람이 다시 들어오면 여러 회가 될 수 있어 위 방문자 수와 다릅니다. 출처가 전달되지 않은 방문은 ‘직접·출처 확인 불가’로 묶습니다.</span>
+        <span>AI 서비스는 식별 가능한 출처·링크 표식이 있을 때만 구분합니다. 분류 추가 전 기록은 그대로 유지합니다.</span>
       </div>
       {!data.total ? <div className="admin-analytics-empty">선택 기간에 기록된 방문 시작이 없습니다. 도입 전 방문과 이전 버전 페이지의 방문은 포함되지 않습니다.</div> : <div className="admin-acquisition-grid">
         <div className="admin-acquisition-sources">
@@ -68,7 +69,8 @@ export default function AdminAcquisitionPanel({ data }: { data?: VisitAcquisitio
           <h3>{selected ? VISIT_SOURCES[selected] : '전체 유입'} · 처음 연 페이지</h3>
           <p>첫 페이지 이후에 본 페이지는 아래 페이지 목록에서 확인합니다.</p>
           {selected === 'after-call-sms' && <p>문자 전용 링크로 시작한 방문입니다. 문자 발송·열람 수나 상담 완료 수는 아닙니다.</p>}
-          {selected === 'direct' && <p className="admin-acquisition-explanation">상세사례로 바로 들어와도 검색 유입으로 확정할 수 없습니다. 출처가 없으면 직접 입력·저장한 링크·앱 공유 등을 구분할 수 없습니다.</p>}
+          {selected === 'direct' && <p className="admin-acquisition-explanation">상세사례로 바로 들어와도 검색·AI 유입으로 확정할 수 없습니다. 출처·링크 표식이 없으면 직접 입력·저장한 링크·앱 공유·AI 서비스 등을 구분할 수 없습니다.</p>}
+          {isAiVisitSource(selected) && <p className="admin-acquisition-explanation">이 AI 서비스의 출처 또는 링크 표식이 확인된 방문입니다. AI 추천·노출 횟수나 상담 완료 수는 아닙니다. 링크를 다른 곳에 공유해도 표식은 남을 수 있으며, 출처·표식이 없는 방문은 포함하지 않습니다.</p>}
           {selected === 'naver-other' && <p>네이버 앱·기타 네이버 출처입니다. 검색 결과를 클릭했다는 뜻은 아닙니다.</p>}
           <div className="admin-acquisition-breakdown">
             <h4>어떤 페이지로 들어왔나요?</h4>

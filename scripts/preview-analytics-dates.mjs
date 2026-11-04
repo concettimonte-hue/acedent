@@ -9,7 +9,7 @@ import { accessFixture } from './access-test-fixture.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const port = Number(process.env.ANALYTICS_PREVIEW_PORT || 4194);
-const fixture = analyticsFixture({ evidence: process.env.ANALYTICS_PREVIEW_LEGACY !== '1' });
+const fixture = analyticsFixture({ evidence: process.env.ANALYTICS_PREVIEW_LEGACY !== '1', aiSources: process.env.ANALYTICS_PREVIEW_AI === '1' });
 const access = await accessFixture({ after() {} });
 Object.assign(fixture.env, access.env);
 const api = loadTs('functions/admin/api/analytics.ts');

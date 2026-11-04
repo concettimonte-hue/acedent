@@ -10,6 +10,10 @@ export const VISIT_SOURCES = {
   'google-ad': '구글 광고 표식',
   daum: '다음',
   bing: '빙',
+  'ai-chatgpt': 'AI · ChatGPT',
+  'ai-gemini': 'AI · 제미나이',
+  'ai-claude': 'AI · 클로드',
+  'ai-perplexity': 'AI · 퍼플렉시티',
   social: 'SNS·메신저',
   'after-call-sms': '통화 후 문자',
   other: '기타 외부 사이트',
@@ -23,6 +27,20 @@ export function isVisitSource(value: unknown): value is VisitSource {
 }
 
 const domainIs = (host: string, domain: string) => host === domain || host.endsWith(`.${domain}`);
+
+// Match only an explicit service tag or its web domain, never page content,
+// search keywords, user-agent text, or a missing referrer. Generic google/openai
+// tags are not evidence of a particular AI service.
+const AI_SERVICES = [
+  { source: 'ai-chatgpt', tag: 'chatgpt', domains: ['chatgpt.com', 'chat.openai.com'] },
+  { source: 'ai-gemini', tag: 'gemini', domains: ['gemini.google.com'] },
+  { source: 'ai-claude', tag: 'claude', domains: ['claude.ai'] },
+  { source: 'ai-perplexity', tag: 'perplexity', domains: ['perplexity.ai'] },
+] as const;
+
+export function isAiVisitSource(value: unknown): boolean {
+  return AI_SERVICES.some(service => service.source === value);
+}
 
 export const VISIT_BASES = {
   'link-tag': '알려진 링크 표식',
@@ -72,6 +90,8 @@ export function visitAttribution(referrer: string, location: string): VisitAttri
   if (source === 'daum') return result('daum', 'link-tag');
   if (source === 'bing') return result('bing', 'link-tag');
   if (['instagram', 'facebook', 'kakao', 'kakaotalk'].includes(source)) return result('social', 'link-tag');
+  const taggedAi = AI_SERVICES.find(service => service.tag === source || service.domains.some(domain => domain === source));
+  if (taggedAi) return result(taggedAi.source, 'link-tag');
   if (!referrer.trim()) return result('direct', [...params.keys()].some(key => key.startsWith('utm_')) ? 'unrecognized-tag' : 'no-referrer');
   let host: string;
   try {
@@ -81,6 +101,9 @@ export function visitAttribution(referrer: string, location: string): VisitAttri
     host = url.hostname.toLowerCase().replace(/\.$/, '');
   } catch { return result('direct', 'invalid-referrer'); }
   if (host === current.hostname || domainIs(host, 'acedentshop.co.kr')) return result('internal', 'internal');
+  // Gemini must be checked before the broader google.com rule below.
+  const referringAi = AI_SERVICES.find(service => service.domains.some(domain => domainIs(host, domain)));
+  if (referringAi) return result(referringAi.source, 'web-referrer');
   if (domainIs(host, 'search.naver.com')) return result('naver-search', 'web-referrer');
   if (domainIs(host, 'blog.naver.com')) return result('naver-blog', 'web-referrer');
   if (domainIs(host, 'place.naver.com') || domainIs(host, 'map.naver.com')) return result('naver-place', 'web-referrer');

@@ -3,7 +3,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
 import { loadTs } from './test-support.mjs';
 
-export function analyticsFixture({ now = new Date(), seed = true, acquisition = true, evidence = true } = {}) {
+export function analyticsFixture({ now = new Date(), seed = true, acquisition = true, evidence = true, aiSources = false } = {}) {
   const { analyticsDate, shiftAnalyticsDate } = loadTs('lib/admin-analytics.ts');
   const today = analyticsDate(now);
   const db = new DatabaseSync(':memory:');
@@ -36,6 +36,8 @@ export function analyticsFixture({ now = new Date(), seed = true, acquisition = 
     }
   }
   if (seed) {
+    const sourcePool = ['naver-search', 'google', 'naver-blog', 'direct', 'naver-place', 'google-ad', 'after-call-sms'];
+    if (aiSources) sourcePool.push('ai-chatgpt', 'ai-gemini', 'ai-claude', 'ai-perplexity');
     for (let offset = 0; offset < 65; offset++) {
       const date = shiftAnalyticsDate(today, -offset);
       const count = offset === 0 ? 12 : 17 + offset % 9;
@@ -48,12 +50,12 @@ export function analyticsFixture({ now = new Date(), seed = true, acquisition = 
         if (i % 2 === 0) visit(id, date, `/works/detail/${cases[i % 5][0]}`, 1 + (i % 2));
         // Simulate recent rollout: old visits deliberately have no attribution.
         if (acquisition && offset < 6) {
-          const source = ['naver-search', 'google', 'naver-blog', 'direct', 'naver-place', 'google-ad', 'after-call-sms'][i % 7];
-          const path = source === 'after-call-sms' ? '/works' : i % 2 === 0 ? `/works/detail/${cases[i % 5][0]}` : '/';
+          const source = sourcePool[i % sourcePool.length];
+          const path = source === 'after-call-sms' ? '/works' : source.startsWith('ai-') || i % 2 === 0 ? `/works/detail/${cases[i % 5][0]}` : '/';
           const basis = offset > 1 ? 'legacy' : source === 'direct'
             ? ['no-referrer', 'unsupported-referrer', 'unrecognized-tag'][Math.floor(i / 7) % 3]
             : source === 'google-ad' ? 'ad-tag'
-            : ['after-call-sms', 'naver-blog', 'naver-place'].includes(source) ? 'link-tag' : 'web-referrer';
+            : ['after-call-sms', 'naver-blog', 'naver-place', 'ai-chatgpt'].includes(source) ? 'link-tag' : 'web-referrer';
           entry(`session-${offset}-${i}`, id, date, path, source, basis, (i * 3) % hourRange);
           if (i % 5 === 0) entry(`return-${offset}-${i}`, id, date, '/', 'direct', offset > 1 ? 'legacy' : 'no-referrer', (i * 3 + 1) % hourRange);
         }
