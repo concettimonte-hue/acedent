@@ -278,6 +278,7 @@ export function trackFilterUse(category: string, part: string) {
 export type WorksNavigationLocation =
   | 'header_desktop'
   | 'header_mobile'
+  | 'home_services'
   | 'bottom_mobile';
 
 export function trackWorksNavigation(location: WorksNavigationLocation) {

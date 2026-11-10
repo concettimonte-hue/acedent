@@ -1,0 +1,199 @@
+/* Homepage chapters only. Keep the shared gallery, detail and admin styles intact. */
+body:has(.home-page) { min-width: 0; }
+.home-page .section.numbered-section,
+.home-page .contact-section.numbered-section {
+  --chapter-space: clamp(4rem, 7vw, 7rem);
+  --chapter-gutter: 7vw;
+  padding-top: var(--chapter-space);
+  padding-bottom: var(--chapter-space);
+  scroll-margin-top: 100px;
+}
+
+/* One predictable marker position, including sections with a split layout. */
+.home-page .numbered-section .content-section-number {
+  position: absolute;
+  top: var(--chapter-space);
+  left: var(--chapter-gutter);
+  right: auto;
+  display: grid;
+  width: 2.3rem;
+  height: 1.5rem;
+  place-items: center;
+  background: #f8db00;
+  color: #171917;
+  font-size: .75rem;
+  line-height: 1;
+  letter-spacing: .06em;
+  font-variant-numeric: tabular-nums;
+}
+.home-page .numbered-section .section-kicker {
+  min-height: 1.5rem;
+  padding-left: 3.1rem;
+  line-height: 1.5rem;
+  font-size: .72rem;
+  letter-spacing: .12em;
+}
+.home-page .numbered-section :is(.section-heading, .cases-heading, .content-section-header, .reason-intro, .principle-statement, .contact-copy) h2 {
+  margin-top: 1.4rem;
+  max-width: 22ch;
+  font-size: clamp(2rem, 3.5vw, 3.5rem);
+  letter-spacing: -.055em;
+  line-height: 1.22;
+  text-wrap: balance;
+}
+.home-page :is(.section-heading, .principle-statement) h2 span { color: #636863; }
+.home-page :is(.section-heading, .principle-statement) > p:not(.section-kicker),
+.home-page .content-section-subcopy {
+  max-width: 42rem;
+  font-size: 1rem;
+  line-height: 1.85;
+}
+.home-page .section-heading > p:not(.section-kicker) {
+  margin-top: 1.5rem;
+  color: #555b55;
+  word-break: keep-all;
+}
+.home-page .content-section-header { gap: 0; }
+.home-page .content-section-header > div { min-width: 0; }
+.home-page .section-services { gap: 4vw; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
+.home-page .service-grid { gap: 1rem; background: transparent; border: 0; }
+.home-page .service-card {
+  padding: clamp(1.2rem, 2.2vw, 2rem);
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  transition: none;
+}
+.home-page .service-card:hover { transform: none; background: #fff; }
+.home-page .service-card-top { color: #666c65; }
+.home-page .service-card-top svg { width: 24px; height: 24px; }
+.home-page .service-card h3 { margin-top: 1.4rem; font-size: 1.35rem; line-height: 1.4; }
+.home-page .service-card p { font-size: .95rem; line-height: 1.8; color: #555b55; white-space: normal; }
+.home-page .home-service-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .8rem;
+  min-height: 48px;
+  margin-top: 1.5rem;
+  padding: .75rem 1rem;
+  background: #171917;
+  color: #fff;
+  font-size: .9rem;
+  font-weight: 750;
+}
+.home-page .home-service-link svg { width: 18px; height: 18px; color: #f8db00; }
+.home-page .home-service-link:hover { background: #303430; }
+.home-page :is(.home-service-link, .section-text-link-wrap a, .insurance-closing > a, .faq-item summary):focus-visible {
+  outline: 3px solid #8f7900;
+  outline-offset: 4px;
+}
+
+/* Keep limits and times readable; informational cards should not suggest buttons. */
+.home-page .paint-care-grid { align-items: stretch; gap: 1.25rem; }
+.home-page .paint-care-card { display: flex; flex-direction: column; padding: 1.5rem; border: 0; border-radius: 8px; background: #fff; }
+.home-page .compact-card-top { color: #626862; }
+.home-page .compact-card-top strong { border-radius: 4px; padding: .3rem .6rem; background: #eef0eb; color: #50584c; font-size: .75rem; font-weight: 650; }
+.home-page .paint-care-card h3 { margin-top: 1.1rem; line-height: 1.4; }
+.home-page .paint-care-keywords { color: #626862; font-size: .83rem; line-height: 1.65; }
+.home-page .paint-care-desc { font-size: .95rem; margin-bottom: 1.1rem; }
+.home-page .paint-care-limit { margin-top: auto; }
+.home-page .paint-care-limit strong { color: #4f554f; font-size: .8rem; }
+.home-page .paint-care-limit p { color: #626862; font-size: .85rem; line-height: 1.7; }
+.home-page :is(.paint-care-note, .insurance-assumption) { color: #5b615b; font-size: .85rem; }
+.home-page .section-closing { align-items: flex-start; }
+.home-page .section-closing > p { flex: 1; }
+.home-page :is(.section-text-link-wrap a, .insurance-closing > a) { min-height: 44px; align-items: center; }
+
+.home-page .reason-section { --section-divider: #3e453a; background: #1b1e1b; color: #f4f5f1; }
+.home-page .reason-section .section-kicker { color: #b2b9ad; }
+.home-page .reason-grid { border: 0; margin-top: 2.5rem; gap: 2rem; }
+.home-page .reason-grid article { min-height: 0; padding: 1.5rem 0 0; border: 0; border-top: 1px solid #4b5247; }
+.home-page .reason-grid span { width: auto; height: auto; background: none; border-radius: 0; color: #f8db00; font-size: .8rem; }
+.home-page .reason-grid h3 { margin-top: 1.4rem; font-size: 1.35rem; line-height: 1.45; }
+.home-page .reason-grid p { color: #bdc3b9; font-size: .95rem; }
+.home-page .principle-section { align-items: start; }
+.home-page .principle-list { border: 0; }
+.home-page .principle-list > div { min-height: 96px; padding: 1.35rem 0; gap: 1rem; border-color: #dfe2db; }
+.home-page .principle-list > div:first-child { padding-top: 0; }
+.home-page .principle-list span { color: #626862; }
+.home-page .principle-item-copy strong { line-height: 1.65; }
+.home-page .principle-item-copy p { font-size: .9rem; line-height: 1.8; }
+.home-page .principle-list svg { width: 18px; height: 18px; color: #81700d; }
+.home-page .review-card-featured { border-left: 3px solid #f8db00; }
+.home-page .review-card > p { max-width: 70ch; }
+.home-page .review-meta { color: #aeb4ac; font-size: .8rem; }
+.home-page .reviews-row .review-card h3 { color: #e8ebe5; }
+
+/* Four steps on desktop, one continuous vertical sequence on a phone. */
+.home-page .process-grid { list-style: none; padding: 0; gap: 1.5rem; border: 0; }
+.home-page .process-card { padding: 1.5rem 0 0; border: 0; border-top: 1px solid #595e55; opacity: 1; transform: none; transition: none; }
+.home-page .process-card:not(:last-child)::after { display: none; content: none; }
+.home-page .process-card > strong { font-size: 2rem; font-weight: 600; letter-spacing: -.03em; }
+.home-page .process-card h3 { margin-top: 1.25rem; font-size: 1.2rem; }
+.home-page .process-card p { color: #b8beb4; font-size: .95rem; line-height: 1.8; }
+.home-page .faq-list { border: 0; border-top: 1px solid #bfc1bb; }
+.home-page .faq-item:last-child { border-bottom: 1px solid #cfd0ca; }
+.home-page .faq-item summary { padding: 1.25rem 1rem; min-height: 72px; line-height: 1.6; word-break: keep-all; }
+.home-page .faq-symbol { flex: 0 0 1.5rem; color: #5c6459; }
+.home-page .faq-item[open] { background: #fff; }
+.home-page .faq-item[open] summary { color: #171d15; }
+.home-page .faq-answer { padding: 0 1rem 1.5rem; }
+.home-page .faq-answer p { max-width: 65ch; color: #555b55; font-size: .95rem; line-height: 1.85; }
+.home-page .insurance-table { min-width: 0; table-layout: fixed; }
+.home-page .insurance-table-scroll { border: 0; border-radius: 8px; overflow: hidden; }
+.home-page .insurance-table :is(th, td) { border-right: 0; border-bottom-color: #e2e4dd; }
+.home-page .insurance-table thead { background: #1b1e1b; }
+.home-page .insurance-table thead th { border-bottom: 0; }
+.home-page .insurance-choice-grid { gap: 1.25rem; }
+.home-page .insurance-choice-grid article { padding: 1.5rem; border: 0; border-radius: 8px; background: #f4f5f1; }
+.home-page .insurance-choice-grid h3 { font-size: 1.15rem; line-height: 1.5; }
+.home-page .insurance-table th:first-child { width: 28%; }
+.home-page .insurance-table th:nth-child(2) { width: 22%; }
+.home-page .insurance-table :is(th, td) { overflow-wrap: anywhere; word-break: keep-all; }
+.home-page .contact-section .content-section-number { background: #191c17; color: #f8db00; }
+
+/* The no-JavaScript HTML uses the same ordered steps and retains its card borders. */
+.seo-home #process .seo-grid > li { padding: 1.25rem; border: 1px solid #3a3d39; }
+
+@media (max-width: 1000px) {
+  .home-page .section-services { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+  .home-page .service-grid { margin-top: 0; }
+  .home-page .section-closing { flex-wrap: wrap; }
+  .home-page .section-closing > p { flex-basis: 100%; }
+}
+@media (max-width: 700px) {
+  .home-page .section.numbered-section,
+  .home-page .contact-section.numbered-section { --chapter-space: 3.5rem; --chapter-gutter: 1.25rem; scroll-margin-top: 115px; }
+  .home-page .numbered-section :is(.section-heading, .cases-heading, .content-section-header, .reason-intro, .principle-statement, .contact-copy) h2 {
+    max-width: 100%;
+    font-size: clamp(1.8rem, 7.5vw, 2.4rem);
+    line-height: 1.3;
+    margin-top: 1.15rem;
+  }
+  .home-page :is(.section-heading, .principle-statement) > p:not(.section-kicker),
+  .home-page .content-section-subcopy { font-size: .95rem; }
+  .home-page .service-grid { grid-template-columns: minmax(0, 1fr); }
+  .home-page .service-card { display: grid; grid-template-columns: minmax(0, 1fr) 28px; padding: 1.25rem; column-gap: .75rem; }
+  .home-page .service-card-top { grid-column: 2; grid-row: 1 / 3; flex-direction: column; justify-content: flex-start; gap: .75rem; }
+  .home-page .service-card h3 { grid-column: 1; grid-row: 1; margin-top: 0; font-size: 1.2rem; }
+  .home-page .service-card p { grid-column: 1; grid-row: 2; max-width: none; }
+  .home-page .paint-care-card { padding: 1.25rem; }
+  .home-page .reason-grid { gap: 1.5rem; margin-top: 2rem; }
+  .home-page .reason-grid article { display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: .5rem .5rem; padding-top: 1.25rem; }
+  .home-page .reason-grid span { grid-row: 1 / 3; align-self: start; justify-self: start; line-height: 1.95; }
+  .home-page .reason-grid h3 { margin: 0; font-size: 1.2rem; }
+  .home-page .reason-grid p { grid-column: 2; margin: 0; }
+  .home-page .principle-list > div { min-height: 88px; }
+  .home-page .process-grid { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .home-page .process-card { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); column-gap: 1rem; border: 0; padding: 0 0 2rem; }
+  .home-page .process-card:last-child { padding-bottom: 0; }
+  .home-page .process-card:not(:last-child)::before { content: ''; position: absolute; width: 1px; background: #454c40; top: 2.3rem; bottom: .4rem; left: 1.15rem; }
+  .home-page .process-card > strong { grid-row: 1 / 3; font-size: 1.75rem; line-height: 1.3; }
+  .home-page .process-card h3 { margin: 0; line-height: 1.75; }
+  .home-page .process-card p { grid-column: 2; margin-top: .5rem; }
+  .home-page .faq-item summary { padding: 1.1rem .5rem; }
+  .home-page .faq-answer { padding: 0 .5rem 1.25rem; }
+  .home-page .insurance-table { font-size: .8rem; }
+  .home-page .insurance-table-scroll { margin-right: 0; }
+  .home-page .insurance-table :is(th, td) { padding: .85rem .55rem; }
+}

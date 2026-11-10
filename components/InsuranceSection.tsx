@@ -48,7 +48,7 @@ export default function InsuranceSection() {
 
       <div className="insurance-choice-grid">
         <article>
-          <h3>현금이 나은 경우</h3>
+          <h3>보험 없이 수리를 고려할 때</h3>
           <ul>
             {content.cashBetter.map((item) => (
               <li key={item}>
@@ -59,7 +59,7 @@ export default function InsuranceSection() {
           </ul>
         </article>
         <article>
-          <h3>보험이 나은 경우</h3>
+          <h3>보험 처리를 고려할 때</h3>
           <ul>
             {content.insuranceBetter.map((item) => (
               <li key={item}>

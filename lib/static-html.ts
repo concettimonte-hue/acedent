@@ -78,6 +78,10 @@ const escapeHtml = (value: string) =>
 const text = (value: string) => escapeHtml(value);
 const car = (work: WorkItem) => [work.carMaker, work.carModel].filter(Boolean).join(' ');
 
+function headerBrand() {
+  return `<a class="header-brand" href="/" aria-label="에이스덴트 홈"><span class="header-brand-symbol" aria-hidden="true"><img src="${text(site.brand.logoSrc)}" alt="" width="510" height="340"></span><span class="header-brand-copy"><strong>${text(site.brand.name)}</strong><small>${text(site.brand.descriptor)}</small></span></a>`;
+}
+
 export function getStaticWorkVehicleTag(maker: string, model?: string) {
   const normalizedMaker = getVehicleBrandDisplayName(maker);
   const normalizedModel = model?.trim();
@@ -173,7 +177,7 @@ export function getHomeStaticHtml(works: WorkItem[]) {
 
   return `<main class="seo-static seo-home" aria-label="에이스덴트 정적 페이지">
     <header class="seo-static-header">
-      <a href="/">${image(site.brand.logoSrc, '에이스덴트 로고', { width: 510, height: 340, eager: true })}<strong>ACE DENT</strong></a>
+      ${headerBrand()}
       <nav aria-label="주요 메뉴">${site.navigation.items.map((item) => `<a href="${text(item.href)}">${text(item.label)}</a>`).join('')}</nav>
     </header>
     <section class="seo-static-hero">
@@ -196,7 +200,7 @@ export function getHomeStaticHtml(works: WorkItem[]) {
         (item) => `<article><strong>${text(Number(item.value).toLocaleString('ko-KR'))}<small>${text(item.valueSuffix)}</small></strong><h2>${text(item.label)}</h2><p>${text(item.sub)}</p></article>`,
       )
       .join('')}</section>
-    <section id="services"><p>${text(services.kicker)}</p><h2>${services.titleLines.map(text).join(' ')}</h2><p>${text(services.description)}</p><div class="seo-grid">${services.items
+    <section id="services"><p>${text(services.kicker)}</p><h2>${services.titleLines.map(text).join(' ')}</h2><p>${text(services.description)}</p><a href="/works">실제 수리사례 보기 ↗</a><div class="seo-grid">${services.items
       .map((item) => `<article><small>${text(item.number)}</small><h3>${text(item.title)}</h3><p>${text(item.copy).replaceAll('\n', '<br />')}</p></article>`)
       .join('')}</div></section>
     <section id="cases"><p>${text(casesData.sectionLabel)}</p><h2>${casesData.headingLines.map(text).join(' ')}</h2><p>${text(casesData.instruction)}</p><div class="seo-works-grid">${featured.map((work) => workCard(work)).join('')}</div><a href="/works">${text(casesData.moreLinkLabel)}</a></section>
@@ -207,7 +211,7 @@ export function getHomeStaticHtml(works: WorkItem[]) {
     <section id="principle"><p>${text(principles.kicker)}</p><h2>${principles.titleLines.map(text).join(' ')}</h2><p>${text(principles.description)}</p>${principles.items.map((item) => `<article><h3>${text(item.title)}</h3>${item.copy ? `<p>${text(item.copy)}</p>` : ''}</article>`).join('')}</section>
     <section id="reviews"><p>${text(reviews.sectionLabel)}</p><h2>${text(reviews.heading)}</h2>${highlightedReviews.map((item) => `<article><h3>${text(item.headline)}</h3><p>${text(item.text)}</p><small>${text(item.initial)} · ${text(item.car)} · ${text(item.area)} · ${text(item.part)}</small></article>`).join('')}</section>
     <section id="insurance"><p>${text(insurance.sectionLabel)}</p><h2>${text(insurance.heading)}</h2><p>${text(insurance.subCopy)}</p><table><thead><tr><th>예상 수리비</th><th>자기부담금</th><th>판단 기준</th></tr></thead><tbody>${insurance.table.map((row) => `<tr><th>${text(row.estimate)}</th><td>${text(row.own)}</td><td>${text(row.note)}</td></tr>`).join('')}</tbody></table></section>
-    <section id="process"><p>${text(process.sectionLabel)}</p><h2>${text(process.heading)}</h2><div class="seo-grid">${process.items.map((item) => `<article><strong>${text(item.step)}</strong><h3>${text(item.title)}</h3><p>${text(item.desc)}</p></article>`).join('')}</div></section>
+    <section id="process"><p>${text(process.sectionLabel)}</p><h2>${text(process.heading)}</h2><ol class="seo-grid" aria-label="상담부터 출고까지 진행 순서">${process.items.map((item) => `<li><strong aria-hidden="true">${text(item.step)}</strong><h3>${text(item.title)}</h3><p>${text(item.desc)}</p></li>`).join('')}</ol></section>
     <section id="faq"><p>${text(faq.sectionLabel)}</p><h2>${text(faq.heading)}</h2>${faqList()}</section>
     <section id="contact"><p>CONTACT</p><h2>${contact.titleLines.map(text).join(' ')}</h2><p>${text(contact.description)}</p><a href="${text(contact.phoneHref)}">${text(contact.phoneDisplay)}</a><a href="${text(contact.smsHref)}">${text(contact.smsLabel)}</a><a href="${text(naver.talk)}" target="_blank" rel="noopener noreferrer">${text(contact.talkLabel)}</a></section>
     <section id="location"><p>${text(contact.locationSectionLabel)}</p><h2>${text(contact.locationHeading)}</h2>${image(storefrontImagePath, '서울 동대문 판금도색 외형복원 전문 에이스덴트 매장 외관', { width: homeImage.imageWidth, height: homeImage.imageHeight })}<address>${text(contact.footerAddress)} · ${text(contact.phoneDisplay)}</address><a href="${text(naver.place)}" target="_blank" rel="noopener noreferrer">${text(contact.directionsLabel)}</a><p>${text(contact.nearbyIntro)} ${text(contact.nearbyAreas)}</p></section>
@@ -239,7 +243,7 @@ export function getWorksStaticHtml(
     : [];
   return `<main class="seo-static seo-works">
     ${staticVehicleLogoFallback}
-    <header class="seo-static-header"><a href="/">ACE DENT</a><a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
+    <header class="seo-static-header">${headerBrand()}<a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
     <section><p>ACE DENT · REPAIR ARCHIVE</p><h1>${text(heading)}</h1><p>작업 방식이나 손상 부위로 비슷한 사례를 찾아보세요. 아는 항목만 골라도 됩니다.</p></section>
     ${categoryGuide ? `<details class="works-category-guide" aria-labelledby="works-category-guide-${text(category ?? '')}"><summary><h2 id="works-category-guide-${text(category ?? '')}">${text(categoryGuide.title)}</h2><span class="works-category-guide-action"><span class="when-closed">설명 보기</span><span class="when-open">접기</span></span></summary><div class="works-category-guide-body">${categoryGuide.paragraphs.map((paragraph) => `<p>${text(paragraph)}</p>`).join('')}</div></details>` : ''}
     <p class="work-filter-heading" id="static-work-category-question">어떤 작업이 궁금하세요?</p>
@@ -300,7 +304,7 @@ export function getWorkDetailStaticHtml(
       </section>`;
   return `<main class="seo-static seo-work-detail">
     ${staticVehicleLogoFallback}
-    <header class="seo-static-header"><a href="/">ACE DENT</a><a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
+    <header class="seo-static-header">${headerBrand()}<a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
     <nav aria-label="현재 위치"><a href="/">홈</a> / <a href="/works">수리사례</a> / <a href="/works/${text(work.category)}">${text(categoryLabel)}</a></nav>
     <article>
       ${classification}

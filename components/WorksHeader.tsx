@@ -4,34 +4,22 @@ import { ArrowLeft, Phone } from 'lucide-react';
 import siteData from '@/content/site.json';
 import type { SiteContent } from '@/content/types';
 import { trackTelClick } from '@/lib/analytics';
+import HeaderBrand from '@/components/HeaderBrand';
 
 const site = siteData as SiteContent;
 
 export default function WorksHeader() {
   return (
     <header className="works-header">
-      <a className="works-home-link" href="/">
+      <a className="works-home-link" href="/" aria-label="메인으로">
         <ArrowLeft aria-hidden="true" />
         <span>메인으로</span>
       </a>
-      <a className="brand works-brand" href="/" aria-label="에이스덴트 홈">
-        <span className="brand-logo" aria-hidden="true">
-          <img
-            src={site.brand.logoSrc}
-            alt={site.brand.logoAlt}
-            width="510"
-            height="340"
-            loading="eager"
-          />
-        </span>
-        <span>
-          <strong>{site.brand.name}</strong>
-          <small>REPAIR WORKS</small>
-        </span>
-      </a>
+      <HeaderBrand className="works-brand" />
       <a
         className="header-call"
         href={site.contact.phoneHref}
+        aria-label={site.contact.headerPhoneLabel}
         onClick={() => trackTelClick('works_header')}
       >
         <Phone aria-hidden="true" />

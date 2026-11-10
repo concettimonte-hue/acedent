@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode } from 'react';
+import './home-sections.css';
 import {
   ArrowUpRight,
   CarFront,
@@ -35,6 +36,7 @@ import SectionNumber from '@/components/SectionNumber';
 import SiteFooter from '@/components/SiteFooter';
 import TrustBar from '@/components/TrustBar';
 import SmartHeader from '@/components/SmartHeader';
+import HeaderBrand from '@/components/HeaderBrand';
 import {
   NUMBERED_SECTION_ORDER,
   type NumberedSectionId,
@@ -58,7 +60,7 @@ const serviceIconMap: Record<ServiceIconName, LucideIcon> = {
 };
 
 export default function Home() {
-  const { brand, navigation, hero, services, principles, contact } = site;
+  const { navigation, hero, services, principles, contact } = site;
   const talkUrl = withLandingUtm(naver.talk, 'talk');
 
   const numberedSections: Record<NumberedSectionId, ReactNode> = {
@@ -76,6 +78,13 @@ export default function Home() {
             <span>{services.titleLines[1]}</span>
           </h2>
           <p>{services.description}</p>
+          <a
+            className="home-service-link"
+            href="/works"
+            onClick={() => trackWorksNavigation('home_services')}
+          >
+            실제 수리사례 보기 <ArrowUpRight aria-hidden="true" />
+          </a>
         </div>
         <div className="service-grid">
           {services.items.map((service) => {
@@ -215,24 +224,9 @@ export default function Home() {
   };
 
   return (
-    <main id="top" className="site-shell">
+    <main id="top" className="site-shell home-page">
       <SmartHeader>
-        <a href="#top" className="brand" aria-label={brand.homeAriaLabel}>
-          <span className="brand-logo" aria-hidden="true">
-            <img
-              src={brand.logoSrc}
-              alt={brand.logoAlt}
-              width="510"
-              height="340"
-              loading="lazy"
-              decoding="async"
-            />
-          </span>
-          <span>
-            <strong>{brand.name}</strong>
-            <small>{brand.descriptor}</small>
-          </span>
-        </a>
+        <HeaderBrand href="#top" />
         <nav className="desktop-nav" aria-label={navigation.ariaLabel}>
           {navigation.items.map((item) => (
             <a

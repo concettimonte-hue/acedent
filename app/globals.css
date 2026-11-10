@@ -2906,6 +2906,9 @@ section[id] {
   background: #ffe936;
   transform: translateY(-2px);
 }
+body:has(.works-page) {
+  min-width: 0;
+}
 .works-page {
   min-height: 100vh;
   padding-bottom: 4rem;
@@ -2929,6 +2932,8 @@ section[id] {
   align-items: center;
   gap: 0.45rem;
   width: fit-content;
+  min-width: 44px;
+  min-height: 44px;
   color: #aeb1ad;
   font-size: 0.82rem;
   font-weight: 750;
@@ -2942,6 +2947,57 @@ section[id] {
 }
 .works-brand {
   justify-self: center;
+}
+.header-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 48px;
+  text-decoration: none;
+}
+.header-brand-symbol {
+  position: relative;
+  display: block;
+  width: 62px;
+  height: 48px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  background: #030403;
+}
+.header-brand .header-brand-symbol img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: 200%;
+  max-width: none;
+  height: auto;
+  transform: translate(-46%, -50%);
+}
+.header-brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+.header-brand-copy strong {
+  color: #f4f5f1;
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+}
+.header-brand-copy small {
+  color: #b2b8ad;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.works-header a:focus-visible,
+.site-header .header-brand:focus-visible {
+  outline: 2px solid #f8db00;
+  outline-offset: 4px;
 }
 .works-page-hero {
   width: min(1400px, 100%);
@@ -4259,8 +4315,7 @@ section[id] {
     padding: 0 1rem;
   }
   .works-home-link span,
-  .works-header .header-call span,
-  .works-brand small {
+  .works-header .header-call span {
     display: none;
   }
   .works-header .header-call {
@@ -4274,8 +4329,15 @@ section[id] {
     height: 18px;
     flex: 0 0 auto;
   }
-  .works-brand .brand-logo {
-    width: 54px;
+  .header-brand {
+    gap: 0.55rem;
+  }
+  .header-brand-symbol {
+    width: 52px;
+    height: 42px;
+  }
+  .header-brand-copy strong {
+    font-size: 1rem;
   }
   .works-page-hero {
     padding: 3rem 1.25rem 1.5rem;
