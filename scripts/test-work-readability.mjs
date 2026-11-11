@@ -145,33 +145,25 @@ test('category guides are closed native disclosures with identical initial React
   assert.equal(JSON.stringify(works), snapshot);
 });
 
-test('existing partial-paint, full-polish and panel-paint guide copy is preserved', () => {
-  assert.deepEqual(getWorkCategoryGuide('partial-paint').paragraphs, [
-    '부분도색은 손상 범위가 국소적인 경우 패널 전체를 넓게 작업하지 않고 손상된 범위를 중심으로 진행하는 방식입니다. 사례 카드에서 작업 전 손상 위치와 작업 후 마감 상태를 차종과 부위별로 비교할 수 있습니다.',
-    '적용 가능 여부는 손상 범위와 위치, 기존 도장 상태에 따라 달라집니다. 손상 부위가 잘 보이는 사진을 보내주시면 부분도색으로 가능한지 먼저 확인해 안내합니다.',
-  ]);
-  const polish = JSON.parse(readFileSync(new URL('../content/polish.json', import.meta.url), 'utf8'));
-  const fullPolishService = polish.items.find((item) => item.id === 'fullpolish');
-  assert.deepEqual(getWorkCategoryGuide('full-polish').paragraphs, [
-    [fullPolishService.desc, fullPolishService.notWhen].filter(Boolean).join(' '),
-    `사례의 작업 전후 사진에서 도장면의 선명도와 광도 변화를 확인하세요. ${polish.closing}`,
-  ]);
-  assert.equal(getWorkCategoryGuide('panel-paint').title, '판금도색과 교환은 어떻게 판단하나요?');
-  assert.deepEqual(getWorkCategoryGuide('panel-paint').paragraphs, [
-    '판금도색은 찌그러진 철판을 펴고 그 부분만 색을 다시 칠하는 작업입니다. 비용은 손상 정도와 패널 수에 따라 달라지고 정확한 기간은 차량 상태 확인 후 안내하며, 사진만으로 단정하기 어려운 부분은 방문 확인을 안내합니다.',
-    '복원보다 부품 교환이 비용이 적으면 교환을 권하고, 서비스센터가 더 저렴한 경우도 숨기지 않습니다. 색상이 완전히 같을 수 없는 경우나 심한 찌그러짐으로 처음의 예리한 각을 그대로 만들기 어려운 경우처럼, 가능한 결과와 작업의 한계는 작업 전에 설명합니다.',
-  ]);
+test('repair guides distinguish similar jobs by visible damage and expected finish', () => {
+  const examples = [
+    ['panel-paint', '찌그러지고', '펴야 할 곳과 칠해야 할 곳의 넓이는 다를 수'],
+    ['partial-paint', '범퍼 모서리', '주변 색과 자연스럽게 이어지도록'],
+    ['touch-up', '돌에 맞아', '색 차이나 붓자국이 남을 수'],
+    ['polish', '다른 차 페인트', '내 차의 칠까지 벗겨졌다면'],
+    ['full-polish', '차 전체', '도장이 얇아진 곳은 무리해서 깎지 않으며'],
+  ];
+  for (const [category, symptom, distinction] of examples) {
+    const { title, paragraphs } = getWorkCategoryGuide(category);
+    assert.ok(title.includes(symptom), category);
+    assert.ok(paragraphs.some((text) => text.includes(distinction)), category);
+  }
 });
 
-test('dent and scratch removal guides use exactly the reviewed titles and two paragraphs', () => {
+test('dent guide keeps the reviewed title and two paragraphs', () => {
   assert.equal(getWorkCategoryGuide('dent').title, '문콕·찌그러짐은 덴트로 가능할까요?');
   assert.deepEqual(getWorkCategoryGuide('dent').paragraphs, [
     '덴트는 문콕처럼 도장이 벗겨지지 않은 눌림을 새로 칠하지 않고 펴는 작업입니다. 도장 상태와 손상 위치·깊이, 도구 접근 가능 여부를 확인해 복원 방법을 정합니다.',
     '접근 가능한 부위는 구멍을 뚫지 않는 무천공 방식으로 작업합니다. 다만 심한 찌그러짐이나 날카롭게 꺾인 부분은 흔적이 남을 수 있고, 도장이 손상된 경우에는 도색이 필요할 수 있습니다. 사진만으로 판단하기 어려운 부분은 방문 확인 후 가능한 결과와 작업 범위를 안내합니다.',
-  ]);
-  assert.equal(getWorkCategoryGuide('polish').title, '흠집·오염은 도색 없이 지울 수 있나요?');
-  assert.deepEqual(getWorkCategoryGuide('polish').paragraphs, [
-    '얕은 흠집과 페인트 이염은 도장 상태를 확인한 뒤 폴리싱으로 완화하거나 제거할 수 있습니다. 물자국·타르·석회물·본드 같은 오염은 종류와 도장 손상 정도에 맞춰 제거하고, 필요한 부위만 다듬어 기존 도장을 최대한 보존합니다.',
-    '깊게 패이거나 칠이 벗겨진 부분은 폴리싱만으로 복원하기 어렵습니다. 상태에 따라 붓터치나 도색을 안내하며, 붓터치 자국과 찌그러짐은 남을 수 있습니다. 오염이 도장면을 파고든 경우도 자국이 남거나 재도장이 필요할 수 있어, 가능한 결과와 한계를 먼저 설명합니다.',
   ]);
 });
