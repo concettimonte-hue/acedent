@@ -210,10 +210,10 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
           <details
             key={`${selectedCategory}-${selectedPart ?? 'all'}`}
             className="works-category-guide"
-            aria-labelledby={`works-category-guide-${selectedCategory}`}
+            aria-labelledby={`works-category-guide-${selectedCategory ?? 'all'}`}
           >
             <summary>
-              <h2 id={`works-category-guide-${selectedCategory}`}>{categoryGuide.title}</h2>
+              <h2 id={`works-category-guide-${selectedCategory ?? 'all'}`}>{categoryGuide.title}</h2>
               <span className="works-category-guide-action">
                 <span className="when-closed">설명 보기</span>
                 <span className="when-open">접기</span>

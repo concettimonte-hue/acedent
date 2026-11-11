@@ -59,7 +59,15 @@ export interface WorkCategoryGuide {
   paragraphs: readonly string[];
 }
 
-const workCategoryGuides: Partial<Record<WorkCategory, WorkCategoryGuide>> = {
+const workCategoryGuides: Partial<Record<WorkCategory | 'all', WorkCategoryGuide>> = {
+  all: {
+    eyebrow: 'REPAIR GUIDE',
+    title: '내 차와 비슷한 수리사례는 어떻게 찾나요?',
+    paragraphs: [
+      '예를 들어 범퍼 모서리를 긁었다면 부위에서 ‘범퍼’를 골라보세요. 수리 방법을 몰라도 사진에서 긁힌 위치와 모양이 비슷한 사례를 찾을 수 있습니다.',
+      '사례를 열면 같은 부위의 수리 전후 사진과 작업 설명을 함께 볼 수 있습니다. 도장이 얼마나 벗겨졌는지, 어느 범위까지 손봤는지 내 차와 비교해 보세요.',
+    ],
+  },
   dent: {
     eyebrow: 'DENT GUIDE',
     title: '문콕·찌그러짐은 덴트로 가능할까요?',
@@ -108,12 +116,20 @@ const workCategoryGuides: Partial<Record<WorkCategory, WorkCategoryGuide>> = {
       `사례의 작업 전후 사진에서 도장면의 선명도와 광도 변화를 확인하세요. ${polish.closing}`,
     ],
   },
+  coating: {
+    eyebrow: 'COATING GUIDE',
+    title: '유리막 코팅을 하면 기존 흠집도 없어지나요?',
+    paragraphs: [
+      '이미 생긴 흠집은 코팅만으로 지워지지 않습니다. 유리막 코팅은 깨끗하게 정리한 도장면에 보호층을 더합니다. 물방울이 맺혀 흘러내리기 쉬워지고(발수), 오염이 덜 달라붙어 세차할 때 닦아내기 수월해집니다(방오).',
+      '보통은 광택으로 잔흠집을 다듬고 도장면을 정리한 뒤 유리막 코팅을 합니다. 다만 신차는 도장 상태를 확인해 표면이 깨끗하고 잔흠집이 없으면 광택 없이 바로 코팅할 수 있습니다.',
+    ],
+  },
 };
 
 export function getWorkCategoryGuide(category?: WorkCategory, part?: WorkPart) {
-  // 새 안내는 최상위에 한정하고 기존 부분도색·전체광택의 부위별 노출은 유지합니다.
-  if (part && (category === 'dent' || category === 'panel-paint' || category === 'polish' || category === 'touch-up')) return undefined;
-  return category ? workCategoryGuides[category] : undefined;
+  // 부분도색·전체광택은 부위별 목록에서도 해당 작업 안내를 제공합니다.
+  if (part && category !== 'partial-paint' && category !== 'full-polish') return undefined;
+  return workCategoryGuides[category ?? 'all'];
 }
 
 function compactSeoText(value: string) {
