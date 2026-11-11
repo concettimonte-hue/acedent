@@ -120,8 +120,7 @@ test('category guides are closed native disclosures with identical initial React
   for (const category of [undefined, ...WORK_CATEGORIES.map(({ id }) => id)]) {
     for (const part of [undefined, ...WORK_PART_FILTER_ORDER]) {
       const guide = getWorkCategoryGuide(category, part);
-      const expected = category === 'partial-paint' || category === 'full-polish' ||
-        ([undefined, 'dent', 'panel-paint', 'polish', 'touch-up', 'coating'].includes(category) && !part);
+      const expected = !part || category === 'partial-paint' || category === 'full-polish';
       assert.equal(Boolean(guide), expected, `${category}/${part}`);
       const extract = (html) => [...html.matchAll(/<details class="works-category-guide"[^>]*>[\s\S]*?<\/details>/g)]
         .map(([details]) => details);

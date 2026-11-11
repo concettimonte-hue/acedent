@@ -59,7 +59,7 @@ export interface WorkCategoryGuide {
   paragraphs: readonly string[];
 }
 
-const workCategoryGuides: Partial<Record<WorkCategory | 'all', WorkCategoryGuide>> = {
+const workCategoryGuides: Record<WorkCategory | 'all', WorkCategoryGuide> = {
   all: {
     eyebrow: 'REPAIR GUIDE',
     title: '내 차와 비슷한 수리사례는 어떻게 찾나요?',
@@ -90,6 +90,15 @@ const workCategoryGuides: Partial<Record<WorkCategory | 'all', WorkCategoryGuide
     paragraphs: [
       '부분도색은 손상 범위가 국소적인 경우 패널 전체를 넓게 작업하지 않고 손상된 범위를 중심으로 진행하는 방식입니다. 사례 카드에서 작업 전 손상 위치와 작업 후 마감 상태를 차종과 부위별로 비교할 수 있습니다.',
       '적용 가능 여부는 손상 범위와 위치, 기존 도장 상태에 따라 달라집니다. 손상 부위가 잘 보이는 사진을 보내주시면 부분도색으로 가능한지 먼저 확인해 안내합니다.',
+    ],
+  },
+  'replace-paint': {
+    eyebrow: 'REPLACEMENT GUIDE',
+    title: '도어나 범퍼는 언제 수리하고, 언제 교환하나요?',
+    paragraphs: [
+      '도어는 안쪽 구조가 온전하면 눌린 겉철판을 펴고 다시 칠해 살릴 수 있습니다. 가장자리가 심하게 접혀 문을 닫았을 때 틈이 맞지 않거나 안쪽 보강재까지 손상됐다면 차종별 수리 기준에 따라 교환을 검토합니다.',
+      '범퍼 모서리가 벌어졌다면 어디가 깨졌는지 먼저 봅니다. 고정 클립만 부러졌다면 클립을 바꿔 기존 범퍼 커버를 다시 고정할 수 있습니다. 커버의 고정 구멍까지 찢어졌거나 모서리 일부가 떨어져 나가 단단히 고정하기 어렵다면 커버 교환을 검토합니다.',
+      '교환도색은 손상된 부품을 바꾸고 차 색에 맞춰 칠하는 작업입니다. 수리와 교환이 모두 가능하면 기존 부품을 살리는 비용과 부품값·도색·장착을 포함한 교환 비용을 비교해 안내합니다.',
     ],
   },
   polish: {
