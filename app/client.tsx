@@ -4,6 +4,7 @@ import SiteRouter from '@/components/SiteRouter';
 import { initializeSpaPageViews } from '@/lib/analytics';
 import { getLegacyWorksRedirect, getLegacyWheelRedirect } from '@/lib/work-routes';
 import { getWorks } from '@/lib/works';
+import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import './globals.css';
 
 const legacyWorksRedirect = getLegacyWorksRedirect(

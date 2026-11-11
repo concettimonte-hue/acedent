@@ -13,6 +13,7 @@ import {
   siteUrl,
   websiteJsonLd,
 } from '@/lib/seo';
+import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import './globals.css';
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });

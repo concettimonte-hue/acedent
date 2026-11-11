@@ -3112,28 +3112,30 @@ body:has(.works-page) {
 }
 .work-category-tabs {
   display: flex;
-  border: 1px solid #3b3e3b;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 8px;
+  background: #1b1e1b;
 }
 .work-category-tabs a {
   display: flex;
-  min-width: 0;
+  min-width: 44px;
   flex: 1 1 0;
-  min-height: 54px;
+  min-height: 44px;
   align-items: center;
   justify-content: center;
-  padding: 0.7rem;
-  border-right: 1px solid #3b3e3b;
-  color: #aeb1ad;
-  font-size: 0.8rem;
-  font-weight: 800;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  color: #c8cdc6;
+  font-size: 0.8125rem;
+  font-weight: 600;
   text-align: center;
-}
-.work-category-tabs a:last-child {
-  border-right: 0;
+  word-break: keep-all;
 }
 .work-category-tabs a.is-active {
   background: #f8db00;
   color: #030403;
+  font-weight: 700;
 }
 .work-filter-group + .work-filter-group {
   margin-top: 1.25rem;
@@ -3185,13 +3187,14 @@ body:has(.works-page) {
   border-radius: 999px;
   background: transparent;
   color: #aeb1ad;
-  font-size: 0.76rem;
-  font-weight: 750;
+  font-size: 0.8125rem;
+  font-weight: 600;
   cursor: pointer;
 }
 .work-part-filter a.is-active {
   border-color: #f8db00;
   color: #f8db00;
+  font-weight: 700;
 }
 .works-count {
   display: flex;
@@ -3233,8 +3236,14 @@ body:has(.works-page) {
   outline: 2px solid #f8db00;
   outline-offset: -3px;
 }
+.work-category-tabs a.is-active:focus-visible {
+  outline-color: #030403;
+}
 @media (hover: hover) {
-  .work-category-tabs a:not(.is-active):hover,
+  .work-category-tabs a:not(.is-active):hover {
+    background: #303430;
+    color: #f7f7f2;
+  }
   .work-part-filter a:not(.is-active):hover {
     background: #1c201c;
     color: #f7f7f2;
@@ -3324,6 +3333,17 @@ body:has(.works-page) {
   color: #030403;
   font-size: 0.68rem;
   font-weight: 900;
+}
+.works-browser .work-card-category {
+  top: 0.65rem;
+  left: 0.65rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 4px;
+  background: #242824;
+  color: #f2f3ef;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.3;
 }
 .work-card-image-state {
   position: absolute;
@@ -3737,8 +3757,8 @@ body:has(.works-page) {
 .work-detail-part-heading p {
   margin-top: 0.65rem;
   color: #9a9d99;
-  font-size: 0.95rem;
-  line-height: 1.7;
+  font-size: 1rem;
+  line-height: 1.8;
   word-break: keep-all;
 }
 .work-detail-slider {
@@ -4351,11 +4371,15 @@ body:has(.works-page) {
   .work-filter-rail-shell {
     margin-right: -1.25rem;
   }
+  .work-filter-rail-shell:has(> .work-category-tabs) {
+    --filter-edge-color: #1b1e1b;
+    margin-right: 0;
+    overflow: hidden;
+    border-radius: 8px;
+  }
   .work-category-tabs {
-    display: flex;
     overflow-x: auto;
     padding-right: 2.75rem;
-    border-right: 0;
     scroll-padding-inline: 1rem;
     scroll-snap-type: x proximity;
     scrollbar-width: none;
@@ -4365,8 +4389,8 @@ body:has(.works-page) {
     display: none;
   }
   .work-category-tabs a {
-    min-width: 108px;
     flex: 0 0 auto;
+    white-space: nowrap;
     scroll-snap-align: center;
   }
   .work-part-filter {
@@ -4398,13 +4422,13 @@ body:has(.works-page) {
     left: 0;
     justify-content: flex-start;
     padding-left: 0.15rem;
-    background: linear-gradient(90deg, #030403 35%, rgb(3 4 3 / 0%));
+    background: linear-gradient(90deg, var(--filter-edge-color, #030403) 35%, transparent);
   }
   .work-filter-edge.is-right {
     right: 0;
     justify-content: flex-end;
     padding-right: 0.5rem;
-    background: linear-gradient(270deg, #030403 35%, rgb(3 4 3 / 0%));
+    background: linear-gradient(270deg, var(--filter-edge-color, #030403) 35%, transparent);
   }
   .work-filter-edge svg {
     width: 19px;
@@ -4588,6 +4612,19 @@ body:has(.works-page) {
   }
 }
 
+/* Keep the same public face before and after React mounts, including the footer. */
+body:has(.home-page, .works-page, .seo-home, .seo-works, .seo-work-detail) {
+  --public-font: 'Pretendard Variable', system-ui, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  font-family: var(--public-font);
+  font-weight: 400;
+}
+main:is(.home-page, .works-page, .seo-home, .seo-works, .seo-work-detail) :is(h1, h2, h3),
+.works-page .work-card-copy > strong {
+  font-weight: 800;
+}
+.seo-static:is(.seo-home, .seo-works, .seo-work-detail) {
+  font-family: var(--public-font);
+}
 /* 빌드 시 각 URL에 삽입되는 정적 본문입니다. JavaScript가 실행되면 React가
    같은 콘텐츠의 인터랙티브 화면으로 교체합니다. */
 .seo-static {
