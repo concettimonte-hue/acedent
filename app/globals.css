@@ -1714,13 +1714,6 @@ section[id] {
 .insurance-table tbody th {
   font-weight: 800;
 }
-.insurance-table .insurance-warn {
-  background: #fff9ca;
-}
-.insurance-table .insurance-danger {
-  background: #fff0ed;
-  color: #8a2f24;
-}
 .insurance-choice-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

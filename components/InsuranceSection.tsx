@@ -29,14 +29,14 @@ export default function InsuranceSection() {
         <table className="insurance-table">
           <thead>
             <tr>
-              <th scope="col">예상 수리비</th>
-              <th scope="col">자기부담금</th>
-              <th scope="col">판단 기준</th>
+              {content.tableHeaders.map((heading) => (
+                <th scope="col" key={heading}>{heading}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
             {content.table.map((row) => (
-              <tr className={`insurance-${row.status}`} key={row.estimate}>
+              <tr key={row.estimate}>
                 <th scope="row">{row.estimate}</th>
                 <td>{row.own}</td>
                 <td>{row.note}</td>

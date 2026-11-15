@@ -68,11 +68,12 @@ export interface InsuranceContent {
   heading: string;
   subCopy: string;
   assumption: string;
+  tableHeaders: string[];
   table: Array<{
     estimate: string;
     own: string;
     note: string;
-    status: InsuranceStatus;
+    status?: InsuranceStatus;
   }>;
   cashBetter: string[];
   insuranceBetter: string[];
