@@ -33,6 +33,9 @@ import {
 import { getWorkCategoryGuide } from '@/lib/work-seo';
 import { observeAdminSession } from '@/lib/admin-session';
 
+declare const __ACEDENT_BEFORE_CARDS__: Readonly<Record<string, string>>;
+const beforeCards = typeof __ACEDENT_BEFORE_CARDS__ === 'undefined' ? undefined : __ACEDENT_BEFORE_CARDS__;
+
 interface WorksGalleryPageProps {
   category?: WorkCategory;
   part?: WorkPart;
@@ -355,12 +358,14 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
 
         {visibleWorks.length > 0 ? (
           <div className="works-grid">
-            {visibleWorks.map((work) => (
+            {visibleWorks.map((work, index) => (
               <WorkCard
                 work={work}
                 contextCategory={selectedCategory}
                 contextPart={selectedPart}
                 imageState="before"
+                beforeCards={beforeCards}
+                priority={index === 0}
                 canEdit={canEdit}
                 showVehicleLogo
                 key={work.slug}

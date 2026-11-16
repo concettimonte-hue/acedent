@@ -178,6 +178,7 @@ export interface SiteContent {
     descriptor: string;
     tagline: string;
     logoSrc: string;
+    headerLogoSrc: string;
     logoAlt: string;
     homeAriaLabel: string;
     footerHomeAriaLabel: string;

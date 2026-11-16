@@ -98,6 +98,27 @@ test('unknown position does not reorder exact matches; weaker same-position matc
   assert.equal(recommend([weaker, first], source)[0].work.slug, 'first');
 });
 
+test('gallery previews follow the filtered PART, including marks and original-image fallback', () => {
+  const fender = { ...part('휀더', 'panel-paint'), before: '/works/fender.jpg', beforeAnnotations: [] };
+  const bumper = { ...part('범퍼', 'partial-paint'), before: '/works/bumper.jpg',
+    beforeAnnotations: [{ type: 'circle', x: .2, y: .3, width: .1, height: .1 }] };
+  const item = work('mixed', [fender, bumper]);
+  const previews = { [fender.before]: '/card-images/fender.webp', [bumper.before]: '/card-images/bumper.webp' };
+  assert.equal(cardImage(item, 'partial-paint', '범퍼', 'before', undefined, {}), bumper.before);
+  const { getWorksStaticHtml } = loadTs('lib/static-html.ts');
+  const html = getWorksStaticHtml([item, { ...item, slug: 'second' }], 'partial-paint', '범퍼', previews);
+  const cards = html.split('<article class="seo-work-card">').slice(1).map(card => card.split('</article>')[0]);
+  assert.equal(cards.length, 2);
+  for (const card of cards) {
+    assert.match(card, /src="\/card-images\/bumper\.webp"/);
+    assert.match(card, /<ellipse /);
+    assert.doesNotMatch(card, /fender\.webp/);
+  }
+  assert.match(cards[0], /loading="eager" fetchpriority="high"/);
+  assert.match(cards[1], /loading="lazy"/);
+  assert.doesNotMatch(cards[1], /fetchpriority="high"/);
+});
+
 test('arrow has a proportional open head, rounded SVG strokes and shared canvas geometry', () => {
   for (const end of [[500, 100], [100, 500], [0, 100], [120, 125]]) {
     const geometry = annotationArrowGeometry(100, 100, ...end);

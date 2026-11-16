@@ -8,6 +8,7 @@
     "descriptor": "자동차 외장관리 전문점",
     "tagline": "믿고 맡기는 에이스덴트",
     "logoSrc": "/images/ace-dent-logo.png",
+    "headerLogoSrc": "/images/ace-dent-header.webp",
     "logoAlt": "에이스덴트 로고",
     "homeAriaLabel": "에이스덴트 홈",
     "footerHomeAriaLabel": "에이스덴트 맨 위로"

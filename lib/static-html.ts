@@ -1,3 +1,6 @@
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import ImageAnnotations from '../components/ImageAnnotations';
 import businessData from '../content/business.json';
 import { renderWorkBodyHtml } from './work-body';
 import casesData from '../content/cases.json';
@@ -79,7 +82,7 @@ const text = (value: string) => escapeHtml(value);
 const car = (work: WorkItem) => [work.carMaker, work.carModel].filter(Boolean).join(' ');
 
 function headerBrand() {
-  return `<a class="header-brand" href="/" aria-label="에이스덴트 홈"><span class="header-brand-symbol" aria-hidden="true"><img src="${text(site.brand.logoSrc)}" alt="" width="510" height="340"></span><span class="header-brand-copy"><strong>${text(site.brand.name)}</strong><small>${text(site.brand.descriptor)}</small></span></a>`;
+  return `<a class="header-brand" href="/" aria-label="에이스덴트 홈"><span class="header-brand-symbol" aria-hidden="true"><img src="${text(site.brand.headerLogoSrc)}" alt="" width="255" height="170"></span><span class="header-brand-copy"><strong>${text(site.brand.name)}</strong><small>${text(site.brand.descriptor)}</small></span></a>`;
 }
 
 export function getStaticWorkVehicleTag(maker: string, model?: string) {
@@ -108,8 +111,9 @@ function workCard(
   contextPart?: WorkPartValue,
   imageState: 'before' | 'after' = 'after',
   matchedPartIndex?: number,
-  showVehicleLogo = false,
+  list?: { beforeCards?: Readonly<Record<string, string>>; first: boolean },
 ) {
+  const showVehicleLogo = Boolean(list);
   const representativePart = (matchedPartIndex === undefined ? undefined : work.parts[matchedPartIndex]) || getWorkRepresentativePart(
     work,
     contextCategory,
@@ -121,9 +125,13 @@ function workCard(
       : contextPart && representativePart.category
         ? representativePart.category
         : work.category;
+  const photo = image(getWorkCardImageSrcForCategory(work, contextCategory, contextPart, imageState, matchedPartIndex, list?.beforeCards), getWorkImageAlt(work, representativePart, imageState === 'before' ? '전' : '후'), { width: 800, height: 600, eager: list?.first });
+  const marks = list && representativePart.beforeAnnotations?.length
+    ? renderToStaticMarkup(createElement(ImageAnnotations, { annotations: representativePart.beforeAnnotations }))
+    : '';
   return `<article class="seo-work-card">
     <a href="/works/detail/${text(work.slug)}">
-      ${image(getWorkCardImageSrcForCategory(work, contextCategory, contextPart, imageState, matchedPartIndex), getWorkImageAlt(work, representativePart, imageState === 'before' ? '전' : '후'), { width: 800, height: 600 })}
+      ${marks ? `<span class="work-card-media">${photo}${marks}</span>` : photo}
       <p>${text(getWorkCategoryLabel(displayedCategory))}</p>
       ${imageState === 'before' ? '<p>BEFORE · 손상 상태</p>' : ''}
       ${reasonLabels.length ? `<p>${reasonLabels.map(text).join(' · ')}</p>` : ''}
@@ -228,6 +236,7 @@ export function getWorksStaticHtml(
   works: WorkItem[],
   category?: WorkCategory,
   part?: WorkPart,
+  beforeCards?: Readonly<Record<string, string>>,
 ) {
   const categoryWorks = category
     ? works.filter((work) => workMatchesCategory(work, category))
@@ -253,7 +262,7 @@ export function getWorksStaticHtml(
     <p class="work-filter-heading" id="static-work-category-question">어떤 작업이 궁금하세요?</p>
     <nav aria-label="작업방식" aria-describedby="static-work-category-question"><a href="/works">전체</a>${getAvailableWorkCategories(works).map((item) => `<a href="/works/${item.id}">${text(item.label)}</a>`).join('')}</nav>
     ${partLandings.length ? `<p class="work-filter-heading" id="static-work-part-question">어디가 손상됐나요?</p><nav aria-label="수리 부위" aria-describedby="static-work-part-question">${partLandings.map((landing) => `<a href="${text(landing.path)}">${text(landing.part)}</a>`).join('')}</nav>` : ''}
-    <section aria-label="수리사례 목록"><div class="works-count"><span>${text(resultLabel)} <strong>${visible.length}건</strong></span>${category || part ? '<a class="works-filter-reset" href="/works">선택 초기화</a>' : ''}</div>${visible.length ? `<div class="seo-works-grid">${visible.map((work) => workCard(work, category, [], part, 'before', undefined, true)).join('')}</div>` : '<p>이 조건으로 등록된 사례가 없습니다. 수리 가능 여부와는 다릅니다. 다른 항목을 고르거나 선택을 초기화해 보세요.</p>'}</section>
+    <section aria-label="수리사례 목록"><div class="works-count"><span>${text(resultLabel)} <strong>${visible.length}건</strong></span>${category || part ? '<a class="works-filter-reset" href="/works">선택 초기화</a>' : ''}</div>${visible.length ? `<div class="seo-works-grid">${visible.map((work, index) => workCard(work, category, [], part, 'before', undefined, { beforeCards, first: index === 0 })).join('')}</div>` : '<p>이 조건으로 등록된 사례가 없습니다. 수리 가능 여부와는 다릅니다. 다른 항목을 고르거나 선택을 초기화해 보세요.</p>'}</section>
     ${siteFooter()}
   </main>`;
 }

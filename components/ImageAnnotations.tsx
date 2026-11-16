@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { WorkImageAnnotation } from '@/content/works/types';
-import { annotationArrowGeometry } from '@/lib/work-annotations';
+import { annotationArrowGeometry } from '../lib/work-annotations';
 
 interface ImageAnnotationsProps {
   annotations?: readonly WorkImageAnnotation[];

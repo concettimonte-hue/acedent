@@ -109,14 +109,16 @@ export function getWorkCardImageSrcForCategory(
   part?: WorkPartValue,
   state: 'before' | 'after' = 'after',
   partIndex?: number,
+  beforeCards?: Readonly<Record<string, string>>,
 ) {
   if (state === 'after') {
     return getWorkThumbnailSrcForCategory(work, category, part, partIndex);
   }
 
-  return resolveWorkImageSrc(
+  const before = resolveWorkImageSrc(
     ((partIndex === undefined ? undefined : work.parts[partIndex]) || getWorkRepresentativePart(work, category, part)).before,
   );
+  return beforeCards?.[before] ?? before;
 }
 
 export function getAbsoluteWorkImageUrl(path: string, origin: string) {

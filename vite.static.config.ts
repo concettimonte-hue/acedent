@@ -6,6 +6,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
 import generatedWorksData from './content/works.generated.json';
+import { beforeCardsPlugin } from './scripts/build-before-cards';
 import { normalizeComparisons, comparisonImageUrl, validateComparisonTotal } from './lib/work-comparisons';
 import { normalizeWorkPartTaxonomy } from './lib/work-part-taxonomy';
 import { getLegacyWheelRedirect } from './lib/work-routes';
@@ -383,7 +384,7 @@ function getWorkImageJsonLd(work: WorkItem) {
   };
 }
 
-const seoAssetsPlugin = (): Plugin => ({
+const seoAssetsPlugin = (beforeCards: Record<string, string>): Plugin => ({
   name: 'acedent-seo-assets',
   transformIndexHtml: {
     order: 'pre',
@@ -631,7 +632,7 @@ const seoAssetsPlugin = (): Plugin => ({
       'works.html',
       renderRouteHtml(baseHtml, {
         ...getWorksMetadata(undefined, undefined, works),
-        bodyHtml: getWorksStaticHtml(works),
+        bodyHtml: getWorksStaticHtml(works, undefined, undefined, beforeCards),
       }),
     );
 
@@ -640,7 +641,7 @@ const seoAssetsPlugin = (): Plugin => ({
         `works/${category.id}.html`,
         renderRouteHtml(baseHtml, {
           ...getWorksMetadata(category.id, undefined, works),
-          bodyHtml: getWorksStaticHtml(works, category.id),
+          bodyHtml: getWorksStaticHtml(works, category.id, undefined, beforeCards),
         }),
       );
     }
@@ -650,7 +651,7 @@ const seoAssetsPlugin = (): Plugin => ({
         `${getWorkPartLandingPath(landing.category, landing.part).slice(1)}.html`,
         renderRouteHtml(baseHtml, {
           ...getWorksMetadata(landing.category, landing.part, works),
-          bodyHtml: getWorksStaticHtml(works, landing.category, landing.part),
+          bodyHtml: getWorksStaticHtml(works, landing.category, landing.part, beforeCards),
         }),
       );
     }
@@ -679,9 +680,12 @@ const seoAssetsPlugin = (): Plugin => ({
   },
 });
 
+const beforeCards: Record<string, string> = {};
+const beforeSources = generatedWorksData.records.flatMap(({ work }) => work.parts.map((part) => part.before));
+
 export default defineConfig({
   css: { postcss: { plugins: [tailwindcss()] } },
-  plugins: [seoAssetsPlugin(), react(), assetRecoveryPlugin()],
+  plugins: [beforeCardsPlugin(beforeSources, beforeCards, projectDirectory), seoAssetsPlugin(beforeCards), react(), assetRecoveryPlugin()],
   build: {
     outDir: 'dist',
     emptyOutDir: true,

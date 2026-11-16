@@ -5,7 +5,7 @@ export default function HeaderBrand({ href = '/', className = '' }: { href?: str
   return (
     <a className={`header-brand ${className}`.trim()} href={href} aria-label="에이스덴트 홈">
       <span className="header-brand-symbol" aria-hidden="true">
-        <img src={siteData.brand.logoSrc} alt="" width="510" height="340" loading="eager" />
+        <img src={siteData.brand.headerLogoSrc} alt="" width="255" height="170" loading="eager" />
       </span>
       <span className="header-brand-copy">
         <strong>{siteData.brand.name}</strong>

@@ -28,6 +28,8 @@ interface WorkCardProps {
   sourceWorkSlug?: string;
   canEdit?: boolean;
   showVehicleLogo?: boolean;
+  beforeCards?: Readonly<Record<string, string>>;
+  priority?: boolean;
 }
 
 export default function WorkCard({
@@ -40,6 +42,8 @@ export default function WorkCard({
   sourceWorkSlug,
   canEdit = false,
   showVehicleLogo = false,
+  beforeCards,
+  priority = false,
 }: WorkCardProps) {
   const representativePart = (matchedPartIndex === undefined ? undefined : work.parts[matchedPartIndex]) || getWorkRepresentativePart(
     work,
@@ -68,11 +72,13 @@ export default function WorkCard({
             contextPart,
             imageState,
             matchedPartIndex,
+            beforeCards,
           )}
           alt={getWorkImageAlt(work, representativePart, imageState === 'before' ? '전' : '후')}
           width="800"
           height="600"
-          loading="lazy"
+          loading={priority ? 'eager' : 'lazy'}
+          fetchPriority={priority ? 'high' : undefined}
           decoding="async"
         />
         {imageState === 'before' && (
