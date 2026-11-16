@@ -256,8 +256,8 @@ export function getWorksByCategory(category: WorkCategory) {
   return allWorks.filter((work) => workMatchesCategory(work, category));
 }
 
-export function getFeaturedWorks(limit = 8) {
-  return allWorks
+export function getFeaturedWorks(limit = 8, works = allWorks) {
+  return works
     .filter((work) => work.featured)
     .sort(
       (a, b) =>

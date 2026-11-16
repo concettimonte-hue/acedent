@@ -1,18 +1,20 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   WORK_PART_FILTER_ORDER,
   getWorkCategoryLabel,
   type WorkCategory,
   type WorkPart,
+  type WorkItem,
 } from '@/content/works/types';
-import { getWorks, getWorksByCategory } from '@/lib/works';
+import { getWorks } from '@/lib/works';
 import { applyClientMetadata, getWorksMetadata } from '@/lib/work-metadata';
 import {
   getAvailableWorkCategories,
   getWorkPartsForCategory,
+  workMatchesCategory,
 } from '@/lib/work-categories';
 import WorkCard from '@/components/WorkCard';
 import SiteFooter from '@/components/SiteFooter';
@@ -34,30 +36,26 @@ import { getWorkCategoryGuide } from '@/lib/work-seo';
 import { observeAdminSession } from '@/lib/admin-session';
 
 declare const __ACEDENT_BEFORE_CARDS__: Readonly<Record<string, string>>;
-const beforeCards = typeof __ACEDENT_BEFORE_CARDS__ === 'undefined' ? undefined : __ACEDENT_BEFORE_CARDS__;
+const builtBeforeCards = typeof __ACEDENT_BEFORE_CARDS__ === 'undefined' ? undefined : __ACEDENT_BEFORE_CARDS__;
 
 interface WorksGalleryPageProps {
   category?: WorkCategory;
   part?: WorkPart;
+  works?: WorkItem[];
+  beforeCards?: Readonly<Record<string, string>>;
 }
 
-function readFilters(fallbackCategory?: WorkCategory, fallbackPart?: WorkPart): WorkFilters {
-  return readWorkFilters(
-    window.location.pathname,
-    window.location.search,
-    fallbackCategory,
-    fallbackPart,
-  );
+function subscribeToRoute(listener: () => void) {
+  window.addEventListener('popstate', listener);
+  window.addEventListener('works-filter-change', listener);
+  return () => {
+    window.removeEventListener('popstate', listener);
+    window.removeEventListener('works-filter-change', listener);
+  };
 }
 
-function getFilterUrl(category?: WorkCategory, part?: WorkPart) {
-  const fallbackUrl = getWorksFilterUrl(category, part, window.location.search);
-  if (!category || !part || !hasWorkPartLanding(getWorks(), category, part)) {
-    return fallbackUrl;
-  }
-  const queryIndex = fallbackUrl.indexOf('?');
-  const preservedSearch = queryIndex >= 0 ? fallbackUrl.slice(queryIndex) : '';
-  return `${getWorkPartLandingPath(category, part)}${preservedSearch}`;
+function currentRoute() {
+  return window.location.pathname + window.location.search;
 }
 
 function useFilterRail<T extends HTMLElement>(activeValue?: string, contentKey?: string) {
@@ -125,23 +123,26 @@ function FilterRailEdges({ left, right }: { left: boolean; right: boolean }) {
   );
 }
 
-export default function WorksGalleryPage({ category, part }: WorksGalleryPageProps) {
+export default function WorksGalleryPage({ category, part, works, beforeCards = builtBeforeCards }: WorksGalleryPageProps) {
   const [canEdit, setCanEdit] = useState(false);
   useEffect(() => observeAdminSession(setCanEdit), []);
-  const allWorks = useMemo(() => getWorks(), []);
+  const allWorks = useMemo(() => works ?? getWorks(), [works]);
   const availableCategories = useMemo(
     () => getAvailableWorkCategories(allWorks),
     [allWorks],
   );
-  const [filters, setFilters] = useState<WorkFilters>(() => readFilters(category, part));
+  const initialPath = category && part ? getWorkPartLandingPath(category, part) : getWorksFilterUrl(category, part);
+  const route = useSyncExternalStore(subscribeToRoute, currentRoute, () => initialPath);
+  const { pathname, search } = new URL(route, 'https://www.acedentshop.co.kr');
+  const filters = readWorkFilters(pathname, search);
   const selectedCategory = filters.category;
   const selectedPart = filters.part;
   const categoryGuide = getWorkCategoryGuide(selectedCategory, selectedPart);
   const categoryRail = useFilterRail<HTMLElement>(selectedCategory ?? 'all');
   const partRail = useFilterRail<HTMLDivElement>(selectedPart ?? 'all', selectedCategory);
   const categoryWorks = useMemo(
-    () => (selectedCategory ? getWorksByCategory(selectedCategory) : getWorks()),
-    [selectedCategory],
+    () => selectedCategory ? allWorks.filter(work => workMatchesCategory(work, selectedCategory)) : allWorks,
+    [allWorks, selectedCategory],
   );
   const availableFilterParts = useMemo(
     () => WORK_PART_FILTER_ORDER.filter((part) =>
@@ -161,17 +162,33 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
     [categoryWorks, selectedCategory, selectedPart],
   );
 
+  const cards = useMemo(() => visibleWorks.map((work, index) => (
+    <WorkCard
+      key={work.slug}
+      work={work}
+      contextCategory={selectedCategory}
+      contextPart={selectedPart}
+      imageState="before"
+      beforeCards={beforeCards}
+      priority={index === 0}
+      canEdit={canEdit}
+      showVehicleLogo
+    />
+  )), [visibleWorks, selectedCategory, selectedPart, beforeCards, canEdit]);
+  // Let the selected tab paint while React updates the photo cards.
+  const displayedCards = useDeferredValue(cards);
+
+  const getFilterUrl = useCallback((category?: WorkCategory, part?: WorkPart) => {
+    const fallbackUrl = getWorksFilterUrl(category, part, search);
+    if (!category || !part || !hasWorkPartLanding(allWorks, category, part)) return fallbackUrl;
+    const queryIndex = fallbackUrl.indexOf('?');
+    return getWorkPartLandingPath(category, part) + (queryIndex < 0 ? '' : fallbackUrl.slice(queryIndex));
+  }, [allWorks, search]);
+
   const selectFilters = (next: WorkFilters) => {
     window.history.pushState({}, '', getFilterUrl(next.category, next.part));
-    setFilters(next);
+    window.dispatchEvent(new Event('works-filter-change'));
   };
-
-  useEffect(() => {
-    // Initial route props are fallback only on mount, never for history entries.
-    const syncFiltersFromUrl = () => setFilters(readFilters());
-    window.addEventListener('popstate', syncFiltersFromUrl);
-    return () => window.removeEventListener('popstate', syncFiltersFromUrl);
-  }, []);
 
   useEffect(() => {
     const landingFilters = getWorkPartLandingFilters(window.location.pathname);
@@ -185,8 +202,8 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
   useEffect(() => {
     if (!selectedPart || availableFilterParts.includes(selectedPart)) return;
     window.history.replaceState({}, '', getFilterUrl(selectedCategory));
-    setFilters({ category: selectedCategory });
-  }, [availableFilterParts, selectedCategory, selectedPart]);
+    window.dispatchEvent(new Event('works-filter-change'));
+  }, [availableFilterParts, selectedCategory, selectedPart, getFilterUrl]);
 
   const analyticsCategory = selectedCategory
     ? getWorkCategoryLabel(selectedCategory)
@@ -356,21 +373,9 @@ export default function WorksGalleryPage({ category, part }: WorksGalleryPagePro
           )}
         </div>
 
-        {visibleWorks.length > 0 ? (
-          <div className="works-grid">
-            {visibleWorks.map((work, index) => (
-              <WorkCard
-                work={work}
-                contextCategory={selectedCategory}
-                contextPart={selectedPart}
-                imageState="before"
-                beforeCards={beforeCards}
-                priority={index === 0}
-                canEdit={canEdit}
-                showVehicleLogo
-                key={work.slug}
-              />
-            ))}
+        {displayedCards.length > 0 ? (
+          <div className="works-grid" aria-busy={displayedCards !== cards || undefined}>
+            {displayedCards}
           </div>
         ) : (
           <div className="works-empty">

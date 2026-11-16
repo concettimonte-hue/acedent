@@ -1,5 +1,5 @@
+import type { WorkItem } from '@/content/works/types';
 import { Fragment, type ReactNode } from 'react';
-import './home-sections.css';
 import {
   ArrowUpRight,
   CarFront,
@@ -59,7 +59,7 @@ const serviceIconMap: Record<ServiceIconName, LucideIcon> = {
   shieldCheck: ShieldCheck,
 };
 
-export default function Home() {
+export default function Home({ featuredWorks }: { featuredWorks?: WorkItem[] }) {
   const { navigation, hero, services, principles, contact } = site;
   const talkUrl = withLandingUtm(naver.talk, 'talk');
 
@@ -103,7 +103,7 @@ export default function Home() {
         </div>
       </section>
     ),
-    cases: <CaseGallery />,
+    cases: <CaseGallery cases={featuredWorks} />,
     'paint-care': <PaintCareSection />,
     reasons: (
       <section

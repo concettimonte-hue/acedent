@@ -145,11 +145,11 @@ await test('static and React vehicle tags share text, local logo, dimensions and
   }
   const work = {...works[0], carMaker:'BMW', carModel:'530i'};
   const list = getWorksStaticHtml([work]);
-  assert.equal((list.match(/data-static-vehicle-brand/g) || []).length, 1);
-  assert.match(list, /src="\/vehicle-brand-logos.js" defer/);
+  assert.equal((list.match(/<img class="vehicle-brand-logo/g) || []).length, 1);
+  assert.match(list, /<img class="vehicle-brand-logo[^>]*src="\/brands\/bmw.svg"/);
   assert.doesNotMatch(getHomeStaticHtml([work]), /vehicle-brand-logo|data-static-vehicle-brand/);
   const detail = getWorkDetailStaticHtml(work, [], 1, [work]);
-  assert.equal((detail.match(/data-static-vehicle-brand/g) || []).length, 1);
+  assert.equal((detail.match(/<img class="vehicle-brand-logo/g) || []).length, 1);
   assert.match(detail, /width="20" height="20"/);
 });
 

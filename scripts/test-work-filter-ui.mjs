@@ -189,16 +189,16 @@ await test(`gallery filters: ${baseline ? 'baseline layout' : 'local behavior an
       });
       await t.test('static intro, labels, condition count and unchanged detail links', () => {
         for (const [category, part] of [[undefined, undefined], ['dent', undefined], ['panel-paint', '범퍼']]) {
-          const html = getWorksStaticHtml(works, category, part);
+          const html = getWorksStaticHtml(works, category, part).replaceAll('<!-- -->', '');
           assert(html.includes(intro));
           assert(html.includes('어떤 작업이 궁금하세요?'));
-          assert.equal(html.includes('어디가 손상됐나요?'), html.includes('aria-label="수리 부위"'), 'only label the existing part-link group');
+          assert.equal(html.includes('어디가 손상됐나요?'), html.includes('aria-label="작업 부위 필터"'), 'only label the existing part-link group');
           assert(html.includes(`${matching(category, part).length}건`));
           assert.equal(html.includes('선택 초기화'), Boolean(category || part));
-          const links = [...html.matchAll(/class="seo-work-card">\s*<a href="([^"]+)"/g)].map(m => m[1]);
+          const links = [...html.matchAll(/<a class="work-card" href="([^"]+)"/g)].map(m => m[1]);
           assert.deepEqual(links, matching(category, part).map(w => `/works/detail/${w.slug}`));
         }
-        const empty = getWorksStaticHtml([], 'dent', '범퍼');
+        const empty = getWorksStaticHtml([], 'dent', '범퍼').replaceAll('<!-- -->', '');
         assert(empty.includes('덴트(무도색) · 범퍼 사례'));
         assert(empty.includes('0건'));
         assert(empty.includes('수리 가능 여부와는 다릅니다.'));
@@ -225,6 +225,7 @@ await test(`gallery filters: ${baseline ? 'baseline layout' : 'local behavior an
         async function state(step, expectedPath, expectedCategory, expectedPart) {
           // Settle React effects triggered by this history event, not a fixed delay.
           await page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done))));
+          await page.waitForFunction(() => !document.querySelector('.works-grid[aria-busy="true"]'));
           const snapshot = await page.evaluate(() => ({
             path: location.pathname,
             search: location.search,

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ArrowUpRight, X } from 'lucide-react';
 import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import SectionNumber from '@/components/SectionNumber';
+import type { WorkItem } from '@/content/works/types';
 import casesData from '@/content/cases.json';
 import naverData from '@/content/naver.json';
 import siteData from '@/content/site.json';
@@ -27,15 +28,15 @@ import {
 
 const content = casesData as CasesContent;
 const site = siteData as SiteContent;
-const cases = getFeaturedWorks(8);
+const featuredCases = getFeaturedWorks(8);
 
-export default function CaseGallery() {
+export default function CaseGallery({ cases = featuredCases }: { cases?: WorkItem[] }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const galleryRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const cardRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const cardRefs = useRef<Array<HTMLAnchorElement | null>>([]);
   const returnFocusIndex = useRef<number | null>(null);
 
   const closeModal = useCallback(() => {
@@ -51,7 +52,7 @@ export default function CaseGallery() {
       if (current === null) return current;
       return (current + direction + cases.length) % cases.length;
     });
-  }, []);
+  }, [cases.length]);
 
   useEffect(() => {
     if (selectedIndex === null) return;
@@ -173,14 +174,16 @@ export default function CaseGallery() {
         onScroll={updateActiveIndicator}
       >
         {cases.map((item, index) => (
-          <button
+          <a
+            href={`/works/detail/${item.slug}`}
             ref={(element) => {
               cardRefs.current[index] = element;
             }}
             className="case-card"
-            type="button"
             key={item.slug}
-            onClick={() => {
+            onClick={(event) => {
+              if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+              event.preventDefault();
               trackCaseView(item.slug, item.part[0]);
               openCase(index);
             }}
@@ -212,7 +215,7 @@ export default function CaseGallery() {
               <span className="case-card-part">{formatWorkPartAndCategory(item)}</span>
               <span className="case-card-action">비교 보기 →</span>
             </span>
-          </button>
+          </a>
         ))}
       </div>
 

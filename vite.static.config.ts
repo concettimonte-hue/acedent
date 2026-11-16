@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig, runnerImport, type Plugin } from 'vite';
 import generatedWorksData from './content/works.generated.json';
 import { beforeCardsPlugin } from './scripts/build-before-cards';
 import { normalizeComparisons, comparisonImageUrl, validateComparisonTotal } from './lib/work-comparisons';
@@ -30,11 +30,6 @@ import {
   websiteJsonLd,
   type PageMetadata,
 } from './lib/seo';
-import {
-  getHomeStaticHtml,
-  getWorkDetailStaticHtml,
-  getWorksStaticHtml,
-} from './lib/static-html';
 import { getWorkSeoCopy } from './lib/work-seo';
 import { getWorkMetadata, getWorksMetadata } from './lib/work-metadata';
 import {
@@ -45,7 +40,6 @@ import {
 } from './lib/work-images';
 import { workMatchesCategory } from './lib/work-categories';
 import { getImageRightsMetadata } from './lib/image-rights';
-import { selectRelatedWorkSuggestions } from './lib/work-related';
 import {
   getWorkPartLandings,
   getWorkPartLandingPath,
@@ -180,6 +174,7 @@ interface RouteMetadata extends PageMetadata {
   jsonLd?: Array<{ id: string; data: unknown }>;
   bodyHtml: string;
   privatePage?: boolean;
+  prerendered?: boolean;
 }
 
 function renderRouteHtml(baseHtml: string, metadata: RouteMetadata) {
@@ -272,7 +267,7 @@ function renderRouteHtml(baseHtml: string, metadata: RouteMetadata) {
       .join('\n');
     html = html.replace('</head>', `${scripts}\n</head>`);
   }
-  return html.replace('<div id="root"></div>', `<div id="root">${metadata.bodyHtml}</div>`);
+  return html.replace('<div id="root"></div>', () => `<div id="root"${metadata.prerendered ? ' data-prerendered' : ''}>${metadata.bodyHtml}</div>`);
 }
 
 function getCategoryLabel(category: WorkCategory) {
@@ -578,7 +573,11 @@ const seoAssetsPlugin = (beforeCards: Record<string, string>): Plugin => ({
     this.emitFile({ type: 'asset', fileName: 'rss.xml', source: rss });
     this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robots });
   },
-  writeBundle(options) {
+  async writeBundle(options) {
+    const { module: { getHomeStaticHtml, getWorksStaticHtml, renderPublishedWorkDetail } } =
+      await runnerImport<typeof import('./lib/static-html')>('./lib/static-html.ts', {
+        root: projectDirectory, resolve: { alias: { '@': projectDirectory } },
+      });
     const works = loadBuildWorks();
     const activeCategories = WORK_CATEGORIES.filter(({ id }) =>
       works.some((work) => workMatchesCategory(work, id)),
@@ -606,7 +605,7 @@ const seoAssetsPlugin = (beforeCards: Record<string, string>): Plugin => ({
       'index.html',
       baseHtml.replace(
         '<div id="root"></div>',
-        `<div id="root">${getHomeStaticHtml(works)}</div>`,
+        () => `<div id="root" data-prerendered>${getHomeStaticHtml()}</div>`,
       ),
     );
 
@@ -632,7 +631,8 @@ const seoAssetsPlugin = (beforeCards: Record<string, string>): Plugin => ({
       'works.html',
       renderRouteHtml(baseHtml, {
         ...getWorksMetadata(undefined, undefined, works),
-        bodyHtml: getWorksStaticHtml(works, undefined, undefined, beforeCards),
+        prerendered: true,
+        bodyHtml: getWorksStaticHtml(undefined, undefined, undefined, beforeCards),
       }),
     );
 
@@ -641,7 +641,8 @@ const seoAssetsPlugin = (beforeCards: Record<string, string>): Plugin => ({
         `works/${category.id}.html`,
         renderRouteHtml(baseHtml, {
           ...getWorksMetadata(category.id, undefined, works),
-          bodyHtml: getWorksStaticHtml(works, category.id, undefined, beforeCards),
+          prerendered: true,
+          bodyHtml: getWorksStaticHtml(undefined, category.id, undefined, beforeCards),
         }),
       );
     }
@@ -651,15 +652,13 @@ const seoAssetsPlugin = (beforeCards: Record<string, string>): Plugin => ({
         `${getWorkPartLandingPath(landing.category, landing.part).slice(1)}.html`,
         renderRouteHtml(baseHtml, {
           ...getWorksMetadata(landing.category, landing.part, works),
-          bodyHtml: getWorksStaticHtml(works, landing.category, landing.part, beforeCards),
+          prerendered: true,
+          bodyHtml: getWorksStaticHtml(undefined, landing.category, landing.part, beforeCards),
         }),
       );
     }
 
     for (const work of works) {
-      const categoryWorks = works
-        .filter((candidate) => workMatchesCategory(candidate, work.category));
-      const relatedSuggestions = selectRelatedWorkSuggestions(works, work, 3);
       writeRoute(
         `works/detail/${work.slug}.html`,
         renderRouteHtml(baseHtml, {
@@ -668,12 +667,8 @@ const seoAssetsPlugin = (beforeCards: Record<string, string>): Plugin => ({
             { id: 'work-breadcrumb-jsonld', data: getBreadcrumbJsonLd(work) },
             { id: 'work-image-jsonld', data: getWorkImageJsonLd(work) },
           ],
-          bodyHtml: getWorkDetailStaticHtml(
-            work,
-            relatedSuggestions,
-            categoryWorks.length,
-            works,
-          ),
+          prerendered: true,
+          bodyHtml: renderPublishedWorkDetail(work.slug),
         }),
       );
     }

@@ -550,6 +550,23 @@
   font-weight: 950;
   box-shadow: 0 4px 18px rgb(0 0 0 / 35%);
 }
+@media (scripting: none) {
+  .before-after-drag {
+    display: flex;
+    aspect-ratio: auto;
+    touch-action: auto;
+  }
+  .before-after-drag > .comparison-before-image,
+  .before-after-drag > .comparison-after-layer {
+    position: relative;
+    width: 50%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+  .before-after-drag > .comparison-after-layer { clip-path: none !important; }
+  .before-after-drag > .work-image-annotations { width: 50%; }
+  .comparison-hint, .comparison-handle, .before-after-zoom-trigger { display: none; }
+}
 .before-after-split {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -984,6 +1001,7 @@
 }
 .case-card {
   display: block;
+  text-decoration: none;
   min-width: 0;
   padding: 0;
   border: 0;
@@ -3251,6 +3269,13 @@ body:has(.works-page) {
   gap: 2.5rem 1.25rem;
   margin-top: 1rem;
 }
+/* Reserve space for distant gallery rows and lay them out as they approach the viewport. */
+@media screen {
+  .works-grid > :nth-child(n + 5) {
+    content-visibility: auto;
+    contain-intrinsic-block-size: auto 30rem;
+  }
+}
 .work-card {
   display: flex;
   min-width: 0;
@@ -3434,7 +3459,7 @@ body:has(.works-page) {
   width: 32px;
   flex-basis: 32px;
 }
-.work-card-copy > strong {
+.work-card-copy > :is(strong, h3) {
   margin-top: 0.5rem;
   font-size: clamp(1.05rem, 1.6vw, 1.35rem);
   font-weight: 900;
@@ -4606,13 +4631,21 @@ body:has(.works-page) {
 }
 
 /* Keep the same public face before and after React mounts, including the footer. */
+/* Local subset of Pretendard 1.3.9. Other characters use the complete subset family. */
+@font-face {
+  font-family: 'AceDent UI';
+  font-style: normal;
+  font-weight: 45 920;
+  font-display: swap;
+  src: url('./ace-dent-ui.woff2') format('woff2');
+}
 body:has(.home-page, .works-page, .seo-home, .seo-works, .seo-work-detail) {
-  --public-font: 'Pretendard Variable', system-ui, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --public-font: 'AceDent UI', 'Pretendard Variable', system-ui, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   font-family: var(--public-font);
   font-weight: 400;
 }
 main:is(.home-page, .works-page, .seo-home, .seo-works, .seo-work-detail) :is(h1, h2, h3),
-.works-page .work-card-copy > strong {
+.works-page .work-card-copy > :is(strong, h3) {
   font-weight: 800;
 }
 .seo-static:is(.seo-home, .seo-works, .seo-work-detail) {

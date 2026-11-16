@@ -57,6 +57,7 @@ export default function WorkCard({
         ? representativePart.category
         : work.category;
 
+  const Title = showVehicleLogo ? 'h3' : 'strong';
   const card = (
     <a
       className="work-card"
@@ -96,7 +97,7 @@ export default function WorkCard({
       </span>
       <span className="work-card-copy">
         <WorkVehicleTag maker={work.carMaker} model={work.carModel} showLogo={showVehicleLogo} />
-        <strong>{work.title}</strong>
+        <Title>{work.title}</Title>
         <span className="work-card-summary">{work.summary}</span>
         <span className="work-card-footer">
           <span className="work-card-parts">{formatWorkCardParts(work)}</span>

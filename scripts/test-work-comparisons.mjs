@@ -65,7 +65,7 @@ await test('React/static HTML/JSON-LD use same ALT; captions escaped; no extra P
   const { getWorkImageJsonLd } = loadTs('lib/work-metadata.ts');
   const example = { ...work, parts: [{ ...work.parts[0], category: undefined, comparisons: [{ ...pair, caption: '<script>test</script>' }, { ...pair, caption: undefined }] }] };
   const react = renderToStaticMarkup(createElement(Component, { work: example, part: example.parts[0] }));
-  const html = getWorkDetailStaticHtml(example, [], 0, [example]);
+  const html = getWorkDetailStaticHtml(example, [], 0, [example]).replaceAll('<!-- -->', '');
   assert(react.includes('&lt;script&gt;test&lt;/script&gt;'));
   assert(html.includes('&lt;script&gt;test&lt;/script&gt;'));
   assert.equal((react.match(/<figcaption>/g) || []).length, 1);

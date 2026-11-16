@@ -13,6 +13,7 @@ import {
   siteUrl,
   websiteJsonLd,
 } from '@/lib/seo';
+import './home-sections.css';
 import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import './globals.css';
 

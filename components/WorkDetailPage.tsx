@@ -26,7 +26,7 @@ import {
   getWorkPartLandingPath,
   hasWorkPartLanding,
 } from '@/lib/work-landings';
-import { getRelatedWorkReasonLabels } from '@/lib/work-related';
+import { getRelatedWorkReasonLabels, type RelatedWorkSuggestion } from '@/lib/work-related';
 import {
   formatWorkCar,
   getRelatedWorkSuggestions,
@@ -38,13 +38,18 @@ import { withLandingUtm } from '@/lib/tracking';
 
 interface WorkDetailPageProps {
   work: WorkItem;
+  relatedSuggestions?: RelatedWorkSuggestion[];
+  categoryWorkCount?: number;
+  allWorks?: WorkItem[];
 }
 
-export default function WorkDetailPage({ work }: WorkDetailPageProps) {
-  const relatedSuggestions = getRelatedWorkSuggestions(work, 3);
+export default function WorkDetailPage({
+  work,
+  relatedSuggestions = getRelatedWorkSuggestions(work, 3),
+  categoryWorkCount = getWorksByCategory(work.category).length,
+  allWorks = getWorks(),
+}: WorkDetailPageProps) {
   const categoryLabel = getWorkCategoryLabel(work.category);
-  const categoryWorkCount = getWorksByCategory(work.category).length;
-  const allWorks = getWorks();
   const displayCategories = getWorkDisplayCategories(work);
   const displayParts = getWorkFilterParts(work);
 

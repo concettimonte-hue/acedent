@@ -19,12 +19,13 @@ const rich = body.WORK_BODY_PREFIX + JSON.stringify([
 ]);
 
 test('every legacy body remains literal and unchanged in public/admin/static rendering', () => {
-  for (const w of works) {
-    assert.equal(body.parseWorkBody(w.body), null, w.slug);
+  const legacyWorks = works.filter(w => !body.parseWorkBody(w.body));
+  assert(legacyWorks.length > 0);
+  for (const w of legacyWorks) {
     assert.equal(body.workBodyText(w.body), w.body);
     const html = renderToStaticMarkup(createElement(WorkBody, { body: w.body }));
     assert.equal(html.replaceAll('&#x27;', "'"), body.renderWorkBodyHtml(w.body), w.slug);
-    assert(getWorkDetailStaticHtml(w, [], 0, works).includes(body.renderWorkBodyHtml(w.body)), w.slug);
+    assert(getWorkDetailStaticHtml(w, [], 0, works).includes(html), w.slug);
   }
   const literal = '# 소제목 아님\n\n**문자 그대로** <script>alert(1)</script>';
   assert(!body.renderWorkBodyHtml(literal).includes('<script>'));

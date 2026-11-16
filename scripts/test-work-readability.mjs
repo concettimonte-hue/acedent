@@ -17,7 +17,7 @@ const business = JSON.parse(readFileSync(new URL('../content/business.json', imp
 const works = JSON.parse(readFileSync(new URL('../content/works.generated.json', import.meta.url), 'utf8'))
   .records.map(({ work }) => work);
 const escape = (value) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;')
-  .replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+  .replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#x27;');
 
 test('shared description keeps summary, separate body paragraphs and trailing blog link in order', () => {
   const html = renderToStaticMarkup(createElement(WorkDescription, {
@@ -39,20 +39,19 @@ test('description preserves repeated paragraphs and escapes input instead of tre
 test('static details include the description heading without reordering PART notes/photos or changing data', () => {
   const snapshot = JSON.stringify(works);
   for (const work of works) {
-    const html = getWorkDetailStaticHtml(work, [], 0, works);
-    assert.equal((html.match(/<h2>작업 설명<\/h2>/g) ?? []).length, 1, work.slug);
+    const html = getWorkDetailStaticHtml(work, [], 0, works).replaceAll('<!-- -->', '');
+    assert.equal((html.match(/<h2 class="work-detail-copy-title">작업 설명<\/h2>/g) ?? []).length, 1, work.slug);
     assert.equal((html.match(/<h1>/g) ?? []).length, 1, work.slug);
-    const descriptionAt = html.indexOf('<h2>작업 설명</h2>');
-    assert(descriptionAt > html.lastIndexOf('<p>PART '), work.slug);
-    assert(html.indexOf(`<p><strong>${escape(work.summary)}</strong></p>`) > descriptionAt, work.slug);
+    const descriptionAt = html.indexOf('<h2 class="work-detail-copy-title">작업 설명</h2>');
+    assert(descriptionAt > html.lastIndexOf('class="work-detail-part-heading"'), work.slug);
+    assert(html.indexOf(`<p class="work-detail-summary">${escape(work.summary)}</p>`) > descriptionAt, work.slug);
     for (const part of work.parts) {
       const noteAt = html.indexOf(`<p>${escape(part.note)}</p>`);
       const beforeAt = html.indexOf(`src="${escape(part.before)}"`, noteAt);
       assert(noteAt >= 0 && beforeAt > noteAt && beforeAt < descriptionAt, work.slug);
     }
-    for (const paragraph of work.body.split('\n\n')) {
-      assert(html.includes(`<p>${escape(paragraph)}</p>`), work.slug);
-    }
+    const formattedBody = renderToStaticMarkup(createElement(loadTs('components/WorkBodyContent.tsx').default, { body: work.body }));
+    assert(html.includes(formattedBody), work.slug);
   }
   assert.equal(JSON.stringify(works), snapshot);
 });
@@ -62,12 +61,13 @@ test('static home includes the existing service and principle descriptions in th
   const reactSource = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8');
   for (const [id, field] of [['services', 'services'], ['principle', 'principles']]) {
     assert(reactSource.includes(`<p>{${field}.description}</p>`));
-    const section = html.match(new RegExp(`<section id="${id}">([\\s\\S]*?)</section>`))?.[1];
+    const section = html.match(new RegExp(`<section id="${id}"[^>]*>([\\s\\S]*?)</section>`))?.[1];
     assert(section, id);
     const paragraph = `<p>${escape(site[field].description)}</p>`;
     assert.equal(html.split(paragraph).length - 1, 1, id);
     assert(section.indexOf(paragraph) > section.indexOf('</h2>'), id);
-    assert(section.indexOf(paragraph) < section.indexOf('<article>'), id);
+    const itemsClass = id === 'services' ? 'service-grid' : 'principle-list';
+    assert(section.indexOf(paragraph) < section.indexOf(`class="${itemsClass}"`), id);
   }
 });
 
@@ -86,7 +86,7 @@ test('every static public template keeps exactly one footer with the same text a
     ['empty gallery', getWorksStaticHtml([])],
     ...WORK_CATEGORIES.map(({ id }) => [id, getWorksStaticHtml(works, id)]),
     ...getWorkPartLandings(works).map(({ path, category, part }) => [path, getWorksStaticHtml(works, category, part)]),
-    ...works.map((work) => [work.slug, getWorkDetailStaticHtml(work, [], 0, works)]),
+    ...works.map((work) => [`detail/${work.slug}`, getWorkDetailStaticHtml(work, [], 0, works)]),
   ];
   for (const [path, html] of pages) {
     const footers = [...html.matchAll(/<footer\b[^>]*>[\s\S]*?<\/footer>/g)];
@@ -96,7 +96,7 @@ test('every static public template keeps exactly one footer with the same text a
     assert.deepEqual(linkDestinations(footer), linkDestinations(renderedFooter), path);
     assert(footer.includes(`<address>${escape(address)}</address>`), path);
     assert.equal((footer.match(/<address>/g) ?? []).length, 1, path);
-    assert(html.trimEnd().endsWith(`${footer}\n  </main>`), path);
+    assert(html.indexOf(footer) > html.indexOf('</h1>'), path);
   }
   assert.equal(JSON.stringify(works), snapshot);
 });

@@ -107,16 +107,17 @@ test('gallery previews follow the filtered PART, including marks and original-im
   assert.equal(cardImage(item, 'partial-paint', '범퍼', 'before', undefined, {}), bumper.before);
   const { getWorksStaticHtml } = loadTs('lib/static-html.ts');
   const html = getWorksStaticHtml([item, { ...item, slug: 'second' }], 'partial-paint', '범퍼', previews);
-  const cards = html.split('<article class="seo-work-card">').slice(1).map(card => card.split('</article>')[0]);
+  const cards = [...html.matchAll(/<a class="work-card"[^>]*>([\s\S]*?)<\/a>/g)].map(match => match[1]);
   assert.equal(cards.length, 2);
   for (const card of cards) {
     assert.match(card, /src="\/card-images\/bumper\.webp"/);
     assert.match(card, /<ellipse /);
     assert.doesNotMatch(card, /fender\.webp/);
   }
-  assert.match(cards[0], /loading="eager" fetchpriority="high"/);
+  assert.match(cards[0], /loading="eager"/);
+  assert.match(cards[0], /fetchpriority="high"/i);
   assert.match(cards[1], /loading="lazy"/);
-  assert.doesNotMatch(cards[1], /fetchpriority="high"/);
+  assert.doesNotMatch(cards[1], /fetchpriority="high"/i);
 });
 
 test('arrow has a proportional open head, rounded SVG strokes and shared canvas geometry', () => {

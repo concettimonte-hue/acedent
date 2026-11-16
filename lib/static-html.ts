@@ -1,339 +1,45 @@
 import { createElement } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
-import ImageAnnotations from '../components/ImageAnnotations';
-import businessData from '../content/business.json';
-import { renderWorkBodyHtml } from './work-body';
-import casesData from '../content/cases.json';
-import faqData from '../content/faq.json';
-import insuranceData from '../content/insurance.json';
-import naverData from '../content/naver.json';
-import polishData from '../content/polish.json';
-import processData from '../content/process.json';
-import reviewsData from '../content/reviews.json';
-import siteData from '../content/site.json';
-import trustData from '../content/trust.json';
-import type {
-  BusinessContent,
-  FaqContent,
-  InsuranceContent,
-  NaverContent,
-  PolishContent,
-  ProcessContent,
-  ReviewsContent,
-  SiteContent,
-  TrustItem,
-} from '../content/types';
-import {
-  getWorkCategoryLabel,
-  isWorkPart,
-  type WorkCategory,
-  type WorkItem,
-  type WorkPart,
-  type WorkPartMedia,
-  type WorkPartValue,
-} from '../content/works/types';
-import {
-  getWorkCardImageSrcForCategory,
-  getWorkImageAlt,
-  getWorkGalleryImageAlt,
-  getWorkComparisonImageAlt,
-} from './work-images';
-import {
-  getAvailableWorkCategories,
-  getWorkDisplayCategories,
-  getWorkRepresentativePart,
-  getWorkPartsForCategory,
-  workMatchesCategory,
-} from './work-categories';
-import { formatWorkCardParts, getWorkFilterParts } from './work-parts';
-import {
-  getWorkPartLandings,
-  getWorkPartLandingPath,
-  hasWorkPartLanding,
-} from './work-landings';
-import {
-  getRelatedWorkReasonLabels,
-  type RelatedWorkSuggestion,
-} from './work-related';
-import { getWorkCategoryGuide } from './work-seo';
-import { withLandingUtm } from './tracking';
-import { imageUsagePath } from './image-rights';
-import { homeImage, storefrontImagePath } from './seo';
-import { findVehicleBrand, getVehicleBrandDisplayName, getVehicleBrandLogo, getVehicleBrandLogoClassName } from './vehicle-brands';
-
-const business = businessData as BusinessContent;
-const site = siteData as SiteContent;
-const faq = faqData as FaqContent;
-const insurance = insuranceData as InsuranceContent;
-const naver = naverData as NaverContent;
-const polish = polishData as PolishContent;
-const process = processData as ProcessContent;
-const reviews = reviewsData as ReviewsContent;
-const trust = trustData as TrustItem[];
-
-const escapeHtml = (value: string) =>
-  value
-    .replaceAll('&', '&amp;')
-    .replaceAll('"', '&quot;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
-
-const text = (value: string) => escapeHtml(value);
-const car = (work: WorkItem) => [work.carMaker, work.carModel].filter(Boolean).join(' ');
-
-function headerBrand() {
-  return `<a class="header-brand" href="/" aria-label="에이스덴트 홈"><span class="header-brand-symbol" aria-hidden="true"><img src="${text(site.brand.headerLogoSrc)}" alt="" width="255" height="170"></span><span class="header-brand-copy"><strong>${text(site.brand.name)}</strong><small>${text(site.brand.descriptor)}</small></span></a>`;
-}
+import { renderToString } from 'react-dom/server';
+import Home from '../app/page';
+import WorkDetailPage from '../components/WorkDetailPage';
+import WorksGalleryPage from '../components/WorksGalleryPage';
+import WorkVehicleTag from '../components/WorkVehicleTag';
+import type { WorkCategory, WorkItem, WorkPart } from '../content/works/types';
+import type { RelatedWorkSuggestion } from './work-related';
+import { getFeaturedWorks, getWorkBySlug } from './works';
 
 export function getStaticWorkVehicleTag(maker: string, model?: string) {
-  const normalizedMaker = getVehicleBrandDisplayName(maker);
-  const normalizedModel = model?.trim();
-  if (!normalizedMaker && !normalizedModel) return '';
-  const logo = normalizedMaker ? getVehicleBrandLogo(findVehicleBrand(maker)) : undefined;
-  const logoImage = logo ? `<img class="${getVehicleBrandLogoClassName(logo)}" src="${text(logo.src)}" alt="" aria-hidden="true" width="${logo.width ?? 20}" height="20" decoding="async" data-static-vehicle-brand />` : '';
-  return `<span class="work-vehicle-tag">${normalizedMaker ? `<span class="work-vehicle-tag-maker">${logoImage}${text(normalizedMaker)}</span>` : ''}${normalizedModel ? `<span class="work-vehicle-tag-model">${text(normalizedModel)}</span>` : ''}</span>`;
+  // Standalone logo previews use the static failure handler without hydration.
+  return renderToString(createElement(WorkVehicleTag, { maker, model, showLogo: true }))
+    .replace('<img ', '<img data-static-vehicle-brand ');
 }
 
-const staticVehicleLogoFallback = '<script src="/vehicle-brand-logos.js" defer></script>';
-
-function image(
-  src: string,
-  alt: string,
-  options: { width?: number; height?: number; eager?: boolean } = {},
-) {
-  return `<img src="${text(src)}" alt="${text(alt)}" width="${options.width ?? 1600}" height="${options.height ?? 1200}" loading="${options.eager ? 'eager' : 'lazy'}"${options.eager ? ' fetchpriority="high"' : ' decoding="async"'} />`;
-}
-
-function workCard(
-  work: WorkItem,
-  contextCategory?: WorkCategory,
-  reasonLabels: readonly string[] = [],
-  contextPart?: WorkPartValue,
-  imageState: 'before' | 'after' = 'after',
-  matchedPartIndex?: number,
-  list?: { beforeCards?: Readonly<Record<string, string>>; first: boolean },
-) {
-  const showVehicleLogo = Boolean(list);
-  const representativePart = (matchedPartIndex === undefined ? undefined : work.parts[matchedPartIndex]) || getWorkRepresentativePart(
-    work,
-    contextCategory,
-    contextPart,
-  );
-  const displayedCategory =
-    contextCategory && representativePart.category === contextCategory
-      ? contextCategory
-      : contextPart && representativePart.category
-        ? representativePart.category
-        : work.category;
-  const photo = image(getWorkCardImageSrcForCategory(work, contextCategory, contextPart, imageState, matchedPartIndex, list?.beforeCards), getWorkImageAlt(work, representativePart, imageState === 'before' ? '전' : '후'), { width: 800, height: 600, eager: list?.first });
-  const marks = list && representativePart.beforeAnnotations?.length
-    ? renderToStaticMarkup(createElement(ImageAnnotations, { annotations: representativePart.beforeAnnotations }))
-    : '';
-  return `<article class="seo-work-card">
-    <a href="/works/detail/${text(work.slug)}">
-      ${marks ? `<span class="work-card-media">${photo}${marks}</span>` : photo}
-      <p>${text(getWorkCategoryLabel(displayedCategory))}</p>
-      ${imageState === 'before' ? '<p>BEFORE · 손상 상태</p>' : ''}
-      ${reasonLabels.length ? `<p>${reasonLabels.map(text).join(' · ')}</p>` : ''}
-      ${showVehicleLogo ? getStaticWorkVehicleTag(work.carMaker, work.carModel) : ''}
-      <h3>${showVehicleLogo ? '' : `${text(car(work))} `}${text(work.title)}</h3>
-      <p>${text(work.summary)}</p>
-      <small>${text(formatWorkCardParts(work))} · ${text(work.days)}</small>
-    </a>
-  </article>`;
-}
-
-function faqList() {
-  return `<div class="seo-faq-list">${faq.items
-    .map(
-      (item) => `<details${item.open ? ' open' : ''}>
-        <summary>${text(item.q)}</summary>
-        <p>${text(item.a)}</p>
-      </details>`,
-    )
-    .join('')}</div>`;
-}
-
-function siteFooter() {
-  const { brand, contact } = site;
-  // Keep the static footer's content and destinations aligned with SiteFooter.
-  const address = [
-    business.address.addressRegion,
-    business.address.addressLocality,
-    business.address.streetAddress,
-  ].join(' ');
-  return `<footer class="site-footer">
-    <div class="site-footer-main">
-      <a href="/" class="brand footer-brand" aria-label="${text(brand.homeAriaLabel)}"><span class="brand-logo" aria-hidden="true">${image(brand.logoSrc, '', { width: 510, height: 340 })}</span><span><strong>${text(brand.name)}</strong><small>${text(brand.tagline)}</small></span></a>
-      <div class="site-footer-contact">
-        <a class="site-footer-address" href="${text(withLandingUtm(naver.place, 'place'))}" target="_blank" rel="noopener noreferrer"><address>${text(address)}</address></a>
-        <a href="${text(contact.phoneHref)}"><span>${text(contact.footerPhonePrefix)}</span><strong>${text(contact.phoneDisplay)}</strong></a>
-      </div>
-      <nav class="site-footer-links" aria-label="하단 주요 메뉴"><a href="/works">수리사례</a><a href="/#location">오시는 길</a><a href="${text(withLandingUtm(naver.blog, 'blog'))}" target="_blank" rel="noopener noreferrer">네이버 블로그</a></nav>
-    </div>
-    <div class="site-footer-bottom"><small>서울 동대문 자동차 외장관리 전문점 · © ACE DENT · 사진 무단 사용 금지</small><a class="site-footer-credits" href="${imageUsagePath}">사진 이용 안내</a><a class="site-footer-credits" href="/brands/credits.html">로고 출처</a></div>
-  </footer>`;
-}
-
-export function getHomeStaticHtml(works: WorkItem[]) {
-  const featured = works
-    .filter((work) => work.featured)
-    .sort((a, b) => (a.featuredOrder ?? 999) - (b.featuredOrder ?? 999))
-    .slice(0, 8);
-  const highlightedReviews = reviews.reviews.filter((review) => review.highlight);
-  const { hero, services, principles, contact } = site;
-
-  return `<main class="seo-static seo-home" aria-label="에이스덴트 정적 페이지">
-    <header class="seo-static-header">
-      ${headerBrand()}
-      <nav aria-label="주요 메뉴">${site.navigation.items.map((item) => `<a href="${text(item.href)}">${text(item.label)}</a>`).join('')}</nav>
-    </header>
-    <section class="seo-static-hero">
-      <div>
-        <p>${text(hero.eyebrow)}</p>
-        <h1>${text(hero.title)} ${text(hero.titleAccent)}</h1>
-        <p>${hero.descriptionLines.map(text).join('<br />')}</p>
-        <a href="${text(contact.phoneHref)}">${text(hero.phoneActionLabel)}</a>
-        <a href="${text(contact.smsHref)}">${text(hero.smsActionLabel)}</a>
-      </div>
-      <div class="seo-comparison">
-        <h2>${text(hero.resultTitle)}</h2>
-        <p>${text(hero.resultMeta)}</p>
-        ${image(hero.beforeSrc, hero.beforeAlt, { eager: true })}
-        ${image(hero.afterSrc, hero.afterAlt, { eager: true })}
-      </div>
-    </section>
-    <section class="seo-trust" aria-label="에이스덴트 신뢰 정보">${trust
-      .map(
-        (item) => `<article><strong>${text(Number(item.value).toLocaleString('ko-KR'))}<small>${text(item.valueSuffix)}</small></strong><h2>${text(item.label)}</h2><p>${text(item.sub)}</p></article>`,
-      )
-      .join('')}</section>
-    <section id="services"><p>${text(services.kicker)}</p><h2>${services.titleLines.map(text).join(' ')}</h2><p>${text(services.description)}</p><a href="/works">실제 수리사례 보기 ↗</a><div class="seo-grid">${services.items
-      .map((item) => `<article><small>${text(item.number)}</small><h3>${text(item.title)}</h3><p>${text(item.copy).replaceAll('\n', '<br />')}</p></article>`)
-      .join('')}</div></section>
-    <section id="cases"><p>${text(casesData.sectionLabel)}</p><h2>${casesData.headingLines.map(text).join(' ')}</h2><p>${text(casesData.instruction)}</p><div class="seo-works-grid">${featured.map((work) => workCard(work)).join('')}</div><a href="/works">${text(casesData.moreLinkLabel)}</a></section>
-    <section id="paint-care"><p>${text(polish.sectionLabel)}</p><h2>${text(polish.heading)}</h2><p>${text(polish.subCopy)}</p><div class="seo-grid">${polish.items
-      .map((item) => `<article><small>${text(item.no)} · ${text(item.days)}</small><h3>${text(item.title)}</h3><p>${text(item.keywords)}</p><p>${text(item.desc)}</p>${item.notWhen ? `<p><strong>이런 경우는</strong> ${text(item.notWhen)}</p>` : ''}</article>`)
-      .join('')}</div></section>
-    <section id="reasons"><p>${text(principles.reasonsKicker)}</p><h2>${text(principles.reasonsTitle)}</h2><div class="seo-grid">${principles.reasons.map((item) => `<article><h3>${text(item.title)}</h3><p>${text(item.copy)}</p></article>`).join('')}</div></section>
-    <section id="principle"><p>${text(principles.kicker)}</p><h2>${principles.titleLines.map(text).join(' ')}</h2><p>${text(principles.description)}</p>${principles.items.map((item) => `<article><h3>${text(item.title)}</h3>${item.copy ? `<p>${text(item.copy)}</p>` : ''}</article>`).join('')}</section>
-    <section id="reviews"><p>${text(reviews.sectionLabel)}</p><h2>${text(reviews.heading)}</h2>${highlightedReviews.map((item) => `<article><h3>${text(item.headline)}</h3><p>${text(item.text)}</p><small>${text(item.initial)} · ${text(item.car)} · ${text(item.area)} · ${text(item.part)}</small></article>`).join('')}</section>
-    <section id="insurance"><p>${text(insurance.sectionLabel)}</p><h2>${text(insurance.heading)}</h2>
-      <p>${text(insurance.subCopy)}</p><p>${text(insurance.assumption)}</p>
-      <table><thead><tr>${insurance.tableHeaders.map((heading) => `<th scope="col">${text(heading)}</th>`).join('')}</tr></thead>
-      <tbody>${insurance.table.map((row) => `<tr><th scope="row">${text(row.estimate)}</th><td>${text(row.own)}</td><td>${text(row.note)}</td></tr>`).join('')}</tbody></table>
-      <p>${text(insurance.closing)}</p></section>
-    <section id="process"><p>${text(process.sectionLabel)}</p><h2>${text(process.heading)}</h2><ol class="seo-grid" aria-label="상담부터 출고까지 진행 순서">${process.items.map((item) => `<li><strong aria-hidden="true">${text(item.step)}</strong><h3>${text(item.title)}</h3><p>${text(item.desc)}</p></li>`).join('')}</ol></section>
-    <section id="faq"><p>${text(faq.sectionLabel)}</p><h2>${text(faq.heading)}</h2>${faqList()}</section>
-    <section id="contact"><p>CONTACT</p><h2>${contact.titleLines.map(text).join(' ')}</h2><p>${text(contact.description)}</p><a href="${text(contact.phoneHref)}">${text(contact.phoneDisplay)}</a><a href="${text(contact.smsHref)}">${text(contact.smsLabel)}</a><a href="${text(naver.talk)}" target="_blank" rel="noopener noreferrer">${text(contact.talkLabel)}</a></section>
-    <section id="location"><p>${text(contact.locationSectionLabel)}</p><h2>${text(contact.locationHeading)}</h2>${image(storefrontImagePath, '서울 동대문 판금도색 외형복원 전문 에이스덴트 매장 외관', { width: homeImage.imageWidth, height: homeImage.imageHeight })}<address>${text(contact.footerAddress)} · ${text(contact.phoneDisplay)}</address><a href="${text(naver.place)}" target="_blank" rel="noopener noreferrer">${text(contact.directionsLabel)}</a><p>${text(contact.nearbyIntro)} ${text(contact.nearbyAreas)}</p></section>
-    <section id="naver-connect"><h2>${text(naver.section.title)}</h2>${naver.section.items.map((item) => `<a href="${text(naver[item.key])}" target="_blank" rel="noopener noreferrer">${text(item.title)} ↗</a>`).join('')}</section>
-    ${siteFooter()}
-  </main>`;
+export function getHomeStaticHtml(works?: WorkItem[]) {
+  return renderToString(createElement(Home, { featuredWorks: getFeaturedWorks(8, works) }));
 }
 
 export function getWorksStaticHtml(
-  works: WorkItem[],
+  works?: WorkItem[],
   category?: WorkCategory,
   part?: WorkPart,
   beforeCards?: Readonly<Record<string, string>>,
 ) {
-  const categoryWorks = category
-    ? works.filter((work) => workMatchesCategory(work, category))
-    : works;
-  const visible = part
-    ? categoryWorks.filter((work) =>
-      getWorkPartsForCategory(work, category).includes(part),
-    )
-    : categoryWorks;
-  const heading = `${part ? `${part} ` : ''}${category ? getWorkCategoryLabel(category) : '수리사례'}`;
-  const resultLabel = category || part
-    ? `${[category ? getWorkCategoryLabel(category) : '', part].filter(Boolean).join(' · ')} 사례`
-    : '전체 수리사례';
-  const categoryGuide = getWorkCategoryGuide(category, part);
-  const partLandings = category
-    ? getWorkPartLandings(works).filter((landing) => landing.category === category)
-    : [];
-  return `<main class="seo-static seo-works">
-    ${staticVehicleLogoFallback}
-    <header class="seo-static-header">${headerBrand()}<a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
-    <section><p>ACE DENT · REPAIR ARCHIVE</p><h1>${text(heading)}</h1><p>작업 방식이나 손상 부위로 비슷한 사례를 찾아보세요. 아는 항목만 골라도 됩니다.</p></section>
-    ${categoryGuide ? `<details class="works-category-guide" aria-labelledby="works-category-guide-${text(category ?? 'all')}"><summary><h2 id="works-category-guide-${text(category ?? 'all')}">${text(categoryGuide.title)}</h2><span class="works-category-guide-action"><span class="when-closed">설명 보기</span><span class="when-open">접기</span></span></summary><div class="works-category-guide-body">${categoryGuide.paragraphs.map((paragraph) => `<p>${text(paragraph)}</p>`).join('')}</div></details>` : ''}
-    <p class="work-filter-heading" id="static-work-category-question">어떤 작업이 궁금하세요?</p>
-    <nav aria-label="작업방식" aria-describedby="static-work-category-question"><a href="/works">전체</a>${getAvailableWorkCategories(works).map((item) => `<a href="/works/${item.id}">${text(item.label)}</a>`).join('')}</nav>
-    ${partLandings.length ? `<p class="work-filter-heading" id="static-work-part-question">어디가 손상됐나요?</p><nav aria-label="수리 부위" aria-describedby="static-work-part-question">${partLandings.map((landing) => `<a href="${text(landing.path)}">${text(landing.part)}</a>`).join('')}</nav>` : ''}
-    <section aria-label="수리사례 목록"><div class="works-count"><span>${text(resultLabel)} <strong>${visible.length}건</strong></span>${category || part ? '<a class="works-filter-reset" href="/works">선택 초기화</a>' : ''}</div>${visible.length ? `<div class="seo-works-grid">${visible.map((work, index) => workCard(work, category, [], part, 'before', undefined, { beforeCards, first: index === 0 })).join('')}</div>` : '<p>이 조건으로 등록된 사례가 없습니다. 수리 가능 여부와는 다릅니다. 다른 항목을 고르거나 선택을 초기화해 보세요.</p>'}</section>
-    ${siteFooter()}
-  </main>`;
+  return renderToString(createElement(WorksGalleryPage, { works, category, part, beforeCards }));
 }
 
 export function getWorkDetailStaticHtml(
   work: WorkItem,
-  relatedSuggestions: RelatedWorkSuggestion[],
-  categoryWorkCount: number,
-  allWorks: WorkItem[],
+  relatedSuggestions?: RelatedWorkSuggestion[],
+  categoryWorkCount?: number,
+  allWorks?: WorkItem[],
 ) {
-  const categoryLabel = getWorkCategoryLabel(work.category);
-  const workCategories = getWorkDisplayCategories(work);
-  const workParts = getWorkFilterParts(work);
-  const [, ...secondaryCategories] = workCategories;
-  const classification = `<div class="work-detail-classification">
-        <span class="work-detail-classification-primary">${text(categoryLabel)}</span>
-        ${secondaryCategories.map((category) => `<span class="work-detail-classification-secondary-group"><span class="work-detail-classification-separator" aria-hidden="true">·</span><span class="work-detail-classification-secondary">${text(getWorkCategoryLabel(category))}</span></span>`).join('')}
-      </div>`;
-  const categoryLinks = workCategories
-    .map((category) => `<a href="/works/${text(category)}">${text(getWorkCategoryLabel(category))}</a>`)
-    .join(' · ');
-  const partLinks = workParts
-    .map((part) => {
-      if (!isWorkPart(part)) return text(part);
-      const matchedPart = work.parts.find((candidate) => candidate.part?.includes(part));
-      const matchedCategory = matchedPart?.category ?? work.category;
-      const href = hasWorkPartLanding(allWorks, matchedCategory, part)
-        ? getWorkPartLandingPath(matchedCategory, part)
-        : `/works/${matchedCategory}?part=${encodeURIComponent(part)}`;
-      return `<a href="${text(href)}">${text(part)}</a>`;
-    })
-    .join(' · ');
-  const gallerySection = (
-    images: NonNullable<WorkItem['gallery']>,
-    title: string,
-    part?: WorkPartMedia,
-  ) => `<section><p>ADDITIONAL PHOTOS</p><h3>${text(title)}</h3><div class="seo-comparison">${images.map((galleryImage, imageIndex) => image(
-    galleryImage.thumbnail || galleryImage.src,
-    getWorkGalleryImageAlt(work, galleryImage, imageIndex, part),
-    { width: 800, height: 600 },
-  )).join('')}</div></section>`;
-  const partSection = (part: WorkPartMedia, index: number) => `<section>
-        <p>PART ${String(index + 1).padStart(2, '0')}${part.category ? ` · ${text(getWorkCategoryLabel(part.category))}` : ''}</p>
-        <h2>${text(part.label)}</h2>
-        <p>${text(part.note)}</p>
-        <div class="seo-comparison">
-          ${image(part.before, getWorkImageAlt(work, part, '전'), { eager: index === 0 })}
-          ${image(part.after, getWorkImageAlt(work, part, '후'), { eager: index === 0 })}
-        </div>
-        ${(part.comparisons ?? []).map((pair) => `<figure class="work-additional-comparison">${pair.caption ? `<figcaption>${text(pair.caption)}</figcaption>` : ''}<div class="seo-comparison">${image(pair.before, getWorkComparisonImageAlt(work, part, pair, '전'))}${image(pair.after, getWorkComparisonImageAlt(work, part, pair, '후'))}</div></figure>`).join('')}
-        ${part.gallery?.length ? gallerySection(part.gallery, `${part.label} 추가 사진`, part) : ''}
-      </section>`;
-  return `<main class="seo-static seo-work-detail">
-    ${staticVehicleLogoFallback}
-    <header class="seo-static-header">${headerBrand()}<a href="${text(site.contact.phoneHref)}">${text(site.contact.phoneDisplay)}</a></header>
-    <nav aria-label="현재 위치"><a href="/">홈</a> / <a href="/works">수리사례</a> / <a href="/works/${text(work.category)}">${text(categoryLabel)}</a></nav>
-    <article>
-      ${classification}
-      <h1>${text(work.title)}</h1>
-      ${getStaticWorkVehicleTag(work.carMaker, work.carModel)}
-      <p>${text(work.part[0])}${work.subParts.length ? ` · 보조 부위: ${work.subParts.map(text).join(' · ')}` : ''} · ${work.color ? `${text(work.color)} · ` : ''}${text(work.days)}</p>
-      ${work.parts.map(partSection).join('')}
-      <h2>작업 설명</h2>
-      <p><strong>${text(work.summary)}</strong></p>
-      ${renderWorkBodyHtml(work.body)}
-      ${work.blogUrl ? `<a href="${text(work.blogUrl)}" target="_blank" rel="noopener noreferrer">이 사례의 전체 작업 과정 보기</a>` : ''}
-      ${work.gallery?.length ? gallerySection(work.gallery, '작업 전체 추가 사진') : ''}
-      <section><p>RESULT SUMMARY</p><h2>이번 작업 한눈에 보기</h2><dl><div><dt>차량</dt><dd>${text(car(work))}</dd></div><div><dt>작업 부위</dt><dd>${partLinks}</dd></div><div><dt>작업 분류</dt><dd>${categoryLinks}</dd></div><div><dt>소요 기간</dt><dd>${text(work.days)}</dd></div></dl></section>
-    </article>
-    ${relatedSuggestions.length ? `<section><p>RELATED WORKS</p><h2>비슷한 수리사례</h2><p>같은 부위 또는 작업방식의 실제 전후 결과를 더 확인해보세요.</p><div class="seo-works-grid">${relatedSuggestions.map((suggestion) => workCard(suggestion.work, suggestion.matchedCategory, getRelatedWorkReasonLabels(suggestion), suggestion.matchedPart, 'before', suggestion.matchedPartIndex)).join('')}</div><a href="/works/${text(work.category)}">${text(categoryLabel)} 수리사례 ${categoryWorkCount}건 전체 보기</a></section>` : ''}
-    <section><p>PHOTO CONSULTATION</p><h2>내 차도 비슷하게 손상됐나요?</h2><p>손상 부위가 잘 보이는 사진을 보내주시면 수리 가능 여부와 예상 작업 범위를 먼저 안내드립니다.</p><a href="${text(site.contact.smsHref)}">사진 상담 시작</a><a href="${text(site.contact.phoneHref)}">전화 문의</a><a href="${text(naver.talk)}" target="_blank" rel="noopener noreferrer">네이버 톡톡</a><p><strong>수리가 필요한지, 교환이 나은지부터 확인해드립니다.</strong> 불필요한 작업은 권하지 않습니다.</p></section>
-    ${siteFooter()}
-  </main>`;
+  return renderToString(createElement(WorkDetailPage, {
+    work, relatedSuggestions, categoryWorkCount, allWorks,
+  }));
+}
+
+export function renderPublishedWorkDetail(slug: string) {
+  const work = getWorkBySlug(slug);
+  if (!work) throw new Error(`Missing published work: ${slug}`);
+  return getWorkDetailStaticHtml(work);
 }
