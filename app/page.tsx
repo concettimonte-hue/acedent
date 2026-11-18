@@ -42,6 +42,8 @@ import {
   type NumberedSectionId,
 } from '@/content/section-order';
 import { withLandingUtm } from '@/lib/tracking';
+import { getAvailableWorkCategories } from '@/lib/work-categories';
+import { getWorks } from '@/lib/works';
 import {
   trackTalkClick,
   trackSmsClick,
@@ -59,9 +61,10 @@ const serviceIconMap: Record<ServiceIconName, LucideIcon> = {
   shieldCheck: ShieldCheck,
 };
 
-export default function Home({ featuredWorks }: { featuredWorks?: WorkItem[] }) {
+export default function Home({ featuredWorks, works = getWorks() }: { featuredWorks?: WorkItem[]; works?: WorkItem[] }) {
   const { navigation, hero, services, principles, contact } = site;
   const talkUrl = withLandingUtm(naver.talk, 'talk');
+  const categoryIds = new Set(getAvailableWorkCategories(works).map(({ id }) => id));
 
   const numberedSections: Record<NumberedSectionId, ReactNode> = {
     services: (
@@ -89,6 +92,7 @@ export default function Home({ featuredWorks }: { featuredWorks?: WorkItem[] }) 
         <div className="service-grid">
           {services.items.map((service) => {
             const Icon = serviceIconMap[service.icon];
+            const links = service.caseLinks.filter(({ category }) => categoryIds.has(category));
             return (
               <article className="service-card" key={service.title}>
                 <div className="service-card-top">
@@ -97,6 +101,13 @@ export default function Home({ featuredWorks }: { featuredWorks?: WorkItem[] }) 
                 </div>
                 <h3>{service.title}</h3>
                 <p>{service.copy}</p>
+                {links.length > 0 && <div className="service-case-links">
+                  {links.map(({ category, label }) => (
+                    <a key={category} href={`/works/${category}`} onClick={() => trackWorksNavigation('home_services')}>
+                      {label} <ChevronRight aria-hidden="true" size={14} />
+                    </a>
+                  ))}
+                </div>}
               </article>
             );
           })}

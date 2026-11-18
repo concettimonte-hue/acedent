@@ -1,11 +1,9 @@
 'use client';
 
 import { ArrowUpRight } from 'lucide-react';
-import businessData from '@/content/business.json';
 import naverData from '@/content/naver.json';
 import siteData from '@/content/site.json';
 import type {
-  BusinessContent,
   NaverContent,
   SiteContent,
 } from '@/content/types';
@@ -16,16 +14,10 @@ import {
 } from '@/lib/analytics';
 import { withLandingUtm } from '@/lib/tracking';
 import { imageUsagePath } from '@/lib/image-rights';
+import { businessAddress } from '@/lib/seo';
 
-const business = businessData as BusinessContent;
 const naver = naverData as NaverContent;
 const site = siteData as SiteContent;
-
-const address = [
-  business.address.addressRegion,
-  business.address.addressLocality,
-  business.address.streetAddress,
-].join(' ');
 
 export default function SiteFooter() {
   const { brand, contact } = site;
@@ -64,7 +56,7 @@ export default function SiteFooter() {
             rel="noopener noreferrer"
             onClick={() => trackPlaceClick('site_footer_address', naver.place)}
           >
-            <address>{address}</address>
+            <address>{businessAddress}</address>
             <ArrowUpRight aria-hidden="true" />
           </a>
           <a

@@ -1,13 +1,13 @@
 'use client';
 
-import { ArrowUpRight, MapPin, Phone } from 'lucide-react';
+import { ArrowUpRight, Clock3, MapPin, Phone } from 'lucide-react';
 import SectionNumber from '@/components/SectionNumber';
 import naverData from '@/content/naver.json';
 import siteData from '@/content/site.json';
 import type { NaverContent, SiteContent } from '@/content/types';
 import { trackPlaceClick, trackTelClick } from '@/lib/analytics';
 import { withLandingUtm } from '@/lib/tracking';
-import { homeImage, storefrontImagePath } from '@/lib/seo';
+import { business, businessAddress, homeImage, storefrontImagePath } from '@/lib/seo';
 
 const naver = naverData as NaverContent;
 const site = siteData as SiteContent;
@@ -44,7 +44,16 @@ export default function LocationSection() {
           <div>
             <MapPin aria-hidden="true" />
             <span>
-              주소<strong>{contact.footerAddress}</strong>
+              도로명주소<strong>{businessAddress}</strong>
+            </span>
+          </div>
+          <div>
+            <Clock3 aria-hidden="true" />
+            <span>
+              영업시간
+              {business.openingHoursSpecification.map(({ label, opens, closes }) => (
+                <strong key={label}>{label} {opens}–{closes}</strong>
+              ))}
             </span>
           </div>
           <div>

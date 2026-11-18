@@ -15,7 +15,7 @@ export function getStaticWorkVehicleTag(maker: string, model?: string) {
 }
 
 export function getHomeStaticHtml(works?: WorkItem[]) {
-  return renderToString(createElement(Home, { featuredWorks: getFeaturedWorks(8, works) }));
+  return renderToString(createElement(Home, { works, featuredWorks: getFeaturedWorks(8, works) }));
 }
 
 export function getWorksStaticHtml(

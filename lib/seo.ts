@@ -4,6 +4,11 @@ import naverData from '../content/naver.json';
 import type { BusinessContent, FaqContent, NaverContent } from '../content/types';
 
 export const business = businessData as BusinessContent;
+export const businessAddress = [
+  business.address.addressRegion,
+  business.address.addressLocality,
+  business.address.streetAddress,
+].join(' ');
 export const faq = faqData as FaqContent;
 export const naver = naverData as NaverContent;
 
@@ -117,9 +122,11 @@ export const autoBodyShopJsonLd = {
     '@type': 'GeoCoordinates',
     ...business.geo,
   },
-  openingHoursSpecification: business.openingHoursSpecification.map((hours) => ({
+  openingHoursSpecification: business.openingHoursSpecification.map(({ dayOfWeek, opens, closes }) => ({
     '@type': 'OpeningHoursSpecification',
-    ...hours,
+    dayOfWeek,
+    opens,
+    closes,
   })),
   openingHours,
   areaServed: business.areaServed.map((name) => ({

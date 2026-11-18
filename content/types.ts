@@ -1,3 +1,5 @@
+import type { WorkCategory } from './works/types';
+
 export type ServiceIconName =
   | 'carFront'
   | 'wrench'
@@ -160,6 +162,7 @@ export interface BusinessContent {
     longitude: number;
   };
   openingHoursSpecification: Array<{
+    label: string;
     dayOfWeek: string[];
     opens: string;
     closes: string;
@@ -220,6 +223,7 @@ export interface SiteContent {
       title: string;
       copy: string;
       icon: ServiceIconName;
+      caseLinks: Array<{ label: string; category: WorkCategory }>;
     }>;
   };
   principles: {
@@ -245,7 +249,6 @@ export interface SiteContent {
     talkEyebrow: string;
     talkLabel: string;
     note: string;
-    footerAddress: string;
     footerPhonePrefix: string;
     footerPlaceLabel: string;
     mobileNavAriaLabel: string;
@@ -255,6 +258,8 @@ export interface SiteContent {
     locationSectionLabel: string;
     locationHeading: string;
     directionsLabel: string;
+    /** Older home content used a neighborhood description as the address. */
+    footerAddress?: string;
     nearbyIntro: string;
     nearbyAreas: string;
   };
