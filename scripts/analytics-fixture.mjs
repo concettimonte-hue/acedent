@@ -53,7 +53,7 @@ export function analyticsFixture({ now = new Date(), seed = true, acquisition = 
           const source = sourcePool[i % sourcePool.length];
           const path = source === 'after-call-sms' ? '/works' : source.startsWith('ai-') || i % 2 === 0 ? `/works/detail/${cases[i % 5][0]}` : '/';
           const basis = offset > 1 ? 'legacy' : source === 'direct'
-            ? ['no-referrer', 'unsupported-referrer', 'unrecognized-tag'][Math.floor(i / 7) % 3]
+            ? ['no-referrer', 'unrecognized-tag', 'unsupported-referrer'][Math.floor(i / 7) % 3]
             : source === 'google-ad' ? 'ad-tag'
             : ['after-call-sms', 'naver-blog', 'naver-place', 'ai-chatgpt'].includes(source) ? 'link-tag' : 'web-referrer';
           entry(`session-${offset}-${i}`, id, date, path, source, basis, (i * 3) % hourRange);

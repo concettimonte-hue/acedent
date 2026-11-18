@@ -1,10 +1,36 @@
 'use client';
 
 /* oxlint-disable next/no-html-link-for-pages -- Vite SPA routes are intentional. */
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { VISIT_SOURCES, VISIT_BASES, ENTRY_PAGE_TYPES, entryPageType, isAiVisitSource, type VisitAcquisition, type VisitSource, type VisitBasis } from '@/lib/visit-acquisition';
 import { analyticsDate } from '@/lib/admin-analytics';
+
+function DirectVisitReasons({ evidence, total }: { evidence: VisitAcquisition['evidence']; total: number }) {
+  const counts = new Map<VisitBasis, number>([['no-referrer', 0], ['unrecognized-tag', 0]]);
+  let counted = 0;
+  for (const row of evidence?.rows ?? []) {
+    if (row.source !== 'direct') continue;
+    counts.set(row.basis, (counts.get(row.basis) ?? 0) + row.entries);
+    counted += row.entries;
+  }
+
+  if (!evidence?.available || counted !== total) {
+    return <p className="admin-direct-reasons">선택한 기간의 사유별 건수를 확인할 수 없습니다.</p>;
+  }
+
+  const reasons = [...counts].filter(([, count]) => count > 0 || counts.get('legacy') !== total);
+  return (
+    <dl className="admin-direct-reasons" aria-label="직접·출처 확인 불가 사유">
+      {reasons.map(([basis, count]) => (
+        <div key={basis}>
+          <dt>{basis === 'unrecognized-tag' ? '표식 미인식' : VISIT_BASES[basis]}</dt>
+          <dd>{count.toLocaleString()}회</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
 
 export default function AdminAcquisitionPanel({ data }: { data?: VisitAcquisition }) {
   const [source, setSource] = useState<VisitSource | ''>('');
@@ -57,19 +83,23 @@ export default function AdminAcquisitionPanel({ data }: { data?: VisitAcquisitio
           <h3>어디서 들어왔나요?</h3>
           <p>출처를 누르면 해당 유입의 첫 페이지를 봅니다.</p>
           <div role="group" aria-label="유입 출처">
-            {([['', data.total], ...sources] as Array<[VisitSource | '', number]>).map(([key, entries]) => <button
-              type="button" key={key || 'all'} aria-pressed={selected === key} className={selected === key ? 'is-active' : ''}
-              onClick={() => { setSource(key); setLimit(10); }}>
-              <span>{key ? VISIT_SOURCES[key] : '전체 유입'}</span>
-              <strong>{entries.toLocaleString()}회 <small>{percent(entries, data.total)}</small></strong>
-            </button>)}
+            {([['', data.total], ...sources] as Array<[VisitSource | '', number]>).map(([key, entries]) => (
+              <Fragment key={key || 'all'}>
+                <button type="button" aria-pressed={selected === key} className={selected === key ? 'is-active' : ''}
+                  onClick={() => { setSource(key); setLimit(10); }}>
+                  <span>{key ? VISIT_SOURCES[key] : '전체 유입'}</span>
+                  <strong>{entries.toLocaleString()}회 <small>{percent(entries, data.total)}</small></strong>
+                </button>
+                {key === 'direct' && <DirectVisitReasons evidence={data.evidence} total={entries} />}
+              </Fragment>
+            ))}
           </div>
         </div>
         <div className="admin-acquisition-landings" aria-live="polite">
           <h3>{selected ? VISIT_SOURCES[selected] : '전체 유입'} · 처음 연 페이지</h3>
           <p>첫 페이지 이후에 본 페이지는 아래 페이지 목록에서 확인합니다.</p>
           {selected === 'after-call-sms' && <p>문자 전용 링크로 시작한 방문입니다. 문자 발송·열람 수나 상담 완료 수는 아닙니다.</p>}
-          {selected === 'direct' && <p className="admin-acquisition-explanation">상세사례로 바로 들어와도 검색·AI 유입으로 확정할 수 없습니다. 출처·링크 표식이 없으면 직접 입력·저장한 링크·앱 공유·AI 서비스 등을 구분할 수 없습니다.</p>}
+          {selected === 'direct' && <p className="admin-acquisition-explanation">‘출처 정보 없음’은 브라우저가 이전 사이트를 알려주지 않았고 링크에 UTM도 없었던 방문입니다. ‘표식 미인식’은 링크에 UTM이 있었지만 출처를 알아낼 수 없었던 방문입니다. 처음 연 페이지만으로 검색·AI 유입을 구분할 수 없습니다.</p>}
           {isAiVisitSource(selected) && <p className="admin-acquisition-explanation">이 AI 서비스의 출처 또는 링크 표식이 확인된 방문입니다. AI 추천·노출 횟수나 상담 완료 수는 아닙니다. 링크를 다른 곳에 공유해도 표식은 남을 수 있으며, 출처·표식이 없는 방문은 포함하지 않습니다.</p>}
           {selected === 'naver-other' && <p>네이버 앱·기타 네이버 출처입니다. 검색 결과를 클릭했다는 뜻은 아닙니다.</p>}
           <div className="admin-acquisition-breakdown">
@@ -79,7 +109,7 @@ export default function AdminAcquisitionPanel({ data }: { data?: VisitAcquisitio
               <h4>방문 시작 시간대 <small>한국시간 · 선택 기간 합계</small></h4>
               <dl className="admin-acquisition-hours">{timeGroups.map(group => <div key={group.label}><dt>{group.label}</dt><dd>{group.entries}회</dd></div>)}</dl>
             </>}
-            <details key={selected || 'all'} open={selected === 'direct'}>
+            <details key={selected || 'all'}>
               <summary>출처 판별 근거 보기</summary>
               {!data.evidence?.available
                 ? <p>{data.evidence?.error === 'unavailable' ? '판별 근거를 불러오지 못했습니다. 기존 유입 통계는 표시합니다.' : '세부 판별 근거 수집 준비 중입니다. 기존 기록의 출처는 소급해 추정하지 않습니다.'}</p>

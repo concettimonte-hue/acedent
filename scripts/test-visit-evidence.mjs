@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { loadTs } from './test-support.mjs';
 import { analyticsFixture } from './analytics-fixture.mjs';
 import { accessFixture } from './access-test-fixture.mjs';
@@ -9,6 +11,36 @@ const { visitAttribution, isVisitBasis } = loadTs('lib/visit-acquisition.ts');
 const collector = loadTs('functions/api/visit.ts').onRequestPost;
 const admin = loadTs('functions/admin/api/analytics.ts').onRequestGet;
 const origin = 'https://www.acedentshop.co.kr';
+
+test('direct reasons show only evidence for direct entries, including legacy and unavailable periods', () => {
+  const Panel = loadTs('components/AdminAcquisitionPanel.tsx').default;
+  const render = (direct, evidence) => renderToStaticMarkup(createElement(Panel, {
+    data: { available: true, total: direct + 2, rows: [
+      ...(direct ? [{ source: 'direct', path: '/', entries: direct, label: '홈' }] : []),
+      { source: 'google', path: '/works', entries: 2, label: '수리사례' },
+    ], evidence },
+  }));
+  const evidence = (...rows) => ({ available: true, rows: [
+    ...rows.map(([basis, entries]) => ({ source: 'direct', basis, entries })),
+    { source: 'google', basis: 'web-referrer', entries: 2 },
+  ] });
+  const breakdown = html => html.match(/<dl class="admin-direct-reasons"[^>]*>(.*?)<\/dl>/s)?.[1] || '';
+  const mixed = breakdown(render(442, evidence(['no-referrer', 441], ['unrecognized-tag', 1])));
+  assert.match(mixed, /출처 정보 없음<\/dt><dd>441회/);
+  assert.match(mixed, /표식 미인식<\/dt><dd>1회/);
+  assert.doesNotMatch(mixed, /외부 사이트 출처/);
+  const exceptions = breakdown(render(3, evidence(['legacy', 1], ['invalid-referrer', 1], ['unsupported-referrer', 1])));
+  for (const label of ['판별 근거 미수집', '출처 형식 확인 불가', '미지원 앱·출처 형식']) assert.ok(exceptions.includes(label));
+  assert.match(exceptions, /표식 미인식<\/dt><dd>0회/);
+  assert.doesNotMatch(breakdown(render(1, evidence(['legacy', 1]))), /출처 정보 없음|표식 미인식/);
+  for (const unavailable of [undefined, { available: false, rows: [] }, evidence(['no-referrer', 1])]) {
+    const html = render(3, unavailable);
+    assert.match(html, /사유별 건수를 확인할 수 없습니다/);
+    assert.equal(breakdown(html), '');
+  }
+  assert.doesNotMatch(render(0, evidence()), /admin-direct-reasons/);
+});
+
 const request = (body, cookie = '', headers = {}) => new Request(`${origin}/api/visit`, {
   method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/json', Cookie: cookie, ...headers }, body: JSON.stringify(body),
 });
